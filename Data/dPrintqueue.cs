@@ -1,0 +1,74 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
+using Models;
+using Util;
+
+
+namespace Data
+{
+    public class dPrintqueue
+    {
+        private readonly SemaphoreSlim _semaphore;
+
+        public dPrintqueue()
+        {
+            Util.Setting.GetSettings(true);
+            _semaphore = new SemaphoreSlim(100, 150);
+        }
+
+
+        private async Task<Response> _Post_PrintQueue(List<Models.Printqueue> _list, int userId)
+        {
+            Response _response = new Response();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_PRINTQUEUE", _mapping, _parameter);
+                _response.SetPostResponse();
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        public async Task<Response> Post_PrintQueue(List<Models.Printqueue> _list, int userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_PrintQueue(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+
+    }
+}

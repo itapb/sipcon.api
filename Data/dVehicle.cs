@@ -1,0 +1,487 @@
+﻿
+using System.Data;
+using Microsoft.Data.SqlClient;
+using Models;
+using Util;
+
+namespace Data
+{
+    public class dVehicle
+    {
+
+        private readonly SemaphoreSlim _semaphore;
+        public dVehicle()
+        {
+
+            Util.Setting.GetSettings(true);
+            _semaphore = new SemaphoreSlim(100, 150);
+        }
+
+        public async Task<Response> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAll(userId, supplierId, dealerId, rowFrom, filter, 0 );
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter,Int32 vehicleId = 0)
+        {
+           
+            Response _response = new Response();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", vehicleId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODEL");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("DealerReference", "VDEALER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES", _parameter);
+                _response.Data = _data.GetList<Models.Vehicle>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+        public async Task<Models.Response> GetOne(Int32 userId,Int32 vehicleId )
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOne(userId,vehicleId );
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Models.Response> GetOneBy(Int32 userId, Int32? dealerId ,string filter, Int32 filterBy)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOneBy( userId, dealerId,filter,  filterBy);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Models.Response> GetAllAvailables(Int32 userId, Int32 dealerId, Int32 rowFrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAvailables(userId, dealerId, rowFrom, filter, true);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Models.Response> GetOneAvailable(Int32 userId, Int32 dealerId, string VinOrPlate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAvailables(userId, dealerId, 0, VinOrPlate, false );
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Models.Response> _GetOne(Int32 userId,Int32 vehicleId)
+        {
+            Models.Response _response = new Models.Response();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VFILTER", null);
+                _parameter.AddSqlParameter("@IROWFROM", 0);
+                _parameter.AddSqlParameter("@IDUSER", 0);
+                _parameter.AddSqlParameter("@ID", vehicleId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODEL");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("DealerReference", "VDEALER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsyncTop<Models.Vehicle>("USP_GET_VEHICLES", _mapping, _parameter);
+                _response.Total = 1;
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        private async Task<Models.Response> _GetOneBy(Int32 userId, Int32? dealerId , string filter, Int32 filterBy)
+        {
+            Models.Response _response = new Models.Response();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BY", filterBy);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODEL");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("DealerReference", "VDEALER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+                _mapping.AddItem("PolicyTypeId", "IDPOLICYTYPE");
+                _mapping.AddItem("PolicyTypeName", "VPOLICYTYPE");
+
+                
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES_BY", _parameter);
+                _response.Data = _data.GetItem<Models.Vehicle>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+        private async Task<Models.Response> _GetAvailables(Int32 userId, Int32 dealerId,Int32 rowFrom, string? filter, bool catalog)
+        {
+            Models.Response _response = new Models.Response();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BCATALOG", catalog);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODEL");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("DealerReference", "VDEALER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+                _mapping.AddItem("PolicyTypeId", "IDPOLICYTYPE");
+                _mapping.AddItem("PolicyTypeName", "VPOLICYTYPE");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES_AVAILABLE", _parameter);
+                _response.Data = _data.GetList<Models.Vehicle>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+        public async Task<List<Vehicle>> GetExport(Int32 userId, Int32? supplierId, Int32? dealerId, string? _filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Vehicle>)(await _GetAll(userId,supplierId, dealerId,null, _filter, 0)).Data ;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        public async Task<Models.Response> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetVehicleFullBy(userId, filter, filterBy);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response> _GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
+        {
+            Response _response = new Response();
+
+            try
+            {
+                var _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BY", filterBy);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+
+                var _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "MODELNAME");
+                _mapping.AddItem("EstatusId", "IESTATUS");
+                _mapping.AddItem("EstatusName", "VESTATUSVEHICLE");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("CustomerName", "VFIRSTNAME");
+                _mapping.AddItem("CustomerLastName", "VLASTNAME");
+                _mapping.AddItem("Phone", "VPHONE1");
+                _mapping.AddItem("Email", "VEMAIL");
+                _mapping.AddItem("Direction", "VADDRESS");
+                _mapping.AddItem("PolicyId", "IDPOLICY");
+                _mapping.AddItem("Number", "VNUMBER");
+                _mapping.AddItem("PolicyTypeId", "IDPOLICYTYPE");
+                _mapping.AddItem("PolicyTypeName", "VDESCRIPTION");
+                _mapping.AddItem("InvoiceNumber", "VINVOICENUMBER");
+                _mapping.AddItem("InvoiceAmount", "NINVOICEAMOUNT");
+                _mapping.AddItem("ActivationDate", "DACTIVATIONDATE");
+                _mapping.AddItem("DealerReference", "CODDEALER");
+                _mapping.AddItem("SupplierReference", "CODSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "DEALERNAME");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "SUPPLIERNAME");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("InvoiceDate", "DINVOICEDATE");
+                _mapping.AddItem("EstatusPolicyId", "IDESTATUSPOLICY");
+                _mapping.AddItem("EstatusPolicyName", "VESTATUSPOLICY");
+                _mapping.AddItem("LockDate", "DLOCKDATE");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("ExpirationDate", "DEXPIRATIONDATE");
+                _mapping.AddItem("PayMethodId", "IDPAYMETHOD");
+                _mapping.AddItem("Total", "TOTAL");
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLEFULL_BY", _parameter);
+                _response.Data = _data.GetItem<Models.VehicleFull>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        public async Task<Response> Post_Vehicles(List<Vehicle> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Vehicles(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Post_Vehicles(List<Vehicle> _list, Int32 userId)
+        {
+            Response _response = new Response();    
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+                
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_VEHICLES", _mapping, _parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Actions(_list,userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        {
+            Response _response = new Response(); 
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Parameter _parameter = new Parameter();
+                
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_VEHICLES_ACTIONS", _mapping,_parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+    }
+}
