@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Presentation;
 using Microsoft.AspNetCore.Http;
 using Models;
 using Util;
@@ -632,6 +633,12 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
+
+                if(guide.Closed == true)
+                {
+                    _InsertGuideDetails(guide.Id);
+                }
+
                 _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDES", _mapping, _parameter);
                 _response.SetPostResponse();
 
@@ -1527,5 +1534,79 @@ namespace Data
         }
 
 
+
+
+
+        public async Task<Response> PostGuideDetails(List<GuideDetails> _list, int? userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostGuideDetails(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _PostGuideDetails(List<GuideDetails> details, int? userid)
+        {
+            Response _response = new Response();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(details);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userid);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+
+             
+
+                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDES_DETAILS", _mapping, _parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        private async void _InsertGuideDetails(Int32? guideId)
+        {
+            try
+            {
+
+                
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDGUIDE", guideId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+               
+                await _data.ExecuteReaderAsync<Result>("USP_INSERT_GUIDES_DETAILS", _mapping, _parameter);
+                
+
+            }
+            catch (Exception ex)
+            {
+                Util.Log.Error(ex);
+            }
+
+        }
     }
 }

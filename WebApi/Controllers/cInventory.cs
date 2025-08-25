@@ -664,6 +664,23 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpPost("/api/PostGuideDetail")]
+        public async Task<IActionResult> PostGuideDetails(List<GuideDetails> _list, int userId)
+        {
+            try
+            {
+
+                Response _response = await _dInventory.PostGuideDetails(_list, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
         private MemoryStream ConvertToExcel(List<Models.Inventory> _inventories)
         {
             // 2. Crear el libro de trabajo Excel
