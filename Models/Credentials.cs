@@ -11,7 +11,7 @@ namespace Models
     {
 
         [Required] public String? Password { get; set; }
-        [Required] public String? TemporalKey { get; set; }
+        [Required] public String? TemporaryKey { get; set; }
 
     }
 

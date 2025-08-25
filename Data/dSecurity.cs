@@ -202,12 +202,12 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response> Post_CrendentialsUser(Models.CredentialLogin credentials)
+        public async Task<Response> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Post_CrendentialsUser(credentials);
+                return await _Post_CrendentialsUser(credentials,userId);
             }
             finally
             {
@@ -215,7 +215,7 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_CrendentialsUser(Models.CredentialLogin credentials)
+        private async Task<Response> _Post_CrendentialsUser(Models.CredentialLogin credentials, Int32 userId)
         {
 
 
@@ -228,12 +228,14 @@ namespace Data
 
                 Parameter _parameter = new Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_UPDATE_CREDENTIALSUSER", _mapping, _parameter);
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_CREDENTIALSUSER", _mapping, _parameter);
                 _response.SetPostResponse();
 
             }
@@ -322,7 +324,7 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_SET_PASSWORD", _mapping, _parameter);
                 _response.SetPostResponse();
 
             }

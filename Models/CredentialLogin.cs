@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class CredentialLogin:Record
+    public class CredentialLogin
     {
+        
+        public Int32? UserId { get; set; }
 
         [Required]
         public String? Login { get; set; }

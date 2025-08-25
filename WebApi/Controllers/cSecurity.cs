@@ -166,13 +166,13 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Post_CrendentialsUser")]
-        public async Task<IActionResult> Post_CrendentialsUser(Models.CredentialLogin credentials)
+        public async Task<IActionResult> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
         {
 
 
             try
             {
-                Response _response = await _dSecurity.Post_CrendentialsUser(credentials);
+                Response _response = await _dSecurity.Post_CrendentialsUser(credentials,userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
