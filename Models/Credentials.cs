@@ -15,6 +15,7 @@ namespace Models
         
         public String? Password { get; set; }
 
+        public String? prueba { get; set; }
 
 
     }
