@@ -166,13 +166,48 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Post_CrendentialsUser")]
-        public async Task<IActionResult> Post_CrendentialsUser(Models.Credentials credentials)
+        public async Task<IActionResult> Post_CrendentialsUser(Models.CredentialLogin credentials)
         {
 
 
             try
             {
                 Response _response = await _dSecurity.Post_CrendentialsUser(credentials);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpPost("Post_TemporyKey")]
+        public async Task<IActionResult> Post_TemporyKey(Models.CredentialLogin login)
+        {
+
+
+            try
+            {
+                Response _response = await _dSecurity.Post_TemporyKey(login);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("Post_Password")]
+        public async Task<IActionResult> Post_Password(Models.Credentials credentials)
+        {
+
+
+            try
+            {
+                Response _response = await _dSecurity.Post_Password(credentials);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

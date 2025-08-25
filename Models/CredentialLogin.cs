@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Credentials :CredentialLogin
+    public class CredentialLogin:Record
     {
 
-        [Required] public String? Password { get; set; }
-        [Required] public String? TemporalKey { get; set; }
+        [Required]
+        public String? Login { get; set; }
 
     }
 

@@ -202,7 +202,7 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response> Post_CrendentialsUser(Models.Credentials credentials)
+        public async Task<Response> Post_CrendentialsUser(Models.CredentialLogin credentials)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -215,7 +215,7 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_CrendentialsUser(Models.Credentials credentials)
+        private async Task<Response> _Post_CrendentialsUser(Models.CredentialLogin credentials)
         {
 
 
@@ -245,6 +245,94 @@ namespace Data
             return _response;
         }
 
+
+        public async Task<Response> Post_TemporyKey(Models.CredentialLogin login)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_TemporyKey(login);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Post_TemporyKey(Models.CredentialLogin login)
+        {
+
+
+            Response _response = new Response();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(login);
+
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+        public async Task<Response> Post_Password(Models.Credentials credentials)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Password(credentials);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Post_Password(Models.Credentials credentials)
+        {
+
+
+            Response _response = new Response();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(credentials);
+
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
         public async Task<Models.Response> GetAccessGroupDetails(Int32? rowFrom, Int32 groupAccessId, String? filter)
         {
