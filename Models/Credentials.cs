@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Credentials 
+    public class Credentials: Record
     {
 
         [Required]
         public String? Login { get; set; }
         
         public String? Password { get; set; }
+
 
 
     }
