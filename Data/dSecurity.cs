@@ -505,7 +505,7 @@ namespace Data
 
 
 
-        public async Task<Response> Auth_User(Models.Credentials credentials)
+        public async Task<Response> Auth_User(Models.AuthUser credentials)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -518,7 +518,7 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Auth_User(Models.Credentials _credentials)
+        private async Task<Response> _Auth_User(Models.AuthUser _credentials)
         {
 
 

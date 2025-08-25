@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class CredentialLogin
+    public class AuthUser
     {
         
-        public Int32? UserId { get; set; }
-
-        [Required]
-        public String? Login { get; set; }
+      
+        [Required] public String? Login { get; set; }
+        [Required] public String? Password { get; set; }
 
 
     }

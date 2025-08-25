@@ -219,7 +219,7 @@ namespace WebApi.Controllers
 
 
         [HttpPost("Auth_User")]
-        public async Task<IActionResult> Auth_User(Models.Credentials credentials)
+        public async Task<IActionResult> Auth_User(Models.AuthUser credentials)
         {
             Response _response = new Response();
             try
