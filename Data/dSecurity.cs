@@ -642,6 +642,51 @@ namespace Data
         }
 
 
+
+        public async Task<Response> Get_ActionByUser(Int32? userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Get_ActionByUser(userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Get_ActionByUser(Int32? userId)
+        {
+
+
+            Response _response = new Response();
+
+            try
+            {
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("ModuleId", "IDMODULE");
+                _mapping.AddItem("ActionId", "IDACTION");
+                _mapping.AddItem("ActionName", "VACTION");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ACTIONSBYUSER", _parameter);
+                _response.Data = _data.GetList<Models.ActionModule>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
         public async Task<Response> Post_AccessGroup_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);

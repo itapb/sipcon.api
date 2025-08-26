@@ -262,7 +262,27 @@ namespace WebApi.Controllers
                     return StatusCode(_response.Status, _response);
                 }
 
-                _data.Modules = new List<Module>(allModules);
+                // Obtener acciones por usuario
+                var actionsResponse = await _dSecurity.Get_ActionByUser(user.Id);
+                if (actionsResponse?.Data is not List<ActionModule> allActions || allActions.Count == 0)
+                {
+                    _response.SetError(new Exception("No se pudieron obtener las acciones del usuario."));
+                    return StatusCode(_response.Status, _response);
+                }
+
+                // Agrupar acciones por módulo
+                var modulesWithActions = allModules
+                    .Select(m => {
+                        m.Actions = allActions
+                            .Where(a => a.ModuleId == m.Id && a.ActionId.HasValue && !string.IsNullOrWhiteSpace(a.ActionName))
+                            .DistinctBy(a => a.ActionId)
+                            .ToList();
+                        return m;
+                    })
+                    .ToList();
+
+                // Asignar módulos enriquecidos
+                _data.Modules = modulesWithActions;
 
                 var jwtToken = GenerateJwtToken(user.Login, _config);
                 var refreshToken = GenerateRefreshToken();
