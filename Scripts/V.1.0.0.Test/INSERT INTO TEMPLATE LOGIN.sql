@@ -32,26 +32,29 @@ VALUES('<!DOCTYPE html>
 <tr>
   <td style="padding:32px; color:#1f2937; font-size:15px; line-height:1.6;">
     <p style="font-size:16px; margin-bottom:24px;">
-      Estimado(a) <strong>{{user_name}}</strong>, se ha habilitado su acceso inicial al sistema <strong>Sipcon</strong>.
+      Hola <strong>{{user_name}}</strong>,
     </p>
 
-    <p style="font-weight:600; color:#374151; margin-bottom:8px;">Instrucciones de ingreso:</p>
+    <p style="margin-bottom:24px;">
+      ¡Nos alegra darte la bienvenida al sistema <strong>Sipcon</strong>! Tu cuenta ha sido creada exitosamente y ya está habilitada para su uso.
+    </p>
+
+    <p style="font-weight:600; color:#374151; margin-bottom:8px;">¿Cómo comenzar?</p>
     <table width="100%" cellpadding="12" cellspacing="0" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:6px;">
       <tr>
         <td style="color:#374151; font-weight:500;">
-          Para ingresar por primera vez, debe acceder al sistema utilizando la opción <strong>“Cambio de clave”</strong> disponible en la pantalla de inicio. Desde allí podrá crear una nueva contraseña personal y segura.<br><br>
-          {{security_content}}
+          Para ingresar por primera vez, accede al sistema y selecciona la opción <strong>“Cambio de clave”</strong> en la pantalla de inicio. Desde allí podrás crear tu nueva contraseña personal y segura.<br><br>
+          <strong>Usuario asignado:</strong> {{security_content}}
         </td>
       </tr>
     </table>
 
-    <p style="margin-top:16px; font-size:14px; color:#6b7280;">
-      Este procedimiento es obligatorio para garantizar la seguridad de su cuenta. Si necesita asistencia, comuníquese con el administrador del sistema.
+    <p style="margin-top:24px; font-size:14px; color:#6b7280;">
+      Este procedimiento es obligatorio para garantizar la seguridad de tu cuenta. Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.
     </p>
   </td>
 </tr>
-
-          <!-- Pie -->
+   <!-- Pie -->
           <tr>
             <td style="background-color:#f9fafb; padding:20px 32px; font-size:14px; color:#4b5563; border-top:1px solid #e5e7eb;">
               <table width="100%">

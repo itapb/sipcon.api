@@ -245,7 +245,7 @@ namespace WebApi.Controllers
 
                 // 2. Obtener todas las compañías relacionadas (suppliers + dealers mezclados)
                 var companyResponse = await _dSecurity.Get_CompanyByUser(user.Id);
-                if (companyResponse.Data is not List<Companies> allCompanies)
+                if (companyResponse.Data is not List<Companies> allCompanies || allCompanies.Count == 0)
                 {
                     _response.SetError(new Exception("No se pudieron obtener las compañías del usuario."));
                     return StatusCode(_response.Status, _response);
