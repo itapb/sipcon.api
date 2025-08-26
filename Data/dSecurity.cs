@@ -202,12 +202,12 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response> Post_CrendentialsUser(Models.Credentials credentials)
+        public async Task<Response> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Post_CrendentialsUser(credentials);
+                return await _Post_CrendentialsUser(credentials,userId);
             }
             finally
             {
@@ -215,7 +215,98 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_CrendentialsUser(Models.Credentials credentials)
+        private async Task<Response> _Post_CrendentialsUser(Models.CredentialLogin credentials, Int32 userId)
+        {
+
+
+            Response _response = new Response();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(credentials);
+
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_CREDENTIALSUSER", _mapping, _parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        public async Task<Response> Post_TemporyKey(Models.CredentialLogin login)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_TemporyKey(login);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Post_TemporyKey(Models.CredentialLogin login)
+        {
+
+
+            Response _response = new Response();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(login);
+
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+        public async Task<Response> Post_Password(Models.Credentials credentials)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Password(credentials);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Post_Password(Models.Credentials credentials)
         {
 
 
@@ -233,7 +324,7 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_UPDATE_CREDENTIALSUSER", _mapping, _parameter);
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_SET_PASSWORD", _mapping, _parameter);
                 _response.SetPostResponse();
 
             }
@@ -244,7 +335,6 @@ namespace Data
 
             return _response;
         }
-
 
         public async Task<Models.Response> GetAccessGroupDetails(Int32? rowFrom, Int32 groupAccessId, String? filter)
         {
@@ -415,7 +505,7 @@ namespace Data
 
 
 
-        public async Task<Response> Auth_User(Models.Credentials credentials)
+        public async Task<Response> Auth_User(Models.AuthUser credentials)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -428,7 +518,7 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Auth_User(Models.Credentials _credentials)
+        private async Task<Response> _Auth_User(Models.AuthUser _credentials)
         {
 
 
@@ -540,6 +630,51 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MODULESBYUSER", _parameter);
                 _response.Data = _data.GetList<Models.Module>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+        public async Task<Response> Get_ActionByUser(Int32? userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Get_ActionByUser(userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _Get_ActionByUser(Int32? userId)
+        {
+
+
+            Response _response = new Response();
+
+            try
+            {
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("ModuleId", "IDMODULE");
+                _mapping.AddItem("ActionId", "IDACTION");
+                _mapping.AddItem("ActionName", "VACTION");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ACTIONSBYUSER", _parameter);
+                _response.Data = _data.GetList<Models.ActionModule>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }

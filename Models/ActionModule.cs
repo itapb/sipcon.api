@@ -10,24 +10,17 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Models
 {
     // test models
-    public class Action
+    public class ActionModule
     {
-
-        [SwaggerIgnore]
-        public int? UserId { get; set; }
-
-        [Required]
-        public int? RecordId { get; set; }
 
         [Required]
         public int? ModuleId { get; set; }
+       
+        [Required]
+        public int? ActionId { get; set; }
 
         [Required]
         public string? ActionName { get; set; }
-
-        public string? ActionComment { get; set; }
-
-        public Int32 RelatedId { get; set; }
 
 
     }

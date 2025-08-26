@@ -166,13 +166,48 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Post_CrendentialsUser")]
-        public async Task<IActionResult> Post_CrendentialsUser(Models.Credentials credentials)
+        public async Task<IActionResult> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
         {
 
 
             try
             {
-                Response _response = await _dSecurity.Post_CrendentialsUser(credentials);
+                Response _response = await _dSecurity.Post_CrendentialsUser(credentials,userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpPost("Post_TemporyKey")]
+        public async Task<IActionResult> Post_TemporyKey(Models.CredentialLogin login)
+        {
+
+
+            try
+            {
+                Response _response = await _dSecurity.Post_TemporyKey(login);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("Post_Password")]
+        public async Task<IActionResult> Post_Password(Models.Credentials credentials)
+        {
+
+
+            try
+            {
+                Response _response = await _dSecurity.Post_Password(credentials);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -184,7 +219,7 @@ namespace WebApi.Controllers
 
 
         [HttpPost("Auth_User")]
-        public async Task<IActionResult> Auth_User(Models.Credentials credentials)
+        public async Task<IActionResult> Auth_User(Models.AuthUser credentials)
         {
             Response _response = new Response();
             try
@@ -227,7 +262,27 @@ namespace WebApi.Controllers
                     return StatusCode(_response.Status, _response);
                 }
 
-                _data.Modules = new List<Module>(allModules);
+                // Obtener acciones por usuario
+                var actionsResponse = await _dSecurity.Get_ActionByUser(user.Id);
+                if (actionsResponse?.Data is not List<ActionModule> allActions || allActions.Count == 0)
+                {
+                    _response.SetError(new Exception("No se pudieron obtener las acciones del usuario."));
+                    return StatusCode(_response.Status, _response);
+                }
+
+                // Agrupar acciones por módulo
+                var modulesWithActions = allModules
+                    .Select(m => {
+                        m.Actions = allActions
+                            .Where(a => a.ModuleId == m.Id && a.ActionId.HasValue && !string.IsNullOrWhiteSpace(a.ActionName))
+                            .DistinctBy(a => a.ActionId)
+                            .ToList();
+                        return m;
+                    })
+                    .ToList();
+
+                // Asignar módulos enriquecidos
+                _data.Modules = modulesWithActions;
 
                 var jwtToken = GenerateJwtToken(user.Login, _config);
                 var refreshToken = GenerateRefreshToken();

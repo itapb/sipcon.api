@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Credentials :CredentialLogin
+    public class AuthUser
     {
-
+        
+      
+        [Required] public String? Login { get; set; }
         [Required] public String? Password { get; set; }
-        [Required] public String? TemporaryKey { get; set; }
+
 
     }
 

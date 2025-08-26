@@ -1,0 +1,87 @@
+
+GO
+/****** Object:  StoredProcedure [dbo].[USP_INSERT_REMINDERSECURITY]    Script Date: 18/08/2025 8:46:26 ******/
+SET ANSI_NULLS ON
+
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF  NOT EXISTS (SELECT * FROM SYS.OBJECTS
+
+                WHERE OBJECT_ID = OBJECT_ID(N'[DBO].[USP_INSERT_REMINDERSECURITY]')
+
+                AND TYPE IN (N'P', N'PC', N'TF', N'FN'))
+EXEC('CREATE PROCEDURE [DBO].[USP_INSERT_REMINDERSECURITY] AS BEGIN SET NOCOUNT ON  END')
+GO
+
+ALTER PROCEDURE [dbo].[USP_INSERT_REMINDERSECURITY] --USP_INSERT_REMINDERSECURITY
+ @IDRECEIVER INT,
+	 @VCONTENT  VARCHAR(MAX),
+ @IDTEMPLATE INT
+AS
+
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : JUAN GUARECUCO
+  '   CREADO PARA           : 
+  '   FUNCIÓN               :  
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        : 
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+SET XACT_ABORT ON               
+SET NOCOUNT ON
+SET LOCK_TIMEOUT 180000
+
+BEGIN
+
+    BEGIN TRY
+        BEGIN TRAN 
+
+				DECLARE @html NVARCHAR(MAX)
+
+				SELECT @html = VCONTENT
+				FROM TEMPLATE
+				WHERE ID = @IDTEMPLATE
+
+				DECLARE @IDMODULE INT=34
+				DECLARE @VUSERNAME VARCHAR(200)
+				DECLARE @VSENDER NVARCHAR(100)
+				DECLARE @DSENDDATE NVARCHAR(20)
+				DECLARE @VCONTEXT VARCHAR(100)='NOTIFICACION DE SEGURIDAD'
+				
+
+
+				SELECT 
+				@VUSERNAME=C.VFIRSTNAME+C.VLASTNAME,
+				@VSENDER='SISTEMA DE SEGURIDAD SIPCON'
+				FROM INFOUSER IU (NOLOCK)
+				INNER JOIN CONTACT C WITH (NOLOCK) ON IU.IDUSER=C.ID
+				WHERE IDUSER=@IDRECEIVER
+				-- Reemplazo de variables
+				SET @html = REPLACE(@html, '{{user_name}}', @VUSERNAME)
+				SET @html = REPLACE(@html, '{{security_content}}', @VCONTENT)
+				SET @html = REPLACE(@html, '{{sender}}', @VSENDER)
+				SET @html = REPLACE(@html, '{{date_send}}', CONVERT(VARCHAR, GETDATE(), 103))
+
+
+	        BEGIN
+				INSERT INTO REMINDER(VCONTEXT, VCONTENT, IDMODULE, VSENDER, VRECEIVER, DCREATED, BSEND)
+				SELECT @VCONTEXT,@html,@IDMODULE,@VSENDER,C.VEMAIL,GETDATE(),0
+				FROM INFOUSER IU (NOLOCK)
+				INNER JOIN CONTACT C WITH (NOLOCK) ON IU.IDUSER=C.ID
+				WHERE IU.IDUSER=@IDRECEIVER
+			END
+			COMMIT TRAN
+    END TRY
+    BEGIN CATCH
+        IF XACT_STATE() <> 0
+            ROLLBACK TRAN
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SELECT @ErrorMessage = ERROR_PROCEDURE() + ' : ' + ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END

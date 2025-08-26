@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +16,10 @@ namespace Models
         public string? ActionName { get; set; }
 
         public string? ActionDisplay { get; set; }
+        
+        [SwaggerIgnore]
+        public List<ActionModule> Actions { get; set; } = new List<ActionModule>();
+
     }
 
 }
