@@ -1207,12 +1207,12 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetOneGuide(Int32 userId, Int32 supplierId ,int guideId)
+        public async Task<Response> GetOneGuide(int guideId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllGuides(userId, supplierId, 0, "", guideId);
+                return await _GetAllGuides(0, 0, 0, "", guideId);
             }
             finally
             {
@@ -1230,7 +1230,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-               // _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
+                _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1249,6 +1249,8 @@ namespace Data
                 _mapping.AddItem("CreatedDate", "DCREATEDDATE");
                 _mapping.AddItem("DeliveredDate", "DDELIVERYDATE");
                 _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+
+                _mapping.AddItem("Weith", "NWEITH");
 
 
 
@@ -1317,14 +1319,18 @@ namespace Data
 
 
                 Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("GuideId", "IDGUIDE");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("PartInnercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VDESCRIPTION");
                 _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("PackageId", "IDPACKAGE");
-                _mapping.AddItem("PackageNumber", "INUMBER");
-                _mapping.AddItem("PackageCode", "VCODE");
-
+                _mapping.AddItem("PackageNumber", "IPACKAGENUMBER");
+                _mapping.AddItem("PackageCode", "VPACKAGECODE");
+                _mapping.AddItem("Received", "IRECEIVED");
+                _mapping.AddItem("Observation", "VOBSERVATION");
+                _mapping.AddItem("SaleOrderId", "IDSALEORDER");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1606,6 +1612,48 @@ namespace Data
                 Util.Log.Error(ex);
             }
 
+        }
+
+        public async Task<Response> PostGuidesActions(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postGuidesActions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response> _postGuidesActions(List<Models.Action> _list, Int32 userId)
+        {
+            Response _response = new Response();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDES_ACTIONS", _mapping, _parameter);
+                _response.SetPostResponse();
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
         }
     }
 }

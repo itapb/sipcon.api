@@ -58,6 +58,10 @@ namespace Models
 
         public bool? Closed { get; set; } = false;
 
+        [SwaggerIgnore]
+
+        public decimal? Weith { get; set; } = 0;
+
 
     }
 }

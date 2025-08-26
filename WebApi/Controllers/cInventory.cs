@@ -621,7 +621,7 @@ namespace WebApi.Controllers
         #region "Guide Module"
 
 
-        [HttpGet("/api/GetAllGuides")]
+        [HttpGet("/api/Guide/GetAllGuides")]
         public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, int rowfrom, string? filter)
         {
             try
@@ -635,13 +635,13 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpGet("/api/GetGuideWithContext")]
-        public async Task<IActionResult> GetGuideWithContext(Int32 userId, int supplierId, Int32 guideId)
+        [HttpGet("/api/Guide/GetGuideWithContext")]
+        public async Task<IActionResult> GetGuideWithContext(Int32 guideId)
         {
             try
             {
 
-                var _get = await _dInventory.GetOneGuide(userId, supplierId, guideId);
+                var _get = await _dInventory.GetOneGuide(guideId);
                 var _details = await _dInventory.GetGuideDetails(guideId);
 
                 GuideWithContext _guide = new GuideWithContext();
@@ -664,7 +664,7 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpPost("/api/PostGuideDetail")]
+        [HttpPost("/api/Guide/PostGuideDetail")]
         public async Task<IActionResult> PostGuideDetails(List<GuideDetails> _list, int userId)
         {
             try
@@ -679,6 +679,21 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("/api/Guide/PostGuidesActions")]
+        public async Task<IActionResult> PostGuideActions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                Response _response = await _dInventory.PostGuidesActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
 
         private MemoryStream ConvertToExcel(List<Models.Inventory> _inventories)
@@ -742,61 +757,61 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpGet("ExportGuide")]
-        public async Task<IActionResult> GetExportGuide(Int32 userId, Int32 movementId)
-        {
-            try
-            {
-                Models.Response response = await _dInventory.GetMovement(userId, movementId);
+        //[HttpGet("ExportGuide")]
+        //public async Task<IActionResult> GetExportGuide(Int32 userId, Int32 movementId)
+        //{
+        //    try
+        //    {
+        //        Models.Response response = await _dInventory.GetMovement(userId, movementId);
 
-                // 2. Validar que la respuesta es exitosa y contiene datos
-                if (response.Status != StatusCodes.Status200OK || response.Data == null)
-                {
-                    return NotFound("No se encontró Guia de Movimiento");
-                }
+        //        // 2. Validar que la respuesta es exitosa y contiene datos
+        //        if (response.Status != StatusCodes.Status200OK || response.Data == null)
+        //        {
+        //            return NotFound("No se encontró Guia de Movimiento");
+        //        }
 
-                // 3. Convertir los datos correctamente
-                List<Movement> movement = new List<Movement>();
+        //        // 3. Convertir los datos correctamente
+        //        List<Movement> movement = new List<Movement>();
 
-                if (response.Data is Movement singleMovement)
-                {
-                    // Si es un solo objeto
-                    movement.Add(singleMovement);
-                }
-                else if (response.Data is IEnumerable<Movement> movementList)
-                {
-                    // Si ya es una lista/enumerable
-                    movement = movementList.ToList();
-                }
-                else if (response.Data is JArray jsonArray)
-                {
-                    // Si viene como JArray (JSON)
-                    movement = jsonArray.ToObject<List<Movement>>();
-                }
-                else
-                {
-                    // Si no reconocemos el formato
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        "Formato de datos de Servicio no reconocido");
-                }
+        //        if (response.Data is Movement singleMovement)
+        //        {
+        //            // Si es un solo objeto
+        //            movement.Add(singleMovement);
+        //        }
+        //        else if (response.Data is IEnumerable<Movement> movementList)
+        //        {
+        //            // Si ya es una lista/enumerable
+        //            movement = movementList.ToList();
+        //        }
+        //        else if (response.Data is JArray jsonArray)
+        //        {
+        //            // Si viene como JArray (JSON)
+        //            movement = jsonArray.ToObject<List<Movement>>();
+        //        }
+        //        else
+        //        {
+        //            // Si no reconocemos el formato
+        //            return StatusCode(StatusCodes.Status500InternalServerError,
+        //                "Formato de datos de Servicio no reconocido");
+        //        }
 
-                // 4. Validar que tenemos datos
-                if (!movement.Any())
-                {
-                    return NotFound("No se encontraron datos válidos de servicio");
-                }
+        //        // 4. Validar que tenemos datos
+        //        if (!movement.Any())
+        //        {
+        //            return NotFound("No se encontraron datos válidos de servicio");
+        //        }
 
-                // 5. Generar el PDF
-                byte[] pdfBytes = GeneratePdfReport(movement, movementId, userId);
-                string fileName = $"Orden_{movement.FirstOrDefault()?.Id?.ToString() ?? "reporte"}.pdf";
+        //        // 5. Generar el PDF
+        //        byte[] pdfBytes = GeneratePdfReport(movement, movementId, userId);
+        //        string fileName = $"Orden_{movement.FirstOrDefault()?.Id?.ToString() ?? "reporte"}.pdf";
 
-                return File(pdfBytes, "application/pdf", fileName);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
+        //        return File(pdfBytes, "application/pdf", fileName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        //}
 
         [Obsolete]
         private byte[] GeneratePdfReport(List<Movement> movement, int movementId, Int32 userId)
