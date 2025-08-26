@@ -31,7 +31,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(_filter, _rowFrom, idUser);
+                return await _GetAll(_filter, _rowFrom, idUser, null,moduleName);
             }
             finally
             {

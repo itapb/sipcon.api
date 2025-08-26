@@ -1223,7 +1223,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
+               // _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1238,8 +1238,7 @@ namespace Data
                 _mapping.AddItem("ProviderName", "VPROVIDER");
 
                 _mapping.AddItem("Number", "VNUMBER");
-                _mapping.AddItem("Number", "VNUMBER");
-
+     
                 _mapping.AddItem("CreatedDate", "DCREATEDDATE");
                 _mapping.AddItem("DeliveredDate", "DDELIVERYDATE");
                 _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
