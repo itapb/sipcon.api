@@ -39,7 +39,7 @@ namespace Data
 
         private async Task<Response> _GetAll(string moduleName, Int32 recordId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Parameter _parameter = new Parameter();
@@ -105,8 +105,10 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_ASSESSMENT", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ASSESSMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -145,8 +147,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_ASSESSMENT_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ASSESSMENT_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
 

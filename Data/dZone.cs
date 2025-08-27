@@ -34,7 +34,7 @@ namespace Data
 
         private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? zoneId = null )
         {
-            Response _response = new Response();
+            Response _response = (zoneId == null) ?  new Response(true) : new Response();
 
             try
             {
@@ -128,8 +128,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_ZONES", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ZONES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -166,8 +169,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();   
 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_ZONES_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ZONES_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }

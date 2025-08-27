@@ -39,8 +39,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_PRINTQUEUE", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_PRINTQUEUE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
 

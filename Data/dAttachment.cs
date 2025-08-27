@@ -39,7 +39,7 @@ namespace Data
 
         private async Task<Response> _GetAll(string? moduleName,Int32? recordId, Int32? attachmentId = null)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Parameter _parameter = new Parameter();
@@ -115,8 +115,11 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_ATTACHMENT", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ATTACHMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
             }
             catch (Exception ex)
@@ -156,7 +159,9 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_DELETE_ATTACHMENT", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_DELETE_ATTACHMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
             }
             catch (Exception ex)

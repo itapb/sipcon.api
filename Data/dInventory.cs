@@ -42,7 +42,7 @@ namespace Data
 
         private async Task<Response> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter )
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -156,7 +156,7 @@ namespace Data
 
         private async Task<Response> _getMovements(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
         {
-            Response _response = new Response();
+            Response _response = (movementId == null) ? new Response(true) : new Response();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -204,7 +204,7 @@ namespace Data
 
         private async Task<Response> _getMovementDetails(Int32 userId, Int32 movementId, Int32? detailId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -263,7 +263,7 @@ namespace Data
 
         private async Task<Response> _getMovementDetailsByUser(Int32 userId, string movementType, string mode)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -303,7 +303,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTDETAILS_GROUPED", _parameter);
                 _response.Data = _data.GetList<Models.MovementDetails>(_mapping, _table);
-                _response.SetGetResponse(_table,true);
+                _response.SetGetResponse(_table);
 
 
 
@@ -333,7 +333,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_VALIDLOCATION", _parameter);
                 _response.Data = _data.GetItem<Models.Location>(_mapping, _table);
-                _response.SetGetResponse(_table, true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -457,8 +457,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_MOVEMENTS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -486,9 +488,14 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_MOVEMENTDETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -514,8 +521,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_MOVEMENTDETAILS_GROUPED", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTDETAILS_GROUPED", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -570,10 +580,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-                Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_MOVEMENTS_ACTIONS", _mapping, _parameter);
-                _response.SetPostResponse();
+     
 
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
             }
             catch (Exception ex)
@@ -602,11 +614,13 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_DELETE_MOVEMENTDETAIL", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_DELETE_MOVEMENTDETAIL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
-                
+
             }
             catch (Exception ex)
             {
@@ -632,14 +646,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-
-                if(guide.Closed == true)
-                {
-                    _InsertGuideDetails(guide.Id);
-                }
-
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDES", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_GUIDES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -666,9 +676,13 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+ 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_PACKAGES", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_PACKAGES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -694,9 +708,14 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDE_ADDPACKGE", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_GUIDE_ADDPACKGE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
+
 
             }
             catch (Exception ex)
@@ -722,9 +741,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDE_DELETEPACKGE", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_GUIDE_DELETEPACKGE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -750,8 +772,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+     
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_PACKAGEDETAIL", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_PACKAGEDETAIL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -833,7 +858,7 @@ namespace Data
 
         private async Task<Response> _getCustomersForPacking(Int32? supplierId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -860,7 +885,7 @@ namespace Data
 
         private async Task<Response> _getProviderToDeliver()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
 
@@ -888,7 +913,7 @@ namespace Data
 
         private async Task<Response> _getGuides(Int32 supplierId, Int32 customerId, Int32 userId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -908,7 +933,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_GUIDES_PENDING", _parameter);
                 _response.Data = _data.GetList<Models.Guide>(_mapping, _table);
-                _response.SetGetResponse(_table,true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -921,7 +946,7 @@ namespace Data
 
         private async Task<Response> _getPackages(Int32 supplierId, Int32 customerId, Int32 userId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -941,7 +966,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PACKAGES", _parameter);
                 _response.Data = _data.GetList<Models.Package>(_mapping, _table);
-                _response.SetGetResponse(_table,true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -954,7 +979,7 @@ namespace Data
 
         private async Task<Response> _getPackagesFromGuide(Int32 guideId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -973,7 +998,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PACKAGES_FROMGUIDE", _parameter);
                 _response.Data = _data.GetList<Models.Package>(_mapping, _table);
-                _response.SetGetResponse(_table, true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -987,7 +1012,7 @@ namespace Data
 
         private async Task<Response> _getPackageDetails(Int32 packageId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1007,7 +1032,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PACKAGEDETAIL", _parameter);
                 _response.Data = _data.GetList<Models.PackageDetail>(_mapping, _table);
-                _response.SetGetResponse(_table, true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -1020,7 +1045,7 @@ namespace Data
 
         private async Task<Response> _getPackageDetailsPending(Int32 packageId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1040,7 +1065,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PACKAGEDETAILPENDING", _parameter);
                 _response.Data = _data.GetList<Models.PackageDetail>(_mapping, _table);
-                _response.SetGetResponse(_table, true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -1054,7 +1079,7 @@ namespace Data
 
         private async Task<Response> _getPackageDetailByPart(Int32 packageId, string scanCode)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1075,7 +1100,7 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PACKAGEDETAIL_BYPART", _parameter);
                 _response.Data = _data.GetList<Models.PackageDetail>(_mapping, _table);
-                _response.SetGetResponse(_table, true);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -1222,7 +1247,7 @@ namespace Data
 
         private async Task<Response> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter = "", int? guideId=null)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1296,9 +1321,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_DELIVERED_GUIDES", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_DELIVERED_GUIDES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -1311,7 +1339,7 @@ namespace Data
 
         private async Task<Response> _GetGuideDetails(int guideId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1363,7 +1391,7 @@ namespace Data
 
         private async Task<Response> _GetPartialTypes()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Mapping _mapping = new Mapping();
@@ -1401,7 +1429,7 @@ namespace Data
 
         private async Task<Response> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1484,8 +1512,11 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_BACKORDER_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_BACKORDER_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
+
 
 
             }
@@ -1525,8 +1556,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+ 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_BACKORDER", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_BACKORDER", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -1571,12 +1605,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-
-             
-
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDES_DETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_GUIDES_DETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -1642,9 +1676,13 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+   
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_GUIDES_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_GUIDES_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
 
             }

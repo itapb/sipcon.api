@@ -39,7 +39,7 @@ namespace Data
 
         private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter,Int32? partId = null)
         {
-            Response _response = new Response();
+            Response _response = (partId == null) ? new Response(true) : new Response();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -94,8 +94,9 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PARTS", _parameter);
-                _response.Data = (partId == null) ? _data.GetList<Models.Part>(_mapping, _table) : _data.GetItem<Models.Part>(_mapping, _table) ;
+                _response.Data = (partId == null) ? _data.GetList<Models.Part>(_mapping, _table) : _data.GetItem<Models.Part>(_mapping, _table);
                 _response.SetGetResponse(_table);
+              
 
 
             }
@@ -106,7 +107,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<List<RelatedModel>> GetModels(Int32 partId)
+        public async Task<Response> GetModels(Int32 partId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -119,14 +120,13 @@ namespace Data
             }
         }
 
-        private async Task<List<RelatedModel>> _GetModels( Int32 partId)
+        private async Task<Response> _GetModels( Int32 partId)
         {
-            List<RelatedModel> _list = new List<RelatedModel>();
+            Response _response = new Response(true);
             try
             {
 
                 Util.Parameter _parameter = new Util.Parameter();
-       
                 _parameter.AddSqlParameter("@IDPART", partId);
 
                 Mapping _mapping = new Mapping();
@@ -138,16 +138,18 @@ namespace Data
             
 
                 Util.Data _data = Util.Data.GetInstance();
-                _list = await _data.ExecuteReaderAsync<Models.RelatedModel>("USP_GET_PARTMODEL", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_PARTMODEL", _parameter);
+                _response.Data = _data.GetList<Models.RelatedModel>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
             catch (Exception ex)
             {
-                Util.Log.Error(ex);
-                throw;
+                _response.SetError(ex);
             }
-            return _list;
+
+            return _response;
         }
 
         public async Task<Response> GetOne( Int32 userId, Int32 partId)
@@ -182,7 +184,7 @@ namespace Data
 
         private async Task<Response> _GetByModel(Int32 modelId,Int32 userId, Int32? supplierId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -248,7 +250,7 @@ namespace Data
 
         private async Task<Response> _GetUm()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
 
@@ -260,7 +262,9 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Um>("USP_GET_UM", _mapping);
+                DataTable _table = await _data.GetDataTable("USP_GET_UM");
+                _response.Data = _data.GetList<Models.Um>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -286,7 +290,7 @@ namespace Data
 
         private async Task<Response> _GetFamily()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
 
@@ -300,8 +304,10 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Family>("USP_GET_FAMILY", _mapping);
-                
+                DataTable _table = await _data.GetDataTable("USP_GET_FAMILY");
+                _response.Data = _data.GetList<Models.Family>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
 
             }
             catch (Exception ex)
@@ -326,7 +332,7 @@ namespace Data
 
         private async Task<Response> _GetSubFamily()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -341,7 +347,9 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.SubFamily>("USP_GET_SUBFAMILY", _mapping);
+                DataTable _table = await _data.GetDataTable("USP_GET_SUBFAMILY");
+                _response.Data = _data.GetList<Models.SubFamily>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -367,7 +375,7 @@ namespace Data
 
         private async Task<Response> _GetTaxes()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -380,9 +388,10 @@ namespace Data
                 _mapping.AddItem("IsActive", "BACTIVE");
 
 
-
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Tax>("USP_GET_TAX", _mapping);
+                DataTable _table = await _data.GetDataTable("USP_GET_TAX");
+                _response.Data = _data.GetList<Models.Tax>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -409,7 +418,7 @@ namespace Data
 
         private async Task<Response> _GetPartType()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -421,8 +430,11 @@ namespace Data
                 _mapping.AddItem("IsActive", "BACTIVE");
 
 
+          
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.PartType>("USP_GET_PARTTYPES", _mapping);
+                DataTable _table = await _data.GetDataTable("USP_GET_PARTTYPES");
+                _response.Data = _data.GetList<Models.PartType>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -495,7 +507,8 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_PARTS", _mapping,_parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_PARTS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -534,8 +547,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_PARTS_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_PARTS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }

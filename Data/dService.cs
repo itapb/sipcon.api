@@ -45,7 +45,7 @@ namespace Data
         private async Task<Models.Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId, Int32 serviceTypeId,Int32 dealerId, Int32? serviceId = null)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -150,7 +150,7 @@ namespace Data
         private async Task<Models.Response> _GetDetails(Int32 serviceId, String? type , String? filter)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -255,7 +255,7 @@ namespace Data
         private async Task<Models.Response> _GetServiceType()
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -364,8 +364,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+   
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_MAINTENANCE", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -411,9 +415,12 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_MAINTENANCEDETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCEDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
             }
             catch (Exception ex)
             {
@@ -453,10 +460,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-                Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_DELETE_MAINTENANCEDETAILS", _mapping, _parameter);
-                _response.SetPostResponse();
 
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_DELETE_MAINTENANCEDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
             }
             catch (Exception ex)
@@ -499,8 +508,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_MAINTENANCEDETAILS_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCEDETAILS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -543,8 +554,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_MAINTENANCE_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCE_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -587,8 +601,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_MAINTENANCE_PROCCESS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCE_PROCCESS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }

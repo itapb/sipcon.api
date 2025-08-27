@@ -33,7 +33,7 @@ namespace Data
         private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter,Int32 vehicleId = 0)
         {
            
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -172,9 +172,11 @@ namespace Data
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("EstatusName", "VESTATUS");
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsyncTop<Models.Vehicle>("USP_GET_VEHICLES", _mapping, _parameter);
-                _response.Total = 1;
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES", _parameter);
+                _response.Data = _data.GetItem<Models.Vehicle>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -243,7 +245,7 @@ namespace Data
 
         private async Task<Models.Response> _GetAvailables(Int32 userId, Int32 dealerId,Int32 rowFrom, string? filter, bool catalog)
         {
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -427,8 +429,10 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_VEHICLES", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_VEHICLES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -470,8 +474,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_VEHICLES_ACTIONS", _mapping,_parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_VEHICLES_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }

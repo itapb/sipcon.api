@@ -38,7 +38,7 @@ namespace Data
 
         private async Task<Response> _GetAll(bool? isDealer)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();

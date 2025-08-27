@@ -52,7 +52,7 @@ namespace Data
         private async Task<Models.Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? supplierId = null, Int32? licenseId = null)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
            
             try
             {
@@ -111,7 +111,7 @@ namespace Data
         private async Task<Models.Response> _GetDetails(string? filter, Int32? rowFrom, Int32 userId, Int32? licenseId = null)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -227,9 +227,13 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
                 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_LICENSE", _mapping,_parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_LICENSE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -272,8 +276,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+        
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_LICENSEDETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_LICENSEDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -314,8 +321,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_LICENSE_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_LICENSE_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -356,9 +365,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_LICENSEDETAILS_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_LICENSEDETAILS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -398,8 +410,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+   
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_DELETE_LICENSEDETAIL", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_DELETE_LICENSEDETAIL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
 
@@ -431,7 +446,7 @@ namespace Data
         private async Task<Models.Response> _GetLicenseType()
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -443,7 +458,6 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_LICENSETYPE");
-
                 _response.Data = _data.GetList<Models.LicenseTypes>(_mapping, _table);
                 _response.SetGetResponse(_table);
 

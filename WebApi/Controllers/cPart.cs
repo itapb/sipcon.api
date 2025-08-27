@@ -175,8 +175,8 @@ namespace WebApi.Controllers
                 _data.Taxes = (List<Tax>)((await _dPart.GetTaxes()).Data);
                 _data.Ums = (List<Um>)((await _dPart.GetUm()).Data);
                 _data.Suppliers = (List<Contact>)((await _dContact.GetAll_by( false,true )));
-                _data.Brands = (List<Brand>)((await _dBrand.GetAll()));
-                _data.Models = (List<RelatedModel>)((await _dPart.GetModels(partId)));
+                _data.Brands = await _dBrand.GetAll();
+                _data.Models = (List<RelatedModel>)((await _dPart.GetModels(partId)).Data);
 
                 _response.Data = _data;
                 _response.Total = 1;

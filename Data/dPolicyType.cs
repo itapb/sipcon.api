@@ -37,7 +37,7 @@ namespace Data
         private async Task<Models.Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? supplierId = null, Int32? brandId=null, Int32? policyTypeId = null )
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
            
             try
             {
@@ -126,9 +126,12 @@ namespace Data
                 _mapping.AddItem("IsActive", "BACTIVE");
 
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsyncTop<PolicyType>("USP_GET_POLICYTYPES", _mapping,_parameter);
-                _response.Total = 1;
+                DataTable _table = await _data.GetDataTable("USP_GET_POLICYTYPES", _parameter);
+                _response.Data = _data.GetItem<Models.PolicyType>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
 
             }
             catch (Exception ex)
@@ -184,8 +187,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
                 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_POLICYTYPES", _mapping,_parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_POLICYTYPES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -226,9 +231,13 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+       
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_POLICYTYPES_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_POLICYTYPES_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)

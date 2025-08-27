@@ -39,7 +39,7 @@ namespace Data
         private async Task<Models.Response> _GetAccessGroup(string? filter, Int32 rowFrom)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
            
             try
             {
@@ -101,8 +101,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
                 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_ACCESSGROUP", _mapping,_parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ACCESSGROUP", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -146,8 +148,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_ACCESSGROUPDETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ACCESSGROUPDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -190,8 +194,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_ACCESSGROUPUSER", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ACCESSGROUPUSER", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -234,8 +240,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_CREDENTIALSUSER", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_CREDENTIALSUSER", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -278,8 +286,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_TEMPORARYKEY", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -323,9 +334,12 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_SET_PASSWORD", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_SET_PASSWORD", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
+
 
             }
             catch (Exception ex)
@@ -354,7 +368,7 @@ namespace Data
         private async Task<Models.Response> _GetAccessGroupDetails( Int32? rowFrom, Int32 groupAccessId, String? filter)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -409,7 +423,7 @@ namespace Data
         private async Task<Models.Response> _GetAccessGroupUser(Int32? rowFrom,Int32 userId, Boolean? assign)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -466,7 +480,7 @@ namespace Data
         private async Task<Models.Response> _GetAccessUserbyGroup(Int32? rowFrom, Int32 accessGroupId, String? filter, Boolean? assign)
         {
 
-            Models.Response _response = new Models.Response();
+            Models.Response _response = new Models.Response(true);
 
             try
             {
@@ -522,7 +536,7 @@ namespace Data
         {
 
 
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -570,7 +584,7 @@ namespace Data
         {
 
 
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -616,7 +630,7 @@ namespace Data
         {
 
 
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -660,7 +674,7 @@ namespace Data
         {
 
 
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -716,8 +730,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_ACCESSGROUP_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_ACCESSGROUP_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }

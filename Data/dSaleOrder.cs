@@ -39,7 +39,7 @@ namespace Data
 
         private async Task<Response> _GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
         {
-            Response _response = new Response();
+            Response _response = (saleOrderId == null) ? new Response(true) : new Response();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -71,8 +71,6 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-
-
                 DataTable _table = await _data.GetDataTable("USP_GET_SALEORDERS", _parameter);
                 _response.Data = (saleOrderId == null) ? _data.GetList<Models.SaleOrder>(_mapping, _table) : _data.GetItem<Models.SaleOrder>(_mapping, _table);
                 _response.SetGetResponse(_table);
@@ -113,18 +111,19 @@ namespace Data
 
         private async Task<Response> _GetReasons()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Description", "DESC");
 
-                Util.Data _data = Util.Data.GetInstance();
 
-                    DataTable _table = await _data.GetDataTable("USP_GET_REASONS");
-                    _response.Data = _data.GetList<Models.Reason>(_mapping, _table);
-                    _response.Total = _data.GetTotal(_table);
+                var _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REASONS");
+                _response.Data = _data.GetList<Models.Reason>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
 
             }
             catch (Exception ex)
@@ -164,8 +163,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_SALEORDERS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_SALEORDERS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -204,8 +205,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_SALEORDERS_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_SALEORDERS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -234,7 +237,7 @@ namespace Data
 
         private async Task<Response> _GetDetails(Int32 saleOrderId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -256,8 +259,6 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-
-     
                 DataTable _table = await _data.GetDataTable("USP_GET_SALEORDERDETAILS", _parameter);
                 _response.Data = _data.GetList<Models.SaleOrderDetail>(_mapping, _table);
                 _response.SetGetResponse(_table);
@@ -300,8 +301,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_SALEORDERDETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_SALEORDERDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -343,8 +346,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_DELETE_SALEORDERDETAILS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_DELETE_SALEORDERDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
 
@@ -373,7 +378,7 @@ namespace Data
 
         private async Task<Response> _getSaleOrderTypes()
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
             try
             {
 

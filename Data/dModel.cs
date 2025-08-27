@@ -39,7 +39,7 @@ namespace Data
 
         private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? rowFrom, string? filter,  Int32 modelId=0)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -104,8 +104,9 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsyncTop<Models.Model>("USP_GET_MODELS", _mapping, _parameter);
-                _response.Total = 1;
+                DataTable _table = await _data.GetDataTable("USP_GET_MODELS", _parameter);
+                _response.Data = _data.GetItem<Models.Model>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
             }
@@ -177,8 +178,11 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+      
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_MODELS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MODELS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -217,8 +221,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Result>("USP_POST_MODELS_ACTIONS", _mapping,_parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MODELS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }

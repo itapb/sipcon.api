@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -15,6 +16,12 @@ namespace Models
 {
     public class Response
     {
+        private bool _listResponse = false;
+
+        public Response(bool listResponse = false) {
+
+            _listResponse=listResponse;
+        }
 
         public void SetNotFound()
         {
@@ -24,6 +31,7 @@ namespace Models
             Total = 0;
             //Data = "{}";
             Message = "Registros no encontrados, por favor valide los filtros aplicados!...";
+          
 
         }
 
@@ -34,8 +42,8 @@ namespace Models
             Processed = false;
             Total = 0;
             Message = "Registros no actualizados, por favor valide los datos selecionados!...";
-            Data = new List<Models.Result>();
-
+            //Data = new List<Models.Result>();
+            Data = new Models.Result();
         }
 
         public void SetOK()
@@ -53,7 +61,7 @@ namespace Models
             Status = StatusCodes.Status409Conflict;
             Processed = false;
             Total = 0;
-            Data = new List<Models.Result>();
+            Data = (_listResponse == true) ? new List<object>() : new object();
             Message = ex.Message;
 
         }
@@ -61,7 +69,7 @@ namespace Models
         public bool NotUpdated()
         {
 
-            if (((List<Result>)Data)[0].UpdatedRows == 0 && ((List<Result>)Data)[0].InsertedRows == 0 )
+            if (((Result)Data).UpdatedRows == 0 && ((Result)Data).InsertedRows == 0 )
             {
                 return true;
             }
@@ -94,14 +102,22 @@ namespace Models
 
         }
 
-        public void SetGetResponse(DataTable _dataTable, bool NotFoundIgnored = false )
+        public void SetGetResponse(DataTable _dataTable )
         {
 
             var filas = _dataTable.Rows.Count;
             if (filas == 0)
             {
-                if (!NotFoundIgnored){
-                    SetNotFound();
+               
+                SetNotFound();
+
+                if (Data is IEnumerable)
+                {
+                    Data = new List<object>();
+                }
+                else
+                {
+                    Data = new object();
                 }
 
             }
@@ -120,7 +136,8 @@ namespace Models
 
             }
 
-
         }
+
+    
     }
 }

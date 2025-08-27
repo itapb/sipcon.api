@@ -37,7 +37,7 @@ namespace Data
 
         private async Task<Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? dealerId=null)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -155,9 +155,12 @@ namespace Data
                 _mapping.AddItem("PayMethodId", "IDPAYMETHOD");
                 _mapping.AddItem("Total", "TOTAL");
 
-                var _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsyncTop<Models.PolicyExtended>("USP_GET_POLICY", _mapping,_parameter);
-                _response.Total = 1;
+      
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_POLICY", _parameter);
+                _response.Data = _data.GetItem<Models.PolicyExtended>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
             }
             catch (Exception ex)
@@ -262,7 +265,7 @@ namespace Data
 
         private async Task<Response> _GetPolicyDetails(Int32 policyId)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -323,7 +326,7 @@ namespace Data
 
         private async Task<Response> _GetLogPolicyDetails(Int32 policyId, Int32? km = null, DateTime? date = null)
         {
-            Response _response = new Response();
+            Response _response = new Response(true);
 
             try
             {
@@ -406,7 +409,8 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_POLICY", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_POLICY", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -449,8 +453,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
+
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_POLICIES_ACTIONS", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_POLICIES_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
