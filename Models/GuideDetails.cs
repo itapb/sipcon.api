@@ -10,6 +10,7 @@ namespace Models
 {
     public class GuideDetails
     {
+
         [Required]
         public int? Id { get; set; }
 
@@ -38,7 +39,7 @@ namespace Models
         public string? PackageCode { get; set; }
         
         
-        [Required]        
+       
         public int? Received {  get; set; }
     
         public string? Observation { get; set; }
@@ -48,6 +49,8 @@ namespace Models
 
         public int? SaleOrderId { get; set; }
 
+     
+        public bool? Confirmed { get; set; }
 
     }
 }
