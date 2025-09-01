@@ -26,12 +26,12 @@ namespace Data
         }
 
 
-        public async Task<List<Models.Contact>> GetAll(string? _filter, int _rowFrom, Int32 idUser, string? moduleName = null)
+        public async Task<List<Models.Contact>> GetAll(string? _filter, int _rowFrom, Int32 idUser, string? moduleName )
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(_filter, _rowFrom, idUser);
+                return await _GetAll(_filter, _rowFrom, idUser,null,moduleName);
             }
             finally
             {
