@@ -240,10 +240,8 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_CREDENTIALSUSER", _parameter);
-                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_CREDENTIALSUSER", _mapping, _parameter);
                 _response.SetPostResponse();
 
             }
@@ -282,15 +280,15 @@ namespace Data
 
                 Parameter _parameter = new Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
 
-
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_TEMPORARYKEY", _parameter);
-                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
                 _response.SetPostResponse();
 
             }
@@ -300,6 +298,21 @@ namespace Data
             }
 
             return _response;
+        }
+
+
+
+        public async Task<Response> Post_Password(Models.Credentials credentials)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Password(credentials);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
 
@@ -334,12 +347,9 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_SET_PASSWORD", _parameter);
-                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_SET_PASSWORD", _mapping, _parameter);
                 _response.SetPostResponse();
-
 
             }
             catch (Exception ex)
@@ -674,7 +684,7 @@ namespace Data
         {
 
 
-            Response _response = new Response(true);
+            Response _response = new Response();
 
             try
             {
