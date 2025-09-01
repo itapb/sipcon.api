@@ -695,6 +695,22 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpPost("/api/Guide/PostGuideNumber")]
+        public async Task<IActionResult> PostGuideNumber(Int32 userId,Int32 guideId, string guideNumber)
+        {
+
+            try
+            {
+                Response _response = await _dInventory.PostGuideNumber(userId, guideId, guideNumber);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
 
         private MemoryStream ConvertToExcel(List<Models.Inventory> _inventories)
         {

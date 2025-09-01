@@ -1359,6 +1359,7 @@ namespace Data
                 _mapping.AddItem("Received", "IRECEIVED");
                 _mapping.AddItem("Observation", "VOBSERVATION");
                 _mapping.AddItem("SaleOrderId", "IDSALEORDER");
+                _mapping.AddItem("Confirmed", "BCONFIRMED");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1684,6 +1685,48 @@ namespace Data
                 _response.SetPostResponse();
 
 
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        public async Task<Response> PostGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postGuideNumber( userId,guideId,guideNumber);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response> _postGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
+        {
+            Response _response = new Response();
+            try
+            {
+
+              
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDGUIDE", guideId);
+                _parameter.AddSqlParameter("@VNUMBER", guideNumber);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_GUIDE_ACTNUMBER", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
             }
             catch (Exception ex)
