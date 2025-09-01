@@ -280,8 +280,6 @@ namespace Data
 
                 Parameter _parameter = new Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
-                _parameter.AddSqlParameter("@IDUSER", userId);
-
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -315,20 +313,6 @@ namespace Data
             }
         }
 
-
-
-        public async Task<Response> Post_Password(Models.Credentials credentials)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return await _Post_Password(credentials);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
 
         private async Task<Response> _Post_Password(Models.Credentials credentials)
         {
