@@ -94,7 +94,7 @@ namespace WebApi.Controllers
 
                 Response _resp = await _dInventory.PostMovements(_list, userId);
                 Result _resul = new Result();
-                _resul = ((List<Result>)(_resp.Data))[0];
+                _resul = (Result)(_resp.Data);
 
                 var _get= await _dInventory.GetMovement(userId, _resul.LastId);
                 _new = (Movement)(_get.Data);
@@ -129,7 +129,15 @@ namespace WebApi.Controllers
 
                 MovementWithContext _mov = new MovementWithContext();
                 _mov.Movement = (Movement)(_get.Data);
-                _mov.Details = (List<MovementDetails>)(_details.Data);
+                try
+                {
+                    _mov.Details = (List<MovementDetails>)(_details.Data);
+                }
+                catch
+                {
+
+                }
+              
 
                 Response _response = new Response();
                 _response.Data = _mov;
