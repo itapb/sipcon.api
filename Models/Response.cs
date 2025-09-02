@@ -14,15 +14,9 @@ using Util;
 
 namespace Models
 {
-    public class Response
+    public class Response<T>
     {
-        private bool _listResponse = false;
-
-        public Response(bool listResponse = false) {
-
-            _listResponse=listResponse;
-        }
-
+        
         public void SetNotFound()
         {
 
@@ -42,7 +36,7 @@ namespace Models
             Total = 0;
             Message = "Registros no actualizados, por favor valide los datos selecionados!...";
             //Data = new List<Models.Result>();
-            Data = new Models.Result();
+            //Data = new Models.Result();
         }
 
         public void SetOK()
@@ -61,7 +55,7 @@ namespace Models
             Processed = false;
             Total = 0;
             //Data = (_listResponse == true) ? new List<object>() : new object();
-            Data = new Models.Result();
+            // Data = new Models.Result();
             Message = ex.Message;
 
         }
@@ -69,15 +63,16 @@ namespace Models
         public bool NotUpdated()
         {
 
-            if (((Result)Data).UpdatedRows == 0 && ((Result)Data).InsertedRows == 0 )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            //if (((Result)Data).UpdatedRows == 0 && ((Result)Data).InsertedRows == 0 )
+            //{
+            //    return true;
+            //}
+            //else
+            //{
+            //    return false;
+            //}
 
+            return false;
 
         }
 
@@ -85,7 +80,7 @@ namespace Models
         public bool Processed { get; set; } = true;
         public string Message { get; set; } = string.Empty;
         public int Total { get; set; } = 0;
-        public object Data { get; set; } = new object();
+        public T Data { get; set; }
 
         public void SetPostResponse()
         {
@@ -111,14 +106,14 @@ namespace Models
                
                 SetNotFound();
 
-                if (Data is IEnumerable)
-                {
-                    Data = new List<object>();
-                }
-                else
-                {
-                    Data = new object();
-                }
+                //if (Data is IEnumerable)
+                //{
+                //    Data = new List<object>();
+                //}
+                //else
+                //{
+                //    Data = new object();
+                //}
 
             }
             else
