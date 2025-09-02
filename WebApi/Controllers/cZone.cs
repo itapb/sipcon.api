@@ -27,7 +27,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dZone.GetAll(userId, supplierId, rowfrom, filter);
+                var _response = await _dZone.GetAll(userId, supplierId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dZone.GetOne(zoneId, userId);
+                var _response = await _dZone.GetOne(zoneId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ namespace WebApi.Controllers
             {
 
                 List<Zone> _zones = await ExceltoPost(file, userId, supplierId);
-                Response _response = await _dZone.Post_Zones(_zones, userId);
+                var _response = await _dZone.Post_Zones(_zones, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -217,7 +217,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dZone.Post_Zones(zones, userId);
+                var _response = await _dZone.Post_Zones(zones, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -232,7 +232,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dZone.Post_Actions(actions,userId);
+                var _response = await _dZone.Post_Actions(actions,userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

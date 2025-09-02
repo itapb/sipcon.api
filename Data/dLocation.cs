@@ -21,7 +21,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Location>>> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -34,9 +34,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(Int32 userId, Int32? supplierId,Int32? rowfrom, string? filter , Int32? locationId = null )
+        private async Task<Response<List<Models.Location>>> _GetAll(Int32 userId, Int32? supplierId,Int32? rowfrom, string? filter , Int32? locationId = null )
         {
-            Response _response = (locationId == null) ?  new Response(true) : new Response();
+            Response<List<Models.Location>> _response =  new Response<List<Models.Location>>();
 
             try
             {
@@ -60,7 +60,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_LOCATIONS", _parameter);
-                _response.Data = (locationId == null) ? _data.GetList<Models.Location>(_mapping, _table) : _data.GetItem<Models.Location>(_mapping, _table);
+                _response.Data = _data.GetList<Models.Location>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -72,14 +72,51 @@ namespace Data
         }
 
 
+        private async Task<Response<Models.Location>> _getOne(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? locationId = null)
+        {
+            Response<Models.Location> _response =  new Response<Models.Location>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", locationId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("ZoneId", "IDZONE");
+                _mapping.AddItem("ZoneName", "VZONE");
+                _mapping.AddItem("WarehouseName", "VWAREHOUSE");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("Mapping", "IMAPPING");
+                _mapping.AddItem("TypeId", "VTYPE");
+                _mapping.AddItem("TypeName", "VTYPENAME");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_LOCATIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Location>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
 
         //have to refactor get one into its own private method
-        public async Task<Response> GetOne(Int32 locationId, Int32 userId)
+        public async Task<Response<Models.Location>> GetOne(Int32 locationId, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, null, null, null, locationId);
+                return await _getOne(userId, null, null, null, locationId);
             }
             finally
             {
@@ -104,7 +141,7 @@ namespace Data
        
 
 
-        public async Task<Response> Post_Locations(List<Location> _list, Int32 userId)
+        public async Task<Response<Result>> Post_Locations(List<Location> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -117,9 +154,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Locations(List<Location> _list, Int32 userId)
+        private async Task<Response<Result>> _Post_Locations(List<Location> _list, Int32 userId)
         {
-            Response _response = new Response();        
+            Response<Result> _response = new Response<Result>();        
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -146,7 +183,7 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response> Post_Actions(List<Models.Action> _list,Int32 userId)
+        public async Task<Response<Result>> Post_Actions(List<Models.Action> _list,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -158,9 +195,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

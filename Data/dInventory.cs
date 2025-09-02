@@ -27,7 +27,8 @@ namespace Data
             _dContact = dContact;
         }
 
-        public async Task<Response> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
+
+        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -40,9 +41,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter )
+        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter )
         {
-            Response _response = new Response(true);
+            Response<List<Inventory>> _response = new Response<List<Inventory>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -88,7 +89,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> GetMovements(Int32 userId, Int32 supplierId, string typeId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Movement>>> GetMovements(Int32 userId, Int32 supplierId, string typeId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -101,12 +102,12 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetMovement(Int32 userId, Int32? movementId)
+        public async Task<Response<Movement>> GetMovement(Int32 userId, Int32? movementId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovements(userId,null,null, null, null, movementId);
+                return await _getMovement(userId,null,null, null, null, movementId);
             }
             finally
             {
@@ -114,7 +115,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetMovementDetails(Int32 userId, Int32 movementId, Int32? detailId)
+        public async Task<Response<List<MovementDetails>>> GetMovementDetails(Int32 userId, Int32 movementId, Int32? detailId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -127,7 +128,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetMovementDetailsByUser(Int32 userId, string movementType, string mode)
+        public async Task<Response<List<MovementDetails>>> GetMovementDetailsByUser(Int32 userId, string movementType, string mode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -140,7 +141,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetValidLocation(Int32 movementId, string scannedText)
+        public async Task<Response<Location>> GetValidLocation(Int32 movementId, string scannedText)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -154,9 +155,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _getMovements(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
+        private async Task<Response<List<Movement>>> _getMovements(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
         {
-            Response _response = (movementId == null) ? new Response(true) : new Response();
+            Response<List<Movement>> _response =  new Response<List<Movement>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -190,7 +191,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTS", _parameter);
-                _response.Data = (movementId == null) ? _data.GetList<Models.Movement>(_mapping, _table) : _data.GetItem<Models.Movement>(_mapping, _table);
+                _response.Data = _data.GetList<Models.Movement>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 
@@ -202,9 +203,59 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getMovementDetails(Int32 userId, Int32 movementId, Int32? detailId)
+
+        private async Task<Response<Movement>> _getMovement(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
         {
-            Response _response = new Response(true);
+            Response<Movement> _response = new Response<Movement>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VTYPE", typeId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", movementId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("GuideNumber", "VGUIDENUMBER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("SupplierName", "VNAMESUPPLIER");
+                _mapping.AddItem("ContactId", "IDCONTACT");
+                _mapping.AddItem("ContactName", "VCONTACT");
+                _mapping.AddItem("StatusId", "IESTATUS");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("TypeId", "VTYPE");
+                _mapping.AddItem("TypeName", "VMOVEMENTTYPE");
+                _mapping.AddItem("Created", "VCREATED");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("CreatedBy", "VCREATEDBY");
+                _mapping.AddItem("ManagerName", "VNAMEMANAGER");
+                _mapping.AddItem("ManagerLastName", "VLASTNAMEMANAGER");
+                _mapping.AddItem("AssignTo", "VASSIGNED");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTS", _parameter);
+                _response.Data = _data.GetItem<Models.Movement>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        private async Task<Response<List<MovementDetails>>> _getMovementDetails(Int32 userId, Int32 movementId, Int32? detailId)
+        {
+            Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -261,9 +312,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getMovementDetailsByUser(Int32 userId, string movementType, string mode)
+        private async Task<Response<List<MovementDetails>>> _getMovementDetailsByUser(Int32 userId, string movementType, string mode)
         {
-            Response _response = new Response(true);
+            Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -315,9 +366,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getValidLocation(Int32 movementId, string scannedText)
+        private async Task<Response<Location>> _getValidLocation(Int32 movementId, string scannedText)
         {
-            Response _response = new Response();
+            Response<Location> _response = new Response<Location>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -403,7 +454,7 @@ namespace Data
             return _list;
         }
 
-        public async Task<Response> PostMovements(List<Models.Movement> _list, Int32 userId)
+        public async Task<Response<Result>> PostMovements(List<Models.Movement> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -416,7 +467,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> PostMovementDetail(List<Models.NewMovementDetail> _list, Int32 userId, bool isImport = false)
+        public async Task<Response<Result>> PostMovementDetail(List<Models.NewMovementDetail> _list, Int32 userId, bool isImport = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -429,7 +480,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> PostMovementDetailMobile(Models.MovementDetails movementDetail, Int32 userId)
+        public async Task<Response<Result>> PostMovementDetailMobile(Models.MovementDetails movementDetail, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -442,9 +493,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _PostMovements(List<Models.Movement> _list, Int32 userId)
+        private async Task<Response<Result>> _PostMovements(List<Models.Movement> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -472,9 +523,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _PostMovementDetail(List<Models.NewMovementDetail> _list, Int32 userId, bool  isImport = false)
+        private async Task<Response<Result>> _PostMovementDetail(List<Models.NewMovementDetail> _list, Int32 userId, bool  isImport = false)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -506,9 +557,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _PostMovementDetailMobile(Models.MovementDetails movementDetail, Int32 userId)
+        private async Task<Response<Result>> _PostMovementDetailMobile(Models.MovementDetails movementDetail, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -538,7 +589,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -551,7 +602,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> DeleteMovementDetail(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Result>> DeleteMovementDetail(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -565,9 +616,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -598,9 +649,9 @@ namespace Data
 
 
 
-        private async Task<Response> _deleteMovementDetail(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Result>> _deleteMovementDetail(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -632,9 +683,9 @@ namespace Data
 
 
 
-        private async Task<Response> _postGuide(Models.Guide guide)
+        private async Task<Response<Result>> _postGuide(Models.Guide guide)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -661,9 +712,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _postPackage(Models.Package package)
+        private async Task<Response<Result>> _postPackage(Models.Package package)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -693,9 +744,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _addPackge(string packageCode , Int32 guideId)
+        private async Task<Response<Result>> _addPackge(string packageCode , Int32 guideId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -726,9 +777,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _deletePackge(string packageCode, Int32 guideId)
+        private async Task<Response<Result>> _deletePackge(string packageCode, Int32 guideId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -757,9 +808,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _postPackageDetail(Models.PackageDetail packageDetail)
+        private async Task<Response<Result>> _postPackageDetail(Models.PackageDetail packageDetail)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -788,7 +839,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> PostPackageDetail(Models.PackageDetail packageDetail)
+        public async Task<Response<Result>> PostPackageDetail(Models.PackageDetail packageDetail)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -801,7 +852,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> AddPackge(string packageCode, Int32 guideId)
+        public async Task<Response<Result>> AddPackge(string packageCode, Int32 guideId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -814,7 +865,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> DeletePackge(string packageCode, Int32 guideId)
+        public async Task<Response<Result>> DeletePackge(string packageCode, Int32 guideId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -829,7 +880,7 @@ namespace Data
 
 
 
-        public async Task<Response> PostGuide(Models.Guide guide)
+        public async Task<Response<Result>> PostGuide(Models.Guide guide)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -842,7 +893,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> PostPackage(Models.Package package)
+        public async Task<Response<Result>> PostPackage(Models.Package package)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -856,9 +907,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _getCustomersForPacking(Int32? supplierId)
+        private async Task<Response<List<Customer>>> _getCustomersForPacking(Int32? supplierId)
         {
-            Response _response = new Response(true);
+            Response<List<Customer>> _response = new Response<List<Customer>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -883,9 +934,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getProviderToDeliver()
+        private async Task<Response<List<Provider>>> _getProviderToDeliver()
         {
-            Response _response = new Response(true);
+            Response<List<Provider>> _response = new Response<List<Provider>>();
             try
             {
 
@@ -911,9 +962,9 @@ namespace Data
 
 
 
-        private async Task<Response> _getGuides(Int32 supplierId, Int32 customerId, Int32 userId)
+        private async Task<Response<List<Models.Guide>>> _getGuides(Int32 supplierId, Int32 customerId, Int32 userId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Guide>> _response = new Response<List<Models.Guide>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -944,9 +995,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getPackages(Int32 supplierId, Int32 customerId, Int32 userId)
+        private async Task<Response<List<Models.Package>>> _getPackages(Int32 supplierId, Int32 customerId, Int32 userId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Package>> _response = new Response<List<Models.Package>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -977,9 +1028,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getPackagesFromGuide(Int32 guideId)
+        private async Task<Response<List<Models.Package>>> _getPackagesFromGuide(Int32 guideId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Package>> _response = new Response<List<Models.Package>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1010,9 +1061,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _getPackageDetails(Int32 packageId)
+        private async Task<Response<List<PackageDetail>>> _getPackageDetails(Int32 packageId)
         {
-            Response _response = new Response(true);
+            Response<List<PackageDetail>> _response = new Response<List<PackageDetail>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1043,9 +1094,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _getPackageDetailsPending(Int32 packageId)
+        private async Task<Response<List<PackageDetail>>> _getPackageDetailsPending(Int32 packageId)
         {
-            Response _response = new Response(true);
+            Response<List<PackageDetail>> _response = new Response<List<PackageDetail>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1077,9 +1128,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _getPackageDetailByPart(Int32 packageId, string scanCode)
+        private async Task<Response<List<PackageDetail>>> _getPackageDetailByPart(Int32 packageId, string scanCode)
         {
-            Response _response = new Response(true);
+            Response<List<PackageDetail>> _response = new Response<List<PackageDetail>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1113,7 +1164,7 @@ namespace Data
 
 
 
-        public async Task<Response> GetCustomersForPacking(Int32? supplierId)
+        public async Task<Response<List<Customer>>> GetCustomersForPacking(Int32? supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1126,7 +1177,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetProviderToDeliver()
+        public async Task<Response<List<Provider>>> GetProviderToDeliver()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1139,7 +1190,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetGuides(Int32 supplierId, Int32 customerId, Int32 userId)
+        public async Task<Response<List<Models.Guide>>> GetGuides(Int32 supplierId, Int32 customerId, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1152,7 +1203,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetPackages(Int32 supplierId, Int32 customerId, Int32 userId)
+        public async Task<Response<List<Package>>> GetPackages(Int32 supplierId, Int32 customerId, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1165,7 +1216,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetPackagesFromGuide(Int32 guideId)
+        public async Task<Response<List<Package>>> GetPackagesFromGuide(Int32 guideId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1180,7 +1231,7 @@ namespace Data
 
         
 
-        public async Task<Response> GetPackageDetails(Int32 packageId)
+        public async Task<Response<List<PackageDetail>>> GetPackageDetails(Int32 packageId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1193,7 +1244,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetPackageDetailByPart(Int32 packageId,string scanCode)
+        public async Task<Response<List<PackageDetail>>> GetPackageDetailByPart(Int32 packageId,string scanCode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1206,7 +1257,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetPackageDetailsPending(Int32 packageId)
+        public async Task<Response<List<PackageDetail>>> GetPackageDetailsPending(Int32 packageId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1219,7 +1270,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1232,12 +1283,12 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetOneGuide(int guideId)
+        public async Task<Response<Models.Guide>> GetOneGuide(int guideId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllGuides(0, 0, 0, "", guideId);
+                return await _getOneGuide(0, 0, 0, "", guideId);
             }
             finally
             {
@@ -1245,9 +1296,58 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter = "", int? guideId=null)
+        private async Task<Response<Models.Guide>> _getOneGuide(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter = "", int? guideId = null)
         {
-            Response _response = new Response(true);
+            Response<Models.Guide> _response = new Response<Models.Guide>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+
+                _mapping.AddItem("ProviderId", "IDPROVIDER");
+                _mapping.AddItem("ProviderName", "VPROVIDER");
+
+                _mapping.AddItem("Number", "VNUMBER");
+
+                _mapping.AddItem("CreatedDate", "DCREATEDDATE");
+                _mapping.AddItem("DeliveredDate", "DDELIVERYDATE");
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+
+                _mapping.AddItem("Weith", "NWEITH");
+
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_GUIDES", _parameter);
+                _response.Data = _data.GetItem<Models.Guide>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter = "", int? guideId=null)
+        {
+            Response <List<Models.Guide>> _response = new Response<List<Models.Guide>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1293,7 +1393,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> PostDeliverGuides(List<Models.DeliveredGuides> guides)
+        public async Task<Response<Result>> PostDeliverGuides(List<Models.DeliveredGuides> guides)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1307,9 +1407,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _PostDeliverGuides(List<DeliveredGuides> guides)
+        private async Task<Response<Result>> _PostDeliverGuides(List<DeliveredGuides> guides)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -1337,9 +1437,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _GetGuideDetails(int guideId)
+        private async Task<Response<List<Models.GuideDetails>>> _GetGuideDetails(int guideId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.GuideDetails>> _response = new Response<List<Models.GuideDetails>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1377,7 +1477,7 @@ namespace Data
         }
 
 
-        public async Task<Response> GetGuideDetails(int guideid)
+        public async Task<Response<List<Models.GuideDetails>>> GetGuideDetails(int guideid)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1390,9 +1490,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetPartialTypes()
+        private async Task<Response<List<Models.PartialType>>> _GetPartialTypes()
         {
-            Response _response = new Response(true);
+            Response<List<Models.PartialType>> _response = new Response<List<Models.PartialType>>();
             try
             {
                 Mapping _mapping = new Mapping();
@@ -1414,7 +1514,7 @@ namespace Data
         }
 
 
-        public async Task<Response> GetPartialTypes()
+        public async Task<Response<List<Models.PartialType>>> GetPartialTypes()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1428,9 +1528,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
+        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
         {
-            Response _response = new Response(true);
+            Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1469,7 +1569,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
+        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1483,7 +1583,7 @@ namespace Data
         }
 
 
-        public async Task<Response> PostBackorder_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Result>> PostBackorder_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1497,9 +1597,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _PostBackorder_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Result>> _PostBackorder_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -1530,7 +1630,7 @@ namespace Data
         }
 
 
-        public async Task<Response> PostBacKOrder(Models.PostBackOrder backOrder, Int32 userId)
+        public async Task<Response<Result>> PostBacKOrder(Models.PostBackOrder backOrder, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1542,9 +1642,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response> _PostBacKOrder(Models.PostBackOrder backOrder, Int32 userId)
+        private async Task<Response<Result>> _PostBacKOrder(Models.PostBackOrder backOrder, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -1577,7 +1677,7 @@ namespace Data
 
 
 
-        public async Task<Response> PostGuideDetails(List<GuideDetails> _list, int? userId)
+        public async Task<Response<Result>> PostGuideDetails(List<GuideDetails> _list, int? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1590,9 +1690,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _PostGuideDetails(List<GuideDetails> details, int? userid)
+        private async Task<Response<Result>> _PostGuideDetails(List<GuideDetails> details, int? userid)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -1623,33 +1723,9 @@ namespace Data
         }
 
 
-        private async void _InsertGuideDetails(Int32? guideId)
-        {
-            try
-            {
 
-                
 
-                Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IDGUIDE", guideId);
-
-                Mapping _mapping = new Mapping();
-                _mapping.SetDefaultPostMapping();
-
-                Util.Data _data = Util.Data.GetInstance();
-               
-                await _data.ExecuteReaderAsync<Result>("USP_INSERT_GUIDES_DETAILS", _mapping, _parameter);
-                
-
-            }
-            catch (Exception ex)
-            {
-                Util.Log.Error(ex);
-            }
-
-        }
-
-        public async Task<Response> PostGuidesActions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Result>> PostGuidesActions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1662,9 +1738,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _postGuidesActions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Result>> _postGuidesActions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -1695,7 +1771,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> PostGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
+        public async Task<Response<Result>> PostGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1707,9 +1783,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response> _postGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
+        private async Task<Response<Result>> _postGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 

@@ -28,7 +28,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetAll(userId, supplierId, rowfrom,  filter);
+                var _response = await _dPart.GetAll(userId, supplierId, rowfrom,  filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetFamily();
+                var _response = await _dPart.GetFamily();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetSubFamily();
+                var _response = await _dPart.GetSubFamily();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetUm();
+                var _response = await _dPart.GetUm();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -96,7 +96,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetTaxes();
+                var _response = await _dPart.GetTaxes();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -113,7 +113,7 @@ namespace WebApi.Controllers
 
             try
             {
-               Response _response  = await _dPart.GetPartType();
+                var _response  = await _dPart.GetPartType();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -130,7 +130,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetOne(userId,partId );
+                var _response = await _dPart.GetOne(userId,partId );
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -149,7 +149,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.GetByModel(modelId,userId, supplierId);
+                var _response = await _dPart.GetByModel(modelId,userId, supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace WebApi.Controllers
         [HttpGet("GetOneWithContext")]
         public async Task<IActionResult> GetOneWithContext(Int32 userId,Int32 partId )
         {
-            Response _response = new Response();
+            Response<PartWithContext> _response = new Response<PartWithContext>();
             try
             {
                 PartWithContext _data = new PartWithContext();
@@ -359,7 +359,7 @@ namespace WebApi.Controllers
             {
                 List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
                 List<Part> _parts = await ExceltoPost(file);
-                Response _response = await _dPart.Post_Parts(_parts, _models,userId);
+                var _response = await _dPart.Post_Parts(_parts, _models,userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -378,7 +378,7 @@ namespace WebApi.Controllers
             {
                 List<Part> _parts = new List<Part>();
                 _parts.Add(partRequest.Part);
-                Response _response = await _dPart.Post_Parts(_parts, partRequest.Models, userId,true);
+                var _response = await _dPart.Post_Parts(_parts, partRequest.Models, userId,true);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -393,7 +393,7 @@ namespace WebApi.Controllers
             try
             {
                 List<RelatedModel > _models = new List<RelatedModel>();
-                Response _response = await _dPart.Post_Parts(parts, _models, userId,true);
+                var _response = await _dPart.Post_Parts(parts, _models, userId,true);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -409,7 +409,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPart.Post_Actions(actions, userId);
+                var _response = await _dPart.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

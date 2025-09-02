@@ -31,7 +31,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response  _response = await _dLocation.GetAll(userId, supplierId, rowfrom, filter);
+                var _response = await _dLocation.GetAll(userId, supplierId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dLocation.GetOne(locationId, userId);
+                var _response = await _dLocation.GetOne(locationId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -212,7 +212,7 @@ namespace WebApi.Controllers
             {
 
                 List<Location> _locations = await ExceltoPost(file, userId, supplierId);
-                Response _response = await _dLocation.Post_Locations(_locations, userId);
+                var _response = await _dLocation.Post_Locations(_locations, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -232,7 +232,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dLocation.Post_Locations(locations, userId);
+                var _response = await _dLocation.Post_Locations(locations, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -247,7 +247,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dLocation.Post_Actions(actions, userId);
+                var _response = await _dLocation.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

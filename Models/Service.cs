@@ -69,7 +69,22 @@ namespace Models
         //Estatus
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusId { get; set; }
         [SwaggerIgnore] public String? EstatusName { get; set; }
-       
+
+
+
+        [SwaggerIgnore] public Decimal? Tax { get; set; }
+        [SwaggerIgnore] public Decimal? TaxBase { get; set; }
+        [SwaggerIgnore] public Decimal? Exempt { get; set; }
+        [SwaggerIgnore] public DateTime? AuthotizationDate { get; set; }
+        [SwaggerIgnore] public Int32? SupplierId { get; set; }
+        [SwaggerIgnore] public Int32? BrandId { get; set; }
+
+
+
+        //******************
+
+
+
 
     }
 }

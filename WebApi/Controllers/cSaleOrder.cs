@@ -27,7 +27,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSaleOrder.GetAll(userId, dealerId, rowfrom, filter);
+                var _response = await _dSaleOrder.GetAll(userId, dealerId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSaleOrder.GetOne(saleOrderId, userId);
+                var _response = await _dSaleOrder.GetOne(saleOrderId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace WebApi.Controllers
                 _req.SaleOrder = (SaleOrder)(_get.Data);
                 _req.Details = (List<SaleOrderDetail>)(_details.Data);
 
-                Response _response = new Response();
+                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
                 _response.Data = _req;
                 _response.Total = _get.Total;
                 _response.Processed = _get.Processed;
@@ -88,7 +88,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSaleOrder.GetReasons();
+                var _response = await _dSaleOrder.GetReasons();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSaleOrder.GetSaleOrderTypes();
+                var _response = await _dSaleOrder.GetSaleOrderTypes();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -124,7 +124,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSaleOrder.GetDetails(saleOrderId);
+                var _response = await _dSaleOrder.GetDetails(saleOrderId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -152,9 +152,9 @@ namespace WebApi.Controllers
                 List<SaleOrder> _list = new List<SaleOrder>();
                 _list.Add(_new);
 
-                Response _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
+                var _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
                 Result _resul = new Result();
-                _resul = ((List<Result>)(_resp.Data))[0];
+                _resul = (Result)(_resp.Data);
 
                 var _get = await _dSaleOrder.GetOne( _resul.LastId, userId);
                 _new = (SaleOrder)(_get.Data);
@@ -165,7 +165,7 @@ namespace WebApi.Controllers
                 _req.SaleOrder = _new;
                 _req.Details = _details;
 
-                Response _response = new Response();
+                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
                 _response.Data = _req;
                 _response.Total = 1;
 
@@ -185,7 +185,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dSaleOrder.PostSaleOrder(saleOrders, userId);
+                var _response = await _dSaleOrder.PostSaleOrder(saleOrders, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -200,7 +200,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dSaleOrder.Post_Actions(actions, userId);
+                var _response = await _dSaleOrder.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -218,7 +218,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dSaleOrder.PostDetail(detail, userId);
+                var _response = await _dSaleOrder.PostDetail(detail, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -233,7 +233,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dSaleOrder.DeleteDetails(details, userId);
+                var _response = await _dSaleOrder.DeleteDetails(details, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
