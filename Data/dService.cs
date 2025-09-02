@@ -27,12 +27,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Models.Response> GetAll(string? filter, Int32? rowFrom, Int32 userId, Int32 serviceTypeId,Int32 dealerId)
+        public async Task<Models.Response<List<T>>> GetAll<T>(string? filter, int? rowFrom, int userId, int serviceTypeId, int dealerId,  int? serviceId = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(filter, rowFrom, userId,serviceTypeId,dealerId);
+                return await _GetAll<T>(filter, rowFrom, userId, serviceTypeId, dealerId, serviceId);
             }
             finally
             {
@@ -42,13 +42,14 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId, Int32 serviceTypeId,Int32 dealerId, Int32? serviceId = null)
-        {
 
-            Models.Response _response = new Models.Response(true);
+        private async Task<Models.Response<List<T>>> _GetAll<T>(string? filter,int? rowFrom,int userId,int serviceTypeId, int dealerId, int? serviceId = null)
+        {
+            var _response = new Response<List<T>>();
 
             try
             {
+                // Parámetros SQL
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
@@ -57,6 +58,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSERVICETYPE", serviceTypeId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
 
+                
+                // Mapeo por tipo
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("ServiceTypeId", "IDSERVICETYPE");
@@ -112,14 +115,15 @@ namespace Data
                 _mapping.AddItem("LicenseDescription", "VDESCRIPTIONLICENSE");
                 _mapping.AddItem("LicenseTypeId", "IDLICENSETYPE");
                 _mapping.AddItem("LicenseType", "VLICENSETYPE");
-                Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_MAINTENANCES", _parameter);
-                if (serviceTypeId == 1) { _response.Data = _data.GetList<Models.ServiceMaintenance>(_mapping, _table); }
-                if (serviceTypeId == 2) { _response.Data = _data.GetList<Models.ServiceAssistance>(_mapping, _table); }
-                if (serviceTypeId == 3) { _response.Data = _data.GetList<Models.ServiceFail>(_mapping, _table); }
-     
-                _response.SetGetResponse(_table);
+                //LoadMappingForType(typeof(T), _mapping);
 
+                // Ejecución del SP
+                    Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_MAINTENANCES", _parameter);
+
+                // Conversión dinámica
+                _response.Data = _data.GetList<T>(_mapping, _table);
+                _response.SetGetResponse(_table);
             }
             catch (Exception ex)
             {
@@ -127,11 +131,85 @@ namespace Data
             }
 
             return _response;
-
         }
 
 
-        public async Task<Models.Response> GetDetails( Int32 serviceId, String? type ,String? filter)
+        //private void LoadMappingForType(Type type, Mapping mapping)
+        //{
+        //    if (type == typeof(Models.ServiceFail))
+        //    {
+        //        mapping.AddItem("Id", "ID");
+        //        mapping.AddItem("ServiceTypeId", "IDSERVICETYPE");
+        //        mapping.AddItem("OrderNumber", "VSERVICENUMBER");
+        //        mapping.AddItem("ServiceDate", "DMAINTENANCEDATE");
+        //        mapping.AddItem("DealerId", "IDDEALERSERVICE");
+        //        mapping.AddItem("DealerServiceName", "VDEALERSERVICE");
+        //        mapping.AddItem("DealerAddress", "VDEALERADDRESS");
+        //        mapping.AddItem("DealerServiceCity", "VNAMECITY");
+        //        mapping.AddItem("DealerServiceState", "VNAMESTATE");
+        //        mapping.AddItem("DealerServiceCod", "VDEALERCOD");
+        //        mapping.AddItem("AuthorizedUserName", "VAUTHORIZEDUSERNAME");
+        //        mapping.AddItem("AuthorizedUserLastName", "VAUTHORIZEDUSERLASTNAME");
+        //        mapping.AddItem("SrgNumber", "VSRGNUMBER");
+        //        mapping.AddItem("NumberPolicy", "VNUMBERPOLICY");
+        //        mapping.AddItem("Vin", "VVIN");
+        //        mapping.AddItem("Plate", "VPLATE");
+        //        mapping.AddItem("Km", "IKM");
+        //        mapping.AddItem("InvoiceDate", "DINVOICEDATE");
+        //        mapping.AddItem("InvoiceNumber", "VINVOICENUMBER");
+        //        mapping.AddItem("InvoiceAmount", "NINVOICEAMOUNT");
+        //        mapping.AddItem("TaxBase", "NTAXBASE");
+        //        mapping.AddItem("Tax", "TAX");
+        //        mapping.AddItem("AuthotizationDate", "DAUTHORIZATIONDATE");
+        //        mapping.AddItem("Exempt", "NEXEMPT");
+        //        mapping.AddItem("EstatusId", "IESTATUS");
+        //        mapping.AddItem("EstatusName", "VESTATUSNAME");
+        //        mapping.AddItem("IsActive", "BACTIVE");
+        //        mapping.AddItem("BrandId", "IDBRAND");
+        //        mapping.AddItem("SupplierId", "IDSUPPLIER");
+        //        mapping.AddItem("LicenseId", "IDLICENSE");
+        //        mapping.AddItem("LicenseDescription", "VDESCRIPTIONLICENSE");
+        //        mapping.AddItem("LicenseTypeId", "IDLICENSETYPE");
+        //        mapping.AddItem("LicenseType", "VLICENSETYPE");
+        //    }
+        //    else if (type == typeof(Models.ServiceAssistance))
+        //    {
+        //        mapping.AddItem("Id", "ID");
+        //        mapping.AddItem("DealerSaleId", "IDDEALERSALE");
+        //        mapping.AddItem("DealerSaleName", "VDEALERSALE");
+        //        mapping.AddItem("DealerSaleCod", "VDEALERSALECOD");
+        //        mapping.AddItem("CustomerId", "IDCUSTOMER");
+        //        mapping.AddItem("CustomerName", "VCUSTOMERNAME");
+        //        mapping.AddItem("CustomerLastName", "VCUSTOMERLASTNAME");
+        //        mapping.AddItem("CustomerPhone", "VPHONE1");
+        //        mapping.AddItem("Vat", "VVAT");
+        //        mapping.AddItem("ModelId", "IDMODEL");
+        //        mapping.AddItem("ModelName", "VMODELNAME");
+        //        mapping.AddItem("Year", "IYEAR");
+        //        mapping.AddItem("VehicleId", "IDVEHICLE");
+        //        mapping.AddItem("Vin", "VVIN");
+        //        mapping.AddItem("Plate", "VPLATE");
+        //    }
+        //    else if (type == typeof(Models.ServiceMaintenance))
+        //    {
+        //        mapping.AddItem("Id", "ID");
+        //        mapping.AddItem("ReportTypeId", "IDREPORTTYPE");
+        //        mapping.AddItem("ReportTypeName", "VREPORTTYPE");
+        //        mapping.AddItem("CustomerReport", "VREPORTCUSTOMER");
+        //        mapping.AddItem("DealerReport", "VTECHNICALREPORT");
+        //        mapping.AddItem("TechnicalSolution", "VTECHNICALSOLUTION");
+        //        mapping.AddItem("SupplierReport", "VSUPPLIERDECISION");
+        //        mapping.AddItem("Paralyzed", "BPARALYZED");
+        //    }
+        //    else
+        //    {
+        //        throw new InvalidOperationException($"No se ha definido el mapeo para el tipo {type.Name}");
+        //    }
+        //}
+
+
+
+        public async Task<Models.Response<List<Models.ServiceDetails>>> GetDetails( Int32 serviceId, String? type ,String? filter)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -147,10 +225,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetDetails(Int32 serviceId, String? type , String? filter)
+        private async Task<Response<List<Models.ServiceDetails>>> _GetDetails(Int32 serviceId, String? type , String? filter)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.ServiceDetails>> _response = new Response<List<Models.ServiceDetails>>();
 
             try
             {
@@ -192,7 +270,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response> GetReportType()
+        public async Task<Response<List<Models.ReportType>>> GetReportType()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -207,10 +285,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetReportType()
+        private async Task<Response<List<Models.ReportType>>> _GetReportType()
         {
 
-            Models.Response _response = new Models.Response();
+            Response<List<Models.ReportType>> _response = new Response<List<Models.ReportType>>();
 
             try
             {
@@ -237,7 +315,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response> GetServiceType()
+        public async Task<Response<List<Models.ServiceType>>> GetServiceType()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -252,10 +330,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetServiceType()
+        private async Task<Response<List<Models.ServiceType>>> _GetServiceType()
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.ServiceType>> _response = new Response<List<Models.ServiceType>>();
 
             try
             {
@@ -282,15 +360,14 @@ namespace Data
         }
 
 
-        public async Task<Response> GetOne(Int32 userId, Int32 serviceTypeId, Int32 dealerId, Int32 serviceId)
-
+        public async Task<Models.Response<List<T>>> GetOne<T>( int userId, int serviceTypeId, int dealerId, int serviceId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-
-                return await _GetAll(null,0, userId,serviceTypeId, dealerId, serviceId);
-
+                return await _GetAll<T>( filter: null,null,userId, serviceTypeId,dealerId,
+                    serviceId: serviceId
+                );
             }
             finally
             {
@@ -298,25 +375,11 @@ namespace Data
             }
         }
 
-        
-
-        public async Task<List<Service>> GetExport(string? _filter, Int32 userId, Int32 serviceTypeId,Int32 dealerId)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return (List<Service>)(await _GetAll(_filter, null, userId, serviceTypeId,dealerId)).Data;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
-       
 
 
-        public async Task<Response> Post_Service(Models.ServiceMaintenance? maintenance,Models.ServiceAssistance? assistance, Models.ServiceFail? failReport, Int32 userId)
+
+
+        public async Task<Response<Models.Result>> Post_Service(Models.ServiceMaintenance? maintenance,Models.ServiceAssistance? assistance, Models.ServiceFail? failReport, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -324,7 +387,7 @@ namespace Data
                 var response = maintenance is not null ? await _Post_Service(maintenance, null, null, userId)
                       : assistance is not null ? await _Post_Service(null, assistance, null, userId)
                       : failReport is not null ? await _Post_Service(null, null, failReport, userId)
-                      : new Response { Processed = false, Message = "No se proporcionó ningún servicio válido." }; // Manejo de error
+                      : new Response<Models.Result> { Processed = false, Message = "No se proporcionó ningún servicio válido." }; // Manejo de error
 
                 return response;
 
@@ -335,9 +398,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Service(Models.ServiceMaintenance? maintenance, Models.ServiceAssistance? assistance, Models.ServiceFail? failReport, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Service(Models.ServiceMaintenance? maintenance, Models.ServiceAssistance? assistance, Models.ServiceFail? failReport, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -386,7 +449,7 @@ namespace Data
 
 
 
-        public async Task<Response> Post_Details(Models.ServiceDetails serviceDetails, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Details(Models.ServiceDetails serviceDetails, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -399,9 +462,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Details(Models.ServiceDetails serviceDetails, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Details(Models.ServiceDetails serviceDetails, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -431,7 +494,7 @@ namespace Data
 
 
 
-        public async Task<Response> Delete_Details(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Delete_Details(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -444,9 +507,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Delete_Details(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Delete_Details(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
 
@@ -478,7 +541,7 @@ namespace Data
 
 
 
-        public async Task<Response> Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -493,9 +556,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -523,7 +586,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId, Int32 serviceTypeId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId, Int32 serviceTypeId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -538,9 +601,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId, Int32 serviceTypeId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId, Int32 serviceTypeId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -570,7 +633,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_Actions_Process(List<Models.ActionInvoice> _list, Int32 userId, Int32 serviceTypeId)
+        public async Task<Response<Models.Result>> Post_Actions_Process(List<Models.ActionInvoice> _list, Int32 userId, Int32 serviceTypeId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -585,9 +648,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions_Process(List<Models.ActionInvoice> _list, Int32 userId, Int32 serviceTypeId)
+        private async Task<Response<Models.Result>> _Post_Actions_Process(List<Models.ActionInvoice> _list, Int32 userId, Int32 serviceTypeId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

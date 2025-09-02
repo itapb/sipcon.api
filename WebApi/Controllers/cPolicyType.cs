@@ -33,7 +33,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPolicyType.GetAll(filter, rowFrom, userId, supplierId, brandId);
+                var _response = await _dPolicyType.GetAll(filter, rowFrom, userId, supplierId, brandId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -140,7 +140,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Models.Response _response = await _dPolicyType.GetOne(policyTypeId, userId);
+                var _response = await _dPolicyType.GetOne(policyTypeId, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -159,7 +159,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPolicyType.Post_PolicyType(policyTypes, userId);
+                var _response = await _dPolicyType.Post_PolicyType(policyTypes, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -235,7 +235,7 @@ namespace WebApi.Controllers
                 List<PolicyType> policyTypes = await ReadExcelToPolicyTypes(file);
 
                 // Llamar al método existente de tu capa de servicio
-                Response response = await _dPolicyType.Post_PolicyType(policyTypes, userId);
+                var response = await _dPolicyType.Post_PolicyType(policyTypes, userId);
 
                 return StatusCode(response.Processed ?
                     StatusCodes.Status200OK : StatusCodes.Status409Conflict,
@@ -256,7 +256,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dPolicyType.Post_Actions(actions, userId);
+                var _response = await _dPolicyType.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }

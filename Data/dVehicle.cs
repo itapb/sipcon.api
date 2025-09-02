@@ -17,7 +17,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
+        public async Task<Response<List<Models.Vehicle>>> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -30,10 +30,10 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter,Int32 vehicleId = 0)
+        private async Task<Response<List<Models.Vehicle>>> _GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter,Int32 vehicleId = 0)
         {
-           
-            Response _response = new Response(true);
+
+            Response<List<Models.Vehicle>> _response = new Response<List<Models.Vehicle>>();
 
             try
             {
@@ -84,7 +84,7 @@ namespace Data
 
         }
 
-        public async Task<Models.Response> GetOne(Int32 userId,Int32 vehicleId )
+        public async Task<Response<Models.Vehicle>> GetOne(Int32 userId,Int32 vehicleId )
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -97,7 +97,7 @@ namespace Data
             }
         }
 
-        public async Task<Models.Response> GetOneBy(Int32 userId, Int32? dealerId ,string filter, Int32 filterBy)
+        public async Task<Response<Models.Vehicle>> GetOneBy(Int32 userId, Int32? dealerId ,string filter, Int32 filterBy)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -110,7 +110,7 @@ namespace Data
             }
         }
 
-        public async Task<Models.Response> GetAllAvailables(Int32 userId, Int32 dealerId, Int32 rowFrom, string? filter)
+        public async Task<Response<List<Models.Vehicle>>> GetAllAvailables(Int32 userId, Int32 dealerId, Int32 rowFrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -123,7 +123,7 @@ namespace Data
             }
         }
 
-        public async Task<Models.Response> GetOneAvailable(Int32 userId, Int32 dealerId, string VinOrPlate)
+        public async Task<Response<List<Models.Vehicle>>> GetOneAvailable(Int32 userId, Int32 dealerId, string VinOrPlate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -136,9 +136,9 @@ namespace Data
             }
         }
 
-        private async Task<Models.Response> _GetOne(Int32 userId,Int32 vehicleId)
+        private async Task<Response<Models.Vehicle>> _GetOne(Int32 userId,Int32 vehicleId)
         {
-            Models.Response _response = new Models.Response();
+            Response<Models.Vehicle> _response = new Response<Models.Vehicle>();
 
             try
             {
@@ -189,9 +189,9 @@ namespace Data
         }
 
 
-        private async Task<Models.Response> _GetOneBy(Int32 userId, Int32? dealerId , string filter, Int32 filterBy)
+        private async Task<Response<Models.Vehicle>> _GetOneBy(Int32 userId, Int32? dealerId , string filter, Int32 filterBy)
         {
-            Models.Response _response = new Models.Response();
+            Response<Models.Vehicle> _response = new Response<Models.Vehicle>();
 
             try
             {
@@ -243,9 +243,9 @@ namespace Data
 
         }
 
-        private async Task<Models.Response> _GetAvailables(Int32 userId, Int32 dealerId,Int32 rowFrom, string? filter, bool catalog)
+        private async Task<Response<List<Models.Vehicle>>> _GetAvailables(Int32 userId, Int32 dealerId,Int32 rowFrom, string? filter, bool catalog)
         {
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.Vehicle>> _response = new Response<List<Models.Vehicle>>();
 
             try
             {
@@ -313,7 +313,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
+        public async Task<Response<Models.Vehicle>> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -325,9 +325,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response> _GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
+        private async Task<Response<Models.Vehicle>> _GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
         {
-            Response _response = new Response();
+            Response<Models.Vehicle> _response = new Response<Models.Vehicle>();
 
             try
             {
@@ -400,7 +400,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Vehicles(List<Vehicle> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Vehicles(List<Vehicle> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -413,9 +413,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Vehicles(List<Vehicle> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Vehicles(List<Vehicle> _list, Int32 userId)
         {
-            Response _response = new Response();    
+            Response<Models.Result> _response = new Response<Models.Result>();    
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -446,7 +446,7 @@ namespace Data
 
 
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -459,9 +459,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response(); 
+            Response<Models.Result> _response = new Response<Models.Result>(); 
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

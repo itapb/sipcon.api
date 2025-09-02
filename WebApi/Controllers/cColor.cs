@@ -26,7 +26,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dColor.GetAll();
+                var _response = await _dColor.GetAll();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

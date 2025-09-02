@@ -98,7 +98,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dContact.GetUsersByModule(moduleName, supplierId);
+                var _response = await _dContact.GetUsersByModule(moduleName, supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dContact.GetGroups(isDealer);
+                var _response = await _dContact.GetGroups(isDealer);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -126,7 +126,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dContact.GetByContactType( contactType,  idUser,  rowFrom, filter);
+                var _response = await _dContact.GetByContactType( contactType,  idUser,  rowFrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -190,7 +190,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dContact.GetByVat(vat, contactType);
+                var _response = await _dContact.GetByVat(vat, contactType);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

@@ -21,7 +21,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Models.Response> GetAll(string? filter, Int32 rowFrom, Int32 userId,Int32? supplierId)
+        public async Task<Response<List<Models.License>>> GetAll(string? filter, Int32 rowFrom, Int32 userId,Int32? supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -33,7 +33,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response> GetOne(Int32 licenseId, Int32 userId)
+        public async Task<Response<List<Models.License>>> GetOne(Int32 licenseId, Int32 userId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -49,10 +49,10 @@ namespace Data
             }
         }
 
-        private async Task<Models.Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? supplierId = null, Int32? licenseId = null)
+        private async Task<Response<List<Models.License>>> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? supplierId = null, Int32? licenseId = null)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.License>> _response = new Response<List<Models.License>>();
            
             try
             {
@@ -95,7 +95,7 @@ namespace Data
         
 
 
-        public async Task<Models.Response> GetDetails(string? filter, Int32? rowFrom,Int32 licenseId, Int32 userId)
+        public async Task<Response<List<Models.LicenseDetails>>> GetDetails(string? filter, Int32? rowFrom,Int32 licenseId, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -108,10 +108,10 @@ namespace Data
             }
         }
 
-        private async Task<Models.Response> _GetDetails(string? filter, Int32? rowFrom, Int32 userId, Int32? licenseId = null)
+        private async Task<Response<List<Models.LicenseDetails>>> _GetDetails(string? filter, Int32? rowFrom, Int32 userId, Int32? licenseId = null)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.LicenseDetails>> _response = new Response<List<Models.LicenseDetails>>();
 
             try
             {
@@ -159,7 +159,7 @@ namespace Data
         }
 
 
-        public async Task<Response> GetDetailBy(String filter, Int32 userId)
+        public async Task<Response<List<Models.LicenseDetails>>> GetDetailBy(String filter, Int32 userId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -182,7 +182,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                Response _response = new Response();
+                Response<List<Models.LicenseDetails>> _response = new Response<List<Models.LicenseDetails>>();
                 _response = await _GetDetails(filter,null,userId, licenseId );
                 return (List<LicenseDetails>)_response.Data;
             }
@@ -196,7 +196,7 @@ namespace Data
 
 
 
-        public async Task<Response> Post_License(List<License> _list,Int32 userId)
+        public async Task<Response<Models.Result>> Post_License(List<License> _list,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -209,11 +209,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_License(List<License> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_License(List<License> _list, Int32 userId)
         {
             
             
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -244,7 +244,7 @@ namespace Data
             return _response;
         }
         
-        public async Task<Response> Post_LicenseDetails(List<LicenseDetails> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_LicenseDetails(List<LicenseDetails> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -258,11 +258,11 @@ namespace Data
         }
 
 
-        private async Task<Response> _Post_LicenseDetails(List<LicenseDetails> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_LicenseDetails(List<LicenseDetails> _list, Int32 userId)
         {
 
 
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -292,7 +292,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -307,9 +307,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -336,7 +336,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_DetailsActions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_DetailsActions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -351,9 +351,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_DetailsActions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_DetailsActions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -381,7 +381,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -394,9 +394,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
 
@@ -428,7 +428,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response> GetLicenseType()
+        public async Task<Response<List<Models.LicenseTypes>>> GetLicenseType()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -443,10 +443,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetLicenseType()
+        private async Task<Response<List<Models.LicenseTypes>>> _GetLicenseType()
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.LicenseTypes>> _response = new Response<List<Models.LicenseTypes>>();
 
             try
             {

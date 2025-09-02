@@ -24,7 +24,7 @@ namespace Data
 
         }
 
-        public async Task<Response> GetAll(string? moduleName, Int32? recordId, Int32? attachmentId = null)
+        public async Task<Response<List<Models.Attachment>>> GetAll(string? moduleName, Int32? recordId, Int32? attachmentId = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -37,9 +37,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(string? moduleName,Int32? recordId, Int32? attachmentId = null)
+        private async Task<Response<List<Models.Attachment>>> _GetAll(string? moduleName,Int32? recordId, Int32? attachmentId = null)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Attachment>> _response = new Response<List<Models.Attachment>>();
             try
             {
                 Parameter _parameter = new Parameter();
@@ -72,7 +72,7 @@ namespace Data
         }
 
 
-        public async Task<Response> GetOne(Int32 attachmentId)
+        public async Task<Response<List<Models.Attachment>>> GetOne(Int32 attachmentId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -86,7 +86,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Attachment(Models.Attachment _attachment, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Attachment(Models.Attachment _attachment, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -99,9 +99,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Attachment(Models.Attachment _attachment, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Attachment(Models.Attachment _attachment, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -129,7 +129,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Delete_Attachment(Int32 attachmentId, Int32 userId)
+        public async Task<Response<Models.Result>> Delete_Attachment(Int32 attachmentId, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -142,9 +142,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Delete_Attachment(Int32 attachmentId, Int32 userId)
+        private async Task<Response<Models.Result>> _Delete_Attachment(Int32 attachmentId, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {

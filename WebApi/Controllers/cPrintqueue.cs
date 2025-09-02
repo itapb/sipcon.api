@@ -30,7 +30,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId);
+                var _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

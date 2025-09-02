@@ -21,7 +21,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Models.Response> GetAccessGroup(string? filter, Int32 rowFrom)
+        public async Task<Response<List<Models.AccessGroup>>> GetAccessGroup(string? filter, Int32 rowFrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -36,10 +36,10 @@ namespace Data
        
         
 
-        private async Task<Models.Response> _GetAccessGroup(string? filter, Int32 rowFrom)
+        private async Task<Response<List<Models.AccessGroup>>> _GetAccessGroup(string? filter, Int32 rowFrom)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.AccessGroup>> _response = new Response<List<Models.AccessGroup>>();
            
             try
             {
@@ -70,7 +70,7 @@ namespace Data
 
        
 
-        public async Task<Response> Post_AccessGroup(AccessGroup _accessGroup, Int32 userId)
+        public async Task<Response<Models.Result>> Post_AccessGroup(AccessGroup _accessGroup, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -83,11 +83,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_AccessGroup(AccessGroup _accessGroup, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_AccessGroup(AccessGroup _accessGroup, Int32 userId)
         {
-            
-            
-            Response _response = new Response();
+
+
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -117,7 +117,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_AccessGroupDetails(List<AccessGroupDetail> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_AccessGroupDetails(List<AccessGroupDetail> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -130,11 +130,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_AccessGroupDetails(List<AccessGroupDetail> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_AccessGroupDetails(List<AccessGroupDetail> _list, Int32 userId)
         {
 
 
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -163,7 +163,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_AccessGroupUser(List<AccessGroupUser> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_AccessGroupUser(List<AccessGroupUser> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -176,11 +176,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_AccessGroupUser(List<AccessGroupUser> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_AccessGroupUser(List<AccessGroupUser> _list, Int32 userId)
         {
 
 
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -208,7 +208,7 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
+        public async Task<Response<Models.Result>> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -221,11 +221,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_CrendentialsUser(Models.CredentialLogin credentials, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_CrendentialsUser(Models.CredentialLogin credentials, Int32 userId)
         {
 
 
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -255,7 +255,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_TemporyKey(Models.CredentialLogin login)
+        public async Task<Response<Models.Result>> Post_TemporyKey(Models.CredentialLogin login)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -268,11 +268,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_TemporyKey(Models.CredentialLogin login)
+        private async Task<Response<Models.Result>> _Post_TemporyKey(Models.CredentialLogin login)
         {
 
 
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -302,7 +302,7 @@ namespace Data
 
 
 
-        public async Task<Response> Post_Password(Models.Credentials credentials)
+        public async Task<Response<Models.Result>> Post_Password(Models.Credentials credentials)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -316,11 +316,11 @@ namespace Data
         }
 
 
-        private async Task<Response> _Post_Password(Models.Credentials credentials)
+        private async Task<Response<Models.Result>> _Post_Password(Models.Credentials credentials)
         {
 
 
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -347,7 +347,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Models.Response> GetAccessGroupDetails(Int32? rowFrom, Int32 groupAccessId, String? filter)
+        public async Task<Response<List<Models.AccessGroupDetail>>> GetAccessGroupDetails(Int32? rowFrom, Int32 groupAccessId, String? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -362,10 +362,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetAccessGroupDetails( Int32? rowFrom, Int32 groupAccessId, String? filter)
+        private async Task<Response<List<Models.AccessGroupDetail>>> _GetAccessGroupDetails( Int32? rowFrom, Int32 groupAccessId, String? filter)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.AccessGroupDetail>> _response = new Response<List<Models.AccessGroupDetail>>();
 
             try
             {
@@ -402,7 +402,7 @@ namespace Data
 
 
 
-        public async Task<Models.Response> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign)
+        public async Task<Response<List<Models.AccessGroupUser>>> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -417,10 +417,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetAccessGroupUser(Int32? rowFrom,Int32 userId, Boolean? assign)
+        private async Task<Response<List<Models.AccessGroupUser>>> _GetAccessGroupUser(Int32? rowFrom,Int32 userId, Boolean? assign)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.AccessGroupUser>> _response = new Response<List<Models.AccessGroupUser>>();
 
             try
             {
@@ -459,7 +459,7 @@ namespace Data
 
 
 
-        public async Task<Models.Response> GetAccessUserbyGroup(Int32 rowFrom, Int32 accessGroupId, String? filter, Boolean? assign)
+        public async Task<Response<List<Models.AccessGroupUser>>> GetAccessUserbyGroup(Int32 rowFrom, Int32 accessGroupId, String? filter, Boolean? assign)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -474,10 +474,10 @@ namespace Data
 
 
 
-        private async Task<Models.Response> _GetAccessUserbyGroup(Int32? rowFrom, Int32 accessGroupId, String? filter, Boolean? assign)
+        private async Task<Response<List<Models.AccessGroupUser>>> _GetAccessUserbyGroup(Int32? rowFrom, Int32 accessGroupId, String? filter, Boolean? assign)
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.AccessGroupUser>> _response = new Response<List<Models.AccessGroupUser>>();
 
             try
             {
@@ -516,7 +516,7 @@ namespace Data
 
 
 
-        public async Task<Response> Auth_User(Models.AuthUser credentials)
+        public async Task<Response<Models.User>> Auth_User(Models.AuthUser credentials)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -529,11 +529,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Auth_User(Models.AuthUser _credentials)
+        private async Task<Response<Models.User>> _Auth_User(Models.AuthUser _credentials)
         {
 
 
-            Response _response = new Response(true);
+            Response<Models.User> _response = new Response<Models.User>();
 
             try
             {
@@ -564,7 +564,7 @@ namespace Data
         }
 
 
-         public async Task<Response> Get_CompanyByUser(Int32? userId)
+         public async Task<Response<List<Models.Companies>>> Get_CompanyByUser(Int32? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -577,11 +577,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Get_CompanyByUser(Int32? userId)
+        private async Task<Response<List<Models.Companies>>> _Get_CompanyByUser(Int32? userId)
         {
 
 
-            Response _response = new Response(true);
+            Response<List<Models.Companies>> _response = new Response<List<Models.Companies>>();
 
             try
             {
@@ -610,7 +610,7 @@ namespace Data
 
 
 
-        public async Task<Response> Get_ModulesByUser(Int32? userId)
+        public async Task<Response<List<Models.Module>>> Get_ModulesByUser(Int32? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -623,11 +623,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Get_ModulesByUser(Int32? userId)
+        private async Task<Response<List<Models.Module>>> _Get_ModulesByUser(Int32? userId)
         {
 
 
-            Response _response = new Response(true);
+            Response<List<Models.Module>> _response = new Response<List<Models.Module>>();
 
             try
             {
@@ -654,7 +654,7 @@ namespace Data
 
 
 
-        public async Task<Response> Get_ActionByUser(Int32? userId)
+        public async Task<Response<List<Models.ActionModule>>> Get_ActionByUser(Int32? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -667,11 +667,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Get_ActionByUser(Int32? userId)
+        private async Task<Response<List<Models.ActionModule>>> _Get_ActionByUser(Int32? userId)
         {
 
 
-            Response _response = new Response();
+            Response<List<Models.ActionModule>> _response = new Response<List<Models.ActionModule>>();
 
             try
             {
@@ -698,7 +698,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_AccessGroup_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_AccessGroup_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -713,9 +713,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_AccessGroup_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_AccessGroup_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

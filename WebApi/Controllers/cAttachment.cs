@@ -31,7 +31,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dAttachment.GetAll(moduleName,recordId );
+                var _response = await _dAttachment.GetAll(moduleName,recordId );
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace WebApi.Controllers
             try
             {
                 // Obtener la información del adjunto desde la base de datos
-                Response _response = await _dAttachment.GetOne(attachmentId);
+                var _response = await _dAttachment.GetOne(attachmentId);
 
                 if (_response == null || _response.Data == null)
                 {
@@ -147,7 +147,7 @@ namespace WebApi.Controllers
                 };
 
                 // Registrar la información en la base de datos
-                Models.Response _response = await _dAttachment.Post_Attachment(attachment, userId);
+                var _response = await _dAttachment.Post_Attachment(attachment, userId);
 
                 return StatusCode(_response.Status, _response);
             }
@@ -163,7 +163,7 @@ namespace WebApi.Controllers
             try
             {
                 // Obtener la información del adjunto desde la base de datos
-                Response _response = await _dAttachment.GetOne(attachmentId);
+                var _response = await _dAttachment.GetOne(attachmentId);
 
                 if (_response == null || _response.Data == null)
                 {
@@ -200,7 +200,7 @@ namespace WebApi.Controllers
                 System.IO.File.Delete(filePath);
 
                 // Ahora eliminar el registro de la base de datos
-                Response deleteResponse = await _dAttachment.Delete_Attachment(attachmentId, userId);
+                var deleteResponse = await _dAttachment.Delete_Attachment(attachmentId, userId);
 
                 if (deleteResponse.Status != StatusCodes.Status200OK)
                 {

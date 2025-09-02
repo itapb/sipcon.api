@@ -613,7 +613,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.DeletePackge(packageCode, guideId);
+                var _response = await _dInventory.DeletePackge(packageCode, guideId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -838,188 +838,188 @@ namespace WebApi.Controllers
         //    }
         //}
 
-        [Obsolete]
-        private byte[] GeneratePdfReport(List<Movement> movement, int movementId, Int32 userId)
-        {
-            QuestPDF.Settings.License = LicenseType.Community;
+        //[Obsolete]
+        //private byte[] GeneratePdfReport(List<Movement> movement, int movementId, Int32 userId)
+        //{
+        //    QuestPDF.Settings.License = LicenseType.Community;
 
-            var selectedMovement = movement.FirstOrDefault(m => m.Id == movementId);
+        //    var selectedMovement = movement.FirstOrDefault(m => m.Id == movementId);
 
-            var response = _dInventory.GetMovementDetails(userId, movementId, null).GetAwaiter().GetResult();
-            var MovementDetailsList = new List<MovementDetails>();
-
-
-
-            if (response.Data is IEnumerable<MovementDetails> detailList)
-                MovementDetailsList = detailList.ToList();
-            else if (response.Data is JArray jsonArray)
-                MovementDetailsList = jsonArray.ToObject<List<MovementDetails>>();
-
-            // Aplicamos el filtro según el tipo del movimiento
-            var movementType = selectedMovement?.TypeId;
-            List<MovementDetails> filteredDetails = new();
-
-            if (movementType != null)
-            {
-                var typeMap = new Dictionary<string, string>
-                                {
-                                    { "D", "E" },
-                                    { "R", "P" },
-                                    { "T", "E" }
-                                };
-
-                if (typeMap.TryGetValue(movementType, out string expectedDetailType))
-                {
-                    filteredDetails = MovementDetailsList
-                        .Where(detail => detail.MovementId == movementId && detail.TypeId == expectedDetailType)
-                        .ToList();
-                }
-            }
-
-            int totalProductos = filteredDetails
-            .Select(d => d.Id) // Asumiendo que existe un campo ProductId
-            .Distinct()
-            .Count();
-
-            int? totalUnidades = selectedMovement?.TypeId switch
-            {
-                "T" or "D" => filteredDetails.Sum(d => d.RealQty),
-                "R" => filteredDetails.Sum(d => d.RequiredQty),
-                _ => 0
-            };
-            // Asumiendo que existe un campo Quantity
+        //    var response = _dInventory.GetMovementDetails(userId, movementId, null).GetAwaiter().GetResult();
+        //    var MovementDetailsList = new List<MovementDetails>();
 
 
-            var document = Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Margin(50);
-                    page.Size(PageSizes.Ledger.Portrait());
 
-                    page.Header().Element(header =>
-                    {
-                        header.Column(col =>
-                        {
-                            col.Item().Row(row =>
-                            {
-                                // LOGO (izquierda)
-                                row.ConstantItem(110).Image($@"\\{Environment.MachineName}{Util.Setting.ImagesUrl}\mdv logo.PNG", ImageScaling.FitWidth);
+        //    if (response.Data is IEnumerable<MovementDetails> detailList)
+        //        MovementDetailsList = detailList.ToList();
+        //    else if (response.Data is JArray jsonArray)
+        //        MovementDetailsList = jsonArray.ToObject<List<MovementDetails>>();
 
-                                // TÍTULO (centro)
-                                string tituloMovimiento = selectedMovement?.TypeId switch
-                                {
-                                    "D" => "GUÍA DE DESPACHO",
-                                    "R" => "GUÍA DE RECEPCIÓN",
-                                    "T" => "GUÍA DE TRASLADO",
-                                    _ => "GUÍA DE MOVIMIENTO" // valor por defecto
-                                };
+        //    // Aplicamos el filtro según el tipo del movimiento
+        //    var movementType = selectedMovement?.TypeId;
+        //    List<MovementDetails> filteredDetails = new();
 
-                                row.RelativeItem()
-                                   .AlignCenter()
-                                   .Text(tituloMovimiento)
-                                   .FontSize(20)
-                                   .Bold();
+        //    if (movementType != null)
+        //    {
+        //        var typeMap = new Dictionary<string, string>
+        //                        {
+        //                            { "D", "E" },
+        //                            { "R", "P" },
+        //                            { "T", "E" }
+        //                        };
 
+        //        if (typeMap.TryGetValue(movementType, out string expectedDetailType))
+        //        {
+        //            filteredDetails = MovementDetailsList
+        //                .Where(detail => detail.MovementId == movementId && detail.TypeId == expectedDetailType)
+        //                .ToList();
+        //        }
+        //    }
 
-                                // ID y fecha (derecha)
-                                row.ConstantItem(130).Column(right =>
-                                {
-                                    right.Item().AlignRight().Text($"Numero de Guia: {selectedMovement.GuideNumber ?? "N/A"}");
-                                    right.Item().AlignRight().Text($"Fecha: {DateTime.Now:dd/MM/yyyy}");
-                                });
-                            });
+        //    int totalProductos = filteredDetails
+        //    .Select(d => d.Id) // Asumiendo que existe un campo ProductId
+        //    .Distinct()
+        //    .Count();
 
-                            // BLOQUE DE INFORMACIÓN debajo del título
-                            col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
-                            {
-
-                                info.Item().Row(r =>
-                                {
-                                    r.ConstantItem(75).Text("Proveedor:").Bold();
-                                    r.RelativeItem().Text(selectedMovement?.SupplierName ?? "N/A").WrapAnywhere();
-                                });
-
-                                info.Item().Row(r =>
-                                {
-                                    r.ConstantItem(75).Text("Cliente:").Bold();
-                                    r.RelativeItem().Text(selectedMovement?.ContactName ?? "N/A").WrapAnywhere();
-                                });
-
-                                info.Item().Row(r =>
-                                {
-                                    r.ConstantItem(75).Text("Responsable:").Bold();
-                                    r.RelativeItem().Text($"{selectedMovement?.ManagerName ?? "N/A"}").WrapAnywhere();
-
-                                });
+        //    int? totalUnidades = selectedMovement?.TypeId switch
+        //    {
+        //        "T" or "D" => filteredDetails.Sum(d => d.RealQty),
+        //        "R" => filteredDetails.Sum(d => d.RequiredQty),
+        //        _ => 0
+        //    };
+        //    // Asumiendo que existe un campo Quantity
 
 
-                            });
-                        });
-                    });
+        //    var document = Document.Create(container =>
+        //    {
+        //        container.Page(page =>
+        //        {
+        //            page.Margin(50);
+        //            page.Size(PageSizes.Ledger.Portrait());
 
-                    page.Content().Column(column =>
-                    {
-                        column.Item().LineHorizontal(1);
+        //            page.Header().Element(header =>
+        //            {
+        //                header.Column(col =>
+        //                {
+        //                    col.Item().Row(row =>
+        //                    {
+        //                        // LOGO (izquierda)
+        //                        row.ConstantItem(110).Image($@"\\{Environment.MachineName}{Util.Setting.ImagesUrl}\mdv logo.PNG", ImageScaling.FitWidth);
 
-                        column.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn(1); // Código
-                                columns.RelativeColumn(3); // Descripción
-                                columns.RelativeColumn(1); // Cantidad
-                            });
+        //                        // TÍTULO (centro)
+        //                        string tituloMovimiento = selectedMovement?.TypeId switch
+        //                        {
+        //                            "D" => "GUÍA DE DESPACHO",
+        //                            "R" => "GUÍA DE RECEPCIÓN",
+        //                            "T" => "GUÍA DE TRASLADO",
+        //                            _ => "GUÍA DE MOVIMIENTO" // valor por defecto
+        //                        };
 
-                            table.Header(header =>
-                            {
-                                header.Cell().Element(CellStyle).Text("Código");
-                                header.Cell().Element(CellStyle).Text("Producto");
-                                header.Cell().Element(CellStyle).Text("Cantidad");
-
-                                IContainer CellStyle(IContainer container) =>
-                                    container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
-                            });
-
-                            foreach (var movementdetail in filteredDetails)
-                            {
-                                table.Cell().Element(CellStyle).Text(movementdetail.PartInnerCode);
-                                table.Cell().Element(CellStyle).Text(movementdetail.PartDescription);
-
-                                var cantidadMostrar = selectedMovement?.TypeId switch
-                                {
-                                    "T" or "D" => movementdetail.RealQty,
-                                    "R" => movementdetail.RequiredQty,
-                                    _ => 0
-                                };
-                                table.Cell().Element(CellStyle).Text(cantidadMostrar.ToString());
+        //                        row.RelativeItem()
+        //                           .AlignCenter()
+        //                           .Text(tituloMovimiento)
+        //                           .FontSize(20)
+        //                           .Bold();
 
 
-                                IContainer CellStyle(IContainer container) =>
-                                    container.Padding(5);
-                            }
+        //                        // ID y fecha (derecha)
+        //                        row.ConstantItem(130).Column(right =>
+        //                        {
+        //                            right.Item().AlignRight().Text($"Numero de Guia: {selectedMovement.GuideNumber ?? "N/A"}");
+        //                            right.Item().AlignRight().Text($"Fecha: {DateTime.Now:dd/MM/yyyy}");
+        //                        });
+        //                    });
 
-                            table.Footer(footer =>
-                            {
+        //                    // BLOQUE DE INFORMACIÓN debajo del título
+        //                    col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
+        //                    {
 
-                                footer.Cell().ColumnSpan(2).BorderTop(1).AlignRight().Element(CellStyle).Text($"Total productos: {totalProductos}");
-                                footer.Cell().ColumnSpan(1).BorderTop(1).Element(CellStyle).Text($"Total unidades: {totalUnidades}");
+        //                        info.Item().Row(r =>
+        //                        {
+        //                            r.ConstantItem(75).Text("Proveedor:").Bold();
+        //                            r.RelativeItem().Text(selectedMovement?.SupplierName ?? "N/A").WrapAnywhere();
+        //                        });
 
-                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
-                            });
-                            column.Item().LineHorizontal(1);
-                        });
+        //                        info.Item().Row(r =>
+        //                        {
+        //                            r.ConstantItem(75).Text("Cliente:").Bold();
+        //                            r.RelativeItem().Text(selectedMovement?.ContactName ?? "N/A").WrapAnywhere();
+        //                        });
 
-                        column.Item().PaddingTop(25).Text("Observaciones: ______________________________________________________________________________________________________________");
-                        column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
-                    });
+        //                        info.Item().Row(r =>
+        //                        {
+        //                            r.ConstantItem(75).Text("Responsable:").Bold();
+        //                            r.RelativeItem().Text($"{selectedMovement?.ManagerName ?? "N/A"}").WrapAnywhere();
+
+        //                        });
 
 
-                });
-            });
+        //                    });
+        //                });
+        //            });
 
-            return document.GeneratePdf();
-        }
+        //            page.Content().Column(column =>
+        //            {
+        //                column.Item().LineHorizontal(1);
+
+        //                column.Item().Table(table =>
+        //                {
+        //                    table.ColumnsDefinition(columns =>
+        //                    {
+        //                        columns.RelativeColumn(1); // Código
+        //                        columns.RelativeColumn(3); // Descripción
+        //                        columns.RelativeColumn(1); // Cantidad
+        //                    });
+
+        //                    table.Header(header =>
+        //                    {
+        //                        header.Cell().Element(CellStyle).Text("Código");
+        //                        header.Cell().Element(CellStyle).Text("Producto");
+        //                        header.Cell().Element(CellStyle).Text("Cantidad");
+
+        //                        IContainer CellStyle(IContainer container) =>
+        //                            container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
+        //                    });
+
+        //                    foreach (var movementdetail in filteredDetails)
+        //                    {
+        //                        table.Cell().Element(CellStyle).Text(movementdetail.PartInnerCode);
+        //                        table.Cell().Element(CellStyle).Text(movementdetail.PartDescription);
+
+        //                        var cantidadMostrar = selectedMovement?.TypeId switch
+        //                        {
+        //                            "T" or "D" => movementdetail.RealQty,
+        //                            "R" => movementdetail.RequiredQty,
+        //                            _ => 0
+        //                        };
+        //                        table.Cell().Element(CellStyle).Text(cantidadMostrar.ToString());
+
+
+        //                        IContainer CellStyle(IContainer container) =>
+        //                            container.Padding(5);
+        //                    }
+
+        //                    table.Footer(footer =>
+        //                    {
+
+        //                        footer.Cell().ColumnSpan(2).BorderTop(1).AlignRight().Element(CellStyle).Text($"Total productos: {totalProductos}");
+        //                        footer.Cell().ColumnSpan(1).BorderTop(1).Element(CellStyle).Text($"Total unidades: {totalUnidades}");
+
+        //                        IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
+        //                    });
+        //                    column.Item().LineHorizontal(1);
+        //                });
+
+        //                column.Item().PaddingTop(25).Text("Observaciones: ______________________________________________________________________________________________________________");
+        //                column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
+        //            });
+
+
+        //        });
+        //    });
+
+        //    return document.GeneratePdf();
+        //}
 
 
 

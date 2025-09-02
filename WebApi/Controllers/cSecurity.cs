@@ -44,7 +44,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.GetAccessGroup(filter, rowFrom);
+                var _response = await _dSecurity.GetAccessGroup(filter, rowFrom);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.GetAccessGroupDetails(rowFrom, groupAccessId, filter);
+                var _response = await _dSecurity.GetAccessGroupDetails(rowFrom, groupAccessId, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.GetAccessGroupUser(rowFrom, userId, assign);
+                var _response = await _dSecurity.GetAccessGroupUser(rowFrom, userId, assign);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -97,7 +97,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.GetAccessUserbyGroup(rowFrom,accessGroupId,filter, assign);
+                var _response = await _dSecurity.GetAccessUserbyGroup(rowFrom,accessGroupId,filter, assign);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -117,7 +117,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.Post_AccessGroup(accessGroup, userId);
+                var _response = await _dSecurity.Post_AccessGroup(accessGroup, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -137,7 +137,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.Post_AccessGroupDetails(accessGroupDetail, userId);
+                var _response = await _dSecurity.Post_AccessGroupDetails(accessGroupDetail, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -155,7 +155,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.Post_AccessGroupUser(accessGroupUser, userId);
+                var _response = await _dSecurity.Post_AccessGroupUser(accessGroupUser, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.Post_CrendentialsUser(credentials,userId);
+                var _response = await _dSecurity.Post_CrendentialsUser(credentials,userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -189,7 +189,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.Post_TemporyKey(login);
+                var _response = await _dSecurity.Post_TemporyKey(login);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -207,7 +207,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dSecurity.Post_Password(credentials);
+                var _response = await _dSecurity.Post_Password(credentials);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -221,7 +221,7 @@ namespace WebApi.Controllers
         [HttpPost("Auth_User")]
         public async Task<IActionResult> Auth_User(Models.AuthUser credentials)
         {
-            Response _response = new Response();
+            Response<AuthResult> _response = new Response<AuthResult>();
             try
             {
                 // Initialize AuthResult with required properties
@@ -309,7 +309,7 @@ namespace WebApi.Controllers
         [HttpPost("RefreshToken")]
         public IActionResult RefreshToken([FromBody] Models.RefreshRequest request)
         {
-            Response _response = new Response();
+            Response<Models.AuthResult> _response = new Response<Models.AuthResult>();
             try
             {
                 var savedRefreshToken = _refreshTokenStore.Get(request.Username);
@@ -384,7 +384,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dSecurity.Post_AccessGroup_Actions(actions, userId);
+                var _response = await _dSecurity.Post_AccessGroup_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }

@@ -27,7 +27,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dAssessment.GetAll(moduleName,recordId);
+                var _response = await _dAssessment.GetAll(moduleName,recordId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dAssessment.Post_Assessment(assessment, userId);
+                var _response = await _dAssessment.Post_Assessment(assessment, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dAssessment.Post_Actions(actions, userId);
+                var _response = await _dAssessment.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }

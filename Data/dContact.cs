@@ -98,7 +98,7 @@ namespace Data
             return _list;
         }
 
-        public async Task<Models.Response> GetByVat(string vat, string contactType)
+        public async Task<Response<Models.Contact>> GetByVat(string vat, string contactType)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -111,7 +111,7 @@ namespace Data
             }
         }
 
-        public async Task<Models.Response> GetByContactType(string contactType, Int32 idUser, int rowFrom, string? filter)
+        public async Task<Response<List<Models.Contact>>> GetByContactType(string contactType, Int32 idUser, int rowFrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -124,9 +124,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetByVat(string vat, string contactType)
+        private async Task<Response<Models.Contact>> _GetByVat(string vat, string contactType)
         {
-            Response _response = new Response();
+            Response<Models.Contact> _response = new Response<Models.Contact>();
 
             try
             {
@@ -178,9 +178,9 @@ namespace Data
 
         }
 
-        private async Task<Response> _GetByContactType(string contactType, Int32 idUser,int rowFrom, string? filter)
+        private async Task<Response<List<Models.Contact>>> _GetByContactType(string contactType, Int32 idUser,int rowFrom, string? filter)
         {
-            Response _response = new Response();
+            Response<List<Models.Contact>> _response = new Response<List<Models.Contact>>();
 
             try
             {
@@ -284,7 +284,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetUsersByModule(string moduleName, Int32 supplierId)
+        public async Task<Response<List<Models.Contact>>> GetUsersByModule(string moduleName, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -349,9 +349,9 @@ namespace Data
             return _list;
         }
 
-        private async Task<Response> _GetUsersByModule(string moduleName, Int32 supplierId )
+        private async Task<Response<List<Models.Contact>>> _GetUsersByModule(string moduleName, Int32 supplierId )
         {
-            Response _response = new Response();
+            Response<List<Models.Contact>> _response = new Response<List<Models.Contact>>();
             try
             {
 
@@ -461,7 +461,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> GetPayMethods(bool? isDealer)
+        public async Task<Response<List<Models.PayMethod>>> GetPayMethods(bool? isDealer)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -474,9 +474,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetPayMethods(bool? isDealer)
+        private async Task<Response<List<Models.PayMethod>>> _GetPayMethods(bool? isDealer)
         {
-            Response _response = new Response();
+            Response<List<Models.PayMethod>> _response = new Response<List<Models.PayMethod>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -548,7 +548,7 @@ namespace Data
         }
 
 
-        public async Task<Response> GetGroups(bool? isDealer)
+        public async Task<Response<List<Models.Group>>> GetGroups(bool? isDealer)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -561,9 +561,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetGroups(bool? isDealer)
+        private async Task<Response<List<Models.Group>>> _GetGroups(bool? isDealer)
         {
-            Response _response = new Response();
+            Response<List<Models.Group>> _response = new Response<List<Models.Group>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
