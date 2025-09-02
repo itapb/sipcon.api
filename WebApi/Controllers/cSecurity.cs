@@ -233,15 +233,14 @@ namespace WebApi.Controllers
 
                 // 1. Autenticación y obtención del usuario
                 var authResponse = await _dSecurity.Auth_User(credentials);
-                if (authResponse.Data is not List<User> users || !users.Any())
+                if (authResponse.Data is not Models.User user || user == null)
                 {
-                    // manejar error de autenticación
                     _response.SetError(new Exception("USUARIO O CLAVE INVALIDOS"));
                     return StatusCode(_response.Status, _response);
                 }
 
-                User user = users.First();
                 _data.Users = user;
+
 
                 // 2. Obtener todas las compañías relacionadas (suppliers + dealers mezclados)
                 var companyResponse = await _dSecurity.Get_CompanyByUser(user.Id);
