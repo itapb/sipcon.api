@@ -29,9 +29,8 @@ namespace Models
             Status = StatusCodes.Status200OK;
             Processed = false;
             Total = 0;
-            //Data = "{}";
             Message = "Registros no encontrados, por favor valide los filtros aplicados!...";
-          
+    
 
         }
 
@@ -61,7 +60,8 @@ namespace Models
             Status = StatusCodes.Status409Conflict;
             Processed = false;
             Total = 0;
-            Data = (_listResponse == true) ? new List<object>() : new object();
+            //Data = (_listResponse == true) ? new List<object>() : new object();
+            Data = new Models.Result();
             Message = ex.Message;
 
         }
