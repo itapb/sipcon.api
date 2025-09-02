@@ -241,7 +241,8 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_CREDENTIALSUSER", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_CREDENTIALSUSER", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -286,7 +287,8 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_TEMPORARYKEY", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_TEMPORARYKEY", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -332,7 +334,8 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = await _data.ExecuteReaderAsync<Models.Result>("USP_SET_PASSWORD", _mapping, _parameter);
+                DataTable _table = await _data.GetDataTable("USP_SET_PASSWORD", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
             }
@@ -548,7 +551,7 @@ namespace Data
                 _mapping.AddItem("Vat", "VVAT");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_AUTH_ACCESSUSER", _parameter);
-                _response.Data = _data.GetList<Models.User>(_mapping, _table);
+                _response.Data = _data.GetItem<Models.User>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
