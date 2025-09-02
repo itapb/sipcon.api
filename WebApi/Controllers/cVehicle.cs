@@ -35,7 +35,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dVehicle.GetAll(userId, supplierId, dealerId,rowFrom, filter);
+                var _response = await _dVehicle.GetAll(userId, supplierId, dealerId,rowFrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dVehicle.GetOne(userId,vehicleId );
+                var _response = await _dVehicle.GetOne(userId,vehicleId );
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dVehicle.GetOneBy(userId, dealerId, filter, filterBy);
+                var _response = await _dVehicle.GetOneBy(userId, dealerId, filter, filterBy);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -83,7 +83,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dVehicle.GetVehicleFullBy(userId, filter, filterBy);
+                var _response = await _dVehicle.GetVehicleFullBy(userId, filter, filterBy);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -99,7 +99,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dVehicle.GetAllAvailables(userId, dealerId, rowFrom, filter);
+                var _response = await _dVehicle.GetAllAvailables(userId, dealerId, rowFrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -115,7 +115,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dVehicle.GetOneAvailable(userId, dealerId, VinOrPlate);
+                var _response = await _dVehicle.GetOneAvailable(userId, dealerId, VinOrPlate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace WebApi.Controllers
         private async Task<List<Models.Color>> GetColorAsync()
         {
 
-            Response _responseColor = await _dColor.GetAll();
+            var _responseColor = await _dColor.GetAll();
             var _list = (List<Models.Color>)_responseColor.Data;
             return _list;
 
@@ -143,7 +143,7 @@ namespace WebApi.Controllers
         private async Task<List<Models.Model>> GetModelAsync(Int32 userId, Int32? supplierId)
         {
 
-            Response _responseModel = await _dModel.GetAll(userId, supplierId,null,null);
+            var _responseModel = await _dModel.GetAll(userId, supplierId,null,null);
             var _list = (List<Models.Model>)_responseModel.Data;
             return _list;
 
@@ -325,7 +325,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dVehicle.Post_Vehicles(vehicles, userId);
+                var _response = await _dVehicle.Post_Vehicles(vehicles, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -350,7 +350,7 @@ namespace WebApi.Controllers
                 List<Vehicle> vehicles = await ReadExcelToVehicles(file,userId, supplierId);
 
                 // Llamar al método existente de tu capa de servicio
-                Response response = await _dVehicle.Post_Vehicles(vehicles, userId);
+                var response = await _dVehicle.Post_Vehicles(vehicles, userId);
 
                 return StatusCode(response.Processed ?
                     StatusCodes.Status200OK : StatusCodes.Status409Conflict,
@@ -368,7 +368,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dVehicle.Post_Actions(actions, userId);
+                var _response = await _dVehicle.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

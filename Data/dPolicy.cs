@@ -22,7 +22,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response> GetAll(string? filter, Int32 rowFrom, Int32 userId, Int32? dealerId)
+        public async Task<Response<List<Models.Policy>>> GetAll(string? filter, Int32 rowFrom, Int32 userId, Int32? dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -35,9 +35,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? dealerId=null)
+        private async Task<Response<List<Models.Policy>>> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? dealerId=null)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Policy>> _response = new Response<List<Models.Policy>>();
 
             try
             {
@@ -75,7 +75,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_POLICIES", _parameter);
-                _response.Data = _data.GetList<Models.PolicyExtended>(_mapping, _table);
+                _response.Data = _data.GetList<Models.Policy>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 
@@ -92,7 +92,7 @@ namespace Data
 
 
      
-        public async Task<Response> GetOne(Int32 policyId,Int32 userId)
+        public async Task<Response<Models.PolicyExtended>> GetOne(Int32 policyId,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -105,9 +105,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetOne(Int32 policyId, Int32 userId)
+        private async Task<Response<Models.PolicyExtended>> _GetOne(Int32 policyId, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.PolicyExtended> _response = new Response<Models.PolicyExtended>();
 
             try
             {
@@ -171,7 +171,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Models.Response> GetOneBy(Int32 userId, string filter, Int32 filterBy)
+        public async Task<Response<Models.PolicyExtended>> GetOneBy(Int32 userId, string filter, Int32 filterBy)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -183,9 +183,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response> _GetOneBy(Int32 userId, string filter, Int32 filterBy)
+        private async Task<Response<Models.PolicyExtended>> _GetOneBy(Int32 userId, string filter, Int32 filterBy)
         {
-            Response _response = new Response();
+            Response<Models.PolicyExtended> _response = new Response<Models.PolicyExtended>();
 
             try
             {
@@ -249,7 +249,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> GetPolicyDetails(Int32 policyId)
+        public async Task<Response<List<Models.PolicyDetails>>> GetPolicyDetails(Int32 policyId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -263,9 +263,9 @@ namespace Data
         }
        
 
-        private async Task<Response> _GetPolicyDetails(Int32 policyId)
+        private async Task<Response<List<Models.PolicyDetails>>> _GetPolicyDetails(Int32 policyId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.PolicyDetails>> _response = new Response<List<Models.PolicyDetails>>();
 
             try
             {
@@ -295,7 +295,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> GetOnePolicyDetails(Int32 policyId, Int32? km, DateTime? date)
+        public async Task<Response<List<Models.PolicyDetails>>> GetOnePolicyDetails(Int32 policyId, Int32? km, DateTime? date)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -310,7 +310,7 @@ namespace Data
 
 
 
-        public async Task<Response> GetLogPolicyDetails(Int32 policyId)
+        public async Task<Response<List<Models.PolicyDetails>>> GetLogPolicyDetails(Int32 policyId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -324,9 +324,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _GetLogPolicyDetails(Int32 policyId, Int32? km = null, DateTime? date = null)
+        private async Task<Response<List<Models.PolicyDetails>>> _GetLogPolicyDetails(Int32 policyId, Int32? km = null, DateTime? date = null)
         {
-            Response _response = new Response(true);
+            Response<List<Models.PolicyDetails>> _response = new Response<List<Models.PolicyDetails>>();
 
             try
             {
@@ -360,17 +360,17 @@ namespace Data
         }
 
 
-        public async Task<List<PolicyExtended>> GetExport(string? _filter, Int32 userId,Int32? dealerId)
+        public async Task<List<Policy>> GetExport(string? _filter, Int32 userId,Int32? dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
                 var response = await _GetAll(_filter, null, userId, dealerId);
-                if (response.Data is List<PolicyExtended> policyList)
+                if (response.Data is List<Policy> policyList)
                 {
                     return policyList;
                 }
-                return new List<PolicyExtended>();
+                return new List<Policy>();
             }
             finally
             {
@@ -379,7 +379,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Policy(Policy _policy, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Policy(Policy _policy, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -392,9 +392,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Policy(Policy _policy, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Policy(Policy _policy, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -422,7 +422,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list,Int32 userId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list,Int32 userId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -437,10 +437,10 @@ namespace Data
         }
 
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list,Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list,Int32 userId)
 
         {
-            Response _response = new Models.Response();
+            Response<Models.Result> _response = new Models.Response<Models.Result>();
 
             try
             {

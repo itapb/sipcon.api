@@ -38,7 +38,7 @@ namespace WebApi.Controllers
            
             try
             {
-                Models.Response _response = await _dModel.GetAll(userId, supplierId, rowFrom,filter);
+                var _response = await _dModel.GetAll(userId, supplierId, rowFrom,filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -54,7 +54,7 @@ namespace WebApi.Controllers
         
             try
             {
-                Models.Response _response  = await _dModel.GetOne(userId,modelId );
+                var _response  = await _dModel.GetOne(userId,modelId );
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace WebApi.Controllers
         private async Task<List<Models.PolicyType>> GetPolicyTypeAsync(Int32 userId, Int32 supplierId)
         {
 
-            Response _responsePolicyType = await _dPolicyType.GetAll(null,0,userId,supplierId,null);
+            var _responsePolicyType = await _dPolicyType.GetAll(null,0,userId,supplierId,null);
             var _list = (List<Models.PolicyType>)_responsePolicyType.Data;
             return _list;
 
@@ -217,7 +217,7 @@ namespace WebApi.Controllers
                 List<Model> models = await ReadExcelToModels(file, userId, supplierId);
 
                 // Llamar al método existente de tu capa de servicio
-                Response response = await _dModel.Post_Models(models, userId);
+                var response = await _dModel.Post_Models(models, userId);
 
                 return StatusCode(response.Processed ?
                     StatusCodes.Status200OK : StatusCodes.Status409Conflict,
@@ -236,7 +236,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dModel.Post_Models(models, userId);
+                var _response = await _dModel.Post_Models(models, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -251,7 +251,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dModel.Post_Actions(actions, userId);
+                var _response = await _dModel.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

@@ -26,7 +26,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dComment.GetAll(moduleName,recordId);
+                var _response = await _dComment.GetAll(moduleName,recordId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dComment.Post_Comment(comment, userId);
+                var _response = await _dComment.Post_Comment(comment, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

@@ -21,7 +21,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Models.Response> GetAll(string? filter, Int32 rowFrom, Int32 userId,Int32? supplierId, Int32? brandId)
+        public async Task<Response<List<Models.PolicyType>>> GetAll(string? filter, Int32 rowFrom, Int32 userId,Int32? supplierId, Int32? brandId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -34,10 +34,10 @@ namespace Data
             }
         }
 
-        private async Task<Models.Response> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? supplierId = null, Int32? brandId=null, Int32? policyTypeId = null )
+        private async Task<Response<List<Models.PolicyType>>> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? supplierId = null, Int32? brandId=null, Int32? policyTypeId = null )
         {
 
-            Models.Response _response = new Models.Response(true);
+            Response<List<Models.PolicyType>> _response = new Response<List<Models.PolicyType>>();
            
             try
             {
@@ -82,7 +82,7 @@ namespace Data
         }
 
 
-         public async Task<Response> GetOne(Int32 policyTypeId,Int32 userId)
+         public async Task<Response<Models.PolicyType>> GetOne(Int32 policyTypeId,Int32 userId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -98,10 +98,10 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetOne(Int32 policyTypeId, Int32 userId)
+        private async Task<Response<Models.PolicyType>> _GetOne(Int32 policyTypeId, Int32 userId)
         {
 
-            Response _response = new Response();
+            Response<Models.PolicyType> _response = new Response<Models.PolicyType>();
 
             try
             {
@@ -156,7 +156,7 @@ namespace Data
             }
         }
 
-        public async Task<Response> Post_PolicyType(List<PolicyType> _list,Int32 userId)
+        public async Task<Response<Models.Result>> Post_PolicyType(List<PolicyType> _list,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -169,11 +169,11 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_PolicyType(List<PolicyType> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_PolicyType(List<PolicyType> _list, Int32 userId)
         {
-            
-            
-            Response _response = new Response();
+
+
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -202,7 +202,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -217,9 +217,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

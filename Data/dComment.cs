@@ -23,7 +23,7 @@ namespace Data
 
         }
 
-        public async Task<Response> GetAll(string moduleName, Int32 recordId)
+        public async Task<Response<List<Models.Comment>>> GetAll(string moduleName, Int32 recordId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -36,9 +36,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(string moduleName, Int32 recordId)
+        private async Task<Response<List<Models.Comment>>> _GetAll(string moduleName, Int32 recordId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Comment>> _response = new Response<List<Models.Comment>>();
             try
             {
                 Parameter _parameter = new Parameter();
@@ -72,7 +72,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Comment(Comment _comment, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Comment(Comment _comment, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -85,9 +85,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Comment(Comment _comment, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Comment(Comment _comment, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {

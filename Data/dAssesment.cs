@@ -24,7 +24,7 @@ namespace Data
 
         }
 
-        public async Task<Response> GetAll(string moduleName, Int32 recordId)
+        public async Task<Response<List<Models.Assessment>>> GetAll(string moduleName, Int32 recordId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -37,9 +37,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(string moduleName, Int32 recordId)
+        private async Task<Response<List<Models.Assessment>>> _GetAll(string moduleName, Int32 recordId)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Assessment>> _response = new Response<List<Models.Assessment>>();
             try
             {
                 Parameter _parameter = new Parameter();
@@ -75,7 +75,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Assessment(Assessment _assessment, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Assessment(Assessment _assessment, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -88,9 +88,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Assessment(Assessment _assessment, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Assessment(Assessment _assessment, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -119,7 +119,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -132,9 +132,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

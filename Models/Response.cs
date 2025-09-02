@@ -54,10 +54,23 @@ namespace Models
             Status = StatusCodes.Status409Conflict;
             Processed = false;
             Total = 0;
-            //Data = (_listResponse == true) ? new List<object>() : new object();
-            // Data = new Models.Result();
-            Message = ex.Message;
+            // Solución: Asignar un valor compatible con T
+            //if (typeof(T).IsGenericType && typeof(IEnumerable).IsAssignableFrom(typeof(T)))
+            if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(List<>))
+            {
+                //Type type = typeof(List<T>);
+                //List<T> _list = (List<T>)Activator.CreateInstance(type);
+                Data = (T)Activator.CreateInstance(typeof(T))!;
 
+
+            }
+            else
+            {
+                Type type = typeof(T);
+                T _item = (T)Activator.CreateInstance(type);
+                Data =_item;
+            }
+            Message = ex.Message;
         }
 
         public bool NotUpdated()

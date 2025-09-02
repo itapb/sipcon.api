@@ -24,7 +24,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response> GetAll(Int32 supplierId,Int32? modelId, String? filter, Int32 irowfrom)
+        public async Task<Response<List<Models.LaborTime>>> GetAll(Int32 supplierId,Int32? modelId, String? filter, Int32 irowfrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -56,9 +56,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(Int32 supplierId, Int32? modelId, String? filter, Int32? irowfrom)
+        private async Task<Response<List<Models.LaborTime>>> _GetAll(Int32 supplierId, Int32? modelId, String? filter, Int32? irowfrom)
         {
-            Response _response = new Response(true);
+            Response<List<Models.LaborTime>> _response = new Response<List<Models.LaborTime>>();
             try
             {
 
@@ -92,7 +92,7 @@ namespace Data
 
         }
 
-        public async Task<Response> Post_LaborTime(List<Models.LaborTime> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_LaborTime(List<Models.LaborTime> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -105,9 +105,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_LaborTime(List<LaborTime> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_LaborTime(List<LaborTime> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -137,7 +137,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Delete_LaborTime(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Delete_LaborTime(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -150,9 +150,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Delete_LaborTime(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Delete_LaborTime(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
 

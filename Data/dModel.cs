@@ -24,7 +24,7 @@ namespace Data
 
         }
 
-        public async Task<Response> GetAll(Int32 userId, Int32? supplierId, Int32? rowFrom, string? filter)
+        public async Task<Response<List<Models.Model>>> GetAll(Int32 userId, Int32? supplierId, Int32? rowFrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -37,9 +37,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(Int32 userId, Int32? supplierId, Int32? rowFrom, string? filter,  Int32 modelId=0)
+        private async Task<Response<List<Models.Model>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowFrom, string? filter,  Int32 modelId=0)
         {
-            Response _response = new Response(true);
+            Response<List<Models.Model>> _response = new Response<List<Models.Model>>();
 
             try
             {
@@ -48,7 +48,7 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@ID", modelId);
+                _parameter.AddSqlParameter("@ID", null);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
 
                 Mapping _mapping = new Mapping();
@@ -78,9 +78,9 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response> _GetOne(Int32 userId, Int32 modelId )
+        private async Task<Response<Models.Model>> _GetOne(Int32 userId, Int32 modelId )
         {
-            Response _response = new Response();
+            Response<Models.Model> _response = new Response<Models.Model>();
 
             try
             {
@@ -119,7 +119,7 @@ namespace Data
 
         }
    
-        public async Task<Response> GetOne(Int32 userId,Int32 modelId)
+        public async Task<Response<Models.Model>> GetOne(Int32 userId,Int32 modelId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -150,7 +150,7 @@ namespace Data
        
 
 
-        public async Task<Response> Post_Models(List<Model> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Models(List<Model> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -163,9 +163,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Models (List<Model> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Models (List<Model> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
 
             try
             {
@@ -194,7 +194,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -207,9 +207,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Models.Result> _response = new Response<Models.Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);

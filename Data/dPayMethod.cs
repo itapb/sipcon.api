@@ -23,7 +23,7 @@ namespace Data
 
         }
 
-        public async Task<Response> GetAll(bool? isDealer)
+        public async Task<Response<List<Models.PayMethod>>> GetAll(bool? isDealer)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -36,9 +36,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(bool? isDealer)
+        private async Task<Response<List<Models.PayMethod>>> _GetAll(bool? isDealer)
         {
-            Response _response = new Response(true);
+            Response<List<Models.PayMethod>> _response = new Response<List<Models.PayMethod>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();

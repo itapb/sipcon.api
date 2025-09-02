@@ -22,7 +22,7 @@ namespace Data
 
         }
 
-        public async Task<Response> GetAll()
+        public async Task<Response<List<Models.Color>>> GetAll()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -35,9 +35,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll()
+        private async Task<Response<List<Models.Color>>> _GetAll()
         {
-            Response _response = new Response();
+            Response<List<Models.Color>> _response = new Response<List<Models.Color>>();
             try
             {
 

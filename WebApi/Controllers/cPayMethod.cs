@@ -27,7 +27,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dPayMethod.GetAll(isDealer);
+                 var _response = await _dPayMethod.GetAll(isDealer);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

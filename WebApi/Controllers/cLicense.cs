@@ -32,7 +32,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dLicense.GetAll(filter, rowFrom, userId, supplierId);
+                var _response = await _dLicense.GetAll(filter, rowFrom, userId, supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Models.Response _response = await _dLicense.GetOne(licenseid, userId);
+                var _response = await _dLicense.GetOne(licenseid, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -74,7 +74,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dLicense.GetDetails(filter, rowFrom, licenseId, userId);
+                var _response = await _dLicense.GetDetails(filter, rowFrom, licenseId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Models.Response _response = await _dLicense.GetLicenseType();
+                var _response = await _dLicense.GetLicenseType();
                 return StatusCode(_response.Status, _response);
 
             }
@@ -110,7 +110,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Models.Response _response = await _dLicense.GetDetailBy(filter, userId);
+                var _response = await _dLicense.GetDetailBy(filter, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -218,7 +218,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dLicense.Post_License(license, userId);
+                var _response = await _dLicense.Post_License(license, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -235,7 +235,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dLicense.Post_LicenseDetails(licenseDetails, userId);
+                var _response = await _dLicense.Post_LicenseDetails(licenseDetails, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -252,7 +252,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dLicense.Post_Actions(actions, userId);
+                var _response = await _dLicense.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -270,7 +270,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dLicense.Post_DetailsActions(actions, userId);
+                var _response = await _dLicense.Post_DetailsActions(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -328,7 +328,7 @@ namespace WebApi.Controllers
             try
             {
                 List<LicenseDetails> _details = ExceltoLicenseDetail(file, licenseId);
-                Response _response = await _dLicense.Post_LicenseDetails(_details, userId);
+                var _response = await _dLicense.Post_LicenseDetails(_details, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -345,7 +345,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dLicense.DeleteLicenseDetail(_list, userId);
+                var _response = await _dLicense.DeleteLicenseDetail(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

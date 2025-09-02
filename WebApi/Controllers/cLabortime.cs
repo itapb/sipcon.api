@@ -37,7 +37,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dLaborTime.GetAll(supplierId,modelId,filter,irowfrom);
+                var _response = await _dLaborTime.GetAll(supplierId,modelId,filter,irowfrom);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -129,7 +129,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dLaborTime.Post_LaborTime(list, userId);
+                var _response = await _dLaborTime.Post_LaborTime(list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -186,7 +186,7 @@ namespace WebApi.Controllers
             try
             {
                 List<Models.LaborTime> _labortime = await ExceltoPost(file, modelId); // Correct type usage
-                Models.Response _response = await _dLaborTime.Post_LaborTime(_labortime, userId); // Adjusted method call
+                var _response = await _dLaborTime.Post_LaborTime(_labortime, userId); // Adjusted method call
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -202,7 +202,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Models.Response _response = await _dLaborTime.Delete_LaborTime(_list, userId);
+                var _response = await _dLaborTime.Delete_LaborTime(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
