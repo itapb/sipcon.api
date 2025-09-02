@@ -29,7 +29,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dWarehouse.GetAll(userId, supplierId, rowFrom, filter);
+                var _response = await _dWarehouse.GetAll(userId, supplierId, rowFrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dWarehouse.GetOne(warehouseId, userId);
+                var _response = await _dWarehouse.GetOne(warehouseId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -192,7 +192,7 @@ namespace WebApi.Controllers
             {
 
                 List<Warehouse> _wh = await ExceltoPost(file);
-                Response _response = await _dWarehouse.Post_Warehouses(_wh, userId);
+                var _response = await _dWarehouse.Post_Warehouses(_wh, userId);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -210,7 +210,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dWarehouse.Post_Warehouses(warehouses, userId);
+                var _response = await _dWarehouse.Post_Warehouses(warehouses, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -226,7 +226,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dWarehouse.Post_Actions(actions,userId);
+                var _response = await _dWarehouse.Post_Actions(actions,userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

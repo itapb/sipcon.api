@@ -24,9 +24,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _Post_PrintQueue(List<Models.Printqueue> _list, int userId)
+        private async Task<Response<Result>> _Post_PrintQueue(List<Models.Printqueue> _list, int userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -56,7 +56,7 @@ namespace Data
         }
 
 
-        public async Task<Response> Post_PrintQueue(List<Models.Printqueue> _list, int userId)
+        public async Task<Response<Result>> Post_PrintQueue(List<Models.Printqueue> _list, int userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try

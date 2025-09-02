@@ -24,7 +24,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response> GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter)
+        public async Task<Response<List<SaleOrder>>> GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -37,9 +37,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
+        private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
         {
-            Response _response = (saleOrderId == null) ? new Response(true) : new Response();
+            Response<List<SaleOrder>> _response =  new Response<List<SaleOrder>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -72,7 +72,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_SALEORDERS", _parameter);
-                _response.Data = (saleOrderId == null) ? _data.GetList<Models.SaleOrder>(_mapping, _table) : _data.GetItem<Models.SaleOrder>(_mapping, _table);
+                _response.Data =  _data.GetList<Models.SaleOrder>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 
@@ -84,19 +84,66 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> GetOne(Int32? saleOrderId, Int32? userId)
+        private async Task<Response<SaleOrder>> _getOne(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
+        {
+            Response<SaleOrder> _response = new Response<SaleOrder>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BCLAIM", false);
+                _parameter.AddSqlParameter("@ID", saleOrderId);
+
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("TypeId", "IDTYPE");
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("Created", "VCREATED");
+                _mapping.AddItem("CreatedBy", "VCREATEDBY");
+                _mapping.AddItem("IsClaim", "BCLAIM");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_SALEORDERS", _parameter);
+                _response.Data =  _data.GetItem<Models.SaleOrder>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        public async Task<Response<SaleOrder>> GetOne(Int32? saleOrderId, Int32? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, null, null, null, saleOrderId);
+                return await _getOne(userId, null, null, null, saleOrderId);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-        public async Task<Response> GetReasons()
+        public async Task<Response<List<Models.Reason>>> GetReasons()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -109,9 +156,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetReasons()
+        private async Task<Response<List<Models.Reason>>> _GetReasons()
         {
-            Response _response = new Response(true);
+            Response<List<Models.Reason>> _response = new Response<List<Models.Reason>>();
             try
             {
                 Mapping _mapping = new Mapping();
@@ -134,7 +181,7 @@ namespace Data
         }
 
 
-        public async Task<Response> PostSaleOrder(List<Models.SaleOrder> _list, Int32 userId)
+        public async Task<Response<Result>> PostSaleOrder(List<Models.SaleOrder> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -148,9 +195,9 @@ namespace Data
         }
 
 
-        private async Task<Response> _postSaleOrder(List<SaleOrder> _list, Int32 userId)
+        private async Task<Response<Result>> _postSaleOrder(List<SaleOrder> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -178,7 +225,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response> Post_Actions(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -190,9 +237,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response> _Post_Actions(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
@@ -222,7 +269,7 @@ namespace Data
         }
         
 
-        public async Task<Response> GetDetails( Int32 saleOrderId)
+        public async Task<Response<List<SaleOrderDetail>>> GetDetails( Int32 saleOrderId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -235,9 +282,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _GetDetails(Int32 saleOrderId)
+        private async Task<Response<List<SaleOrderDetail>>> _GetDetails(Int32 saleOrderId)
         {
-            Response _response = new Response(true);
+            Response<List<SaleOrderDetail>> _response = new Response<List<SaleOrderDetail>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -274,7 +321,7 @@ namespace Data
         }
 
 
-        public async Task<Response> PostDetail(Models.SaleOrderDetail saleOrderDetail, Int32 userId)
+        public async Task<Response<Result>> PostDetail(Models.SaleOrderDetail saleOrderDetail, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -287,9 +334,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _postDetail(SaleOrderDetail saleOrderDetail, Int32 userId)
+        private async Task<Response<Result>> _postDetail(SaleOrderDetail saleOrderDetail, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(saleOrderDetail);
@@ -317,7 +364,7 @@ namespace Data
         }
 
 
-        public async Task<Response> DeleteDetails(List<Models.Detail> list, Int32 userId)
+        public async Task<Response<Result>> DeleteDetails(List<Models.Detail> list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -330,9 +377,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _deleteDetails(List<Models.Detail> _list, Int32 userId)
+        private async Task<Response<Result>> _deleteDetails(List<Models.Detail> _list, Int32 userId)
         {
-            Response _response = new Response();
+            Response<Result> _response = new Response<Result>();
             try
             {
 
@@ -363,7 +410,7 @@ namespace Data
         }
 
 
-        public async Task<Response> GetSaleOrderTypes()
+        public async Task<Response<List<SaleOrderType>>> GetSaleOrderTypes()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -376,9 +423,9 @@ namespace Data
             }
         }
 
-        private async Task<Response> _getSaleOrderTypes()
+        private async Task<Response<List<SaleOrderType>>> _getSaleOrderTypes()
         {
-            Response _response = new Response(true);
+            Response<List<SaleOrderType>> _response = new Response<List<SaleOrderType>>();
             try
             {
 

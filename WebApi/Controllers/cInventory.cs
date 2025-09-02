@@ -37,7 +37,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetAll(userId, supplierId, rowFrom, filter);
+                Models.Response<List<Inventory>> _response = await _dInventory.GetAll(userId, supplierId, rowFrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetMovements(userId, supplierId, typeId, rowfrom, filter);
+                Models.Response<List<Movement>> _response = await _dInventory.GetMovements(userId, supplierId, typeId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetMovement(userId, movementId);
+                Models.Response<Movement> _response = await _dInventory.GetMovement(userId, movementId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace WebApi.Controllers
                 List<Movement> _list = new List<Movement>();
                 _list.Add(_new);
 
-                Response _resp = await _dInventory.PostMovements(_list, userId);
+                Response<Result> _resp = await _dInventory.PostMovements(_list, userId);
                 Result _resul = new Result();
                 _resul = (Result)(_resp.Data);
 
@@ -105,7 +105,7 @@ namespace WebApi.Controllers
                 _mov.Movement = _new;
                 _mov.Details = _details;
 
-                Response _response = new Response();
+                Response<MovementWithContext> _response = new Response<MovementWithContext>();
                 _response.Data = _mov;
                 _response.Total = 1;
 
@@ -139,7 +139,7 @@ namespace WebApi.Controllers
                 }
               
 
-                Response _response = new Response();
+                Response<MovementWithContext> _response = new Response<MovementWithContext>();
                 _response.Data = _mov;
                 _response.Total = _get.Total;
                 _response.Processed = _get.Processed;
@@ -159,7 +159,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetMovementDetails(userId, movementId, detailId);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetails(userId, movementId, detailId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -173,7 +173,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetMovementDetailsByUser(userId, movementType, mode);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsByUser(userId, movementType, mode);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -187,7 +187,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetValidLocation(movementDetailId, locationName);
+                Models.Response<Models.Location> _response = await _dInventory.GetValidLocation(movementDetailId, locationName);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -201,7 +201,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.PostMovements(movements, userId);
+                Response<Result> _response = await _dInventory.PostMovements(movements, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -215,7 +215,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.PostMovementDetail(detail, userId);
+                Response<Result> _response = await _dInventory.PostMovementDetail(detail, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -229,7 +229,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.PostMovementDetailMobile(movementDetail, userId);
+                Response<Result> _response = await _dInventory.PostMovementDetailMobile(movementDetail, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -244,7 +244,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.Post_Actions(actions, userId);
+                Response<Result> _response = await _dInventory.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -303,7 +303,7 @@ namespace WebApi.Controllers
             {
                 List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
                 List<NewMovementDetail> _details = ExceltoMovementDetail(file, movementId);
-                Response _response = await _dInventory.PostMovementDetail(_details, userId, true);
+                Response<Result> _response = await _dInventory.PostMovementDetail(_details, userId, true);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -320,7 +320,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.DeleteMovementDetail(_list, userId);
+                Response<Result> _response = await _dInventory.DeleteMovementDetail(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -337,7 +337,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.GetPartialTypes();
+                Response<List<PartialType>> _response = await _dInventory.GetPartialTypes();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -357,7 +357,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetCustomersForPacking(supplierId);
+                var _response = await _dInventory.GetCustomersForPacking(supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -372,7 +372,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetProviderToDeliver();
+                var _response = await _dInventory.GetProviderToDeliver();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -386,7 +386,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetPackages( supplierId,  customerId,  userId);
+                var _response = await _dInventory.GetPackages( supplierId,  customerId,  userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -400,7 +400,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetPackagesFromGuide(guideId);
+                var _response = await _dInventory.GetPackagesFromGuide(guideId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -414,7 +414,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetPackageDetails(packageId);
+                var _response = await _dInventory.GetPackageDetails(packageId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -428,7 +428,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetPackageDetailByPart(packageId, scanCode);
+                var _response = await _dInventory.GetPackageDetailByPart(packageId, scanCode);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -442,7 +442,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetPackageDetailsPending(packageId);
+                var _response = await _dInventory.GetPackageDetailsPending(packageId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -456,7 +456,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetGuides(supplierId, customerId, userId);
+                var _response = await _dInventory.GetGuides(supplierId, customerId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -478,7 +478,7 @@ namespace WebApi.Controllers
                 package.Closed = false;
                 package.Id = 0;
 
-                Response _response = await _dInventory.PostPackage(package);
+                var _response = await _dInventory.PostPackage(package);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -499,7 +499,7 @@ namespace WebApi.Controllers
                 package.Weight = weight;
                 package.Closed = true;
 
-                Response _response = await _dInventory.PostPackage(package);
+                var _response = await _dInventory.PostPackage(package);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -516,7 +516,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dInventory.PostPackageDetail(packageDetail);
+                var _response = await _dInventory.PostPackageDetail(packageDetail);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -538,7 +538,7 @@ namespace WebApi.Controllers
                 packageDetail.PartId = partId;
                 packageDetail.Quantity = 0;
 
-                Response _response = await _dInventory.PostPackageDetail(packageDetail);
+                var _response = await _dInventory.PostPackageDetail(packageDetail);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -561,7 +561,7 @@ namespace WebApi.Controllers
                 guide.UserId = userId;
                 guide.Delivered = false;
 
-                Response _response = await _dInventory.PostGuide(guide);
+                var _response = await _dInventory.PostGuide(guide);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -583,8 +583,8 @@ namespace WebApi.Controllers
                 guide.UserId = userId;
                 guide.Number = guideNumber;
                 guide.Closed = true;
-                
-                Response _response = await _dInventory.PostGuide(guide);
+
+                var _response = await _dInventory.PostGuide(guide);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -599,7 +599,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.AddPackge( packageCode,  guideId);
+                var _response = await _dInventory.AddPackge( packageCode,  guideId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -634,7 +634,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response _response = await _dInventory.GetAllGuides(userId, supplierId, rowfrom, filter);
+                var _response = await _dInventory.GetAllGuides(userId, supplierId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -654,11 +654,12 @@ namespace WebApi.Controllers
 
                 GuideWithContext _guide = new GuideWithContext();
 
-                var temp = (List<Guide>)(_get.Data);
-                _guide.Guide = temp[0];
+                //var temp = (List<Guide>)(_get.Data);
+                //_guide.Guide = temp[0];
+                _guide.Guide = (Guide)(_get.Data);
                 _guide.GuideDetails = (List<GuideDetails>)(_details.Data);
 
-                Response _response = new Response();
+                Response<GuideWithContext> _response = new Response<GuideWithContext>();
                 _response.Data = _guide;
                 _response.Total = 1;
 
@@ -678,7 +679,7 @@ namespace WebApi.Controllers
             try
             {
 
-                Response _response = await _dInventory.PostGuideDetails(_list, userId);
+                var _response = await _dInventory.PostGuideDetails(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -693,7 +694,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.PostGuidesActions(actions, userId);
+                var _response = await _dInventory.PostGuidesActions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -709,7 +710,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.PostGuideNumber(userId, guideId, guideNumber);
+                var _response = await _dInventory.PostGuideNumber(userId, guideId, guideNumber);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1031,7 +1032,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter);
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1046,7 +1047,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.PostBackorder_Actions(actions, userId);
+                var _response = await _dInventory.PostBackorder_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1063,7 +1064,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response _response = await _dInventory.PostBacKOrder(backOrder, userId);
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
