@@ -83,7 +83,7 @@ namespace WebApi.Controllers
 
             try
             {
-                var _response = await _dVehicle.GetVehicleFullBy(userId, filter, filterBy);
+                Response<Models.VehicleFull> _response = await _dVehicle.GetVehicleFullBy(userId, filter, filterBy);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
