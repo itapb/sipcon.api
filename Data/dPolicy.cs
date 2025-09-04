@@ -365,7 +365,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                var response = await _GetAll(_filter, null, userId, dealerId);
+                Response<List<Models.Policy>> response = await _GetAll(_filter, null, userId, dealerId);
                 if (response.Data is List<Policy> policyList)
                 {
                     return policyList;
