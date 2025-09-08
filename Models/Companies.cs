@@ -16,6 +16,9 @@ namespace Models
 
         [SwaggerIgnore]
         public string? Type { get; set; }
+        
+        [SwaggerIgnore]
+        public string? SupplierId { get; set; }
 
     }
 }
