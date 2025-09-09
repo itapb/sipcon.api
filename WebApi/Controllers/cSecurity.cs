@@ -233,9 +233,10 @@ namespace WebApi.Controllers
 
                 // 1. Autenticación y obtención del usuario
                 var authResponse = await _dSecurity.Auth_User(credentials);
-                if (authResponse.Data is not Models.User user || user == null)
+
+                if (authResponse.Data is not Models.User user || user.Id == 0)
                 {
-                    _response.SetError(new Exception("USUARIO O CLAVE INVALIDOS"));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: USUARIO O CLAVE INVALIDOS"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -246,7 +247,7 @@ namespace WebApi.Controllers
                 var companyResponse = await _dSecurity.Get_CompanyByUser(user.Id);
                 if (companyResponse.Data is not List<Companies> allCompanies || allCompanies.Count == 0)
                 {
-                    _response.SetError(new Exception("No se pudieron obtener las compañías del usuario."));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -257,7 +258,7 @@ namespace WebApi.Controllers
                 var modulesResponse = await _dSecurity.Get_ModulesByUser(user.Id);
                 if (modulesResponse?.Data is not List<Module> allModules || allModules.Count == 0)
                 {
-                    _response.SetError(new Exception("No se pudieron obtener los módulos asignados al usuario o la lista está vacía."));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -265,7 +266,7 @@ namespace WebApi.Controllers
                 var actionsResponse = await _dSecurity.Get_ActionByUser(user.Id);
                 if (actionsResponse?.Data is not List<ActionModule> allActions || allActions.Count == 0)
                 {
-                    _response.SetError(new Exception("No se pudieron obtener las acciones del usuario."));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
                     return StatusCode(_response.Status, _response);
                 }
 
