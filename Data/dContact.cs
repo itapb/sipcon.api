@@ -524,7 +524,7 @@ namespace Data
                 }
             }
 
-            _data.Brands = await _dBrand.GetAll();
+            _data.Brands = await _dBrand.GetAll(null);
             _data.Relateds = await GetRelated(idContact);
             _data.Cities = await GetCitys();
             _data.Groups = (List<Group>)(await GetGroups(true)).Data ;

@@ -12,6 +12,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Colors = QuestPDF.Helpers.Colors;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -31,7 +32,7 @@ namespace WebApi.Controllers
 
         #region "Inventory"
 
-
+        [Authorize]
         [HttpGet("/api/Inventory/GetAll")]
         public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter )
         {

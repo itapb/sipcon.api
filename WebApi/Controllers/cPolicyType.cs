@@ -179,7 +179,7 @@ namespace WebApi.Controllers
             var id = 0;
             string brandName = "";
 
-            var _brands = await _dBrand.GetAll();
+            var _brands = await _dBrand.GetAll(null);
 
             using (var stream = new MemoryStream())
             {
@@ -194,8 +194,9 @@ namespace WebApi.Controllers
                     {
                         brandName = row.Cell(10).GetValue<string>()?.Trim();
                         id = _brands.Exists(x => x.Name.ToUpper() == brandName.ToUpper()) ? (int)_brands.Find(x => x.Name.ToUpper() == brandName.ToUpper()).Id : 0;
-                        
-                        
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
+
                         policyTypes.Add(new PolicyType
                         {
                             // Mapear las celdas de Excel a las propiedades del modelo
@@ -210,7 +211,8 @@ namespace WebApi.Controllers
                             TopMonths= row.Cell(8).GetValue< int >(),
                             SupplierId = row.Cell(9).GetValue<int>(),
                             BrandId = id,
-                            IsActive = row.Cell(11).GetValue<string>() == "SI" ? true : false
+                            IsActive = row.Cell(11).GetValue<string>() == "SI" ? true : false,
+                            RowReference = rowRef
                         });
                     }
                 }

@@ -75,18 +75,24 @@ namespace Models
 
         public bool NotUpdated()
         {
-
-            //if (((Result)Data).UpdatedRows == 0 && ((Result)Data).InsertedRows == 0 )
-            //{
-            //    return true;
-            //}
-            //else
-            //{
-            //    return false;
-            //}
-
-            return false;
-
+            // Verifica si T es Models.Result antes de intentar convertir
+            if (Data is Result result)
+            {
+                // Maneja el posible valor nulo de Data
+                if (result.UpdatedRows == 0 && result.InsertedRows == 0)
+                {
+                    return true ;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Si T no es Models.Result, no se puede determinar si fue actualizado
+                return false;
+            }
         }
 
         public int Status { get; set; } = StatusCodes.Status200OK;

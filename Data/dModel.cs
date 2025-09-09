@@ -133,12 +133,12 @@ namespace Data
         }
 
 
-        public async Task<List<Model>> GetExport(Int32 userId, Int32? supplierId,string? _filter)
+        public async Task<List<Model>> GetExport(Int32 userId, Int32? supplierId,string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Model>)(await _GetAll(userId, supplierId,null, _filter)).Data;
+                return (List<Model>)(await _GetAll(userId, supplierId,null, filter)).Data;
             }
             finally
             {
