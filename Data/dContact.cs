@@ -59,6 +59,7 @@ namespace Data
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FirstName", "VFIRSTNAME");
                 _mapping.AddItem("LastName", "VLASTNAME");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("Address", "VADDRESS");
                 _mapping.AddItem("Phone1", "VPHONE1");
                 _mapping.AddItem("Phone2", "VPHONE2");
