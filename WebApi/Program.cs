@@ -105,6 +105,8 @@ var app = builder.Build();
 // 6. Use. ORDEN: UseSwagger,UseSwaggerUI,UseRouting,UseCors,Use,UseAuthentication,UseAuthorization,MapControllers
 app.UseSwagger();
 app.UseSwaggerUI();
+
+
 app.UseRouting();
 app.UseCors("AllowAll");
 app.Use(async (context, next) =>

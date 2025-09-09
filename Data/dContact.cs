@@ -4,8 +4,6 @@ using System.Diagnostics.Eventing.Reader;
 using System.Dynamic;
 using System.Threading;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
-using ClosedXML.Excel;
 using System.IO;
 using Models;
 using Util;
