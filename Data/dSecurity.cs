@@ -594,6 +594,7 @@ namespace Data
                 _mapping.AddItem("Id", "IDCOMPANY");
                 _mapping.AddItem("Name", "VCOMPANY");
                 _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER_REF");
 
 
                 Util.Data _data = Util.Data.GetInstance();
