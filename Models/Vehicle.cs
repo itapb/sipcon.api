@@ -73,6 +73,7 @@ namespace Models
 
         [SwaggerIgnore]
         public string? PolicyTypeName { get; set; }
+        [SwaggerIgnore] public string? RowReference { get; set; }
 
 
     }

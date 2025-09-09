@@ -1,5 +1,5 @@
 ﻿
-using System.Diagnostics.CodeAnalysis;
+using Azure;
 using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebApi.Controllers
 {
@@ -83,7 +84,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response<Models.VehicleFull> _response = await _dVehicle.GetVehicleFullBy(userId, filter, filterBy);
+                Models.Response<Models.VehicleFull> _response = await _dVehicle.GetVehicleFullBy(userId, filter, filterBy);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -279,24 +280,8 @@ namespace WebApi.Controllers
                         supplierId2 = _contacts.Exists(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()).Id : 0;
                         colorId = _colors.Exists(x => x.Name.ToUpper() == colorName.ToUpper()) ? (int)_colors.Find(x => x.Name.ToUpper() == colorName.ToUpper()).Id : 0;
                         modelId = _models.Exists(x => x.Name.ToUpper() == modelName.ToUpper()) ? (int)_models.Find(x => x.Name.ToUpper() == modelName.ToUpper()).Id : 0;
-
-                        if (modelId == 0)
-                        {
-                            Exception _error = new Exception("Modelo no existe: " + modelName);
-                            throw _error;
-                        }
-
-                        if (colorId == 0)
-                        {
-                            Exception _error = new Exception("Color no existe: " + colorName);
-                            throw _error;
-                        }
-
-                        if (supplierId2 == 0)
-                        {
-                            Exception _error = new Exception("Planta no existe: " + referenceSupplier);
-                            throw _error;
-                        }
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
 
 
                         vehicles.Add(new Vehicle
@@ -310,7 +295,8 @@ namespace WebApi.Controllers
                             Plate = row.Cell(6).GetString(),
                             IsActive = row.Cell(7).GetValue<string>() == "SI" ? true : false,
                             DealerId = dealerId,
-                            SupplierId = supplierId2
+                            SupplierId = supplierId2,
+                            RowReference = rowRef
                         });
                     }
                 }

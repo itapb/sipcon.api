@@ -74,13 +74,13 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAccessGroupUser")]
-        public async Task<IActionResult> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign)
+        public async Task<IActionResult> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign,string? filter)
 
         {
 
             try
             {
-                var _response = await _dSecurity.GetAccessGroupUser(rowFrom, userId, assign);
+                var _response = await _dSecurity.GetAccessGroupUser(rowFrom, userId, assign,filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
