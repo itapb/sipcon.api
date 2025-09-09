@@ -117,13 +117,13 @@ namespace WebApi.Controllers
 
    
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(Int32 userId, Int32? supplierId, string? filter )
+        public async Task<IActionResult> GetExport(Int32 userId, Int32? supplierId, string? _filter )
         {
             
             try
             {
 
-                List<Models.Model> _models = await _dModel.GetExport(userId,supplierId, filter);
+                List<Models.Model> _models = await _dModel.GetExport(userId,supplierId, _filter);
                 MemoryStream _excel = ConvertToExcel(_models);
                 string _fileName = "Modelos.xlsx";
 
@@ -154,7 +154,7 @@ namespace WebApi.Controllers
         private async Task<List<Models.Model>> ReadExcelToModels(IFormFile file,Int32 userId,Int32 supplierId)
         {
             var models = new List<Models.Model>();
-            var _brands = await _dBrand.GetAll();
+            var _brands = await _dBrand.GetAll(null);
             var _policyTypes = await GetPolicyTypeAsync(userId,supplierId);
             var idbrand = 0;
             var idPolicyType = 0;
