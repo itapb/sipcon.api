@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,6 +13,9 @@ namespace Models
 
         [Required]
         public string? Name { get; set; }
+        
+        [SwaggerIgnore]
+        public Int32? SupplierId { get; set; }
 
     }
 }
