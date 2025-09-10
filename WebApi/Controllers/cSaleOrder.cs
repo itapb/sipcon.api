@@ -12,7 +12,8 @@ namespace WebApi.Controllers
 {
     [Route("api/SaleOrder")]
     [ApiController]
-
+   
+    [Authorize]
     public class cSaleOrder : ControllerBase
     {
         private readonly dSaleOrder _dSaleOrder;
@@ -22,7 +23,7 @@ namespace WebApi.Controllers
             _dSaleOrder = dSaleOrder;
         }
 
-        [Authorize]
+        
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll(Int32 userId, Int32? dealerId, Int32 rowfrom, string? filter)
         {
@@ -40,7 +41,6 @@ namespace WebApi.Controllers
 
         }
 
-        [Authorize]
         [HttpGet("GetOne")]
         public async Task<IActionResult> GetOne(Int32 saleOrderId, Int32 userId)
         {
@@ -57,7 +57,6 @@ namespace WebApi.Controllers
 
         }
 
-        [Authorize]
         [HttpGet("GetOneWithContext")]
         public async Task<IActionResult> GetOneWithContext(Int32 userId, Int32 saleOrderId)
         {
@@ -86,7 +85,7 @@ namespace WebApi.Controllers
             }
         }
 
-        [Authorize]
+        
         [HttpGet("GetReasons")]
         public async Task<IActionResult> GetReasons()
         {
@@ -105,7 +104,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpGet("GetSaleOrderTypes")]
         public async Task<IActionResult> GetSaleOrderTypes()
         {
@@ -122,7 +121,6 @@ namespace WebApi.Controllers
 
         }
 
-        [Authorize]
         [HttpGet("GetDetails")]
         public async Task<IActionResult> GetDetails(Int32 saleOrderId)
         {
@@ -141,7 +139,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpGet("NewSaleOrderWithContext")]
         public async Task<IActionResult> NewSaleOrderWithContext(Int32 userId, Int32 dealerId, Int32 typeId)
         {
@@ -184,7 +182,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpPost("PostSaleOrder")]
         public async Task<IActionResult> PostSaleOrder(List<Models.SaleOrder> saleOrders, Int32 userId)
         {
@@ -200,7 +198,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize]
+      
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions, Int32 userId)
         {
@@ -218,7 +216,7 @@ namespace WebApi.Controllers
 
 
 
-        [Authorize]
+       
         [HttpPost("PostDetail")]
         public async Task<IActionResult> PostDetail(Models.SaleOrderDetail detail, Int32 userId)
         {
@@ -234,7 +232,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpPost("DeleteDetails")]
         public async Task<IActionResult> DeleteDetails(List<Models.Detail> details, Int32 userId)
         {

@@ -7,6 +7,7 @@ using System.Threading;
 using Microsoft.IdentityModel.Tokens;
 using ClosedXML.Excel;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -15,7 +16,7 @@ namespace WebApi.Controllers
     [Route("api/Contact")]
     [ApiController]
 
-   
+    [Authorize]
     public class cContact : ControllerBase
     {
 

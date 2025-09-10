@@ -16,6 +16,7 @@ namespace WebApi.Controllers
 {
     [Route("api/Model")]
     [ApiController]
+    [Authorize]
     public class cModel : ControllerBase
     {
         

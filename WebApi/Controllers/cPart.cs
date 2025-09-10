@@ -5,10 +5,14 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Microsoft.AspNetCore.Authorization;
+
+
 namespace WebApi.Controllers
 {
     [Route("api/Part")]
     [ApiController]
+    [Authorize]
     public class cPart : Controller
     {
         private readonly dPart _dPart;

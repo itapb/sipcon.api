@@ -7,11 +7,13 @@ using Newtonsoft.Json.Linq;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
     [Route("api/Print")]
     [ApiController]
+    [Authorize]
     public class cPrintqueue : ControllerBase
     {
 

@@ -9,11 +9,13 @@ using Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
     [Route("api/LaborTime")]
     [ApiController]
+    [Authorize]
     public class cLaborTime : ControllerBase
     {
 

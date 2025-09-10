@@ -19,6 +19,7 @@ namespace WebApi.Controllers
 {
     [Route("api/Inventory")]
     [ApiController]
+    [Authorize]
     public class cInventory : Controller
     {
 
@@ -32,7 +33,6 @@ namespace WebApi.Controllers
 
         #region "Inventory"
 
-        [Authorize]
         [HttpGet("/api/Inventory/GetAll")]
         public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter )
         {

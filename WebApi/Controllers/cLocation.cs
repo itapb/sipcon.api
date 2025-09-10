@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Reflection;
 using ClosedXML.Excel;
 using Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -12,6 +13,7 @@ namespace WebApi.Controllers
 {
     [Route("api/Location")]
     [ApiController]
+    [Authorize]
     public class cLocation : ControllerBase
     {
         private readonly dLocation _dLocation;

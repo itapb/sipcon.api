@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Data;
 using Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -9,6 +10,7 @@ namespace WebApi.Controllers
 
     [Route("api/Color")]
     [ApiController]
+    [Authorize]
 
     public class cColor : ControllerBase
     {

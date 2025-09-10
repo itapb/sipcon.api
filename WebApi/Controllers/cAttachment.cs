@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Newtonsoft.Json;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -12,7 +13,7 @@ namespace WebApi.Controllers
 
     [Route("api/Attachment")]
     [ApiController]
-
+    [Authorize]
     public class cAttachment : ControllerBase
     {
 

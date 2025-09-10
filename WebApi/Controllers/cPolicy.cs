@@ -11,11 +11,14 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace WebApi.Controllers
 {
     [Route("api/Policy")]
     [ApiController]
+    [Authorize]
     public class cPolicy : ControllerBase
     {
 

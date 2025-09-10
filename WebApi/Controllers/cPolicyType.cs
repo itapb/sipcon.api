@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -18,6 +19,7 @@ namespace WebApi.Controllers
       
         private readonly dPolicyType _dPolicyType;
         private readonly dBrand _dBrand;
+        [Authorize]
         public cPolicyType(dPolicyType dPolicyType, dBrand dBrand)
         {
             _dPolicyType = dPolicyType;
