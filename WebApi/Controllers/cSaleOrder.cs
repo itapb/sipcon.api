@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Route("api/SaleOrder")]
     [ApiController]
 

@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Route("api/Inventory")]
     [ApiController]
     public class cInventory : Controller
