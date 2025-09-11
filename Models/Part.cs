@@ -126,5 +126,8 @@ namespace Models
 
         public string? AlterDescription { get; set; } = string.Empty;
 
+        [Required]
+        public Int32? UseQty { get; set; } = 1;
+
     }
 }
