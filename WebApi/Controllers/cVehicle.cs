@@ -169,9 +169,10 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 5).Value = "AÑO";
                 worksheet.Cell(1, 6).Value = "PLACA";
                 worksheet.Cell(1, 7).Value = "ACTIVA";
-                worksheet.Cell(1, 8).Value = "ESTATUS";
-                worksheet.Cell(1, 9).Value = "PLANTA";
-                worksheet.Cell(1, 10).Value = "CONCESIONARIO";
+                worksheet.Cell(1, 8).Value = "CONCESIONARIO";
+                worksheet.Cell(1, 9).Value = "ESTATUS";
+                worksheet.Cell(1, 10).Value = "PLANTA";
+                
 
 
                 // 5. Estilo para los encabezados
@@ -191,9 +192,10 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 5).Value = _vehicle.Year;
                     worksheet.Cell(i + 2, 6).Value = _vehicle.Plate;
                     worksheet.Cell(i + 2, 7).Value = _vehicle.IsActive != false ? "SI" : "NO"; 
-                    worksheet.Cell(i + 2, 8).Value = _vehicle.EstatusName;
-                    worksheet.Cell(i + 2, 9).Value = _vehicle.SupplierReference;
-                    worksheet.Cell(i + 2, 10).Value = _vehicle.DealerReference;
+                    worksheet.Cell(i + 2, 8).Value = _vehicle.DealerReference;
+                    worksheet.Cell(i + 2, 9).Value = _vehicle.EstatusName;
+                    worksheet.Cell(i + 2, 10).Value = _vehicle.SupplierReference;
+                   
 
 
                 }
@@ -250,10 +252,10 @@ namespace WebApi.Controllers
             var _models = await GetModelAsync(userId, supplierId);
             string colorName = "";
             string modelName = "";
-            string referenceSupplier = "";
+        // string referenceSupplier = "";
             string referenceDealer = "";
             Int32 dealerId = 0;
-            Int32 supplierId2 = 0;
+        //    Int32 supplierId2 = 0;
             Int32 colorId = 0;
             Int32 modelId = 0;
 
@@ -273,11 +275,11 @@ namespace WebApi.Controllers
                        
                         colorName = row.Cell(3).GetValue<string>()?.Trim();
                         modelName = row.Cell(4).GetValue<string>()?.Trim();
-                        referenceSupplier = row.Cell(9).GetValue<string>()?.Trim();
-                        referenceDealer = row.Cell(10).GetValue<string>()?.Trim();
+                       // referenceSupplier = row.Cell(9).GetValue<string>()?.Trim();
+                        referenceDealer = row.Cell(8).GetValue<string>()?.Trim();
 
                         dealerId = _contacts.Exists(x => x.Reference.ToUpper() == referenceDealer.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceDealer.ToUpper()).Id : 0;
-                        supplierId2 = _contacts.Exists(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()).Id : 0;
+                       // supplierId2 = _contacts.Exists(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()).Id : 0;
                         colorId = _colors.Exists(x => x.Name.ToUpper() == colorName.ToUpper()) ? (int)_colors.Find(x => x.Name.ToUpper() == colorName.ToUpper()).Id : 0;
                         modelId = _models.Exists(x => x.Name.ToUpper() == modelName.ToUpper()) ? (int)_models.Find(x => x.Name.ToUpper() == modelName.ToUpper()).Id : 0;
                         int fila = row.RowNumber(); // Ej: 2
@@ -295,7 +297,7 @@ namespace WebApi.Controllers
                             Plate = row.Cell(6).GetString(),
                             IsActive = row.Cell(7).GetValue<string>() == "SI" ? true : false,
                             DealerId = dealerId,
-                            SupplierId = supplierId2,
+                            SupplierId = supplierId,
                             RowReference = rowRef
                         });
                     }

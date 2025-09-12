@@ -13,13 +13,14 @@ namespace WebApi.Controllers
 {
     [Route("api/PolicyType")]
     [ApiController]
+    [Authorize]
     public class cPolicyType : ControllerBase
     {
 
       
         private readonly dPolicyType _dPolicyType;
         private readonly dBrand _dBrand;
-        [Authorize]
+    
         public cPolicyType(dPolicyType dPolicyType, dBrand dBrand)
         {
             _dPolicyType = dPolicyType;
