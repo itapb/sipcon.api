@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Data;
 using Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -9,7 +10,7 @@ namespace WebApi.Controllers
 
     [Route("api/Comment")]
     [ApiController]
-
+    [Authorize]
     public class cComment : ControllerBase
     {
 

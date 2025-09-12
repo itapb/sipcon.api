@@ -36,6 +36,9 @@ namespace Models
         [SwaggerIgnore]
         public string? TypeName { get; set; } = string.Empty;
 
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
+
 
     }
 }

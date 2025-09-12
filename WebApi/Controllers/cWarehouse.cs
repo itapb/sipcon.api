@@ -71,14 +71,15 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "ALMACEN";
                // worksheet.Cell(1, 3).Value = "IDPLANTA";
-                worksheet.Cell(1, 3).Value = "PLANTA";
+                worksheet.Cell(1, 3).Value = "ACTIVO";
+                worksheet.Cell(1, 4).Value = "PLANTA";
                // worksheet.Cell(1, 5).Value = "MARCA";
-                worksheet.Cell(1, 4).Value = "ACTIVO";
+                
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:F1");
+                var headerRange = worksheet.Range("A1:C1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
@@ -89,9 +90,9 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 1).Value = _contacto.Id;
                     worksheet.Cell(i + 2, 2).Value = _contacto.Name;
                     //worksheet.Cell(i + 2, 3).Value = _contacto.SupplierId;
-                    worksheet.Cell(i + 2, 3).Value = _contacto.SupplierName;
                     //worksheet.Cell(i + 2, 5).Value = _contacto.BrandName;
-                    worksheet.Cell(i + 2, 4).Value = _contacto.IsActive == true ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 3).Value = _contacto.IsActive == true ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 4).Value = _contacto.SupplierName;
 
                 }
 
@@ -134,7 +135,7 @@ namespace WebApi.Controllers
 
 
 
-        private async Task<List<Warehouse>> ExceltoPost(IFormFile file)
+        private async Task<List<Warehouse>> ExceltoPost(IFormFile file,Int32 supplierId)
         {
             var _list = new List<Warehouse>();
             var _plantas = new List<Contact>();
@@ -154,21 +155,23 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
-                        id = 0;
-                        supplierReference = row.Cell(3).GetValue<string>();
-
                         if (_plantas.Exists(x => x.Reference.ToUpper() == supplierReference.ToUpper()))
                         {
                             id = (int)_plantas.Find(x => x.Reference.ToUpper() == supplierReference.ToUpper()).Id;
                         }
+
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
+
                         _list.Add(new Warehouse
                         {
                             // Mapear las celdas de Excel a las propiedades del modelo
                             // Ajusta según tu estructura real
                             Id = row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
-                            SupplierId = id,
-                            IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
+                            SupplierId = supplierId,
+                            IsActive = row.Cell(3).GetValue<string>() == "SI" ? true : false,
+                            RowReference = rowRef
 
                         });
                     }
@@ -179,7 +182,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Import")]
-        public async Task<IActionResult> PostImport(IFormFile file, Int32 userId)
+        public async Task<IActionResult> PostImport(IFormFile file, Int32 userId, Int32 supplierId)
         {
 
             if (file == null || file.Length == 0)
@@ -191,7 +194,7 @@ namespace WebApi.Controllers
             try
             {
 
-                List<Warehouse> _wh = await ExceltoPost(file);
+                List<Warehouse> _wh = await ExceltoPost(file,supplierId);
                 var _response = await _dWarehouse.Post_Warehouses(_wh, userId);
                 return StatusCode(_response.Status, _response);
 

@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Data;
 using Models;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
 
     [Route("api/PayMethod")]
     [ApiController]
-
+    [Authorize]
     public class cPayMethod : ControllerBase
     {
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -10,7 +11,7 @@ namespace WebApi.Controllers
 
     [Route("api/Assessment")]
     [ApiController]
-
+    [Authorize]
     public class cAssessment : ControllerBase
     {
 

@@ -9,11 +9,13 @@ using Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
     [Route("api/LaborTime")]
     [ApiController]
+    [Authorize]
     public class cLaborTime : ControllerBase
     {
 
@@ -158,13 +160,18 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
+
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
+
                         _list.Add(new LaborTime
                         {
                             Reference = row.Cell(1).GetValue<string>(),
                             Description = row.Cell(2).GetValue<string>(),
                             Hours = row.Cell(3).GetValue<decimal>(),
                             IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
-                            ModelId =modelId
+                            ModelId =modelId,
+                            RowReference = rowRef
                         });
                     }
                 }

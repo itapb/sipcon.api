@@ -20,6 +20,7 @@ namespace WebApi.Controllers
     [Authorize]
     [Route("api/Inventory")]
     [ApiController]
+    [Authorize]
     public class cInventory : Controller
     {
 
@@ -33,7 +34,6 @@ namespace WebApi.Controllers
 
         #region "Inventory"
 
-        [Authorize]
         [HttpGet("/api/Inventory/GetAll")]
         public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter )
         {
@@ -256,65 +256,65 @@ namespace WebApi.Controllers
 
         }
 
-        private List<NewMovementDetail> ExceltoMovementDetail(IFormFile file, Int32 movementId)
-        {
-            var _list = new List<NewMovementDetail>();
+        //private List<NewMovementDetail> ExceltoMovementDetail(IFormFile file, Int32 movementId)
+        //{
+        //    var _list = new List<NewMovementDetail>();
 
-            using (var stream = new MemoryStream())
-            {
-                file.CopyTo(stream);
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        file.CopyTo(stream);
 
-                using (var workbook = new XLWorkbook(stream))
-                {
-                    var worksheet = workbook.Worksheet(1); // Primera hoja
-                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+        //        using (var workbook = new XLWorkbook(stream))
+        //        {
+        //            var worksheet = workbook.Worksheet(1); // Primera hoja
+        //            var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
 
-                    foreach (var row in rows)
-                    {
+        //            foreach (var row in rows)
+        //            {
 
-                        _list.Add(new NewMovementDetail
-                        {
-                            // Mapear las celdas de Excel a las propiedades del modelo
-                            // Ajusta según tu estructura real
-                            Id = 0,
-                            InnerCode = row.Cell(1).GetValue<string>(),
-                            //Description = row.Cell(2).GetValue<string>(),
-                            RequiredQty = row.Cell(3).GetValue<int>(),
-                            LocationName = row.Cell(4).GetValue<string>(),
-                            MovementId = movementId
+        //                _list.Add(new NewMovementDetail
+        //                {
+        //                    // Mapear las celdas de Excel a las propiedades del modelo
+        //                    // Ajusta según tu estructura real
+        //                    Id = 0,
+        //                    InnerCode = row.Cell(1).GetValue<string>(),
+        //                    //Description = row.Cell(2).GetValue<string>(),
+        //                    RequiredQty = row.Cell(3).GetValue<int>(),
+        //                    LocationName = row.Cell(4).GetValue<string>(),
+        //                    MovementId = movementId
 
-                        });
-                    }
-                }
-            }
+        //                });
+        //            }
+        //        }
+        //    }
 
-            return _list;
-        }
+        //    return _list;
+        //}
 
-        [HttpPost("/api/Movements/ImportMovementDetail")]
-        public async Task<IActionResult> ImportMovementDetail(IFormFile file, Int32 userId, Int32 movementId)
-        {
+        //[HttpPost("/api/Movements/ImportMovementDetail")]
+        //public async Task<IActionResult> ImportMovementDetail(IFormFile file, Int32 userId, Int32 movementId)
+        //{
 
-            if (file == null || file.Length == 0)
-                return BadRequest("No se ha proporcionado un archivo válido.");
+        //    if (file == null || file.Length == 0)
+        //        return BadRequest("No se ha proporcionado un archivo válido.");
 
-            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+        //    if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+        //        return BadRequest("Solo se permiten archivos Excel (.xlsx)");
 
-            try
-            {
-                List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
-                List<NewMovementDetail> _details = ExceltoMovementDetail(file, movementId);
-                Response<Result> _response = await _dInventory.PostMovementDetail(_details, userId, true);
-                return StatusCode(_response.Status, _response);
+        //    try
+        //    {
+        //        List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
+        //        List<NewMovementDetail> _details = ExceltoMovementDetail(file, movementId);
+        //        Response<Result> _response = await _dInventory.PostMovementDetail(_details, userId, true);
+        //        return StatusCode(_response.Status, _response);
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+        //    }
 
-        }
+        //}
 
         [HttpPost("/api/Movements/DeleteMovementDetail")]
         public async Task<IActionResult> DeleteMovementDetail(List<Models.Action> _list, Int32 userId)

@@ -67,14 +67,14 @@ namespace WebApi.Controllers
                 // 4. Agregar los encabezados
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "ZONA";
-               // worksheet.Cell(1, 3).Value = "IDALMACEN";
-                worksheet.Cell(1, 3).Value = "ALMACEN";
-                worksheet.Cell(1, 4).Value = "ACTIVO";
+                worksheet.Cell(1, 3).Value = "TAMAÑO";
+                worksheet.Cell(1, 5).Value = "ALMACEN";
+                worksheet.Cell(1, 6).Value = "ACTIVO";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:F1");
+                var headerRange = worksheet.Range("A1:G1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
@@ -84,9 +84,9 @@ namespace WebApi.Controllers
                     var _contacto = _locations[i];
                     worksheet.Cell(i + 2, 1).Value = _contacto.Id;
                     worksheet.Cell(i + 2, 2).Value = _contacto.Name;
-                   // worksheet.Cell(i + 2, 3).Value = _contacto.WarehouseId;
-                    worksheet.Cell(i + 2, 3).Value = _contacto.WarehouseName;
-                    worksheet.Cell(i + 2, 4).Value = _contacto.IsActive == true ? "SI" : "NO" ;
+                    worksheet.Cell(i + 2, 3).Value = _contacto.Size;
+                    worksheet.Cell(i + 2, 4).Value = _contacto.WarehouseName;
+                    worksheet.Cell(i + 2, 5).Value = _contacto.IsActive == true ? "SI" : "NO" ;
 
                 }
 
@@ -156,7 +156,9 @@ namespace WebApi.Controllers
                     foreach (var row in rows)
                     {
                         id = 0;
-                            warehouseName = row.Cell(3).GetValue<string>();
+                        warehouseName = row.Cell(4).GetValue<string>();
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
 
                         if (_warehouses.Exists(x => x.Name.ToUpper() == warehouseName.ToUpper()))
                         {
@@ -169,9 +171,11 @@ namespace WebApi.Controllers
                             // Ajusta según tu estructura real
                             Id = row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
+                            Size = row.Cell(3).GetValue<string>(),
                             WarehouseId = id,
                            // WarehouseName = row.Cell(4).GetValue<string>(),
-                            IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false
+                            IsActive = row.Cell(5).GetValue<string>() == "SI" ? true : false,
+                            RowReference = rowRef
 
                         });
                     }

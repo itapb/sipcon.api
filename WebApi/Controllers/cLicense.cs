@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
 {
     [Route("api/License")]
     [ApiController]
+    [Authorize]
     public class cLicense : ControllerBase
     {
 
