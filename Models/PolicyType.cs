@@ -50,6 +50,9 @@ namespace Models
 
         [SwaggerIgnore]
         public String? RowReference { get; set; }
+        
+        [SwaggerIgnore]
+        public String? Supplier { get; set; }
 
 
 
