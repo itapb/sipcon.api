@@ -541,6 +541,20 @@ namespace Data
         }
 
 
+
+        public async Task<Response<Result>> Import_Parts(List<Models.Part> _list, List<Models.RelatedModel> _models, Int32 userId, bool bFull = true)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Parts(_list, _models, userId, bFull);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         public async Task<Response<Result>> Post_Parts(List<Models.Part> _list, List<Models.RelatedModel> _models, Int32 userId, bool bFull = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -554,7 +568,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Result>> _Post_Parts(List<Models.Part> _list, List<Models.RelatedModel> _models, Int32 userId, bool bFull = false )
+        private async Task<Response<Result>> _Post_Parts(List<Models.Part> _list, List<Models.RelatedModel> _models, Int32 userId, bool bFull )
         {
             Response<Result> _response = new Response<Result>();
             try
