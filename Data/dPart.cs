@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using System.Data;
 using Models;
 using Util;
 
@@ -91,6 +82,7 @@ namespace Data
                 _mapping.AddItem("Stock", "ISTOCK");
                 _mapping.AddItem("Available", "IAVAILABLE");
                 _mapping.AddItem("AlterDescription", "VALTERDESCRIPTION2");
+                _mapping.AddItem("UseQty", "IUSE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PARTS", _parameter);
@@ -163,6 +155,7 @@ namespace Data
                 _mapping.AddItem("Stock", "ISTOCK");
                 _mapping.AddItem("Available", "IAVAILABLE");
                 _mapping.AddItem("AlterDescription", "VALTERDESCRIPTION2");
+                _mapping.AddItem("UseQty", "IUSE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PARTS", _parameter);

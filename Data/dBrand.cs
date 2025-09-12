@@ -46,6 +46,8 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                
 
                 Util.Data _data = Util.Data.GetInstance();
                 _list = await _data.ExecuteReaderAsync<Models.Brand>("USP_GET_BRANDS", _mapping,_parameter);
