@@ -360,7 +360,7 @@ namespace WebApi.Controllers
             {
                 List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
                 List<Part> _parts = await ExceltoPost(file,supplierId);
-                var _response = await _dPart.Post_Parts(_parts, _models,userId);
+                var _response = await _dPart.Import_Parts(_parts, _models,userId);
                 return StatusCode(_response.Status, _response);
 
             }
