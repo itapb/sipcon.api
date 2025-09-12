@@ -23,7 +23,7 @@ namespace Models
             Status = StatusCodes.Status200OK;
             Processed = false;
             Total = 0;
-            Message = "Registros no encontrados, por favor valide los filtros aplicados!...";
+            Message = "REGISTROS NO ENCONTRADOS, POR FAVOR VALIDE LOS FILTROS APLICADOS!";
     
 
         }
@@ -34,7 +34,7 @@ namespace Models
             Status = StatusCodes.Status409Conflict;
             Processed = false;
             Total = 0;
-            Message = "Registros no actualizados, por favor valide los datos selecionados!...";
+            Message = "REGISTROS NO ACTUALIZADOS, POR FAVOR VALIDE LOS DATOS SELECCIONADOS!";
             //Data = new List<Models.Result>();
             //Data = new Models.Result();
         }
@@ -44,7 +44,7 @@ namespace Models
 
             Status = StatusCodes.Status200OK;
             Processed = true;
-            Message = "";
+            Message = "CAMBIOS EFECTUADOS EXITOSAMENTE";
 
         }
 
