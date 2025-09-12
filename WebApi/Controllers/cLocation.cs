@@ -74,11 +74,9 @@ namespace WebApi.Controllers
                 // 4. Agregar los encabezados
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "UBICACION";
-               // worksheet.Cell(1, 3).Value = "IDZONA";
                 worksheet.Cell(1, 3).Value = "ZONA";
                 worksheet.Cell(1, 4).Value = "TIPO";
                 worksheet.Cell(1, 5).Value = "MAPEO";
-                // worksheet.Cell(1, 5).Value = "ALMACEN";
                 worksheet.Cell(1, 6).Value = "ACTIVO";
 
 
@@ -187,9 +185,9 @@ namespace WebApi.Controllers
                             Id = row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
                             ZoneId = id,
-                            //ZoneName = row.Cell(4).GetValue<string>(),
-                            //WarehouseName = row.Cell(5).GetValue<string>(),
-                            IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
+                            TypeName = row.Cell(4).GetValue<string>(),
+                            Mapping = row.Cell(5).GetValue<int>(),
+                            IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
                             RowReference = rowRef
 
                         });
