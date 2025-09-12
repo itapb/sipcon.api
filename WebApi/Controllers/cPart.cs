@@ -8,6 +8,7 @@ using Models;
 using Microsoft.AspNetCore.Authorization;
 
 
+
 namespace WebApi.Controllers
 {
     [Route("api/Part")]
@@ -27,12 +28,12 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter, bool? isSell)
         {
 
             try
             {
-                var _response = await _dPart.GetAll(userId, supplierId, rowfrom,  filter);
+                var _response = await _dPart.GetAll(userId, supplierId, rowfrom,  filter, isSell);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
