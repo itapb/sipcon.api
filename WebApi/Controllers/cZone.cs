@@ -68,13 +68,13 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "ZONA";
                 worksheet.Cell(1, 3).Value = "TAMAÑO";
-                worksheet.Cell(1, 5).Value = "ALMACEN";
-                worksheet.Cell(1, 6).Value = "ACTIVO";
+                worksheet.Cell(1, 4).Value = "ALMACEN";
+                worksheet.Cell(1, 5).Value = "ACTIVO";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:G1");
+                var headerRange = worksheet.Range("A1:E1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
