@@ -61,7 +61,7 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 4).Value = "TOLERANCIA KM";
                 worksheet.Cell(1, 5).Value = "TOPE KM";
                 worksheet.Cell(1, 6).Value = "MESES";
-                worksheet.Cell(1, 7).Value = "TOLERANCIA MESES";
+                worksheet.Cell(1, 7).Value = "TOLERANCIA DIAS";
                 worksheet.Cell(1, 8).Value = "TOPE MESES";
                 worksheet.Cell(1, 9).Value = "ACTIVA";
                 worksheet.Cell(1, 10).Value = "PLANTA";
