@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
 {
     [Route("api/Brand")]
     [ApiController]
+    [Authorize]
     public class cBrand : ControllerBase
     {
 

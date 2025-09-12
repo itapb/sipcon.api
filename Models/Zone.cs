@@ -23,5 +23,8 @@ namespace Models
 
         [Required]
         public string? Size { get; set; } = string.Empty;
+
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
     }
 }

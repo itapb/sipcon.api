@@ -13,7 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -36,7 +36,7 @@ namespace WebApi.Controllers
         }
 
 
-
+        [Authorize]
         [HttpGet("GetAccessGroup")]
         public async Task<IActionResult> GetAccessGroup(string? filter, Int32 rowFrom)
 
@@ -53,7 +53,7 @@ namespace WebApi.Controllers
             }
 
         }
-
+        [Authorize]
         [HttpGet("GetAccessGroupDetails")]
         public async Task<IActionResult> GetAccessGroupDetails(Int32 groupAccessId, Int32? rowFrom, String? filter)
 
@@ -72,7 +72,7 @@ namespace WebApi.Controllers
         }
 
 
-
+        [Authorize]
         [HttpGet("GetAccessGroupUser")]
         public async Task<IActionResult> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign,string? filter)
 
@@ -90,6 +90,7 @@ namespace WebApi.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("GetAccessUserbyGroup")]
         public async Task<IActionResult> GetAccessUserbyGroup(Int32 rowFrom, Int32 accessGroupId, String? filter, Boolean? assign)
 
@@ -109,7 +110,7 @@ namespace WebApi.Controllers
 
 
 
-
+        [Authorize]
         [HttpPost("PostAccessGroup")]
         public async Task<IActionResult> Post_AccessGroup(Int32 userId,Models.AccessGroup accessGroup)
         {
@@ -127,9 +128,9 @@ namespace WebApi.Controllers
 
         }
 
-      
 
 
+        [Authorize]
         [HttpPost("PostAccessGroupDetails")]
         public async Task<IActionResult> Post_AccessGroupDetails(Int32 userId, List<Models.AccessGroupDetail> accessGroupDetail)
         {
@@ -147,7 +148,7 @@ namespace WebApi.Controllers
 
         }
 
-
+        [Authorize]
         [HttpPost("PostAccessGroupUser")]
         public async Task<IActionResult> Post_AccessGroupUser(Int32 userId, List<Models.AccessGroupUser> accessGroupUser)
         {
@@ -165,6 +166,7 @@ namespace WebApi.Controllers
 
         }
 
+        [Authorize]
         [HttpPost("Post_CrendentialsUser")]
         public async Task<IActionResult> Post_CrendentialsUser(Models.CredentialLogin credentials,Int32 userId)
         {
@@ -233,9 +235,10 @@ namespace WebApi.Controllers
 
                 // 1. Autenticación y obtención del usuario
                 var authResponse = await _dSecurity.Auth_User(credentials);
-                if (authResponse.Data is not Models.User user || user == null)
+
+                if (authResponse.Data is not Models.User user || user.Id == 0)
                 {
-                    _response.SetError(new Exception("USUARIO O CLAVE INVALIDOS"));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: USUARIO O CLAVE INVALIDOS"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -246,7 +249,7 @@ namespace WebApi.Controllers
                 var companyResponse = await _dSecurity.Get_CompanyByUser(user.Id);
                 if (companyResponse.Data is not List<Companies> allCompanies || allCompanies.Count == 0)
                 {
-                    _response.SetError(new Exception("No se pudieron obtener las compañías del usuario."));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -257,7 +260,7 @@ namespace WebApi.Controllers
                 var modulesResponse = await _dSecurity.Get_ModulesByUser(user.Id);
                 if (modulesResponse?.Data is not List<Module> allModules || allModules.Count == 0)
                 {
-                    _response.SetError(new Exception("No se pudieron obtener los módulos asignados al usuario o la lista está vacía."));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -265,7 +268,7 @@ namespace WebApi.Controllers
                 var actionsResponse = await _dSecurity.Get_ActionByUser(user.Id);
                 if (actionsResponse?.Data is not List<ActionModule> allActions || allActions.Count == 0)
                 {
-                    _response.SetError(new Exception("No se pudieron obtener las acciones del usuario."));
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
                     return StatusCode(_response.Status, _response);
                 }
 
@@ -377,6 +380,7 @@ namespace WebApi.Controllers
         }
 
 
+        [Authorize]
         [HttpPost("Post_AccessGroup_Actions")]
         public async Task<IActionResult> Post_AccessGroup_Actions(Int32 userId, List<Models.Action> actions)
         {

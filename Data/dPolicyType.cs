@@ -63,6 +63,7 @@ namespace Data
                 _mapping.AddItem("BrandId", "IDBRAND");
                 _mapping.AddItem("BrandName", "VBRANDNAME");
                 _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("Supplier", "VSUPPLIERREF");
 
 
                 Util.Data _data = Util.Data.GetInstance();
