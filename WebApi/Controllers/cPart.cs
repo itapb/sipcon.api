@@ -320,7 +320,8 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
-                       
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
                         _list.Add(new Part
                         {
                           
@@ -331,6 +332,7 @@ namespace WebApi.Controllers
                             TaxId = row.Cell(5).GetValue<string>() == "EXENTO" ? 1 : 2,
                             IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
                             SupplierId = supplierId,
+                            RowReference = rowRef
 
                         });
                     }

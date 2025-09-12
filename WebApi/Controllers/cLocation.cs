@@ -172,6 +172,8 @@ namespace WebApi.Controllers
                     {
                         id = 0;
                         zoneName = row.Cell(3).GetValue<string>();
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
 
                         if (_zones.Exists(x  => x.Name.ToUpper() == zoneName.ToUpper()))
                         {
@@ -188,7 +190,8 @@ namespace WebApi.Controllers
                             //ZoneName = row.Cell(4).GetValue<string>(),
                             //WarehouseName = row.Cell(5).GetValue<string>(),
                             IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
-                           
+                            RowReference = rowRef
+
                         });
                     }
                 }

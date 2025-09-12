@@ -177,7 +177,8 @@ namespace WebApi.Controllers
                     {
                         policyTypeName = row.Cell(4).GetValue<string>()?.Trim();
                         idPolicyType = _policyTypes.Exists(x => x.Description.ToUpper() == policyTypeName.ToUpper()) ? (int)_policyTypes.Find(x => x.Description.ToUpper() == policyTypeName.ToUpper()).Id : 0;
-
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
 
                         models.Add(new Model
                         {
@@ -189,8 +190,9 @@ namespace WebApi.Controllers
                             IsActive = row.Cell(5).GetValue<string>() == "SI" ? true : false,
                             BrandId = idbrand,
                             PolicyTypeId = idPolicyType,
-                            
-                    
+                            RowReference = rowRef
+
+
                         });
                     }
                 }

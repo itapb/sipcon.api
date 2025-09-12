@@ -156,7 +156,9 @@ namespace WebApi.Controllers
                     foreach (var row in rows)
                     {
                         id = 0;
-                            warehouseName = row.Cell(3).GetValue<string>();
+                        warehouseName = row.Cell(3).GetValue<string>();
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
 
                         if (_warehouses.Exists(x => x.Name.ToUpper() == warehouseName.ToUpper()))
                         {
@@ -171,7 +173,8 @@ namespace WebApi.Controllers
                             Name = row.Cell(2).GetValue<string>(),
                             WarehouseId = id,
                            // WarehouseName = row.Cell(4).GetValue<string>(),
-                            IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false
+                            IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
+                            RowReference = rowRef
 
                         });
                     }
