@@ -1954,8 +1954,7 @@ namespace Data
                 _mapping.AddItem("AdjustmentType", "CTYPE");
                 _mapping.AddItem("Inncercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VPART");
-                _mapping.AddItem("PartPrice", "NPRICE");
-                _mapping.AddItem("PartSize", "VSIZE");
+                _mapping.AddItem("PartPrice", "NPRICE"); 
                 _mapping.AddItem("Location", "VLOCATION");
                 _mapping.AddItem("Zone", "VZONE"); 
                 _mapping.AddItem("Warehouse", "VWAREHOUSE");
