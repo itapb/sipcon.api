@@ -402,12 +402,12 @@ namespace Data
 
 
 
-        public async Task<Response<List<Models.AccessGroupUser>>> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign)
+        public async Task<Response<List<Models.AccessGroupUser>>> GetAccessGroupUser(Int32 rowFrom, Int32 userId,Boolean? assign,string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAccessGroupUser(rowFrom,userId, assign);
+                return await _GetAccessGroupUser(rowFrom,userId, assign,filter);
             }
             finally
             {
@@ -417,7 +417,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Models.AccessGroupUser>>> _GetAccessGroupUser(Int32? rowFrom,Int32 userId, Boolean? assign)
+        private async Task<Response<List<Models.AccessGroupUser>>> _GetAccessGroupUser(Int32? rowFrom,Int32 userId, Boolean? assign, string? filter)
         {
 
             Response<List<Models.AccessGroupUser>> _response = new Response<List<Models.AccessGroupUser>>();
@@ -428,6 +428,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@BASSIGN", assign);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+
 
 
                 Mapping _mapping = new Mapping();
@@ -592,6 +594,7 @@ namespace Data
                 _mapping.AddItem("Id", "IDCOMPANY");
                 _mapping.AddItem("Name", "VCOMPANY");
                 _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER_REF");
 
 
                 Util.Data _data = Util.Data.GetInstance();

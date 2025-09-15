@@ -16,6 +16,7 @@ namespace WebApi.Controllers
 {
     [Route("api/Model")]
     [ApiController]
+    [Authorize]
     public class cModel : ControllerBase
     {
         
@@ -77,10 +78,10 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "NOMBRE";
                 worksheet.Cell(1, 3).Value = "DESCRIPCION";
-                worksheet.Cell(1, 4).Value = "MARCA";
-                worksheet.Cell(1, 5).Value = "TIPO DE POLIZA";
-                worksheet.Cell(1, 6).Value = "ACTIVA";
-           
+                worksheet.Cell(1, 4).Value = "TIPO DE POLIZA";
+                worksheet.Cell(1, 5).Value = "ACTIVA";
+                worksheet.Cell(1, 6).Value = "MARCA";
+
                 // 5. Estilo para los encabezados
                 var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -93,9 +94,9 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 1).Value = _model.Id;
                     worksheet.Cell(i + 2, 2).Value = _model.Name;
                     worksheet.Cell(i + 2, 3).Value = _model.Description;
-                    worksheet.Cell(i + 2, 4).Value = _model.BrandName;
-                    worksheet.Cell(i + 2, 5).Value = _model.PolicyTypeName;
-                    worksheet.Cell(i + 2, 6).Value = _model.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 4).Value = _model.PolicyTypeName;
+                    worksheet.Cell(i + 2, 5).Value = _model.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 6).Value = _model.BrandName;
 
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
@@ -117,13 +118,13 @@ namespace WebApi.Controllers
 
    
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(Int32 userId, Int32? supplierId, string? filter )
+        public async Task<IActionResult> GetExport(Int32 userId, Int32? supplierId, string? _filter )
         {
             
             try
             {
 
-                List<Models.Model> _models = await _dModel.GetExport(userId,supplierId, filter);
+                List<Models.Model> _models = await _dModel.GetExport(userId,supplierId, _filter);
                 MemoryStream _excel = ConvertToExcel(_models);
                 string _fileName = "Modelos.xlsx";
 
@@ -154,9 +155,9 @@ namespace WebApi.Controllers
         private async Task<List<Models.Model>> ReadExcelToModels(IFormFile file,Int32 userId,Int32 supplierId)
         {
             var models = new List<Models.Model>();
-            var _brands = await _dBrand.GetAll();
+            var _brands = await _dBrand.GetAll(supplierId);
             var _policyTypes = await GetPolicyTypeAsync(userId,supplierId);
-            var idbrand = 0;
+            var idbrand = _brands?.FirstOrDefault()?.Id ?? 0;
             var idPolicyType = 0;
             string brandName = "";
             string policyTypeName = "";
@@ -174,12 +175,10 @@ namespace WebApi.Controllers
                     foreach (var row in rows)
                        
                     {
-                        brandName = row.Cell(4).GetValue<string>()?.Trim();
-                        policyTypeName = row.Cell(5).GetValue<string>()?.Trim();
-
-                        idbrand = _brands.Exists(x => x.Name.ToUpper() == brandName.ToUpper()) ? (int)_brands.Find(x => x.Name.ToUpper() == brandName.ToUpper()).Id : 0;
+                        policyTypeName = row.Cell(4).GetValue<string>()?.Trim();
                         idPolicyType = _policyTypes.Exists(x => x.Description.ToUpper() == policyTypeName.ToUpper()) ? (int)_policyTypes.Find(x => x.Description.ToUpper() == policyTypeName.ToUpper()).Id : 0;
-
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
 
                         models.Add(new Model
                         {
@@ -188,10 +187,12 @@ namespace WebApi.Controllers
                             Id = row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
                             Description = row.Cell(3).GetValue<string>(),
+                            IsActive = row.Cell(5).GetValue<string>() == "SI" ? true : false,
                             BrandId = idbrand,
                             PolicyTypeId = idPolicyType,
-                            IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false
-                    
+                            RowReference = rowRef
+
+
                         });
                     }
                 }

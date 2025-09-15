@@ -1,6 +1,5 @@
 ﻿
 using System.Data;
-using Microsoft.Data.SqlClient;
 using Models;
 using Util;
 
@@ -313,7 +312,7 @@ namespace Data
         }
 
 
-        public async Task<Response<Models.Vehicle>> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
+        public async Task<Response<Models.VehicleFull>> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -325,9 +324,9 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Models.Vehicle>> _GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
+        private async Task<Response<Models.VehicleFull>> _GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy)
         {
-            Response<Models.Vehicle> _response = new Response<Models.Vehicle>();
+            Response<Models.VehicleFull> _response = new Response<Models.VehicleFull>();
 
             try
             {

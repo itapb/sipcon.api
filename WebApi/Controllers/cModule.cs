@@ -1,11 +1,13 @@
 ﻿using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
     [Route("api/Module")]
     [ApiController]
+    [Authorize]
     public class cModule : ControllerBase
     {
 

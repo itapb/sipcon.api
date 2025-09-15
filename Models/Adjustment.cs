@@ -18,6 +18,8 @@ namespace Models
         [Required]
         public int? StatusId { get; set; }
 
+        public string? Comment { get; set; }
+
         [SwaggerIgnore]
         public string? StatusName { get; set; }
 
@@ -28,7 +30,10 @@ namespace Models
         public string? UserLogin { get; set; }
 
         [SwaggerIgnore]
-        public string? SupplierName { get; set; }
+        public string? SupplierName { get; set; } 
+
+        [SwaggerIgnore]
+        public DateTime? DUpdated { get; set; }
     }
 } 
  

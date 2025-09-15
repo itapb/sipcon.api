@@ -6,18 +6,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
 {
     [Route("api/PolicyType")]
     [ApiController]
+    [Authorize]
     public class cPolicyType : ControllerBase
     {
 
       
         private readonly dPolicyType _dPolicyType;
         private readonly dBrand _dBrand;
+    
         public cPolicyType(dPolicyType dPolicyType, dBrand dBrand)
         {
             _dPolicyType = dPolicyType;
@@ -58,11 +61,12 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 4).Value = "TOLERANCIA KM";
                 worksheet.Cell(1, 5).Value = "TOPE KM";
                 worksheet.Cell(1, 6).Value = "MESES";
-                worksheet.Cell(1, 7).Value = "TOLERANCIA MESES";
+                worksheet.Cell(1, 7).Value = "TOLERANCIA DIAS";
                 worksheet.Cell(1, 8).Value = "TOPE MESES";
-                worksheet.Cell(1, 9).Value = "PLANTA";
-                worksheet.Cell(1, 10).Value = "MARCA";
-                worksheet.Cell(1, 11).Value = "ACTIVA";
+                worksheet.Cell(1, 9).Value = "ACTIVA";
+                worksheet.Cell(1, 10).Value = "PLANTA";
+                worksheet.Cell(1, 11).Value = "MARCA";
+                
                 
                 // 5. Estilo para los encabezados
                 var headerRange = worksheet.Range("A1:K1");
@@ -82,9 +86,10 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 6).Value = _policyType.Months;
                     worksheet.Cell(i + 2, 7).Value = _policyType.GapMonths;
                     worksheet.Cell(i + 2, 8).Value = _policyType.TopMonths;
-                    worksheet.Cell(i + 2, 9).Value = _policyType.SupplierId;
-                    worksheet.Cell(i + 2, 10).Value = _policyType.BrandName;
-                    worksheet.Cell(i + 2, 11).Value = _policyType.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 9).Value = _policyType.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 10).Value = _policyType.Supplier;
+                    worksheet.Cell(i + 2, 11).Value = _policyType.BrandName;
+                    
 
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
@@ -171,15 +176,15 @@ namespace WebApi.Controllers
 
 
 
-        private async Task<List<PolicyType>> ReadExcelToPolicyTypes(IFormFile file)
+        private async Task<List<PolicyType>> ReadExcelToPolicyTypes(IFormFile file,Int32? SupplierId )
         {
 
           
             var policyTypes = new List<PolicyType>();
             var id = 0;
-            string brandName = "";
+            var _brands = await _dBrand.GetAll(SupplierId);
+            id = _brands?.FirstOrDefault()?.Id ?? 0;
 
-            var _brands = await _dBrand.GetAll();
 
             using (var stream = new MemoryStream())
             {
@@ -192,10 +197,10 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
-                        brandName = row.Cell(10).GetValue<string>()?.Trim();
-                        id = _brands.Exists(x => x.Name.ToUpper() == brandName.ToUpper()) ? (int)_brands.Find(x => x.Name.ToUpper() == brandName.ToUpper()).Id : 0;
                         
-                        
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
+
                         policyTypes.Add(new PolicyType
                         {
                             // Mapear las celdas de Excel a las propiedades del modelo
@@ -208,9 +213,10 @@ namespace WebApi.Controllers
                             Months = row.Cell(6).GetValue<int>(),
                             GapMonths= row.Cell(7).GetValue<int>(),
                             TopMonths= row.Cell(8).GetValue< int >(),
-                            SupplierId = row.Cell(9).GetValue<int>(),
+                            IsActive = row.Cell(9).GetValue<string>() == "SI" ? true : false,
+                            SupplierId = SupplierId,
                             BrandId = id,
-                            IsActive = row.Cell(11).GetValue<string>() == "SI" ? true : false
+                            RowReference = rowRef
                         });
                     }
                 }
@@ -221,7 +227,7 @@ namespace WebApi.Controllers
 
         
         [HttpPost("Import")]
-        public async Task<IActionResult> Import(Int32 userId,IFormFile file)
+        public async Task<IActionResult> Import(Int32 userId,Int32? SupplierId, IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No se ha proporcionado un archivo válido.");
@@ -232,7 +238,7 @@ namespace WebApi.Controllers
             try
             {
                 // Leer el archivo Excel y convertirlo a List<PolicyType>
-                List<PolicyType> policyTypes = await ReadExcelToPolicyTypes(file);
+                List<PolicyType> policyTypes = await ReadExcelToPolicyTypes(file,SupplierId);
 
                 // Llamar al método existente de tu capa de servicio
                 var response = await _dPolicyType.Post_PolicyType(policyTypes, userId);

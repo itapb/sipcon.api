@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -13,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Util;
-using static Models.StaticEnum;
 
 namespace Data
 {
@@ -1848,11 +1845,15 @@ namespace Data
                   _mapping.AddItem("Id","ID");
                   _mapping.AddItem("UserId", "IDUSER");
                   _mapping.AddItem("DCreated", "DCREATED");
+                  _mapping.AddItem("DUpdated", "DUPDATED");
+                  _mapping.AddItem("Comment", "VCOMMENT");
                   _mapping.AddItem("StatusId", "IDSTATUS");
                   _mapping.AddItem("StatusName", "VSTATUS");  
-                  _mapping.AddItem("UserLogin", "VLOGIN");    
+                  _mapping.AddItem("UserLogin", "VLOGIN");
+                  _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                  _mapping.AddItem("SupplierName", "VSUPPLIER");
 
-                  Util.Data _data = Util.Data.GetInstance();
+                Util.Data _data = Util.Data.GetInstance();
                   DataTable _table = await _data.GetDataTable("USP_GET_ADJUSTMENT", _parameter);
 
                   _response.Data = _data.GetList<Models.Adjustment>(_mapping, _table);
@@ -1896,6 +1897,8 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("UserId", "IDUSER");
                 _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("StatusId", "IDSTATUS");
                 _mapping.AddItem("StatusName", "VSTATUS");
                 _mapping.AddItem("UserLogin", "VLOGIN");
@@ -1951,6 +1954,8 @@ namespace Data
                 _mapping.AddItem("AdjustmentType", "CTYPE");
                 _mapping.AddItem("Inncercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VPART");
+                _mapping.AddItem("PartPrice", "NPRICE");
+                _mapping.AddItem("PartSize", "VSIZE");
                 _mapping.AddItem("Location", "VLOCATION");
                 _mapping.AddItem("Zone", "VZONE"); 
                 _mapping.AddItem("Warehouse", "VWAREHOUSE");

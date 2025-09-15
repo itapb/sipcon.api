@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using ClosedXML.Excel;
-using Microsoft.AspNetCore.Http;
+﻿using System.Data;
 using Models;
 using Util;
 
@@ -137,12 +129,12 @@ namespace Data
         }
 
 
-        public async Task<Response<Models.Result>> Delete_LaborTime(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> PostActions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Delete_LaborTime(_list, userId);
+                return await _PostActions(_list, userId);
             }
             finally
             {
@@ -150,7 +142,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Models.Result>> _Delete_LaborTime(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _PostActions(List<Models.Action> _list, Int32 userId)
         {
             Response<Models.Result> _response = new Response<Models.Result>();
             try
@@ -168,7 +160,7 @@ namespace Data
 
     
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_DELETE_LABORTIME", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_LABORTIME_ACTIONS", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 

@@ -4,12 +4,13 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
     [Route("api/Claim")]
     [ApiController]
+    [Authorize]
     public class cClaim : ControllerBase
     {
         private readonly dSaleOrder _dOrder;

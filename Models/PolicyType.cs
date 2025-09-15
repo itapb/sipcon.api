@@ -21,7 +21,7 @@ namespace Models
         public Int32? Km { get; set; }
 
         [Required]
-        [Range(1, 500)]
+        [Range(1, 1000)]
         public Int32? GapKm { get; set; }
 
         [Required]
@@ -33,7 +33,7 @@ namespace Models
         public Int32? Months { get; set; }
 
         [Required]
-        [Range(1, 15)]
+        [Range(1, 30)]
         public Int32? GapMonths { get; set; }
 
         [Required]
@@ -47,6 +47,12 @@ namespace Models
 
         [SwaggerIgnore]
         public String? BrandName { get; set; }
+
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
+        
+        [SwaggerIgnore]
+        public String? Supplier { get; set; }
 
 
 

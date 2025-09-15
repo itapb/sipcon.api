@@ -4,8 +4,6 @@ using System.Diagnostics.Eventing.Reader;
 using System.Dynamic;
 using System.Threading;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
-using ClosedXML.Excel;
 using System.IO;
 using Models;
 using Util;
@@ -59,6 +57,7 @@ namespace Data
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FirstName", "VFIRSTNAME");
                 _mapping.AddItem("LastName", "VLASTNAME");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("Address", "VADDRESS");
                 _mapping.AddItem("Phone1", "VPHONE1");
                 _mapping.AddItem("Phone2", "VPHONE2");
@@ -524,7 +523,7 @@ namespace Data
                 }
             }
 
-            _data.Brands = await _dBrand.GetAll();
+            _data.Brands = await _dBrand.GetAll(null);
             _data.Relateds = await GetRelated(idContact);
             _data.Cities = await GetCitys();
             _data.Groups = (List<Group>)(await GetGroups(true)).Data ;

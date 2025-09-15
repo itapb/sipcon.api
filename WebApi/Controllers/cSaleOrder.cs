@@ -5,13 +5,16 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Route("api/SaleOrder")]
     [ApiController]
-
+   
+    [Authorize]
     public class cSaleOrder : ControllerBase
     {
         private readonly dSaleOrder _dSaleOrder;
@@ -21,6 +24,7 @@ namespace WebApi.Controllers
             _dSaleOrder = dSaleOrder;
         }
 
+        
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll(Int32 userId, Int32? dealerId, Int32 rowfrom, string? filter)
         {
@@ -82,6 +86,7 @@ namespace WebApi.Controllers
             }
         }
 
+        
         [HttpGet("GetReasons")]
         public async Task<IActionResult> GetReasons()
         {
@@ -100,7 +105,7 @@ namespace WebApi.Controllers
         }
 
 
-
+        
         [HttpGet("GetSaleOrderTypes")]
         public async Task<IActionResult> GetSaleOrderTypes()
         {
@@ -116,7 +121,6 @@ namespace WebApi.Controllers
             }
 
         }
-
 
         [HttpGet("GetDetails")]
         public async Task<IActionResult> GetDetails(Int32 saleOrderId)
@@ -136,7 +140,7 @@ namespace WebApi.Controllers
         }
 
 
-
+        
         [HttpGet("NewSaleOrderWithContext")]
         public async Task<IActionResult> NewSaleOrderWithContext(Int32 userId, Int32 dealerId, Int32 typeId)
         {
@@ -179,7 +183,7 @@ namespace WebApi.Controllers
         }
 
 
-
+        
         [HttpPost("PostSaleOrder")]
         public async Task<IActionResult> PostSaleOrder(List<Models.SaleOrder> saleOrders, Int32 userId)
         {
@@ -195,6 +199,7 @@ namespace WebApi.Controllers
         }
 
 
+      
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions, Int32 userId)
         {
@@ -211,8 +216,8 @@ namespace WebApi.Controllers
         }
 
 
-   
 
+       
         [HttpPost("PostDetail")]
         public async Task<IActionResult> PostDetail(Models.SaleOrderDetail detail, Int32 userId)
         {
@@ -228,6 +233,7 @@ namespace WebApi.Controllers
         }
 
 
+        
         [HttpPost("DeleteDetails")]
         public async Task<IActionResult> DeleteDetails(List<Models.Detail> details, Int32 userId)
         {

@@ -29,6 +29,9 @@ namespace Models
         [SwaggerIgnore]
         public string? BrandName { get; set; }
 
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
+
 
     }
 }

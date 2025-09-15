@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
 {
     [Route("api/Brand")]
     [ApiController]
+    [Authorize]
     public class cBrand : ControllerBase
     {
 
@@ -21,12 +23,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(int? SupplierId)
         {
            
             try
             {
-                List<Models.Brand> _brands = await _dBrand.GetAll();
+                List<Models.Brand> _brands = await _dBrand.GetAll(SupplierId);
                 return StatusCode(StatusCodes.Status200OK, _brands);
             }
             catch (Exception ex)

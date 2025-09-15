@@ -25,6 +25,8 @@ namespace Models
         public Decimal? Hours { get; set; }
         [SwaggerIgnore]
         public Decimal? Price { get; set; }
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
 
     }
 }

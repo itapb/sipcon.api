@@ -125,6 +125,11 @@ namespace Models
         public Int32 Available { get; set; } = 0; 
 
         public string? AlterDescription { get; set; } = string.Empty;
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
+
+        [Required]
+        public Int32? UseQty { get; set; } = 1;
 
     }
 }

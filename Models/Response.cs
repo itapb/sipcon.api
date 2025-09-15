@@ -23,7 +23,7 @@ namespace Models
             Status = StatusCodes.Status200OK;
             Processed = false;
             Total = 0;
-            Message = "Registros no encontrados, por favor valide los filtros aplicados!...";
+            Message = "REGISTROS NO ENCONTRADOS, POR FAVOR VALIDE LOS FILTROS APLICADOS!";
     
 
         }
@@ -34,7 +34,7 @@ namespace Models
             Status = StatusCodes.Status409Conflict;
             Processed = false;
             Total = 0;
-            Message = "Registros no actualizados, por favor valide los datos selecionados!...";
+            Message = "REGISTROS NO ACTUALIZADOS, POR FAVOR VALIDE LOS DATOS SELECCIONADOS!";
             //Data = new List<Models.Result>();
             //Data = new Models.Result();
         }
@@ -44,7 +44,7 @@ namespace Models
 
             Status = StatusCodes.Status200OK;
             Processed = true;
-            Message = "";
+            Message = "CAMBIOS EFECTUADOS EXITOSAMENTE";
 
         }
 
@@ -75,18 +75,24 @@ namespace Models
 
         public bool NotUpdated()
         {
-
-            //if (((Result)Data).UpdatedRows == 0 && ((Result)Data).InsertedRows == 0 )
-            //{
-            //    return true;
-            //}
-            //else
-            //{
-            //    return false;
-            //}
-
-            return false;
-
+            // Verifica si T es Models.Result antes de intentar convertir
+            if (Data is Result result)
+            {
+                // Maneja el posible valor nulo de Data
+                if (result.UpdatedRows == 0 && result.InsertedRows == 0)
+                {
+                    return true ;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Si T no es Models.Result, no se puede determinar si fue actualizado
+                return false;
+            }
         }
 
         public int Status { get; set; } = StatusCodes.Status200OK;

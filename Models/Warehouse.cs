@@ -31,5 +31,8 @@ namespace Models
         [Required]
         public bool? Sell { get; set; } = true;
 
+        [SwaggerIgnore]
+        public string? RowReference { get; set; }
+
     }
 }

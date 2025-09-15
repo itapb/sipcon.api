@@ -5,10 +5,14 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Microsoft.AspNetCore.Authorization;
+
+
 namespace WebApi.Controllers
 {
     [Route("api/Part")]
     [ApiController]
+    [Authorize]
     public class cPart : Controller
     {
         private readonly dPart _dPart;
@@ -175,7 +179,7 @@ namespace WebApi.Controllers
                 _data.Taxes = (List<Tax>)((await _dPart.GetTaxes()).Data);
                 _data.Ums = (List<Um>)((await _dPart.GetUm()).Data);
                 _data.Suppliers = (List<Contact>)((await _dContact.GetAll_by( false,true )));
-                _data.Brands = await _dBrand.GetAll();
+                _data.Brands = await _dBrand.GetAll(null);
                 _data.Models = (List<RelatedModel>)((await _dPart.GetModels(partId)).Data);
 
                 _response.Data = _data;
@@ -210,17 +214,17 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 3).Value = "PRECIO";
                 worksheet.Cell(1, 4).Value = "COSTO";
                 worksheet.Cell(1, 5).Value = "IMPUESTO";
-                worksheet.Cell(1, 6).Value = "PLANTA";
-                worksheet.Cell(1, 7).Value = "ACTIVO";
-                worksheet.Cell(1, 8).Value = "CODFABRICANTE";
-                worksheet.Cell(1, 9).Value = "CODALTERNO";
-                worksheet.Cell(1, 10).Value = "CODREEMPLAZO";
-                worksheet.Cell(1, 11).Value = "CODBARRA";
-                worksheet.Cell(1, 12).Value = "TIPO";
-                worksheet.Cell(1, 13).Value = "FAMILIA";
-                worksheet.Cell(1, 14).Value = "SUBFAMILIA";
-                worksheet.Cell(1, 15).Value = "MARCA";
-                worksheet.Cell(1, 16).Value = "UM";
+                worksheet.Cell(1, 6).Value = "ACTIVO";
+                worksheet.Cell(1, 7).Value = "CODFABRICANTE";
+                worksheet.Cell(1, 8).Value = "CODALTERNO";
+                worksheet.Cell(1, 9).Value = "CODREEMPLAZO";
+                worksheet.Cell(1, 10).Value = "CODBARRA";
+                worksheet.Cell(1, 11).Value = "TIPO";
+                worksheet.Cell(1, 12).Value = "FAMILIA";
+                worksheet.Cell(1, 13).Value = "SUBFAMILIA";
+                worksheet.Cell(1, 14).Value = "MARCA";
+                worksheet.Cell(1, 15).Value = "UM";
+                worksheet.Cell(1, 16).Value = "PLANTA";
 
 
 
@@ -240,18 +244,18 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 3).Value = _item.Price;
                     worksheet.Cell(i + 2, 4).Value = _item.Cost;
                     worksheet.Cell(i + 2, 5).Value = _item.TaxName;
-                    worksheet.Cell(i + 2, 6).Value = _item.SupplierReference;
-                    worksheet.Cell(i + 2, 7).Value = _item.IsActive == true ? "SI" : "NO";
-                    worksheet.Cell(i + 2, 8).Value = _item.MasterCode;
-                    worksheet.Cell(i + 2, 9).Value = _item.AlterCode;
-                    worksheet.Cell(i + 2, 10).Value = _item.ReplacementCode;
-                    worksheet.Cell(i + 2, 11).Value = _item.BarCode;
-                    worksheet.Cell(i + 2, 12).Value = _item.TypeName;
-                    worksheet.Cell(i + 2, 13).Value = _item.FamilyName;
-                    worksheet.Cell(i + 2, 14).Value = _item.SubFamilyName;
-                    worksheet.Cell(i + 2, 15).Value = _item.BrandName;
-                    worksheet.Cell(i + 2, 16).Value = _item.UmName;
-                  
+                    worksheet.Cell(i + 2, 6).Value = _item.IsActive == true ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 7).Value = _item.MasterCode;
+                    worksheet.Cell(i + 2, 8).Value = _item.AlterCode;
+                    worksheet.Cell(i + 2, 9).Value = _item.ReplacementCode;
+                    worksheet.Cell(i + 2, 10).Value = _item.BarCode;
+                    worksheet.Cell(i + 2, 11).Value = _item.TypeName;
+                    worksheet.Cell(i + 2, 12).Value = _item.FamilyName;
+                    worksheet.Cell(i + 2, 13).Value = _item.SubFamilyName;
+                    worksheet.Cell(i + 2, 14).Value = _item.BrandName;
+                    worksheet.Cell(i + 2, 15).Value = _item.UmName;
+                    worksheet.Cell(i + 2, 16).Value = _item.SupplierReference;
+
 
                 }
 
@@ -297,12 +301,10 @@ namespace WebApi.Controllers
         
         //  ReadExcelTo
 
-        private async Task<List<Part>> ExceltoPost(IFormFile file)
+        private async Task<List<Part>> ExceltoPost(IFormFile file,Int32? supplierId)
         {
             var _list = new List<Part>();
             var _plantas = new List<Contact>();
-            var supplierId = 0;
-            var reference = "";
 
             _plantas = await _dContact.GetAll_by(false, true);
 
@@ -318,21 +320,19 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
-                        reference = row.Cell(6).GetValue<string>();
-                        supplierId = _plantas.Exists(x => x.Reference.ToUpper() == reference.ToUpper()) ? (int)_plantas.Find(x => x.Reference.ToUpper() == reference.ToUpper()).Id : 0;
-
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
                         _list.Add(new Part
                         {
-                            // Mapear las celdas de Excel a las propiedades del modelo
-                            // Ajusta según tu estructura real
-                            //Id = row.Cell(1).GetValue<int>(),
+                          
                             InnerCode = row.Cell(1).GetValue<string>(),
                             Description = row.Cell(2).GetValue<string>(),
                             Price = row.Cell(3).GetValue<decimal>(),
                             Cost = row.Cell(4).GetValue<decimal>(),
                             TaxId = row.Cell(5).GetValue<string>() == "EXENTO" ? 1 : 2,
+                            IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
                             SupplierId = supplierId,
-                            IsActive = row.Cell(7).GetValue<string>() == "SI" ? true : false,
+                            RowReference = rowRef
 
                         });
                     }
@@ -346,7 +346,7 @@ namespace WebApi.Controllers
 
 
         [HttpPost("Import")]
-        public async Task<IActionResult> PostImport(IFormFile file, Int32 userId)
+        public async Task<IActionResult> PostImport(IFormFile file, Int32 userId,Int32 supplierId)
         {
 
             if (file == null || file.Length == 0)
@@ -358,8 +358,8 @@ namespace WebApi.Controllers
             try
             {
                 List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
-                List<Part> _parts = await ExceltoPost(file);
-                var _response = await _dPart.Post_Parts(_parts, _models,userId);
+                List<Part> _parts = await ExceltoPost(file,supplierId);
+                var _response = await _dPart.Import_Parts(_parts, _models,userId);
                 return StatusCode(_response.Status, _response);
 
             }

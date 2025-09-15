@@ -37,13 +37,15 @@ namespace Models
         public string? Inncercode { get; set; }
 
         [SwaggerIgnore]
-        public string? PartDescription { get; set; } 
+        public string? PartDescription { get; set; }
 
         [SwaggerIgnore]
-        public DateTime? DCreated { get; set; }
+        public string? PartPrice { get; set; }
+
+        [SwaggerIgnore]
+        public string? PartSize { get; set; }
 
         [SwaggerIgnore]
         public string? ReasonDescription { get; set; }
     }
 }
- 

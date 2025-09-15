@@ -9,11 +9,13 @@ using Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
     [Route("api/LaborTime")]
     [ApiController]
+    [Authorize]
     public class cLaborTime : ControllerBase
     {
 
@@ -24,7 +26,7 @@ namespace WebApi.Controllers
         public cLaborTime(dLaborTime dLabortime, dModel dModel)
         {
             _dLaborTime = dLabortime;
-            _dLaborTime = dLabortime; 
+            _dModel = dModel; 
         }
 
 
@@ -158,13 +160,18 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
+
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}";
+
                         _list.Add(new LaborTime
                         {
                             Reference = row.Cell(1).GetValue<string>(),
                             Description = row.Cell(2).GetValue<string>(),
                             Hours = row.Cell(3).GetValue<decimal>(),
                             IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
-                            ModelId =modelId
+                            ModelId =modelId,
+                            RowReference = rowRef
                         });
                     }
                 }
@@ -196,13 +203,13 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpPost("Delete_LaborTime")]
-        public async Task<IActionResult> Delete_LaborTime(List<Models.Action> _list, Int32 userId)
+        [HttpPost("PostActions")]
+        public async Task<IActionResult> PostActions(List<Models.Action> _list, Int32 userId)
         {
 
             try
             {
-                var _response = await _dLaborTime.Delete_LaborTime(_list, userId);
+                var _response = await _dLaborTime.PostActions(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
