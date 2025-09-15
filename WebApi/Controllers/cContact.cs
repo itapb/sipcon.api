@@ -247,8 +247,7 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 10).Value = _contacto.Email;
                     worksheet.Cell(i + 2, 11).Value = _contacto.BrandName;
                     worksheet.Cell(i + 2, 12).Value = _contacto.Reference;
-                    worksheet.Cell(i + 2, 13).Value = _contacto.Male == true ? "SI" : "NO" ;
-
+                    worksheet.Cell(i + 2, 13).Value = _contacto.Male == true ? "M" : "F" ;
                     worksheet.Cell(i + 2, 14).Value = _contacto.Birthday;
                     worksheet.Cell(i + 2, 14).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
                     worksheet.Cell(i + 2, 15).Value = _contacto.Type;
