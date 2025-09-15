@@ -1,0 +1,55 @@
+GO
+/** Object:  StoredProcedure [dbo].[USP_GET_ADJUSTMENTDETAILS]    Script Date: 18/08/2025 8:46:26 **/
+SET ANSI_NULLS ON
+
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF  NOT EXISTS (SELECT * FROM SYS.OBJECTS
+
+                WHERE OBJECT_ID = OBJECT_ID(N'[DBO].[USP_GET_ADJUSTMENTDETAILS]')
+
+                AND TYPE IN (N'P', N'PC', N'TF', N'FN'))
+EXEC('CREATE PROCEDURE [DBO].[USP_GET_ADJUSTMENTDETAILS] AS BEGIN SET NOCOUNT ON  END')
+GO
+
+
+alter PROCEDURE [dbo].[USP_GET_ADJUSTMENTDETAILS] 
+    @IDADJUSTMENT INT
+AS
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        :  SARAHY CHIRINOS
+  '   CREADO POR            : 
+  '   CREADO PARA           :  
+  '   FUNCIÓN               :  
+  '   VERSIÓN               :  
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        : 
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+SET XACT_ABORT ON;               
+SET NOCOUNT ON;
+SET LOCK_TIMEOUT 180000;
+
+BEGIN 
+	SELECT AD.* ,
+		P.VINNERCODE,
+        P.VDESCRIPTION AS VPART,
+		P.NPRICE,
+        L.VNAME AS VLOCATION,
+        Z.VNAME AS VZONE,
+        W.VNAME AS VWAREHOUSE,
+        R.[DESC] AS VREASON
+    FROM ADJUSTMENTDETAILS AD WITH (NOLOCK) 
+    INNER JOIN PART P WITH (NOLOCK) ON P.ID = AD.IDPART
+    INNER JOIN LOCATION L WITH (NOLOCK) ON L.ID = AD.IDLOCATION
+    INNER JOIN ZONE Z WITH (NOLOCK) ON L.IDZONE = Z.ID
+    INNER JOIN WAREHOUSE W WITH (NOLOCK) ON Z.IDWAREHOUSE = W.ID
+    INNER JOIN REASON R WITH (NOLOCK) ON R.ID = AD.IDREASON
+    WHERE AD.IDADJUSTMENT = @IDADJUSTMENT 
+END
+GO
+
+

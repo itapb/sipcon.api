@@ -3,7 +3,9 @@ using System.IO.Packaging;
 using System.Net.Mail;
 using System.Reflection;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using Data;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -351,6 +353,7 @@ namespace WebApi.Controllers
 
 
         #endregion
+
 
         #region "Packing"
 
@@ -1076,13 +1079,197 @@ namespace WebApi.Controllers
 
         }
 
-
-
-
         #endregion
 
+        #region "Adjustment"
+
+        //#### GET ALL
+        
+        [HttpGet("/api/Adjustment/GetAdjustments")]
+         public async Task<IActionResult> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
+         {
+            try
+            {
+             var _response = await _dInventory.GetAdjustments(userId, supplierId, rowFrom, filter);
+             return StatusCode(_response.Status, _response);
+            }
+              catch (Exception ex)
+              {
+               return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+               }
+         }
+
+        //#### GET ONE
+        [HttpGet("/api/Adjustment/GetAdjustment")]
+        public async Task<IActionResult> GetAdjustment(Int32 userId, Int32 adjustmentId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.GetAdjustment(userId, adjustmentId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        //#### GET DETAILS
+        [HttpGet("/api/Adjustment/GetAdjustmentDetails")]
+        public async Task<IActionResult> GetAdjustmentDetails(Int32 adjustmentId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.GetAdjustmentDetails(adjustmentId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
 
 
+        }
 
+        //#### GET WITH CONTEXT
+        [HttpGet("/api/Adjustment/GetAdjustmentWithContext")]
+        public async Task<IActionResult> GetAdjustmentWithContext(Int32 userId, Int32 adjustmentId)
+        {
+            try
+            {
+
+                var _get = await _dInventory.GetAdjustment(userId, adjustmentId);
+                var _details = await _dInventory.GetAdjustmentDetails(adjustmentId);
+
+                AdjustmentWithContext _req = new AdjustmentWithContext();
+                _req.Adjustment = (Adjustment)(_get.Data);
+                _req.Details = (List<AdjustmentDetails>)(_details.Data);
+
+                Response<AdjustmentWithContext> _response = new Response<AdjustmentWithContext>();
+                _response.Data = _req;
+                _response.Total = _get.Total;
+                _response.Processed = _get.Processed;
+                _response.Message = _get.Message;
+
+
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        //#### GET REASONS
+
+        [HttpGet("/api/Adjustment/GetReasons")]
+        public async Task<IActionResult> GetReasons()
+        {
+
+            try
+            {
+                var _response = await _dInventory.GetReasons();
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        //#### GET NEW WITH CONTEXT
+
+        [HttpGet("/api/Adjustment/NewAdjustmentWithContext")]
+        public async Task<IActionResult> NewAdjustmentWithContext(Int32 userId, Int32 supplierId)
+        {
+            try
+            {
+                Adjustment _new = new Adjustment();
+                _new.Id = 0; 
+                _new.SupplierId = supplierId;
+                _new.UserId = userId;
+                _new.StatusId = 2;
+
+                List<Adjustment> _list = new List<Adjustment>();
+                _list.Add(_new);
+
+                var _resp = await _dInventory.PostAdjustment(_new, userId);
+                Result _resul = new Result();
+                _resul = (Result)(_resp.Data);
+
+                var _get = await _dInventory.GetAdjustment( userId, _resul.LastId);
+                _new = (Adjustment)(_get.Data);
+
+
+                List<AdjustmentDetails> _details = new List<AdjustmentDetails>();
+
+                AdjustmentWithContext _req = new AdjustmentWithContext();
+                _req.Adjustment = _new;
+                _req.Details = _details;
+
+                Response<AdjustmentWithContext> _response = new Response<AdjustmentWithContext>();
+                _response.Data = _req;
+                _response.Total = 1;
+
+
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        //#### POST CABECERA
+
+        [HttpPost("/api/Adjustment/PostAdjustment")]
+          public async Task<IActionResult> PostAdjustment(Models.Adjustment adjustment, Int32 userId)
+          {
+
+              try
+              {
+                  var _response = await _dInventory.PostAdjustment(adjustment, userId);
+                  return StatusCode(_response.Status, _response); 
+              }
+              catch (Exception ex)
+              {
+                  return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+              }
+          }
+
+        //#### POST DETAILS
+        [HttpPost("/api/Adjustment/PostAdjustmentDetails")]
+        public async Task<IActionResult> PostAdjustmentDetails(Models.AdjustmentDetails detail, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInventory.PostAdjustmentDetails(detail, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        //#### POST ACTIONS
+        [HttpPost("/api/Adjustment/PostAdjustmentActions")]
+        public async Task<IActionResult> PostAdjustmentActions(List<Models.Action> actions, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInventory.PostAdjustmentActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+        #endregion
     }
 }
