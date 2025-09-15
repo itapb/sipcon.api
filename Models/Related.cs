@@ -33,5 +33,9 @@ namespace Models
 
         [SwaggerIgnore]
         public bool? IsDealer { get; set; }
+
+        [SwaggerIgnore]
+        public int SupplierId { get; set; }
+
     }
 }
