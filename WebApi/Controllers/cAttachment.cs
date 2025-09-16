@@ -101,7 +101,7 @@ namespace WebApi.Controllers
                 // Obtener la variable de entorno y validar que no sea nula
                 string servicesUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
 
-                var _modules = await _dModule.GetAll(null, userId);
+                var _modules = await _dModule.GetAll(moduleName, userId);
 
                 // Buscar el módulo correspondiente según el moduleId recibido
                 var module = _modules.FirstOrDefault(m => m.Name == moduleName);
