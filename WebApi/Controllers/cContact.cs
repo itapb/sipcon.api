@@ -275,13 +275,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetExport")]
-        public async Task<IActionResult> GetExport(string? _filter, Int32 userId)
+        public async Task<IActionResult> GetExport(string? _filter, Int32 userId, string moduleName)
         {
 
             try
             {
                 
-                List<Contact> _contacts = await _dContact.GetExport(_filter, userId);
+                List<Contact> _contacts = await _dContact.GetExport(_filter, userId, moduleName);
                 MemoryStream _excel = ConvertToExcel(_contacts);
                 string _fileName = "Contactos.xlsx";
 
