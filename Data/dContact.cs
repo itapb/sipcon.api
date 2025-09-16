@@ -432,6 +432,8 @@ namespace Data
                 _mapping.AddItem("RelatedId", "IDRELATED");
                 _mapping.AddItem("RelatedName", "VRELATED");
                 _mapping.AddItem("Reference", "VBRAND");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                
 
                 Util.Data _data = Util.Data.GetInstance();
                 _list = await _data.ExecuteReaderAsync<Models.Related>("USP_GET_RELATED", _mapping, _parameter);

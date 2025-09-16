@@ -15,12 +15,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Part>>> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Part>>> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter, bool? isSell = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId, rowfrom, filter, null);
+                return await _GetAll(userId, supplierId, rowfrom, filter, null,isSell);
             }
             finally
             {
@@ -28,7 +28,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Part>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter,Int32? partId = null)
+        private async Task<Response<List<Models.Part>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter,Int32? partId = null, bool? isSell = null)
         {
             Response<List<Models.Part>> _response = new Response<List<Models.Part>>();
             try
@@ -39,7 +39,7 @@ namespace Data
                 _parameter.AddSqlParameter("@ID", partId);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-
+                _parameter.AddSqlParameter("@BSELL", isSell);
 
 
                 Mapping _mapping = new Mapping();

@@ -1,4 +1,14 @@
 ﻿using System.Data;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Presentation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using Util;
 
@@ -129,8 +139,8 @@ namespace Data
                 _semaphore.Release();
             }
         }
-
-        public async Task<Response<Location>> GetValidLocation(Int32 movementId, string scannedText)
+         
+    public async Task<Response<Location>> GetValidLocation(Int32 movementId, string scannedText)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -354,7 +364,7 @@ namespace Data
             }
             return _response;
         }
-
+ 
         private async Task<Response<Location>> _getValidLocation(Int32 movementId, string scannedText)
         {
             Response<Location> _response = new Response<Location>();
@@ -383,7 +393,7 @@ namespace Data
             }
             return _response;
         }
-
+      
         public async Task<List<Inventory>> GetExport(string? _filter, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -482,6 +492,7 @@ namespace Data
             }
         }
 
+
         private async Task<Response<Result>> _PostMovements(List<Models.Movement> _list, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
@@ -577,7 +588,7 @@ namespace Data
             return _response;
         }
 
-
+    
         public async Task<Response<Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -1801,5 +1812,343 @@ namespace Data
 
             return _response;
         }
+
+        #region ADJUSTMENT
+        /*--------------------------------------------------------------GetAll---------------------------------------------------------------*/
+            public async Task<Response<List<Models.Adjustment>>> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
+          {
+              await _semaphore.WaitAsync(Util.Setting.TimeOut);
+              try
+              {
+                  return await _GetAdjustments(userId, supplierId, rowFrom, filter, null);
+              }
+              finally
+              {
+                  _semaphore.Release();
+              }
+          }
+
+          private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, Int32? adjustmentId = null)
+          {
+              Response<List<Models.Adjustment>> _response = new Response<List<Models.Adjustment>>();
+
+              try
+              {
+                  var _parameter = new Parameter();
+                  _parameter.AddSqlParameter("@IDUSER", userId);
+                  _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                  _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                  _parameter.AddSqlParameter("@VFILTER", filter);
+                  _parameter.AddSqlParameter("@ID", adjustmentId);  
+
+                  var _mapping = new Mapping();
+                  _mapping.AddItem("Id","ID");
+                  _mapping.AddItem("UserId", "IDUSER");
+                  _mapping.AddItem("DCreated", "DCREATED");
+                  _mapping.AddItem("DUpdated", "DUPDATED");
+                  _mapping.AddItem("Comment", "VCOMMENT");
+                  _mapping.AddItem("StatusId", "IDSTATUS");
+                  _mapping.AddItem("StatusName", "VSTATUS");  
+                  _mapping.AddItem("UserLogin", "VLOGIN");
+                  _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                  _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                Util.Data _data = Util.Data.GetInstance();
+                  DataTable _table = await _data.GetDataTable("USP_GET_ADJUSTMENT", _parameter);
+
+                  _response.Data = _data.GetList<Models.Adjustment>(_mapping, _table);
+                  _response.SetGetResponse(_table);
+              }
+              catch (Exception ex)
+              {
+                  _response.SetError(ex);
+              }
+              return _response;
+          } 
+
+
+        /*--------------------------------------------------------------GetOne---------------------------------------------------------------*/
+
+        public async Task<Response<Adjustment>> GetAdjustment(Int32 userId, Int32? adjustmentId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAdjustment(userId, 0, 0, "", adjustmentId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response<Adjustment>> _GetAdjustment(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, Int32? adjustmentId = null)
+        {
+            Response<Adjustment> _response = new Response<Adjustment>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@VFILTER", filter); 
+                _parameter.AddSqlParameter("@ID", adjustmentId);
+                 
+                Mapping _mapping = new Mapping(); 
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                _mapping.AddItem("StatusName", "VSTATUS");
+                _mapping.AddItem("UserLogin", "VLOGIN");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ADJUSTMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Adjustment>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        /*-------------------------------------------------------------- GetDetails ---------------------------------------------------------------*/
+         
+
+        public async Task<Response<List<AdjustmentDetails>>> GetAdjustmentDetails(Int32 adjustmentId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAdjustmentDetails(adjustmentId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<AdjustmentDetails>>> _GetAdjustmentDetails(Int32 adjustmentId)
+        {
+            Response<List<AdjustmentDetails>> _response = new Response<List<AdjustmentDetails>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDADJUSTMENT", adjustmentId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("AdjustmentId", "IDADJUSTMENT");
+                _mapping.AddItem("LocationId", "IDLOCATION");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("Stock", "ISTOCK");
+                _mapping.AddItem("ReasonId", "IDREASON");
+                _mapping.AddItem("AdjustmentType", "CTYPE");
+                _mapping.AddItem("Inncercode", "VINNERCODE");
+                _mapping.AddItem("PartDescription", "VPART");
+                _mapping.AddItem("PartPrice", "NPRICE"); 
+                _mapping.AddItem("Location", "VLOCATION");
+                _mapping.AddItem("Zone", "VZONE"); 
+                _mapping.AddItem("Warehouse", "VWAREHOUSE");
+                _mapping.AddItem("ReasonDescription", "VREASON"); 
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ADJUSTMENTDETAILS", _parameter);
+                _response.Data = _data.GetList<Models.AdjustmentDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        /*-------------------------------------------------------------- GetReasons ---------------------------------------------------------------*/
+
+
+        public async Task<Response<List<Models.Reason>>> GetReasons()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetReasons();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Reason>>> _GetReasons()
+        {
+            Response<List<Models.Reason>> _response = new Response<List<Models.Reason>>();
+            try
+            {
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Description", "DESC");
+
+
+                var _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REASONS");
+                _response.Data = _data.GetList<Models.Reason>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        /*-------------------------------------------------------------- POST ADJUSTMENT ---------------------------------------------------------------*/
+        public async Task<Response<Result>> PostAdjustment(Models.Adjustment _item, Int32 userId)
+          {
+              await _semaphore.WaitAsync(Util.Setting.TimeOut);
+              try
+              {
+                  return await _PostAdjustment(_item, userId);
+              }
+              finally
+              {
+                  _semaphore.Release();
+              }
+          }
+
+
+          private async Task<Response<Result>> _PostAdjustment(Adjustment _item, Int32 userId)
+          {
+              Response<Result> _response = new Response<Result>();
+              try
+              {
+                  string _jsonstring = Util.Json.ConvertToJsonString(_item);
+
+                  Util.Parameter _parameter = new Util.Parameter();
+                  _parameter.AddSqlParameter("@DATA", _jsonstring);
+                  _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                  Mapping _mapping = new Mapping();
+                  _mapping.SetDefaultPostMapping();
+
+
+                  Util.Data _data = Util.Data.GetInstance();
+                  DataTable _table = await _data.GetDataTable("USP_POST_ADJUSTMENT", _parameter);
+                  _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                  _response.SetPostResponse();
+
+              }
+              catch (Exception ex)
+              {
+                  _response.SetError(ex);
+              }
+
+              return _response;
+          }
+
+        /*----------------------------------------------------------- POST ADJUSTMENTDETAILS -------------------------------------------------------------*/
+
+        public async Task<Response<Result>> PostAdjustmentDetails(Models.AdjustmentDetails adjustmentDetails, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostAdjustmentDetails(adjustmentDetails, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostAdjustmentDetails(AdjustmentDetails adjustmentDetails, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(adjustmentDetails);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_ADJUSTMENTDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+        /*----------------------------------------------------------- POST ADJUSTMENT ACTION -------------------------------------------------------------*/
+
+
+        public async Task<Response<Result>> PostAdjustmentActions(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_AdjustmentActions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response<Result>> _Post_AdjustmentActions(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                 
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_ADJUSTMENT_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+        #endregion
+
     }
 }
