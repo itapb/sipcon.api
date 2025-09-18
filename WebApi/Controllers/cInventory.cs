@@ -1270,6 +1270,24 @@ namespace WebApi.Controllers
             }
 
         }
+
+        //#### DELETE ADJUSTMENTDETAILS
+
+        [HttpPost("/api/Adjustment/DeleteAdjustmentDetails")]
+        public async Task<IActionResult> DeleteAdjustmentDetail(List<Models.Action> _list, Int32 userId)
+        {
+
+            try
+            {
+                Response<Result> _response = await _dInventory.DeleteAdjustmentDetail(_list, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
         #endregion
     }
 }
