@@ -22,12 +22,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Policy>>> GetAll(string? filter, Int32 rowFrom, Int32 userId, Int32? dealerId)
+        public async Task<Response<List<Models.Policy>>> GetAll(string? filter, Int32 rowFrom, Int32 userId, Int32? supplierId,Int32? dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-              return await _GetAll(filter, rowFrom, userId, dealerId);
+              return await _GetAll(filter, rowFrom, userId, supplierId,dealerId);
             }
             finally
             {
@@ -35,7 +35,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Policy>>> _GetAll(string? filter, Int32? rowFrom, Int32 userId,Int32? dealerId=null)
+        private async Task<Response<List<Models.Policy>>> _GetAll(string? filter, Int32? rowFrom, Int32 userId, Int32? supplierId,Int32? dealerId=null)
         {
             Response<List<Models.Policy>> _response = new Response<List<Models.Policy>>();
 
@@ -47,6 +47,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
 
 
                 var _mapping = new Mapping();
@@ -360,12 +361,12 @@ namespace Data
         }
 
 
-        public async Task<List<Policy>> GetExport(string? _filter, Int32 userId,Int32? dealerId)
+        public async Task<List<Policy>> GetExport(string? _filter, Int32 userId, Int32? supplierId,Int32? dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                Response<List<Models.Policy>> response = await _GetAll(_filter, null, userId, dealerId);
+                Response<List<Models.Policy>> response = await _GetAll(_filter, null, userId, supplierId,dealerId);
                 if (response.Data is List<Policy> policyList)
                 {
                     return policyList;
