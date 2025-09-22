@@ -1958,7 +1958,8 @@ namespace Data
                 _mapping.AddItem("Location", "VLOCATION");
                 _mapping.AddItem("Zone", "VZONE"); 
                 _mapping.AddItem("Warehouse", "VWAREHOUSE");
-                _mapping.AddItem("ReasonDescription", "VREASON"); 
+                _mapping.AddItem("ReasonDescription", "VREASON");
+                _mapping.AddItem("Cost", "NCOST");
 
 
                 Util.Data _data = Util.Data.GetInstance();

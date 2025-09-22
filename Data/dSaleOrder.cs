@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using Models;
 using Util;
 
@@ -122,12 +123,66 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<SaleOrder>> _getlast(Int32? userId, Int32? dealerId)
+        {
+            Response<SaleOrder> _response = new Response<SaleOrder>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+         
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("TypeId", "IDTYPE");
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("Created", "VCREATED");
+                _mapping.AddItem("CreatedBy", "VCREATEDBY");
+                _mapping.AddItem("IsClaim", "BCLAIM");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_LASTSALEORDER", _parameter);
+                _response.Data = _data.GetItem<Models.SaleOrder>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
         public async Task<Response<SaleOrder>> GetOne(Int32? saleOrderId, Int32? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
                 return await _getOne(userId, null, null, null, saleOrderId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<SaleOrder>> getLast(Int32? userId, Int32? dealerId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getlast(userId, dealerId);
             }
             finally
             {
