@@ -23,6 +23,9 @@ namespace Models
         public string? ZoneName { get; set; }
 
         [SwaggerIgnore]
+        public string? ZoneSize { get; set; }
+
+        [SwaggerIgnore]
         public string? WarehouseName { get; set; }
 
         [Required]

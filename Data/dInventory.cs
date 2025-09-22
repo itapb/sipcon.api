@@ -27,12 +27,12 @@ namespace Data
         }
 
 
-        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool? withStock = true, string? locationType = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId,rowfrom, filter);
+                return await _GetAll(userId, supplierId,rowfrom, filter, withStock, locationType);
             }
             finally
             {
@@ -40,7 +40,67 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter )
+
+        public async Task<Response<Movement>> getLast(Int32? userId, Int32? supplierId, string typeId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getlast(userId, supplierId, typeId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response<Movement>> _getlast(Int32? userId, Int32? supplierId , string typeId )
+        {
+            Response<Movement> _response = new Response<Movement>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VTYPE", typeId);
+     
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("GuideNumber", "VGUIDENUMBER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("SupplierName", "VNAMESUPPLIER");
+                _mapping.AddItem("ContactId", "IDCONTACT");
+                _mapping.AddItem("ContactName", "VCONTACT");
+                _mapping.AddItem("StatusId", "IESTATUS");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("TypeId", "VTYPE");
+                _mapping.AddItem("TypeName", "VMOVEMENTTYPE");
+                _mapping.AddItem("Created", "VCREATED");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("CreatedBy", "VCREATEDBY");
+                _mapping.AddItem("ManagerName", "VNAMEMANAGER");
+                _mapping.AddItem("ManagerLastName", "VLASTNAMEMANAGER");
+                _mapping.AddItem("AssignTo", "VASSIGNED");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_LASTMOVEMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Movement>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter , bool? withStock = true , string? locationType= null)
         {
             Response<List<Inventory>> _response = new Response<List<Inventory>>();
             try
@@ -50,6 +110,8 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@WITHSTOCK", withStock);
+                _parameter.AddSqlParameter("@VTYPE", locationType);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -59,6 +121,7 @@ namespace Data
 
                 _mapping.AddItem("ZoneId", "IDZONE");
                 _mapping.AddItem("ZoneName", "VZONE");
+                _mapping.AddItem("ZoneSize", "VZONESIZE");
 
                 _mapping.AddItem("WarehouseId", "IDWAREHOUSE");
                 _mapping.AddItem("WarehouseName", "VWAREHOUSE");
@@ -67,10 +130,11 @@ namespace Data
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
 
                 _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("PartSize", "VPARTSIZE");
                 _mapping.AddItem("PartInnerCode", "VINNERCODE");
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("Stock", "ISTOCK");
-                _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("Price", "NPRICE"); 
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1958,7 +2022,8 @@ namespace Data
                 _mapping.AddItem("Location", "VLOCATION");
                 _mapping.AddItem("Zone", "VZONE"); 
                 _mapping.AddItem("Warehouse", "VWAREHOUSE");
-                _mapping.AddItem("ReasonDescription", "VREASON"); 
+                _mapping.AddItem("ReasonDescription", "VREASON");
+                _mapping.AddItem("Cost", "NCOST");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -2148,6 +2213,55 @@ namespace Data
             return _response;
 
         }
+
+        /*----------------------------------------------------------- DELETE ADJUSTMENTDETAILS -------------------------------------------------------------*/
+
+        public async Task<Response<Result>> DeleteAdjustmentDetail(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _DeleteAdjustmentDetail(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _DeleteAdjustmentDetail(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_DELETE_ADJUSTMENTDETAIL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
         #endregion
 
     }

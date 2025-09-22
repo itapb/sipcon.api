@@ -535,12 +535,12 @@ namespace Data
 
         }
 
-        public async Task<List<Contact>> GetExport(string? _filter, Int32 userId)
+        public async Task<List<Contact>> GetExport(string? _filter, Int32 userId,string? moduleName)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Contact>)(await _GetAll(_filter,null, userId));
+                return (List<Contact>)(await _GetAll(_filter,null, userId,null, moduleName));
             }
             finally
             {

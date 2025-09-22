@@ -210,6 +210,7 @@ namespace Data
 
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
