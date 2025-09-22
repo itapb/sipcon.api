@@ -27,12 +27,12 @@ namespace Data
         }
 
 
-        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool withStock)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId,rowfrom, filter);
+                return await _GetAll(userId, supplierId,rowfrom, filter, withStock);
             }
             finally
             {
@@ -40,7 +40,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter )
+        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter , bool withStock)
         {
             Response<List<Inventory>> _response = new Response<List<Inventory>>();
             try
@@ -50,6 +50,7 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@WITHSTOCK", withStock);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -59,6 +60,7 @@ namespace Data
 
                 _mapping.AddItem("ZoneId", "IDZONE");
                 _mapping.AddItem("ZoneName", "VZONE");
+                _mapping.AddItem("ZoneSize", "VZONESIZE");
 
                 _mapping.AddItem("WarehouseId", "IDWAREHOUSE");
                 _mapping.AddItem("WarehouseName", "VWAREHOUSE");
@@ -67,10 +69,11 @@ namespace Data
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
 
                 _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("PartSize", "VPARTSIZE");
                 _mapping.AddItem("PartInnerCode", "VINNERCODE");
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("Stock", "ISTOCK");
-                _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("Price", "NPRICE"); 
 
 
                 Util.Data _data = Util.Data.GetInstance();
