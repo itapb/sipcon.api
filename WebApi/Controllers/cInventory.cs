@@ -37,11 +37,11 @@ namespace WebApi.Controllers
         #region "Inventory"
 
         [HttpGet("/api/Inventory/GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter, bool withStock )
+        public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter, bool? withStock = true, string?  locationType = null )
         {
             try
             {
-                Models.Response<List<Inventory>> _response = await _dInventory.GetAll(userId, supplierId, rowFrom, filter, withStock);
+                Models.Response<List<Inventory>> _response = await _dInventory.GetAll(userId, supplierId, rowFrom, filter, withStock, locationType);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -96,13 +96,26 @@ namespace WebApi.Controllers
                 List<Movement> _list = new List<Movement>();
                 _list.Add(_new);
 
-                Response<Result> _resp = await _dInventory.PostMovements(_list, userId);
-                Result _resul = new Result();
-                _resul = (Result)(_resp.Data);
 
-                var _get= await _dInventory.GetMovement(userId, _resul.LastId);
-                _new = (Movement)(_get.Data);
+                var _get2 = (Movement)(await _dInventory.getLast(userId, supplierId, typeId)).Data;
 
+                if (_get2.Id is null || _get2.Id == 0)
+                {
+
+                    Response<Result> _resp = await _dInventory.PostMovements(_list, userId);
+                    Result _resul = new Result();
+                    _resul = (Result)(_resp.Data);
+
+                    var _get = await _dInventory.GetMovement(userId, _resul.LastId);
+                    _new = (Movement)(_get.Data);
+
+                }
+                else
+                {
+                    _new = _get2;
+                }
+
+           
                 List<MovementDetails> _details = new List<MovementDetails>();
 
                 MovementWithContext _mov = new MovementWithContext();

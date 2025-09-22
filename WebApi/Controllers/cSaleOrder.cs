@@ -158,7 +158,7 @@ namespace WebApi.Controllers
 
                 var _get2 = (SaleOrder)(await _dSaleOrder.getLast(userId, dealerId)).Data;
 
-                if (_get2.Id == 0)
+                if (_get2.Id is null || _get2.Id == 0)
                 {
 
                     var _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
