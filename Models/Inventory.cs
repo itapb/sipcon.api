@@ -26,6 +26,9 @@ namespace Models
         [SwaggerIgnore]
         public string? ZoneName { get; set; }
 
+        [SwaggerIgnore]
+        public string? ZoneSize { get; set; }
+
 
         [SwaggerIgnore]
         public Int32? WarehouseId { get; set; }
@@ -45,6 +48,9 @@ namespace Models
         public Int32? PartId { get; set; }
 
         [SwaggerIgnore]
+        public string? PartSize { get; set; }
+
+        [SwaggerIgnore]
         public string? PartInnerCode { get; set; }
 
         [SwaggerIgnore]
@@ -56,5 +62,6 @@ namespace Models
 
         [SwaggerIgnore]
         public decimal? Price { get; set; } = decimal.Zero;
+         
     }
 }

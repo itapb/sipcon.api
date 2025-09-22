@@ -37,11 +37,11 @@ namespace WebApi.Controllers
         #region "Inventory"
 
         [HttpGet("/api/Inventory/GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter )
+        public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter, bool withStock )
         {
             try
             {
-                Models.Response<List<Inventory>> _response = await _dInventory.GetAll(userId, supplierId, rowFrom, filter);
+                Models.Response<List<Inventory>> _response = await _dInventory.GetAll(userId, supplierId, rowFrom, filter, withStock);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
