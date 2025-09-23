@@ -25,8 +25,9 @@ namespace Models
 
         public string? ReplacementCode { get; set; } = string.Empty;
 
-        [Required]
+        [SwaggerIgnore]
         public Int32? ModelId { get; set; }
+
         [SwaggerIgnore]
         public string? ModelName { get; set; }
 
