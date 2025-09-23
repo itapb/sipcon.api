@@ -83,6 +83,85 @@ namespace Data
 
         }
 
+
+
+        public async Task<Response<List<Models.VehicleInvoice>>> GetVehiclesInvoiced(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetVehiclesInvoiced(userId, supplierId, dealerId, rowFrom, filter, 0);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.VehicleInvoice>>> _GetVehiclesInvoiced(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter, Int32 vehicleId = 0)
+        {
+
+            Response<List<Models.VehicleInvoice>> _response = new Response<List<Models.VehicleInvoice>>();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODEL");
+                _mapping.AddItem("PolicyTypeId", "IDPOLICYTYPE");
+                _mapping.AddItem("PolicyTypeName", "VPOLICYTYPE");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("DealerReference", "VDEALER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("CustomerLastName", "VCUSTOMERLASTNAME");
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("Phone", "VPHONE1");
+                _mapping.AddItem("Email", "VEMAIL");
+                _mapping.AddItem("PolicyId", "IDPOLICY");
+                _mapping.AddItem("PolicyNumber", "VNUMBER");
+                _mapping.AddItem("EstatusPolicyId", "IESTATUSPOLICY");
+                _mapping.AddItem("EstatusPolicyName", "VESTATUSPOLICY");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("EstatusId", "IESTATUS");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES_INVOICE", _parameter);
+                _response.Data = _data.GetList<Models.VehicleInvoice>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
         public async Task<Response<Models.Vehicle>> GetOne(Int32 userId,Int32 vehicleId )
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
