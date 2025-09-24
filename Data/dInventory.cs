@@ -1591,8 +1591,7 @@ namespace Data
             }
         }
 
-
-        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
+        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
             try
@@ -1602,7 +1601,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-
+                _parameter.AddSqlParameter("@STARTDATE", startdate);
+                _parameter.AddSqlParameter("@ENDDATE", enddate);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "IDBACKORDER");
@@ -1611,12 +1611,13 @@ namespace Data
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("Quantity", "IBACKORDER");
                 _mapping.AddItem("StatusId", "IDSTATUS");
+                _mapping.AddItem("Arrival", "DARRIVAL");
                 _mapping.AddItem("CreatedDate", "DCREATED");
                 _mapping.AddItem("DealerId", "IDDEALER");
                 _mapping.AddItem("DealerName", "DEALER");
                 _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
                 _mapping.AddItem("TypeId", "IDTYPE");
-                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("TypeName", "VTYPE"); 
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1633,12 +1634,12 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter)
+        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetBackOrders(userId, supplierId, rowfrom, filter);
+                return await _GetBackOrders(userId, supplierId, rowfrom, filter, startdate, enddate);
             }
             finally
             {
