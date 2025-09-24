@@ -27,12 +27,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Models.Response<List<T>>> GetAll<T>(string? filter, int? rowFrom, int userId, int serviceTypeId, int dealerId,  int? serviceId = null)
+        public async Task<Models.Response<List<T>>> GetAll<T>(string? filter, int? rowFrom, int userId, int serviceTypeId, int dealerId, int? supplierId,  int? serviceId = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll<T>(filter, rowFrom, userId, serviceTypeId, dealerId, serviceId);
+                return await _GetAll<T>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, serviceId);
             }
             finally
             {
@@ -43,7 +43,7 @@ namespace Data
 
 
 
-        private async Task<Models.Response<List<T>>> _GetAll<T>(string? filter,int? rowFrom,int userId,int serviceTypeId, int dealerId, int? serviceId = null)
+        private async Task<Models.Response<List<T>>> _GetAll<T>(string? filter,int? rowFrom,int userId,int serviceTypeId, int dealerId, int? supplierId, int? serviceId = null)
         {
             var _response = new Response<List<T>>();
 
@@ -57,8 +57,9 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSERVICETYPE", serviceTypeId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
 
-                
+
                 // Mapeo por tipo
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -293,7 +294,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll<T>( filter: null,null,userId, serviceTypeId,dealerId,
+                return await _GetAll<T>( filter: null,null,userId, serviceTypeId,dealerId, null,
                     serviceId: serviceId
                 );
             }
