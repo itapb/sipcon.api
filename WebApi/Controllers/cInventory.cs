@@ -1033,11 +1033,11 @@ namespace WebApi.Controllers
         #region"BackOrder"
 
         [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             try
             {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter);
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1045,6 +1045,8 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+
+
 
         [HttpPost("/api/BackOrder/PostActions")]
         public async Task<IActionResult> PostBackorder_Actions(List<Models.Action> actions, Int32 userId)
