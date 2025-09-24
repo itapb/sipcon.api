@@ -1526,7 +1526,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-
+        #region "BACKORDEN"
         private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
@@ -1553,8 +1553,9 @@ namespace Data
                 _mapping.AddItem("DealerName", "DEALER");
                 _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
                 _mapping.AddItem("TypeId", "IDTYPE");
-                _mapping.AddItem("TypeName", "VTYPE"); 
-
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("SupplierRef", "VREFERENCESUPPLIER");
+                _mapping.AddItem("DealerRef", "VREFERENCEDEALER");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_BACKORDER", _parameter);
@@ -1674,8 +1675,32 @@ namespace Data
             return _response;
         }
 
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, filter, null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        public async Task<Response<Result>> PostImportBackOrders(Models.PostBackOrder backOrder, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostBacKOrder(backOrder, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
-
+        #endregion
 
 
         public async Task<Response<Result>> PostGuideDetails(List<GuideDetails> _list, int? userId)
