@@ -62,9 +62,9 @@ namespace Models
         [SwaggerIgnore] public String? CustomerPhone { get; set; }
         
         // Datos de Facturacion
-        [Required] public String? InvoiceNumber { get; set; }
-        [Required] public decimal? InvoiceAmount { get; set; }
-        [Required] public DateTime? InvoiceDate { get; set; }
+        [SwaggerIgnore] public String? InvoiceNumber { get; set; }
+        [SwaggerIgnore] public decimal? InvoiceAmount { get; set; }
+        [SwaggerIgnore] public DateTime? InvoiceDate { get; set; }
         
         //Estatus
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusId { get; set; }
