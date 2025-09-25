@@ -1161,7 +1161,7 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/BackOrder/PostBackOrder")]
-        public async Task<IActionResult> PostBackorder(Models.PostBackOrder backOrder, Int32 userId)
+        public async Task<IActionResult> PostBackorder(Models.BackOrder backOrder, Int32 userId)
         {
 
             try

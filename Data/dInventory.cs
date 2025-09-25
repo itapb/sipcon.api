@@ -1711,7 +1711,7 @@ namespace Data
         }
 
 
-        public async Task<Response<Result>> PostBacKOrder(Models.PostBackOrder backOrder, Int32 userId)
+        public async Task<Response<Result>> PostBacKOrder(Models.BackOrder backOrder, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1723,7 +1723,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Result>> _PostBacKOrder(Models.PostBackOrder backOrder, Int32 userId)
+        private async Task<Response<Result>> _PostBacKOrder(Models.BackOrder backOrder, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -1766,7 +1766,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response<Result>> PostImportBackOrders(Models.PostBackOrder backOrder, Int32 userId)
+        public async Task<Response<Result>> PostImportBackOrders(Models.BackOrder backOrder, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
