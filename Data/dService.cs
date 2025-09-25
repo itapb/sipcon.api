@@ -116,10 +116,15 @@ namespace Data
                 _mapping.AddItem("LicenseDescription", "VDESCRIPTIONLICENSE");
                 _mapping.AddItem("LicenseTypeId", "IDLICENSETYPE");
                 _mapping.AddItem("LicenseType", "VLICENSETYPE");
-                //LoadMappingForType(typeof(T), _mapping);
+                _mapping.AddItem("AssistanceTypeId", "IDASSISTANCETYPE");
+                _mapping.AddItem("AssistanceType", "VASSISTANCETYPE");
+                _mapping.AddItem("PossibleFaultId", "IDPOSSIBLEFAULT");
+                _mapping.AddItem("PossibleFault", "VPOSSIBLEFAULT");
+
+
 
                 // Ejecución del SP
-                    Util.Data _data = Util.Data.GetInstance();
+                Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MAINTENANCES", _parameter);
 
                 // Conversión dinámica
@@ -243,6 +248,96 @@ namespace Data
 
         }
 
+
+        public async Task<Response<List<Models.AssistanceType>>> GetAssistanceType()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAssistanceType();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.AssistanceType>>> _GetAssistanceType()
+        {
+
+            Response<List<Models.AssistanceType>> _response = new Response<List<Models.AssistanceType>>();
+
+            try
+            {
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ASSISTANCETYPE");
+
+                _response.Data = _data.GetList<Models.AssistanceType>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+
+        public async Task<Response<List<Models.PossibleFault>>> GetPossibleFault()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPossibleFault();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.PossibleFault>>> _GetPossibleFault()
+        {
+
+            Response<List<Models.PossibleFault>> _response = new Response<List<Models.PossibleFault>>();
+
+            try
+            {
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_POSSIBLEFAULT");
+
+                _response.Data = _data.GetList<Models.PossibleFault>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
 
         public async Task<Response<List<Models.ServiceType>>> GetServiceType()
         {

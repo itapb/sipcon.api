@@ -28,6 +28,12 @@ namespace Models
         [SwaggerIgnore] public Int32? LicenseTypeId { get; set; }
         [SwaggerIgnore] public String? LicenseType { get; set; }
 
+        [SwaggerIgnore] public Int32? AssitenanceTypeId { get; set; }
+        [SwaggerIgnore] public String? AssitenanceType { get; set; }
+        [SwaggerIgnore] public Int32? PossibleFaultId { get; set; }
+        [SwaggerIgnore] public String? PossibleFault { get; set; }
+
+
 
 
         [Required] public Int32? DealerId { get; set; }
