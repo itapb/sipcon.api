@@ -695,6 +695,40 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetAssistanceType")]
+        public async Task<IActionResult> GetAssistanceType()
+        {
+
+            try
+            {
+                var _response = await _dService.GetAssistanceType();
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpGet("GetPossibleFault")]
+        public async Task<IActionResult> GetPossibleFault()
+        {
+
+            try
+            {
+                var _response = await _dService.GetPossibleFault();
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
         [HttpGet("GetServiceType")]
         public async Task<IActionResult> GetServiceType()
         {

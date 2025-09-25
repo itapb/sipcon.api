@@ -28,6 +28,12 @@ namespace Models
         [SwaggerIgnore] public Int32? LicenseTypeId { get; set; }
         [SwaggerIgnore] public String? LicenseType { get; set; }
 
+        [SwaggerIgnore] public Int32? AssitenanceTypeId { get; set; }
+        [SwaggerIgnore] public String? AssitenanceType { get; set; }
+        [SwaggerIgnore] public Int32? PossibleFaultId { get; set; }
+        [SwaggerIgnore] public String? PossibleFault { get; set; }
+
+
 
 
         [Required] public Int32? DealerId { get; set; }
@@ -62,9 +68,9 @@ namespace Models
         [SwaggerIgnore] public String? CustomerPhone { get; set; }
         
         // Datos de Facturacion
-        [Required] public String? InvoiceNumber { get; set; }
-        [Required] public decimal? InvoiceAmount { get; set; }
-        [Required] public DateTime? InvoiceDate { get; set; }
+        [SwaggerIgnore] public String? InvoiceNumber { get; set; }
+        [SwaggerIgnore] public decimal? InvoiceAmount { get; set; }
+        [SwaggerIgnore] public DateTime? InvoiceDate { get; set; }
         
         //Estatus
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusId { get; set; }

@@ -14,4 +14,19 @@ namespace Models
         public string? Name { get; set; }
 
     }
+
+    public class AssistanceType : ServiceType
+    {
+
+       
+
+    }
+
+
+    public class PossibleFault : ServiceType
+    {
+
+
+
+    }
 }
