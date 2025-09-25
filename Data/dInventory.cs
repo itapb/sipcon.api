@@ -27,12 +27,12 @@ namespace Data
         }
 
 
-        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        public async Task<Response<List<Inventory>>> GetAll(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, bool? withStock = true, string? locationType = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId,rowfrom, filter, withStock, locationType);
+                return await _GetAll(userId, supplierId, rowfrom, filter, withStock, locationType);
             }
             finally
             {
@@ -40,6 +40,18 @@ namespace Data
             }
         }
 
+        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Inventory>)(await _GetAll(userId, supplierId, null, filter, null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         public async Task<Response<Movement>> getLast(Int32? userId, Int32? supplierId, string typeId)
         {
@@ -100,7 +112,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32 rowfrom, string? filter , bool? withStock = true , string? locationType= null)
+        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32? rowfrom, string? filter , bool? withStock = true , string? locationType= null)
         {
             Response<List<Inventory>> _response = new Response<List<Inventory>>();
             try
@@ -458,7 +470,7 @@ namespace Data
             return _response;
         }
       
-        public async Task<List<Inventory>> GetExport(string? _filter, Int32 userId)
+     /*   public async Task<List<Inventory>> GetExport(string? _filter, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -515,7 +527,7 @@ namespace Data
             }
 
             return _list;
-        }
+        }*/
 
         public async Task<Response<Result>> PostMovements(List<Models.Movement> _list, Int32 userId)
         {
