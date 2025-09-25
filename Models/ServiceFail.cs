@@ -21,7 +21,6 @@ namespace Models
         [Required] public String? DealerReport { get; set; }
         [Required] public String? TechnicalSolution { get; set; }
         [SwaggerIgnore] public String? SupplierReport { get; set; }
-        [Required] public Int32? PolicyDetailId { get; set; }
         [Required] public bool? Paralyzed { get; set; }
         [Required] public Int32? LicenseId { get; set; }
         [SwaggerIgnore] public String? LicenseDescription { get; set; }
