@@ -13,7 +13,7 @@ namespace Models
 
 
         [SwaggerIgnore] public Int32? RecordId { get; set; }
-        [Required] public Int32? Quantity { get; set; }
+        [Required] public Int32? Assesment { get; set; }
         [SwaggerIgnore] public Int32? ModuleId { get; set; }
         [SwaggerIgnore] public String? ModuleName { get; set; }
         [SwaggerIgnore] public String? UserDealerName { get; set; }

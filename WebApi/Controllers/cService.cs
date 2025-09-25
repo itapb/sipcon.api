@@ -514,7 +514,7 @@ namespace WebApi.Controllers
 
                             // Fila 2
                             AddTitleRow("Modelo Vehiculo", "Año", "Fecha Creacion", "Kilometraje", "Direccion", "Autoriza");
-                            AddValueRow(service.ModelName, $"{service.Year}", $"{service.ServiceDate:yyyy-MM-d}", $"{service.Km} km", service.DealerAddress, $"{service.AuthorizedUserName} {service.AuthorizedUserLastName}");
+                            AddValueRow(service.ModelName, $"{service.Year}", $"{service.ServiceDate:yyyy-MM-d}", $"{service.Km} km", service.DealerAddress, $"{service.AuthorizedUserName}");
 
                             // Fila 3
                             AddTitleRow("VIN-Serial Completo", "Fecha de Salida", "Ciudad", "Estado", "Telefonos", "Fecha Autorizacion");
