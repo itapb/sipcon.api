@@ -18,7 +18,12 @@ namespace Models
         public string? DealerName { get; set; }
         public int? SaleOrderNumber { get; set;}
         public int? TypeId{ get; set; } 
-        public string? TypeName { get; set; }
+        public string? TypeName { get; set; } 
+        public DateTime? Arrival { get; set; } 
+
+        public string? SupplierRef { get; set; }
+        public string? DealerRef { get; set; }
+
 
     }
 

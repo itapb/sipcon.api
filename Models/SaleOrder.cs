@@ -54,5 +54,17 @@ namespace Models
         [SwaggerIgnore]
         public bool IsClaim { get; set; } = false;
 
+        [Required]
+        public bool Paralyzed { get; set; } 
+
+        public int VehicleId { get; set; } 
+
+        [SwaggerIgnore]
+        public string? VehicleVin { get; set; }
+
+        [SwaggerIgnore]
+        public string? VehicleCustomer { get; set; }
+
+
     }
 }

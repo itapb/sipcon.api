@@ -60,6 +60,10 @@ namespace Data
                 _mapping.AddItem("Created", "VCREATED");
                 _mapping.AddItem("CreatedBy", "VCREATEDBY");
                 _mapping.AddItem("IsClaim", "BCLAIM");
+                _mapping.AddItem("Paralyzed", "BPARALYZED");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
+                _mapping.AddItem("VehicleVin", "VVIN");
+                _mapping.AddItem("VehicleCustomer", "VCUSTOMER");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -107,6 +111,10 @@ namespace Data
                 _mapping.AddItem("Created", "VCREATED");
                 _mapping.AddItem("CreatedBy", "VCREATEDBY");
                 _mapping.AddItem("IsClaim", "BCLAIM");
+                _mapping.AddItem("Paralyzed", "BPARALYZED");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
+                _mapping.AddItem("VehicleVin", "VVIN");
+                _mapping.AddItem("VehicleCustomer", "VCUSTOMER");
 
 
                 Util.Data _data = Util.Data.GetInstance();
