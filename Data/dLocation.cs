@@ -44,6 +44,7 @@ namespace Data
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("ZoneId", "IDZONE");
                 _mapping.AddItem("ZoneName", "VZONE");
+                _mapping.AddItem("ZoneSize", "VZONESIZE");
                 _mapping.AddItem("WarehouseName", "VWAREHOUSE");
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("Mapping", "IMAPPING");
@@ -82,6 +83,7 @@ namespace Data
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("ZoneId", "IDZONE");
                 _mapping.AddItem("ZoneName", "VZONE");
+                _mapping.AddItem("ZoneSize", "VZONESIZE");
                 _mapping.AddItem("WarehouseName", "VWAREHOUSE");
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("Mapping", "IMAPPING");

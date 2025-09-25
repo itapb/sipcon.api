@@ -46,6 +46,22 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetVehiclesInvoiced")]
+        public async Task<IActionResult> GetVehiclesInvoiced(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
+        {
+
+            try
+            {
+                var _response = await _dVehicle.GetVehiclesInvoiced(userId, supplierId, dealerId, rowFrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
         [HttpGet("GetOne")]
         public async Task<IActionResult> GetOne(Int32 userId,Int32 vehicleId)
         {

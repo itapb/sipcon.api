@@ -57,11 +57,14 @@ namespace Models
         [Required]
         public bool Paralyzed { get; set; } 
 
-        [Required]
+
         public int VehicleId { get; set; } 
 
         [SwaggerIgnore]
-        public string? VehicleVin { get; set; } 
+        public string? VehicleVin { get; set; }
+
+        [SwaggerIgnore]
+        public string? VehicleCustomer { get; set; }
 
 
 

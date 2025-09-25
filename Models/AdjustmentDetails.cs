@@ -40,12 +40,16 @@ namespace Models
         public string? PartDescription { get; set; }
 
         [SwaggerIgnore]
-        public string? PartPrice { get; set; }
+        public decimal? PartPrice { get; set; }
 
         [SwaggerIgnore]
         public string? PartSize { get; set; }
 
         [SwaggerIgnore]
         public string? ReasonDescription { get; set; }
+
+        [SwaggerIgnore]
+        public decimal? Cost { get; set; }
     }
+
 }

@@ -13,18 +13,18 @@ namespace WebApi.Controllers
     [Authorize]
     [Route("api/SaleOrder")]
     [ApiController]
-   
+
     [Authorize]
     public class cSaleOrder : ControllerBase
     {
         private readonly dSaleOrder _dSaleOrder;
 
-        public cSaleOrder(dSaleOrder dSaleOrder) 
+        public cSaleOrder(dSaleOrder dSaleOrder)
         {
             _dSaleOrder = dSaleOrder;
         }
 
-        
+
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll(Int32 userId, Int32? dealerId, Int32 rowfrom, string? filter)
         {
@@ -64,8 +64,8 @@ namespace WebApi.Controllers
             try
             {
 
-                var _get = await _dSaleOrder.GetOne( saleOrderId, userId);
-                var _details = await _dSaleOrder.GetDetails( saleOrderId);
+                var _get = await _dSaleOrder.GetOne(saleOrderId, userId);
+                var _details = await _dSaleOrder.GetDetails(saleOrderId);
 
                 SaleOrderWithContext _req = new SaleOrderWithContext();
                 _req.SaleOrder = (SaleOrder)(_get.Data);
@@ -86,7 +86,7 @@ namespace WebApi.Controllers
             }
         }
 
-        
+
         [HttpGet("GetReasons")]
         public async Task<IActionResult> GetReasons()
         {
@@ -105,7 +105,7 @@ namespace WebApi.Controllers
         }
 
 
-        
+
         [HttpGet("GetSaleOrderTypes")]
         public async Task<IActionResult> GetSaleOrderTypes()
         {
@@ -140,7 +140,7 @@ namespace WebApi.Controllers
         }
 
 
-        
+
         [HttpGet("NewSaleOrderWithContext")]
         public async Task<IActionResult> NewSaleOrderWithContext(Int32 userId, Int32 dealerId, Int32 typeId)
         {
@@ -156,12 +156,26 @@ namespace WebApi.Controllers
                 List<SaleOrder> _list = new List<SaleOrder>();
                 _list.Add(_new);
 
-                var _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
-                Result _resul = new Result();
-                _resul = (Result)(_resp.Data);
+                var _get2 = (SaleOrder)(await _dSaleOrder.getLast(userId, dealerId)).Data;
 
-                var _get = await _dSaleOrder.GetOne( _resul.LastId, userId);
-                _new = (SaleOrder)(_get.Data);
+                if (_get2.Id is null || _get2.Id == 0)
+                {
+
+                    var _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
+                    Result _resul = new Result();
+                    _resul = (Result)(_resp.Data);
+
+                    var _get = await _dSaleOrder.GetOne(_resul.LastId, userId);
+                    _new = (SaleOrder)(_get.Data);
+
+
+                }
+                else
+                {
+                    _new = _get2;
+                }
+
+
 
                 List<SaleOrderDetail> _details = new List<SaleOrderDetail>();
 
@@ -183,7 +197,7 @@ namespace WebApi.Controllers
         }
 
 
-        
+
         [HttpPost("PostSaleOrder")]
         public async Task<IActionResult> PostSaleOrder(List<Models.SaleOrder> saleOrders, Int32 userId)
         {
@@ -199,7 +213,7 @@ namespace WebApi.Controllers
         }
 
 
-      
+
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions, Int32 userId)
         {
@@ -217,7 +231,7 @@ namespace WebApi.Controllers
 
 
 
-       
+
         [HttpPost("PostDetail")]
         public async Task<IActionResult> PostDetail(Models.SaleOrderDetail detail, Int32 userId)
         {
@@ -233,7 +247,7 @@ namespace WebApi.Controllers
         }
 
 
-        
+
         [HttpPost("DeleteDetails")]
         public async Task<IActionResult> DeleteDetails(List<Models.Detail> details, Int32 userId)
         {

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
@@ -23,6 +24,12 @@ namespace Models
         public string? AlterCode { get; set; } = string.Empty;
 
         public string? ReplacementCode { get; set; } = string.Empty;
+
+        [SwaggerIgnore]
+        public Int32? ModelId { get; set; }
+
+        [SwaggerIgnore]
+        public string? ModelName { get; set; }
 
         [Required]
         public string? Description { get; set; } = string.Empty;
@@ -130,6 +137,7 @@ namespace Models
 
         [Required]
         public Int32? UseQty { get; set; } = 1;
+     
 
     }
 }

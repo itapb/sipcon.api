@@ -34,7 +34,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(string? filter, int rowFrom, int userId, int serviceTypeId, int dealerId)
+        public async Task<IActionResult> GetAll(string? filter, int rowFrom, int userId, int serviceTypeId, int dealerId,int? supplierId)
         {
             try
             {
@@ -42,17 +42,17 @@ namespace WebApi.Controllers
                 {
                     case 1:
                         Models.Response<List<Models.ServiceMaintenance>> maintenanceResponse =
-                            await _dService.GetAll<Models.ServiceMaintenance>(filter, rowFrom, userId, serviceTypeId, dealerId);
+                            await _dService.GetAll<Models.ServiceMaintenance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
                         return StatusCode(maintenanceResponse.Status, maintenanceResponse);
 
                     case 2:
                         Models.Response<List<Models.ServiceAssistance>> assistanceResponse =
-                            await _dService.GetAll<Models.ServiceAssistance>(filter, rowFrom, userId, serviceTypeId, dealerId);
+                            await _dService.GetAll<Models.ServiceAssistance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
                         return StatusCode(assistanceResponse.Status, assistanceResponse);
 
                     case 3:
                         Models.Response<List<Models.ServiceFail>> failResponse =
-                            await _dService.GetAll<Models.ServiceFail>(filter, rowFrom, userId, serviceTypeId, dealerId);
+                            await _dService.GetAll<Models.ServiceFail>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
                         return StatusCode(failResponse.Status, failResponse);
 
                     default:
@@ -179,7 +179,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId)
+        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId,int supplierId)
         {
             try
             {
@@ -190,18 +190,18 @@ namespace WebApi.Controllers
                 switch (serviceTypeId)
                 {
                     case 1:
-                        var maintenanceResponse = await _dService.GetAll<ServiceMaintenance>(filter, null, userId, serviceTypeId, dealerId);
+                        var maintenanceResponse = await _dService.GetAll<ServiceMaintenance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
                         if (maintenanceResponse.Status != 200 || maintenanceResponse.Data == null)
                             return StatusCode(maintenanceResponse.Status, maintenanceResponse.Message);
                         rawData = maintenanceResponse.Data;
                         break;
 
                     case 2:
-                        var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId);
+                        var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
                         return StatusCode(assistanceResponse.Status, assistanceResponse);
 
                     case 3:
-                        var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId);
+                        var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId, supplierId);
                         return StatusCode(failResponse.Status, failResponse);
 
                     default:
@@ -256,7 +256,7 @@ namespace WebApi.Controllers
             try
             {
                 
-                var response = await _dService.GetOne<ServiceFail>(userId, 3, dealerId, serviceId);
+                var response = await _dService.GetOne<ServiceFail>(userId, 3, dealerId,serviceId);
 
                 // 2. Validar que la respuesta es exitosa y contiene datos
                 if (response.Status != StatusCodes.Status200OK || response.Data == null)

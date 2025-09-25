@@ -77,4 +77,32 @@ namespace Models
 
 
     }
+
+
+    public class VehicleInvoice : Vehicle
+    {
+        [SwaggerIgnore]
+        public string? CustomerLastName { get; set; }
+
+        [SwaggerIgnore]
+        public string? Vat { get; set; }
+        [SwaggerIgnore]
+        public String? Phone { get; set; }
+
+        [SwaggerIgnore]
+        public string? Email { get; set; }
+
+        [SwaggerIgnore]
+        public Int32? PolicyId { get; set; }
+
+        [SwaggerIgnore]
+        public String? PolicyNumber { get; set; }
+
+        [SwaggerIgnore]
+        public Int32? EstatusPolicyId { get; set; }
+        [SwaggerIgnore]
+        public String? EstatusPolicyName { get; set; }
+
+
+    }
 }
