@@ -57,6 +57,7 @@ namespace Models
         [Required]
         public bool Paralyzed { get; set; } 
 
+
         public int VehicleId { get; set; } 
 
         [SwaggerIgnore]
@@ -64,6 +65,7 @@ namespace Models
 
         [SwaggerIgnore]
         public string? VehicleCustomer { get; set; }
+
 
 
     }
