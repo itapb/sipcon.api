@@ -22,6 +22,10 @@ namespace Models
         [SwaggerIgnore] public String? SupplierReport { get; set; }
         [Required] public Int32? Km { get; set; }
         public bool? Paralyzed { get; set; }
+        [SwaggerIgnore] public Int32? AssitenanceTypeId { get; set; }
+        [SwaggerIgnore] public String? AssitenanceType { get; set; }
+        public Int32? PossibleFaultId { get; set; }
+        [SwaggerIgnore] public String? PossibleFault { get; set; }
 
 
 
