@@ -104,7 +104,7 @@ namespace WebApi.Controllers
                     "ID", "NUMERO DE ORDEN", "CONCESIONARIO DEL MANTENIMIENTO", "CODIGO CONCESIONARIO",
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA",
                     "CODIGO CONCESIONARIO", "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE",
-                    "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION", "ESTATUS"
+                    "NUM FACTURA", "FECHA FACTURACION", "ESTATUS"
                 };
                         break;
 
@@ -185,10 +185,9 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 13).Value = s.CustomerName;
                         worksheet.Cell(row, 14).Value = s.CustomerLastName;
                         worksheet.Cell(row, 15).Value = s.InvoiceNumber;
-                        worksheet.Cell(row, 16).Value = s.InvoiceAmount;
-                        worksheet.Cell(row, 17).Value = s.InvoiceDate;
-                        worksheet.Cell(row, 17).Style.DateFormat.Format = "dd/MM/yyyy";
-                        worksheet.Cell(row, 18).Value = s.EstatusName;
+                        worksheet.Cell(row, 16).Value = s.InvoiceDate;
+                        worksheet.Cell(row, 16).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 17).Value = s.EstatusName;
                     }
                     else if (serviceTypeId == 2)
                     {
@@ -201,7 +200,7 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 8).Value = s.DealerReport;
                         worksheet.Cell(row, 9).Value = s.TechnicalSolution;
                         worksheet.Cell(row, 10).Value = s.PossibleFault;
-                        worksheet.Cell(row, 11).Value = s.AssitenanceType;
+                        worksheet.Cell(row, 11).Value = s.AssistanceType;
                         worksheet.Cell(row, 12).Value = s.Km;
                         worksheet.Cell(row, 13).Value = s.Year;
                         worksheet.Cell(row, 14).Value = s.ModelName;
