@@ -81,7 +81,6 @@ namespace Data
                 _mapping.AddItem("DealerServiceState", "VNAMESTATE");
                 _mapping.AddItem("DealerServiceCod", "VDEALERCOD");
                 _mapping.AddItem("AuthorizedUserName", "VAUTHORIZEDUSERNAME");
-                _mapping.AddItem("AuthorizedUserLastName", "VAUTHORIZEDUSERLASTNAME");
                 _mapping.AddItem("SrgNumber", "VSRGNUMBER");
                 _mapping.AddItem("DealerSaleId", "IDDEALERSALE");
                 _mapping.AddItem("DealerSaleName", "VDEALERSALE");
@@ -120,6 +119,9 @@ namespace Data
                 _mapping.AddItem("AssistanceType", "VASSISTANCETYPE");
                 _mapping.AddItem("PossibleFaultId", "IDPOSSIBLEFAULT");
                 _mapping.AddItem("PossibleFault", "VPOSSIBLEFAULT");
+                _mapping.AddItem("StartDate", "DSTARTDATE");
+                _mapping.AddItem("Assesment", "IQUANTITY");
+                _mapping.AddItem("EndDate", "DENDDATE");
 
 
 

@@ -22,15 +22,33 @@ namespace Models
         [SwaggerIgnore] public String? SupplierReport { get; set; }
         [Required] public Int32? Km { get; set; }
         public bool? Paralyzed { get; set; }
-        [SwaggerIgnore] public Int32? AssitenanceTypeId { get; set; }
-        [SwaggerIgnore] public String? AssitenanceType { get; set; }
+
+        [SwaggerIgnore] public Int32? AssistanceTypeId { get; set; }
+        [SwaggerIgnore] public String? AssistanceType { get; set; }
         public Int32? PossibleFaultId { get; set; }
         [SwaggerIgnore] public String? PossibleFault { get; set; }
+
+        [SwaggerIgnore] public DateTime? StartDate { get; set; }
+
+        [SwaggerIgnore] public DateTime? EndDate { get; set; }
+
+        [SwaggerIgnore] public Int32? Assesment { get; set; }
+
+        [SwaggerIgnore] public String? AuthorizedUserName { get; set; }
+
+
+
 
 
 
         [Required] public Int32? DealerId { get; set; }
         [Required] public Int32? CustomerId { get; set; }
+
+        // Datos de Cliente
+        [SwaggerIgnore] public String? Vat { get; set; }
+        [SwaggerIgnore] public String? CustomerName { get; set; }
+        [SwaggerIgnore] public String? CustomerLastName { get; set; }
+        [SwaggerIgnore] public String? CustomerPhone { get; set; }
         [SwaggerIgnore] public String? DealerServiceName { get; set; }
         [SwaggerIgnore] public String? DealerServiceCod { get; set; }
  
