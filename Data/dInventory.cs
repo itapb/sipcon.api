@@ -1334,12 +1334,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllGuides(userId, supplierId, rowfrom, filter);
+                return await _GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
             }
             finally
             {
@@ -1409,7 +1409,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter = "", int? guideId=null)
+        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter = "", int? guideId=null)
         {
             Response <List<Models.Guide>> _response = new Response<List<Models.Guide>>();
             try
@@ -1417,6 +1417,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null

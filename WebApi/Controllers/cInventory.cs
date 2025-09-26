@@ -650,11 +650,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Guide/GetAllGuides")]
-        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, int rowfrom, string? filter)
+        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId,int rowfrom, string? filter)
         {
             try
             {
-                var _response = await _dInventory.GetAllGuides(userId, supplierId, rowfrom, filter);
+                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
