@@ -42,6 +42,12 @@ namespace Models
 
         [Required] public Int32? DealerId { get; set; }
         [Required] public Int32? CustomerId { get; set; }
+
+        // Datos de Cliente
+        [SwaggerIgnore] public String? Vat { get; set; }
+        [SwaggerIgnore] public String? CustomerName { get; set; }
+        [SwaggerIgnore] public String? CustomerLastName { get; set; }
+        [SwaggerIgnore] public String? CustomerPhone { get; set; }
         [SwaggerIgnore] public String? DealerServiceName { get; set; }
         [SwaggerIgnore] public String? DealerServiceCod { get; set; }
  

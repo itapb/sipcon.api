@@ -113,8 +113,9 @@ namespace WebApi.Controllers
                         headers = new()
                 {
                     "ID", "NUMERO DE REPORTE DE FALLA",  "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
-                    "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA", "COD",
-                    "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","ESTATUS"
+                    "VIN DE VEHICULO", "PLACA","REPORTE DE CLIENTE","REPORTE DE CONCESIONARIO","REPORTE DE PLANTA",
+                     "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
+                     "FECHA DE FINALIZACION","CALIFICACION" ,"ESTATUS"
                 };
                         break;
 
@@ -186,8 +187,8 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 15).Value = s.InvoiceNumber;
                         worksheet.Cell(row, 16).Value = s.InvoiceAmount;
                         worksheet.Cell(row, 17).Value = s.InvoiceDate;
-                        worksheet.Cell(row, 18).Style.DateFormat.Format = "dd/MM/yyyy";
-                        worksheet.Cell(row, 19).Value = s.EstatusName;
+                        worksheet.Cell(row, 17).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 18).Value = s.EstatusName;
                     }
                     else if (serviceTypeId == 2)
                     {
@@ -196,14 +197,24 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 4).Value = s.DealerServiceCod;
                         worksheet.Cell(row, 5).Value = s.Vin;
                         worksheet.Cell(row, 6).Value = s.Plate;
-                        worksheet.Cell(row, 7).Value = s.Km;
-                        worksheet.Cell(row, 8).Value = s.Year;
-                        worksheet.Cell(row, 9).Value = s.ModelName;
-                        worksheet.Cell(row, 12).Value = s.Vat;
-                        worksheet.Cell(row, 13).Value = s.CustomerName;
-                        worksheet.Cell(row, 14).Value = s.CustomerLastName;
-                        worksheet.Cell(row, 15).Value = s.AuthorizedUserName;
-                        worksheet.Cell(row, 16).Value = s.EstatusName;
+                        worksheet.Cell(row, 7).Value = s.CustomerReport;
+                        worksheet.Cell(row, 8).Value = s.DealerReport;
+                        worksheet.Cell(row, 9).Value = s.TechnicalSolution;
+                        worksheet.Cell(row, 10).Value = s.PossibleFault;
+                        worksheet.Cell(row, 11).Value = s.AssitenanceType;
+                        worksheet.Cell(row, 12).Value = s.Km;
+                        worksheet.Cell(row, 13).Value = s.Year;
+                        worksheet.Cell(row, 14).Value = s.ModelName;
+                        worksheet.Cell(row, 15).Value = s.Vat;
+                        worksheet.Cell(row, 16).Value = s.CustomerName;
+                        worksheet.Cell(row, 17).Value = s.CustomerLastName;
+                        worksheet.Cell(row, 18).Value = s.AuthorizedUserName;
+                        worksheet.Cell(row, 19).Value = s.StartDate;
+                        worksheet.Cell(row, 19).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 20).Value = s.EndDate;
+                        worksheet.Cell(row, 20).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 21).Value = s.Assesment;
+                        worksheet.Cell(row, 22).Value = s.EstatusName;
 
                     }
                     else if (serviceTypeId == 3)
@@ -227,8 +238,8 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 19).Value = s.InvoiceNumber;
                         worksheet.Cell(row, 20).Value = s.InvoiceAmount;
                         worksheet.Cell(row, 21).Value = s.InvoiceDate;
-                        worksheet.Cell(row, 22).Style.DateFormat.Format = "dd/MM/yyyy";
-                        worksheet.Cell(row, 23).Value = s.EstatusName;
+                        worksheet.Cell(row, 21).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 22).Value = s.EstatusName;
                     }
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
