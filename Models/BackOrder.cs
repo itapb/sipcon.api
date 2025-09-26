@@ -10,17 +10,22 @@ namespace Models
 {
     public class BackOrder : Record
     {
+        
+        [Required]
+        public string? SupplierId { get; set; }
+       
+        [Required]
+        public int? Quantity { get; set; }
+
+        [Required]
+        public DateTime? Arrival { get; set; }
+
         [SwaggerIgnore]
         public string? PartDescription { get; set; }
 
         [SwaggerIgnore]
         public string? PartInnerCode { get; set; }
 
-
-        [SwaggerIgnore]
-        public string? SupplierId { get; set; }
-        [Required]
-        public int? Quantity { get; set; }
         [SwaggerIgnore]
         public int? StatusId { get;set; }
         [SwaggerIgnore]
@@ -34,10 +39,8 @@ namespace Models
         [SwaggerIgnore]
         public int? TypeId{ get; set; }
         [SwaggerIgnore]
-        public string? TypeName { get; set; }
+        public string? TypeName { get; set; } 
 
-        [Required]
-        public DateTime? Arrival { get; set; }
         [SwaggerIgnore]
         public string? SupplierRef { get; set; }
         [SwaggerIgnore]

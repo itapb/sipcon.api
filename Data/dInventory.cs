@@ -1710,20 +1710,20 @@ namespace Data
             return _response;
         }
 
-
-        public async Task<Response<Result>> PostBacKOrder(Models.BackOrder backOrder, Int32 userId)
+     
+        public async Task<Response<Result>> PostBacKOrder(Models.BackOrder backOrder, Int32 userId, bool bFull = true)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostBacKOrder(backOrder, userId);
+                return await _PostBacKOrder(backOrder, userId, bFull);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Result>> _PostBacKOrder(Models.BackOrder backOrder, Int32 userId)
+        private async Task<Response<Result>> _PostBacKOrder(Models.BackOrder backOrder, Int32 userId, bool bFull)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -1734,6 +1734,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@BFULL", bFull);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -1766,12 +1767,12 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response<Result>> PostImportBackOrders(Models.BackOrder backOrder, Int32 userId)
+        public async Task<Response<Result>> PostImportBackOrders(Models.BackOrder backOrder, Int32 userId, bool bFull= false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostBacKOrder(backOrder, userId);
+                return await _PostBacKOrder(backOrder, userId, bFull);
             }
             finally
             {

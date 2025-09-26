@@ -17,6 +17,7 @@ using Colors = QuestPDF.Helpers.Colors;
 using Microsoft.AspNetCore.Authorization;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Threading;
+using System.Linq.Expressions;
 
 
 namespace WebApi.Controllers
@@ -1166,7 +1167,7 @@ namespace WebApi.Controllers
 
             try
             {
-                var _response = await _dInventory.PostBacKOrder(backOrder, userId);
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
