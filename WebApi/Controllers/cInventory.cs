@@ -17,6 +17,7 @@ using Colors = QuestPDF.Helpers.Colors;
 using Microsoft.AspNetCore.Authorization;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Threading;
+using System.Linq.Expressions;
 
 
 namespace WebApi.Controllers
@@ -50,6 +51,86 @@ namespace WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
+        }
+        private MemoryStream ConvertToExcelInventory(List<Models.Inventory> _inventory)
+        {
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("BACKORDER");
+
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "CODIGO";
+                worksheet.Cell(1, 3).Value = "DESCRIPCION"; 
+                worksheet.Cell(1, 4).Value = "TAMAÑO PARTE";
+                worksheet.Cell(1, 5).Value = "EXISTENCIA";
+                worksheet.Cell(1, 6).Value = "PRECIO";
+                worksheet.Cell(1, 7).Value = "ALMACEN";
+                worksheet.Cell(1, 8).Value = "UBICACION";
+                worksheet.Cell(1, 9).Value = "ZONA";
+                worksheet.Cell(1, 10).Value = "TAMAÑO ZONA";
+                worksheet.Cell(1, 11).Value = "PLANTA";
+                worksheet.Cell(1, 12).Value = "ACTIVA";
+
+                var headerRange = worksheet.Range("A1:J1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:J1").SetAutoFilter();
+                for (int i = 0; i < _inventory.Count; i++)
+                {
+                    var _inventor = _inventory[i];
+                    worksheet.Cell(i + 2, 1).Value = _inventor.Id;
+                    worksheet.Cell(i + 2, 2).Value = _inventor.PartInnerCode;
+                    worksheet.Cell(i + 2, 3).Value = _inventor.PartName;
+                    worksheet.Cell(i + 2, 4).Value = _inventor.PartSize;
+                    worksheet.Cell(i + 2, 5).Value = _inventor.Stock;
+                    worksheet.Cell(i + 2, 6).Value = _inventor.Price;
+                    worksheet.Cell(i + 2, 7).Value = _inventor.WarehouseName; 
+                    worksheet.Cell(i + 2, 8).Value = _inventor.LocationName;
+                    worksheet.Cell(i + 2, 9).Value = _inventor.ZoneName;
+                    worksheet.Cell(i + 2, 10).Value = _inventor.ZoneSize;
+                    worksheet.Cell(i + 2, 11).Value = _inventor.SupplierName;
+                    worksheet.Cell(i + 2, 11).Value = _inventor.IsActive != false ? "SI" : "NO"; 
+
+
+                }
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+
+        }
+
+
+        [HttpGet("/api/Inventory/Export")]
+        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        { 
+            try
+            { 
+                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId, null, filter, null, null);
+                MemoryStream _excel = ConvertToExcelInventory(_response);
+                string _fileName = "Inventory.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
         }
 
         #endregion
@@ -1081,12 +1162,12 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/BackOrder/PostBackOrder")]
-        public async Task<IActionResult> PostBackorder(Models.PostBackOrder backOrder, Int32 userId)
+        public async Task<IActionResult> PostBackorder(Models.BackOrder backOrder, Int32 userId)
         {
 
             try
             {
-                var _response = await _dInventory.PostBacKOrder(backOrder, userId);
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
