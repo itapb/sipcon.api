@@ -38,6 +38,22 @@ namespace Models
 
 
 
+        [SwaggerIgnore] public Int32? AssistanceTypeId { get; set; }
+        [SwaggerIgnore] public String? AssistanceType { get; set; }
+        public Int32? PossibleFaultId { get; set; }
+        [SwaggerIgnore] public String? PossibleFault { get; set; }
+
+        [SwaggerIgnore] public DateTime? StartDate { get; set; }
+
+        [SwaggerIgnore] public DateTime? EndDate { get; set; }
+
+        [SwaggerIgnore] public Int32? Assesment { get; set; }
+
+        [SwaggerIgnore] public String? AuthorizedUserName { get; set; }
+
+
+
+
 
 
         [Required] public Int32? DealerId { get; set; }

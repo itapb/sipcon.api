@@ -15,6 +15,9 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Colors = QuestPDF.Helpers.Colors;
 using Microsoft.AspNetCore.Authorization;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Threading;
+using System.Linq.Expressions;
 
 
 namespace WebApi.Controllers
@@ -48,6 +51,86 @@ namespace WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
+        }
+        private MemoryStream ConvertToExcelInventory(List<Models.Inventory> _inventory)
+        {
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("BACKORDER");
+
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "CODIGO";
+                worksheet.Cell(1, 3).Value = "DESCRIPCION"; 
+                worksheet.Cell(1, 4).Value = "TAMAÑO PARTE";
+                worksheet.Cell(1, 5).Value = "EXISTENCIA";
+                worksheet.Cell(1, 6).Value = "PRECIO";
+                worksheet.Cell(1, 7).Value = "ALMACEN";
+                worksheet.Cell(1, 8).Value = "UBICACION";
+                worksheet.Cell(1, 9).Value = "ZONA";
+                worksheet.Cell(1, 10).Value = "TAMAÑO ZONA";
+                worksheet.Cell(1, 11).Value = "PLANTA";
+                worksheet.Cell(1, 12).Value = "ACTIVA";
+
+                var headerRange = worksheet.Range("A1:J1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:J1").SetAutoFilter();
+                for (int i = 0; i < _inventory.Count; i++)
+                {
+                    var _inventor = _inventory[i];
+                    worksheet.Cell(i + 2, 1).Value = _inventor.Id;
+                    worksheet.Cell(i + 2, 2).Value = _inventor.PartInnerCode;
+                    worksheet.Cell(i + 2, 3).Value = _inventor.PartName;
+                    worksheet.Cell(i + 2, 4).Value = _inventor.PartSize;
+                    worksheet.Cell(i + 2, 5).Value = _inventor.Stock;
+                    worksheet.Cell(i + 2, 6).Value = _inventor.Price;
+                    worksheet.Cell(i + 2, 7).Value = _inventor.WarehouseName; 
+                    worksheet.Cell(i + 2, 8).Value = _inventor.LocationName;
+                    worksheet.Cell(i + 2, 9).Value = _inventor.ZoneName;
+                    worksheet.Cell(i + 2, 10).Value = _inventor.ZoneSize;
+                    worksheet.Cell(i + 2, 11).Value = _inventor.SupplierName;
+                    worksheet.Cell(i + 2, 11).Value = _inventor.IsActive != false ? "SI" : "NO"; 
+
+
+                }
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+
+        }
+
+
+        [HttpGet("/api/Inventory/Export")]
+        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        { 
+            try
+            { 
+                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId, null, filter, null, null);
+                MemoryStream _excel = ConvertToExcelInventory(_response);
+                string _fileName = "Inventory.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
         }
 
         #endregion
@@ -648,11 +731,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Guide/GetAllGuides")]
-        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, int rowfrom, string? filter)
+        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId,int rowfrom, string? filter)
         {
             try
             {
-                var _response = await _dInventory.GetAllGuides(userId, supplierId, rowfrom, filter);
+                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1079,12 +1162,12 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/BackOrder/PostBackOrder")]
-        public async Task<IActionResult> PostBackorder(Models.PostBackOrder backOrder, Int32 userId)
+        public async Task<IActionResult> PostBackorder(Models.BackOrder backOrder, Int32 userId)
         {
 
             try
             {
-                var _response = await _dInventory.PostBacKOrder(backOrder, userId);
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1094,12 +1177,104 @@ namespace WebApi.Controllers
 
         }
 
+
+        private MemoryStream ConvertToExcel(List<Models.BackOrder> _backOrders)
+        {
+            // 2. Crear el libro de trabajo Excel
+            using (var workbook = new XLWorkbook())
+            {
+                // 3. Agregar una hoja al libro
+                var worksheet = workbook.Worksheets.Add("BACKORDER");
+
+                // 4. Agregar los encabezados
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "CODIGO";
+                worksheet.Cell(1, 3).Value = "DESCRIPCION";
+                worksheet.Cell(1, 4).Value = "TIPO";
+                worksheet.Cell(1, 5).Value = "CANTIDAD";
+                worksheet.Cell(1, 6).Value = "NRO ORDEN";
+                worksheet.Cell(1, 7).Value = "FECHA DE CREACION";
+                worksheet.Cell(1, 8).Value = "FECHA DE LLEGADA";
+                worksheet.Cell(1, 9).Value = "CONCESIONARIO";
+                worksheet.Cell(1, 10).Value = "PLANTA";
+                worksheet.Cell(1, 11).Value = "ACTIVA";
+
+
+
+                // 5. Estilo para los encabezados
+                var headerRange = worksheet.Range("A1:J1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:J1").SetAutoFilter();
+                // 6. Llenar los datos
+                for (int i = 0; i < _backOrders.Count; i++)
+                {
+                    var _backOrder = _backOrders[i];
+                    worksheet.Cell(i + 2, 1).Value = _backOrder.Id;
+                    worksheet.Cell(i + 2, 2).Value = _backOrder.PartInnerCode;
+                    worksheet.Cell(i + 2, 3).Value = _backOrder.PartDescription;
+                    worksheet.Cell(i + 2, 4).Value = _backOrder.TypeName;
+                    worksheet.Cell(i + 2, 5).Value = _backOrder.Quantity;
+                    worksheet.Cell(i + 2, 6).Value = _backOrder.SaleOrderNumber;
+                    worksheet.Cell(i + 2, 7).Value = _backOrder.CreatedDate;
+                    worksheet.Cell(i + 2, 8).Value = _backOrder.Arrival;
+                    worksheet.Cell(i + 2, 9).Value = _backOrder.DealerRef;
+                    worksheet.Cell(i + 2, 10).Value = _backOrder.SupplierRef;
+                    worksheet.Cell(i + 2, 11).Value = _backOrder.IsActive != false ? "SI" : "NO";
+
+
+
+                }
+                // 7. Ajustar el ancho de las columnas al contenido 
+                worksheet.Columns().AdjustToContents();
+
+                // 8. Centra contenido de las columnas 
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+
+                // 9. Preparar el stream para la respuesta
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0; // Importante: rebobinar el stream
+                return stream;
+            }
+
+        }
+
+
+        [HttpGet("/api/BackOrder/Export")]
+        public async Task<IActionResult> GetExportBackOrder(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        {
+
+            try
+            {
+
+                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId, null, filter, null, null);
+                MemoryStream _excel = ConvertToExcel(_response);
+                string _fileName = "BackOrder.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
         #endregion
 
         #region "Adjustment"
 
         //#### GET ALL
-        
+
         [HttpGet("/api/Adjustment/GetAdjustments")]
          public async Task<IActionResult> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
          {
