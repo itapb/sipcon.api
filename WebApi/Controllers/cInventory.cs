@@ -1127,6 +1127,7 @@ namespace WebApi.Controllers
 
         #endregion
 
+
         #region"BackOrder"
 
 
@@ -1169,7 +1170,7 @@ namespace WebApi.Controllers
 
             try
             {
-                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1272,19 +1273,7 @@ namespace WebApi.Controllers
 
         }
 
-        [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
-        {
-            try
-            {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-        } 
+     
 
         [HttpPost("/api/BackOrder/Import")]
         public async Task<IActionResult> PostImportBackOrder(IFormFile file, Int32 userId, string? supplierId)
@@ -1302,7 +1291,7 @@ namespace WebApi.Controllers
                 if (_BackOrder == null || !_BackOrder.Any())
                     return BadRequest("El archivo no contiene datos válidos para procesar.");
 
-                var _response = await _dInventory.PostImportBackOrders(_BackOrder, userId, false);
+                var _response = await _dInventory.PostImportBackOrders(_BackOrder, userId);
                  
                 if (_response.Data?.UpdatedRows == 0 && _response.Data?.InsertedRows == 0)
                 {
@@ -1361,38 +1350,7 @@ namespace WebApi.Controllers
             return _list;
         }
 
-        [HttpPost("/api/BackOrder/PostActions")]
-        public async Task<IActionResult> PostBackorder_Actions(List<Models.Action> actions, Int32 userId)
-        {
-
-            try
-            {
-                var _response = await _dInventory.PostBackorder_Actions(actions, userId);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-
-        }
-
-
-        [HttpPost("/api/BackOrder/PostBackOrder")]
-        public async Task<IActionResult> PostBackorder(List<Models.BackOrder> backOrder, Int32 userId)
-        {
-
-            try
-            {
-                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-
-        }
+     
          
         #endregion
 

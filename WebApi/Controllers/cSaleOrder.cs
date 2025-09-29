@@ -26,12 +26,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? dealerId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId,Int32? dealerId, Int32 rowfrom, string? filter)
         {
 
             try
             {
-                var _response = await _dSaleOrder.GetAll(userId, dealerId, rowfrom, filter);
+                var _response = await _dSaleOrder.GetAll(userId, supplierId,dealerId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

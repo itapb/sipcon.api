@@ -1682,12 +1682,12 @@ namespace Data
         }
         /*--------------------------------------------------------------POST IMPORT-------------------------------------------------------------*/
          
-        public async Task<Response<Result>> PostImportBackOrders(List<Models.BackOrder> backOrder, Int32 userId, bool bFull = false)
+        public async Task<Response<Result>> PostImportBackOrders(List<Models.BackOrder> backOrder, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostBacKOrder(backOrder, userId, bFull);
+                return await _postImportBacKOrder(backOrder, userId);
             }
             finally
             {
@@ -1697,12 +1697,12 @@ namespace Data
 
         /*--------------------------------------------------------------POST-------------------------------------------------------------*/
 
-        public async Task<Response<Result>> PostBacKOrder(List<Models.BackOrder> backOrder, Int32 userId, bool bFull = true)
+        public async Task<Response<Result>> PostBacKOrder(Models.BackOrder backOrder, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostBacKOrder(backOrder, userId, bFull);
+                return await _postBacKOrder(backOrder, userId);
             }
             finally
             {
@@ -1710,7 +1710,7 @@ namespace Data
             }
         }
       
-        private async Task<Response<Result>> _PostBacKOrder(List<Models.BackOrder> backOrder, Int32 userId, bool bFull)
+        private async Task<Response<Result>> _postBacKOrder(Models.BackOrder backOrder, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -1721,7 +1721,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@BFULL", bFull);
+                _parameter.AddSqlParameter("@BFULL", true);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -1742,6 +1742,37 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<Result>> _postImportBacKOrder(List<Models.BackOrder> backOrder, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(backOrder);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@BFULL", false);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_BACKORDER", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
         /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
 
@@ -1773,7 +1804,7 @@ namespace Data
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@BFULL", bFull);
+             
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -1796,30 +1827,7 @@ namespace Data
         }
 
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, filter, null, null)).Data;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-        public async Task<Response<Result>> PostImportBackOrders(Models.BackOrder backOrder, Int32 userId, bool bFull= false)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return await _PostBacKOrder(backOrder, userId, bFull);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
+ 
 
 
         #endregion
