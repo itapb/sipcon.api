@@ -28,10 +28,13 @@ namespace Models
         [SwaggerIgnore] public Int32? LicenseTypeId { get; set; }
         [SwaggerIgnore] public String? LicenseType { get; set; }
 
-        [SwaggerIgnore] public Int32? AssitenanceTypeId { get; set; }
-        [SwaggerIgnore] public String? AssitenanceType { get; set; }
+        [SwaggerIgnore] public Int32? AssistanceTypeId { get; set; }
+        [SwaggerIgnore] public String? AssistanceType { get; set; }
         [SwaggerIgnore] public Int32? PossibleFaultId { get; set; }
         [SwaggerIgnore] public String? PossibleFault { get; set; }
+
+
+
 
 
 
@@ -40,7 +43,6 @@ namespace Models
         [SwaggerIgnore] public String? DealerServiceName { get; set; }
         [SwaggerIgnore] public String? DealerServiceCod { get; set; }
         [SwaggerIgnore] public String? AuthorizedUserName { get; set; }
-        [SwaggerIgnore] public String? AuthorizedUserLastName { get; set; }
         [SwaggerIgnore] public String? DealerAddress { get; set; }
         [SwaggerIgnore] public String? DealerServiceCity { get; set; }
         [SwaggerIgnore] public String? DealerServiceState { get; set; }
@@ -85,11 +87,11 @@ namespace Models
         [SwaggerIgnore] public Int32? SupplierId { get; set; }
         [SwaggerIgnore] public Int32? BrandId { get; set; }
 
+        [SwaggerIgnore] public DateTime? StartDate { get; set; }
 
+        [SwaggerIgnore] public DateTime? EndDate { get; set; }
 
-        //******************
-
-
+        [SwaggerIgnore] public Int32? Assesment { get; set; }
 
 
     }

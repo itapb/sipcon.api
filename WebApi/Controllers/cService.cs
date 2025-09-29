@@ -85,78 +85,165 @@ namespace WebApi.Controllers
 
 
 
-        private MemoryStream ConvertToExcel(List<Models.Service> _services)
+        private MemoryStream ConvertToExcel(List<Models.Service> _services, Int32? serviceTypeId)
         {
             // 2. Crear el libro de trabajo Excel
             using (var workbook = new XLWorkbook())
             {
                 // 3. Agregar una hoja al libro
-                var worksheet = workbook.Worksheets.Add("SERVICIOS");
+                IXLWorksheet worksheet;
+                List<string> headers = new();
 
-                // 4. Agregar los encabezados
-                worksheet.Cell(1, 1).Value = "ID";
-                worksheet.Cell(1, 2).Value = "TIPO DE SERVICIO";
-                worksheet.Cell(1, 3).Value = "NUMERO DE ORDEN";
-                worksheet.Cell(1, 4).Value = "TIPO DE REPORTE";
-                worksheet.Cell(1, 5).Value = "CONCECIONARO DEL SERVICIO";
-                worksheet.Cell(1, 6).Value = "CODIGO CONCECIONARIO";
-                worksheet.Cell(1, 7).Value = "VIN DE VEHICULO";
-                worksheet.Cell(1, 8).Value = "PLACA";
-                worksheet.Cell(1, 9).Value = "KM";
-                worksheet.Cell(1, 10).Value = "AÑO";
-                worksheet.Cell(1, 11).Value = "MODELO";
-                worksheet.Cell(1, 12).Value = "CONCECIONARIO DE VENTA";
-                worksheet.Cell(1, 13).Value = "COD";
-                worksheet.Cell(1, 14).Value = "RIF CLIENTE";
-                worksheet.Cell(1, 15).Value = "NOMBRE DE CLIENTE";
-                worksheet.Cell(1, 16).Value = "APELLIDO DE CLIENTE";
-                worksheet.Cell(1, 17).Value = "NOMBRE DE AUTORIZADO";
-                worksheet.Cell(1, 18).Value = "APELLIDO DE AUTORIZADO";
-                worksheet.Cell(1, 19).Value = "SRG NUM";
-                worksheet.Cell(1, 20).Value = "NUM FACTURA";
-                worksheet.Cell(1, 21).Value = "MONTO FACTURACION";
-                worksheet.Cell(1, 22).Value = "FECHA FACTURACION";
-                worksheet.Cell(1, 23).Value = "ESTATUS";
-                worksheet.Cell(1, 24).Value = "ACTIVO";
+                // 1. Crear hoja y encabezados según tipo de servicio
+                switch (serviceTypeId)
+                {
+                    case 1:
+                        worksheet = workbook.Worksheets.Add("MANTENIMIENTOS");
+                        headers = new()
+                {
+                    "ID", "NUMERO DE ORDEN", "CONCESIONARIO DEL MANTENIMIENTO", "CODIGO CONCESIONARIO",
+                    "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA",
+                    "CODIGO CONCESIONARIO", "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CONCESIONARIO",
+                    "NUM FACTURA", "FECHA FACTURACION", "ESTATUS"
+                };
+                        break;
 
+                    case 2:
+                        worksheet = workbook.Worksheets.Add("ASISTENCIAS TECNICAS");
+                        headers = new()
+                {
+                    "ID", "NUMERO DE REPORTE DE FALLA",  "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                    "VIN DE VEHICULO", "PLACA","REPORTE DE CLIENTE","REPORTE DE CONCESIONARIO","REPORTE DE PLANTA",
+                     "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
+                     "FECHA DE FINALIZACION","CALIFICACION" ,"ESTATUS"
+                };
+                        break;
 
-                // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:X1");
+                    case 3:
+                        worksheet = workbook.Worksheets.Add("REPORTE DE FALLAS");
+                        headers = new()
+                {
+                    "ID", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                    "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA", "CODIGO CONCESIONARIO",
+                    "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
+                     "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
+                    "ESTATUS"
+                };
+                        break;
+
+                    default:
+                        throw new ArgumentException("Tipo de servicio no válido");
+                }
+
+                // 2. Agregar encabezados
+                for (int col = 0; col < headers.Count; col++)
+                {
+                    if (!string.IsNullOrWhiteSpace(headers[col]))
+                        worksheet.Cell(1, col + 1).Value = headers[col];
+                }
+
+                // 3. Estilo de encabezados
+                var headerRange = worksheet.Range(1, 1, 1, headers.Count);
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
-                var colorMap = new Dictionary<string, XLColor> { { "Validado", XLColor.GreenYellow }, { "Rechazado", XLColor.Red }, { "Para Validar", XLColor.Orange }, { "Para Aprobar", XLColor.GreenYellow }, { "Aprobado", XLColor.Green }, { "Procesado", XLColor.Blue } };
-                worksheet.Range("A1:X1").SetAutoFilter();
-                // 6. Llenar los datos
-                for (int i = 0; i < _services.Count; i++)
-                {
-                    var _service = _services[i];
-                    worksheet.Cell(i + 2, 1).Value = _service.Id;
-                    worksheet.Cell(i + 2, 2).Value = _service.ServiceTypeName;
-                    worksheet.Cell(i + 2, 3).Value = _service.OrderNumber;
-                    worksheet.Cell(i + 2, 4).Value = _service.ReportTypeName;
-                    worksheet.Cell(i + 2, 5).Value = _service.DealerServiceName;
-                    worksheet.Cell(i + 2, 6).Value = _service.DealerSaleCod;
-                    worksheet.Cell(i + 2, 7).Value = _service.Vin;
-                    worksheet.Cell(i + 2, 8).Value = _service.Plate;
-                    worksheet.Cell(i + 2, 9).Value = _service.Km;
-                    worksheet.Cell(i + 2, 10).Value = _service.Year;
-                    worksheet.Cell(i + 2, 11).Value = _service.ModelName;
-                    worksheet.Cell(i + 2, 12).Value = _service.DealerSaleName;
-                    worksheet.Cell(i + 2, 13).Value = _service.DealerSaleCod;
-                    worksheet.Cell(i + 2, 14).Value = _service.Vat;
-                    worksheet.Cell(i + 2, 15).Value = _service.CustomerName;
-                    worksheet.Cell(i + 2, 16).Value = _service.CustomerLastName;
-                    worksheet.Cell(i + 2, 17).Value = _service.AuthorizedUserName;
-                    worksheet.Cell(i + 2, 18).Value = _service.AuthorizedUserLastName;
-                    worksheet.Cell(i + 2, 19).Value = _service.SrgNumber;
-                    worksheet.Cell(i + 2, 20).Value = _service.InvoiceNumber;
-                    worksheet.Cell(i + 2, 21).Value = _service.InvoiceAmount;
-                    worksheet.Cell(i + 2, 22).Value = _service.InvoiceDate;
-                    worksheet.Cell(i + 2, 22).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
-                    worksheet.Cell(i + 2, 23).Value = _service.EstatusName;
-                    worksheet.Cell(i + 2, 23).Style.Fill.BackgroundColor = colorMap.TryGetValue(_service.EstatusName, out var color) ? color : XLColor.Yellow;
-                    worksheet.Cell(i + 2, 24).Value = _service.IsActive != false ? "SI" : "NO";
+                headerRange.SetAutoFilter();
 
+                var colorMap = new Dictionary<string, XLColor>
+        {
+            { "Validado", XLColor.GreenYellow },
+            { "Rechazado", XLColor.Red },
+            { "Para Validar", XLColor.Orange },
+            { "Para Aprobar", XLColor.GreenYellow },
+            { "Aprobado", XLColor.Green },
+            { "Procesado", XLColor.Blue }
+        };
+
+                // 4. Filtrar datos
+                var filteredServices = _services.Where(s => s.ServiceTypeId == serviceTypeId).ToList();
+
+                // 5. Insertar datos
+                for (int i = 0; i < filteredServices.Count; i++)
+                {
+                    var s = filteredServices[i];
+                    int row = i + 2;
+
+                    worksheet.Cell(row, 1).Value = s.Id;
+
+                    if (serviceTypeId == 1)
+                    {
+                        worksheet.Cell(row, 2).Value = s.OrderNumber;
+                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 4).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 5).Value = s.Vin;
+                        worksheet.Cell(row, 6).Value = s.Plate;
+                        worksheet.Cell(row, 7).Value = s.Km;
+                        worksheet.Cell(row, 8).Value = s.Year;
+                        worksheet.Cell(row, 9).Value = s.ModelName;
+                        worksheet.Cell(row, 10).Value = s.DealerSaleName;
+                        worksheet.Cell(row, 11).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 12).Value = s.Vat;
+                        worksheet.Cell(row, 13).Value = s.CustomerName;
+                        worksheet.Cell(row, 14).Value = s.CustomerLastName;
+                        worksheet.Cell(row, 15).Value = s.DealerReport;
+                        worksheet.Cell(row, 16).Value = s.InvoiceNumber;
+                        worksheet.Cell(row, 17).Value = s.InvoiceDate;
+                        worksheet.Cell(row, 17).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 18).Value = s.EstatusName;
+                    }
+                    else if (serviceTypeId == 2)
+                    {
+                        worksheet.Cell(row, 2).Value = s.OrderNumber;
+                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 4).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 5).Value = s.Vin;
+                        worksheet.Cell(row, 6).Value = s.Plate;
+                        worksheet.Cell(row, 7).Value = s.CustomerReport;
+                        worksheet.Cell(row, 8).Value = s.DealerReport;
+                        worksheet.Cell(row, 9).Value = s.TechnicalSolution;
+                        worksheet.Cell(row, 10).Value = s.PossibleFault;
+                        worksheet.Cell(row, 11).Value = s.AssistanceType;
+                        worksheet.Cell(row, 12).Value = s.Km;
+                        worksheet.Cell(row, 13).Value = s.Year;
+                        worksheet.Cell(row, 14).Value = s.ModelName;
+                        worksheet.Cell(row, 15).Value = s.Vat;
+                        worksheet.Cell(row, 16).Value = s.CustomerName;
+                        worksheet.Cell(row, 17).Value = s.CustomerLastName;
+                        worksheet.Cell(row, 18).Value = s.AuthorizedUserName;
+                        worksheet.Cell(row, 19).Value = s.StartDate;
+                        worksheet.Cell(row, 19).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 20).Value = s.EndDate;
+                        worksheet.Cell(row, 20).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 21).Value = s.Assesment;
+                        worksheet.Cell(row, 22).Value = s.EstatusName;
+
+                    }
+                    else if (serviceTypeId == 3)
+                    {
+                        worksheet.Cell(row, 2).Value = s.OrderNumber;
+                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 4).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 5).Value = s.Vin;
+                        worksheet.Cell(row, 6).Value = s.Plate;
+                        worksheet.Cell(row, 7).Value = s.Km;
+                        worksheet.Cell(row, 8).Value = s.Year;
+                        worksheet.Cell(row, 9).Value = s.ModelName;
+                        worksheet.Cell(row, 10).Value = s.DealerSaleName;
+                        worksheet.Cell(row, 11).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 12).Value = s.Vat;
+                        worksheet.Cell(row, 13).Value = s.CustomerName;
+                        worksheet.Cell(row, 14).Value = s.CustomerLastName;
+                        worksheet.Cell(row, 15).Value = s.CustomerReport;
+                        worksheet.Cell(row, 16).Value = s.DealerReport;
+                        worksheet.Cell(row, 17).Value = s.TechnicalSolution;
+                        worksheet.Cell(row, 18).Value = s.SupplierReport;
+                        worksheet.Cell(row, 19).Value = s.AuthorizedUserName;
+                        worksheet.Cell(row, 20).Value = s.SrgNumber;
+                        worksheet.Cell(row, 21).Value = s.InvoiceNumber;
+                        worksheet.Cell(row, 22).Value = s.InvoiceAmount;
+                        worksheet.Cell(row, 23).Value = s.InvoiceDate;
+                        worksheet.Cell(row, 23).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 24).Value = s.EstatusName;
+                    }
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
                 worksheet.Columns().AdjustToContents();
@@ -179,13 +266,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId,int supplierId)
+        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId, int supplierId)
         {
             try
             {
                 object rawData = null;
-                int status = 200;
-                string message = string.Empty;
 
                 switch (serviceTypeId)
                 {
@@ -198,11 +283,17 @@ namespace WebApi.Controllers
 
                     case 2:
                         var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
-                        return StatusCode(assistanceResponse.Status, assistanceResponse);
+                        if (assistanceResponse.Status != 200 || assistanceResponse.Data == null)
+                            return StatusCode(assistanceResponse.Status, assistanceResponse.Message);
+                        rawData = assistanceResponse.Data;
+                        break;
 
                     case 3:
                         var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId, supplierId);
-                        return StatusCode(failResponse.Status, failResponse);
+                        if (failResponse.Status != 200 || failResponse.Data == null)
+                            return StatusCode(failResponse.Status, failResponse.Message);
+                        rawData = failResponse.Data;
+                        break;
 
                     default:
                         return StatusCode(StatusCodes.Status400BadRequest, $"Tipo de servicio no soportado: {serviceTypeId}");
@@ -212,6 +303,8 @@ namespace WebApi.Controllers
                 var services = serviceTypeId switch
                 {
                     1 => (rawData as IEnumerable<ServiceMaintenance>)?.Select(ConvertToService).ToList(),
+                    2 => (rawData as IEnumerable<ServiceAssistance>)?.Select(ConvertToService).ToList(),
+                    3 => (rawData as IEnumerable<ServiceFail>)?.Select(ConvertToService).ToList(),
                     _ => null
                 };
 
@@ -219,8 +312,8 @@ namespace WebApi.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "No se pudo convertir la data a List<Service>");
 
                 // Exportar a Excel
-                var excel = ConvertToExcel(services);
-                var fileName = "SERVICIOS.xlsx";
+                var excel = ConvertToExcel(services, serviceTypeId);
+                var fileName = $"SERVICIOS_{serviceTypeId}.xlsx";
 
                 return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
@@ -435,7 +528,7 @@ namespace WebApi.Controllers
 
                             // Fila 2
                             AddTitleRow("Modelo Vehiculo", "Año", "Fecha Creacion", "Kilometraje", "Direccion", "Autoriza");
-                            AddValueRow(service.ModelName, $"{service.Year}", $"{service.ServiceDate:yyyy-MM-d}", $"{service.Km} km", service.DealerAddress, $"{service.AuthorizedUserName} {service.AuthorizedUserLastName}");
+                            AddValueRow(service.ModelName, $"{service.Year}", $"{service.ServiceDate:yyyy-MM-d}", $"{service.Km} km", service.DealerAddress, $"{service.AuthorizedUserName}");
 
                             // Fila 3
                             AddTitleRow("VIN-Serial Completo", "Fecha de Salida", "Ciudad", "Estado", "Telefonos", "Fecha Autorizacion");

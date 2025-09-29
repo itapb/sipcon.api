@@ -732,11 +732,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Guide/GetAllGuides")]
-        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, int rowfrom, string? filter)
+        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId,int rowfrom, string? filter)
         {
             try
             {
-                var _response = await _dInventory.GetAllGuides(userId, supplierId, rowfrom, filter);
+                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1128,6 +1128,58 @@ namespace WebApi.Controllers
         #endregion
 
         #region"BackOrder"
+
+
+        [HttpGet("/api/BackOrder/GetAll")]
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
+        {
+            try
+            {
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
+        [HttpPost("/api/BackOrder/PostActions")]
+        public async Task<IActionResult> PostBackorder_Actions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.PostBackorder_Actions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("/api/BackOrder/PostBackOrder")]
+        public async Task<IActionResult> PostBackorder(Models.BackOrder backOrder, Int32 userId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
 
         private MemoryStream ConvertToExcel(List<Models.BackOrder> _backOrders)
         {

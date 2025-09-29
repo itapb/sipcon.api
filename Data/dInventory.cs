@@ -1346,12 +1346,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllGuides(userId, supplierId, rowfrom, filter);
+                return await _GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
             }
             finally
             {
@@ -1421,7 +1421,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter = "", int? guideId=null)
+        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter = "", int? guideId=null)
         {
             Response <List<Models.Guide>> _response = new Response<List<Models.Guide>>();
             try
@@ -1429,6 +1429,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
@@ -1708,6 +1709,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
+      
         private async Task<Response<Result>> _PostBacKOrder(List<Models.BackOrder> backOrder, Int32 userId, bool bFull)
         {
             Response<Result> _response = new Response<Result>();
@@ -1740,6 +1742,7 @@ namespace Data
             return _response;
         }
 
+
         /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
 
 
@@ -1749,12 +1752,14 @@ namespace Data
             try
             {
                 return await _PostBackorder_Actions(_list, userId);
+
             }
             finally
             {
                 _semaphore.Release();
             }
         }
+
 
 
         private async Task<Response<Result>> _PostBackorder_Actions(List<Models.Action> _list, Int32 userId)
@@ -1768,6 +1773,7 @@ namespace Data
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@BFULL", bFull);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -1788,7 +1794,34 @@ namespace Data
 
             return _response;
         }
-         
+
+
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, filter, null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        public async Task<Response<Result>> PostImportBackOrders(Models.BackOrder backOrder, Int32 userId, bool bFull= false)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostBacKOrder(backOrder, userId, bFull);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
         #endregion
 
 
