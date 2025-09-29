@@ -30,10 +30,11 @@ namespace WebApi.Controllers
     {
 
         private readonly dInventory _dInventory;
-
-        public cInventory(dInventory dInventory)
+        private readonly dContact _dContact;
+        public cInventory(dInventory dInventory, dContact dContact)
         {
             _dInventory = dInventory;
+            _dContact = dContact;
         }
 
 
@@ -1128,56 +1129,6 @@ namespace WebApi.Controllers
 
         #region"BackOrder"
 
-        [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
-        {
-            try
-            {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-        }
-
-
-
-        [HttpPost("/api/BackOrder/PostActions")]
-        public async Task<IActionResult> PostBackorder_Actions(List<Models.Action> actions, Int32 userId)
-        {
-
-            try
-            {
-                var _response = await _dInventory.PostBackorder_Actions(actions, userId);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-
-        }
-
-
-        [HttpPost("/api/BackOrder/PostBackOrder")]
-        public async Task<IActionResult> PostBackorder(Models.BackOrder backOrder, Int32 userId)
-        {
-
-            try
-            {
-                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-
-        }
-
-
         private MemoryStream ConvertToExcel(List<Models.BackOrder> _backOrders)
         {
             // 2. Crear el libro de trabajo Excel
@@ -1269,6 +1220,191 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("/api/BackOrder/GetAll")]
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
+        {
+            try
+            {
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        /*    private async Task<List<BackOrder>> ExceltoPostBackOrder(IFormFile file, string? supplierId)
+            {
+                var _list = new List<BackOrder>();
+                var _supplier = new List<Contact>();
+
+                _supplier = await _dContact.GetAll_by(false, true);
+                using (var stream = new MemoryStream())
+                {
+                    file.CopyTo(stream);
+
+                    using (var workbook = new XLWorkbook(stream))
+                    {
+                        var worksheet = workbook.Worksheet(1); // Primera hoja
+                        var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+                        foreach (var row in rows)
+                        {
+                            int fila = row.RowNumber(); // Ej: 2
+                            string rowRef = $"{fila}";
+                            _list.Add(new BackOrder
+                            {
+
+                                Quantity = row.Cell(5).GetValue<int>(), 
+                                Arrival = row.Cell(8).GetValue<DateTime>(), 
+                                SupplierId = supplierId 
+                            });
+                        }
+                    }
+                }
+
+                return _list;
+            }
+
+
+
+
+            [HttpPost("/api/BackOrder/Import")]
+            public async Task<IActionResult> PostImportBackOrder(IFormFile file, Int32 userId, string? supplierId)
+            {
+
+                if (file == null || file.Length == 0)
+                    return BadRequest("No se ha proporcionado un archivo válido.");
+
+                if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+                try
+                {
+                    List<Models.BackOrder> _BackOrder = await ExceltoPostBackOrder(file, supplierId);
+                    var _response = await _dInventory.PostImportBackOrders(_BackOrder, userId, false);
+                    return StatusCode(_response.Status, _response);
+
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                }
+
+            }
+        */
+
+        [HttpPost("/api/BackOrder/Import")]
+        public async Task<IActionResult> PostImportBackOrder(IFormFile file, Int32 userId, string? supplierId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
+
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+            try
+            {
+                List<Models.BackOrder> _BackOrder = await ExceltoPostBackOrder(file, supplierId);
+
+                // Validar que hay datos para procesar
+                if (_BackOrder == null || !_BackOrder.Any())
+                    return BadRequest("El archivo no contiene datos válidos para procesar.");
+
+                var _response = await _dInventory.PostImportBackOrders(_BackOrder, userId, false);
+
+                // Si no se actualizó ningún registro, verificar por qué
+                if (_response.Data?.UpdatedRows == 0 && _response.Data?.InsertedRows == 0)
+                {
+                    _response.Message = "No se realizaron actualizaciones. Verifique que los IDs existan y haya cambios en los datos.";
+                }
+
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, new
+                {
+                    message = "Error en la importación",
+                    detail = ex.Message
+                });
+            }
+        }
+
+        private async Task<List<BackOrder>> ExceltoPostBackOrder(IFormFile file, string? supplierId)
+        {
+            var _list = new List<BackOrder>();
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var rows = worksheet.RowsUsed().Skip(1);
+
+                    foreach (var row in rows)
+                    { 
+                        if (row.IsEmpty()) continue;
+
+                        try
+                        {
+                            _list.Add(new BackOrder
+                            {
+                                Id = row.Cell(1).GetValue<int>(), 
+                                Quantity = row.Cell(5).GetValue<int>(),
+                                Arrival = row.Cell(8).GetValue<DateTime>(),
+                                SupplierId = supplierId
+                            });
+                        }
+                        catch (Exception ex)
+                        { 
+                            Console.WriteLine($"Error en fila {row.RowNumber()}: {ex.Message}");
+                            throw new Exception($"Error en fila {row.RowNumber()}: Formato de datos inválido");
+                        }
+                    }
+                }
+            }
+
+            return _list;
+        }
+
+        [HttpPost("/api/BackOrder/PostActions")]
+        public async Task<IActionResult> PostBackorder_Actions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.PostBackorder_Actions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("/api/BackOrder/PostBackOrder")]
+        public async Task<IActionResult> PostBackorder(List<Models.BackOrder> backOrder, Int32 userId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.PostBacKOrder(backOrder, userId, true);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+         
         #endregion
 
         #region "Adjustment"
