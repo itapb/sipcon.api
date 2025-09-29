@@ -123,7 +123,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("REPORTE DE FALLAS");
                         headers = new()
                 {
-                    "ID", "TIPO DE SERVICIO", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                    "ID", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA", "CODIGO CONCESIONARIO",
                     "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
                      "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
@@ -219,31 +219,30 @@ namespace WebApi.Controllers
                     }
                     else if (serviceTypeId == 3)
                     {
-                        worksheet.Cell(row, 2).Value = s.ServiceTypeName;
-                        worksheet.Cell(row, 3).Value = s.OrderNumber;
-                        worksheet.Cell(row, 5).Value = s.DealerServiceName;
-                        worksheet.Cell(row, 6).Value = s.DealerSaleCod;
-                        worksheet.Cell(row, 7).Value = s.Vin;
-                        worksheet.Cell(row, 8).Value = s.Plate;
-                        worksheet.Cell(row, 9).Value = s.Km;
-                        worksheet.Cell(row, 10).Value = s.Year;
-                        worksheet.Cell(row, 11).Value = s.ModelName;
-                        worksheet.Cell(row, 12).Value = s.DealerSaleName;
-                        worksheet.Cell(row, 13).Value = s.DealerSaleCod;
-                        worksheet.Cell(row, 14).Value = s.Vat;
-                        worksheet.Cell(row, 15).Value = s.CustomerName;
-                        worksheet.Cell(row, 16).Value = s.CustomerLastName;
-                        worksheet.Cell(row, 17).Value = s.CustomerReport;
-                        worksheet.Cell(row, 18).Value = s.DealerReport;
-                        worksheet.Cell(row, 19).Value = s.TechnicalSolution;
-                        worksheet.Cell(row, 20).Value = s.SupplierReport;
-                        worksheet.Cell(row, 21).Value = s.AuthorizedUserName;
-                        worksheet.Cell(row, 22).Value = s.SrgNumber;
-                        worksheet.Cell(row, 23).Value = s.InvoiceNumber;
-                        worksheet.Cell(row, 24).Value = s.InvoiceAmount;
-                        worksheet.Cell(row, 25).Value = s.InvoiceDate;
-                        worksheet.Cell(row, 25).Style.DateFormat.Format = "dd/MM/yyyy";
-                        worksheet.Cell(row, 26).Value = s.EstatusName;
+                        worksheet.Cell(row, 2).Value = s.OrderNumber;
+                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 4).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 5).Value = s.Vin;
+                        worksheet.Cell(row, 6).Value = s.Plate;
+                        worksheet.Cell(row, 7).Value = s.Km;
+                        worksheet.Cell(row, 8).Value = s.Year;
+                        worksheet.Cell(row, 9).Value = s.ModelName;
+                        worksheet.Cell(row, 10).Value = s.DealerSaleName;
+                        worksheet.Cell(row, 11).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 12).Value = s.Vat;
+                        worksheet.Cell(row, 13).Value = s.CustomerName;
+                        worksheet.Cell(row, 14).Value = s.CustomerLastName;
+                        worksheet.Cell(row, 15).Value = s.CustomerReport;
+                        worksheet.Cell(row, 16).Value = s.DealerReport;
+                        worksheet.Cell(row, 17).Value = s.TechnicalSolution;
+                        worksheet.Cell(row, 18).Value = s.SupplierReport;
+                        worksheet.Cell(row, 19).Value = s.AuthorizedUserName;
+                        worksheet.Cell(row, 20).Value = s.SrgNumber;
+                        worksheet.Cell(row, 21).Value = s.InvoiceNumber;
+                        worksheet.Cell(row, 22).Value = s.InvoiceAmount;
+                        worksheet.Cell(row, 23).Value = s.InvoiceDate;
+                        worksheet.Cell(row, 23).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 24).Value = s.EstatusName;
                     }
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 

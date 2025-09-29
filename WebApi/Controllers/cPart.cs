@@ -332,6 +332,7 @@ namespace WebApi.Controllers
                             Cost = row.Cell(4).GetValue<decimal>(),
                             TaxId = row.Cell(5).GetValue<string>() == "EXENTO" ? 1 : 2,
                             IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
+                            MasterCode = row.Cell(7).GetValue<string>(),
                             SupplierId = supplierId,
                             RowReference = rowRef
 
