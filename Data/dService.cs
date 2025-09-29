@@ -124,7 +124,6 @@ namespace Data
                 _mapping.AddItem("EndDate", "DENDDATE");
 
 
-
                 // Ejecución del SP
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MAINTENANCES", _parameter);
@@ -340,6 +339,8 @@ namespace Data
             return _response;
 
         }
+
+        
 
         public async Task<Response<List<Models.ServiceType>>> GetServiceType()
         {
