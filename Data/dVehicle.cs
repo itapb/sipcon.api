@@ -391,7 +391,7 @@ namespace Data
         }
 
 
-        public async Task<Response<Models.VehicleFull>> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy,Int32 supplierId)
+        public async Task<Response<Models.VehicleFull>> GetVehicleFullBy(Int32 userId, string filter, Int32 filterBy,Int32? supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
