@@ -16,12 +16,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<SaleOrder>>> GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter)
+        public async Task<Response<List<SaleOrder>>> GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, dealerId, rowfrom, filter, null);
+                return await _GetAll(userId, supplierId, dealerId,  rowfrom, filter, null);
             }
             finally
             {
@@ -29,7 +29,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
+        private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
         {
             Response<List<SaleOrder>> _response =  new Response<List<SaleOrder>>();
             try
@@ -37,9 +37,9 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@BCLAIM", false);
                 _parameter.AddSqlParameter("@ID", saleOrderId);
 
 
@@ -90,7 +90,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@BCLAIM", false);
+      
                 _parameter.AddSqlParameter("@ID", saleOrderId);
 
 

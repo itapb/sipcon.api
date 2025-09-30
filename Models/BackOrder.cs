@@ -10,14 +10,14 @@ namespace Models
 {
     public class BackOrder : Record
     {
-        
-        [Required]
+
+        [SwaggerIgnore]
         public string? SupplierId { get; set; }
        
         [Required]
         public int? Quantity { get; set; }
 
-        [Required]
+     
         public DateTime? Arrival { get; set; }
 
         [SwaggerIgnore]
@@ -43,8 +43,12 @@ namespace Models
 
         [SwaggerIgnore]
         public string? SupplierRef { get; set; }
+
         [SwaggerIgnore]
         public string? DealerRef { get; set; }
+
+        [SwaggerIgnore]
+        public int? Stock { get; set; }
 
 
     }

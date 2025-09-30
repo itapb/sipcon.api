@@ -26,12 +26,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? dealerId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId,Int32? dealerId, Int32 rowfrom, string? filter)
         {
 
             try
             {
-                var _response = await _dSaleOrder.GetAll(userId, dealerId, rowfrom, filter);
+                var _response = await _dSaleOrder.GetAll(userId, supplierId,dealerId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -153,6 +153,12 @@ namespace WebApi.Controllers
                 _new.SupplierId = 0;
                 _new.TypeId = typeId;
 
+                if (dealerId == 0)
+                {
+                    throw new Exception("Concesionario Invalido!.");
+                }
+
+
                 List<SaleOrder> _list = new List<SaleOrder>();
                 _list.Add(_new);
 
@@ -192,7 +198,10 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
+                _response.SetError(ex);
+
+                return StatusCode(StatusCodes.Status409Conflict, _response);
             }
         }
 
@@ -208,6 +217,7 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
+
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
