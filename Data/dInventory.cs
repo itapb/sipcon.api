@@ -981,7 +981,54 @@ namespace Data
                 _semaphore.Release();
             }
         }
+        #region "PACKAGEPRINT"
+        /*--------------------------------------------------------------POST-------------------------------------------------------------*/
 
+        public async Task<Response<Result>> PostPackagePrint(Models.Printqueue printqueue, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostPackagePrint(printqueue, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostPackagePrint(Models.Printqueue printqueue, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(printqueue);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_PRINTQUEUE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+        /*-------------------------------------------------------------------------------------------------------------------*/
+        #endregion
 
         private async Task<Response<List<Customer>>> _getCustomersForPacking(Int32? supplierId)
         {

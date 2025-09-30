@@ -724,7 +724,21 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("/api/BackOrder/PostPackagePrint")]
+        public async Task<IActionResult> PostPackagePrint(Models.Printqueue printqueue, Int32 userId)
+        {
 
+            try
+            {
+                var _response = await _dInventory.PostPackagePrint(printqueue, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
         #endregion
 
