@@ -90,7 +90,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@BCLAIM", false);
+      
                 _parameter.AddSqlParameter("@ID", saleOrderId);
 
 

@@ -153,6 +153,12 @@ namespace WebApi.Controllers
                 _new.SupplierId = 0;
                 _new.TypeId = typeId;
 
+                if (dealerId == 0)
+                {
+                    throw new Exception("Concesionario Invalido!.");
+                }
+
+
                 List<SaleOrder> _list = new List<SaleOrder>();
                 _list.Add(_new);
 
@@ -192,7 +198,10 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
+                _response.SetError(ex);
+
+                return StatusCode(StatusCodes.Status409Conflict, _response);
             }
         }
 
@@ -208,6 +217,7 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
+
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }

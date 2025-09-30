@@ -1665,6 +1665,7 @@ namespace Data
                 _mapping.AddItem("TypeName", "VTYPE");
                 _mapping.AddItem("SupplierRef", "VREFERENCESUPPLIER");
                 _mapping.AddItem("DealerRef", "VREFERENCEDEALER");
+                _mapping.AddItem("Stock", "ISTOCK");
 
 
                 Util.Data _data = Util.Data.GetInstance();

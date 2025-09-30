@@ -43,8 +43,12 @@ namespace Models
 
         [SwaggerIgnore]
         public string? SupplierRef { get; set; }
+
         [SwaggerIgnore]
         public string? DealerRef { get; set; }
+
+        [SwaggerIgnore]
+        public int? Stock { get; set; }
 
 
     }
