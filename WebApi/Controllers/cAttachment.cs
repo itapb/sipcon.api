@@ -1,11 +1,13 @@
-﻿using System.Net.Mail;
-using Data;
+﻿using Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Win32;
 using Models;
 using Newtonsoft.Json;
+using System.Net.Mail;
 using System.Reflection;
-using Microsoft.AspNetCore.Authorization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace WebApi.Controllers
@@ -98,6 +100,8 @@ namespace WebApi.Controllers
         {
             try
             {
+                Response<Models.Result> response = new Response<Models.Result>();
+
                 // Obtener la variable de entorno y validar que no sea nula
                 string servicesUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
 
@@ -136,7 +140,8 @@ namespace WebApi.Controllers
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status409Conflict, $"El archivo '{file.FileName}' ya existe en '{recordPath}'.");
+                    response.SetError(new Exception($"EL ARCHIVO '{file.FileName}' YA EXISTE."));
+                    return StatusCode(response.Status, response);
                 }
 
                 // Crear el objeto Attachment con los datos recibidos
@@ -163,12 +168,14 @@ namespace WebApi.Controllers
         {
             try
             {
+                Response<Models.Result> response = new Response<Models.Result>();
                 // Obtener la información del adjunto desde la base de datos
                 var _response = await _dAttachment.GetOne(attachmentId);
 
                 if (_response == null || _response.Data == null)
                 {
-                    return NotFound($"No se encontró el adjunto con ID {attachmentId}.");
+                    response.SetError(new Exception($"No se encontró el adjunto con ID {attachmentId}."));
+                    return StatusCode(response.Status, response);
                 }
 
                 // Extraer el objeto Attachment desde la respuesta
@@ -176,7 +183,9 @@ namespace WebApi.Controllers
 
                 if (attachment == null || string.IsNullOrEmpty(attachment.FileName) || attachment.ModuleId == 0)
                 {
-                    return NotFound($"Datos insuficientes para reconstruir la ruta del archivo.");
+
+                    response.SetError(new Exception($"Datos insuficientes para reconstruir la ruta del archivo."));
+                    return StatusCode(response.Status, response);
                 }
 
                 // Obtener la ruta base desde la variable de entorno
@@ -194,7 +203,8 @@ namespace WebApi.Controllers
                 // Verificar si el archivo existe antes de eliminarlo
                 if (!System.IO.File.Exists(filePath))
                 {
-                    return NotFound($"El archivo no existe en la ruta especificada: {filePath}");
+                    response.SetError(new Exception("El archivo no existe en la ruta especificada."));
+                    return StatusCode(response.Status, response);
                 }
 
                 // Eliminar el archivo
@@ -205,7 +215,9 @@ namespace WebApi.Controllers
 
                 if (deleteResponse.Status != StatusCodes.Status200OK)
                 {
-                    return StatusCode(deleteResponse.Status, $"Error al eliminar el registro en la base de datos.");
+
+                    response.SetError(new Exception("Error al eliminar el registro en la base de datos."));
+                    return StatusCode(response.Status, response);
                 }
 
                 return Ok($"El archivo '{attachment.FileName}' ha sido eliminado correctamente.");
