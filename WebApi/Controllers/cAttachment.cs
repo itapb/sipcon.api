@@ -29,7 +29,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 recordId, String moduleName)
+        public async Task<IActionResult> GetAll(Int32 recordId, string moduleName)
         {
 
             try
@@ -96,72 +96,91 @@ namespace WebApi.Controllers
 
 
         [HttpPost("PostAttachment")]
-        public async Task<IActionResult> Post_Attachment(IFormFile file, int userId, String moduleName, int recordId)
+        public async Task<IActionResult> Post_Attachment(IFormFile file, int userId, string moduleName, int recordId)
         {
+            var response = new Response<Models.Result>();
+
             try
             {
-                Response<Models.Result> response = new Response<Models.Result>();
-
-                // Obtener la variable de entorno y validar que no sea nula
-                string servicesUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
-
-                var _modules = await _dModule.GetAll(moduleName, userId);
-
-                // Buscar el módulo correspondiente según el moduleId recibido
-                var module = _modules.FirstOrDefault(m => m.Name == moduleName);
-                string modulePath = module != null ? module.Name : "Unknown";
-                string basePath = Path.Combine(servicesUrl, modulePath);
-                var moduleId = module.Id;
-                
-
-                // Verificar y crear la carpeta del módulo si no existe
-                if (!Directory.Exists(basePath))
+                // Validar archivo recibido
+                if (file == null || file.Length == 0)
                 {
-                    Directory.CreateDirectory(basePath);
+                    response.SetError(new Exception("No se recibió ningún archivo o el archivo está vacío."));
+                    return BadRequest(response);
                 }
 
-                // Verificar y crear la subcarpeta del recordId dentro del módulo
-                string recordPath = Path.Combine(basePath, recordId.ToString());
-                if (!Directory.Exists(recordPath))
+                // Validar tamaño máximo (15 MB = 15 * 1024 * 1024 bytes)
+                const long maxFileSize = 8 * 1024 * 1024;
+                if (file.Length > maxFileSize)
                 {
-                    Directory.CreateDirectory(recordPath);
-                }
-
-                // Ruta completa del archivo
-                string filePath = Path.Combine(recordPath, file.FileName);
-
-                // Guardar el archivo si no existe ya
-                if (!System.IO.File.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-                }
-                else
-                {
-                    response.SetError(new Exception($"EL ARCHIVO '{file.FileName}' YA EXISTE."));
+                    response.SetError(new Exception("El archivo excede el tamaño máximo permitido de 8 MB."));
                     return StatusCode(response.Status, response);
                 }
 
-                // Crear el objeto Attachment con los datos recibidos
-                Models.Attachment attachment = new Models.Attachment
+                // Obtener la ruta base desde la configuración
+                string baseUrl = Util.Setting.AttachmentUrl;
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    response.SetError(new Exception("Ruta base de adjuntos no configurada."));
+                    return StatusCode(response.Status, response);
+                }
+
+                string servicesUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+
+                // Obtener el módulo desde la base de datos
+                var modules = await _dModule.GetAll(moduleName, userId);
+                var module = modules?.FirstOrDefault(m => m.Name == moduleName);
+
+                if (module == null)
+                {
+                    response.SetError(new Exception($"No se encontró el módulo '{moduleName}' para el usuario {userId}."));
+                    return StatusCode(response.Status, response);
+                }
+
+                string modulePath = module.Name;
+                int moduleId = module.Id;
+
+                // Construir ruta completa
+                string basePath = Path.Combine(servicesUrl, modulePath);
+                string recordPath = Path.Combine(basePath, recordId.ToString());
+
+                // Crear carpetas si no existen
+                Directory.CreateDirectory(recordPath);
+
+                // Ruta final del archivo
+                string filePath = Path.Combine(recordPath, file.FileName);
+
+                // Verificar si el archivo ya existe
+                if (System.IO.File.Exists(filePath))
+                {
+                    response.SetError(new Exception($"El archivo '{file.FileName}' ya existe."));
+                    return StatusCode(response.Status, response);
+                }
+
+                // Guardar el archivo
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Registrar en base de datos
+                var attachment = new Models.Attachment
                 {
                     ModuleId = moduleId,
                     RecordId = recordId,
                     FileName = file.FileName
                 };
 
-                // Registrar la información en la base de datos
-                var _response = await _dAttachment.Post_Attachment(attachment, userId);
-
-                return StatusCode(_response.Status, _response);
+                var dbResponse = await _dAttachment.Post_Attachment(attachment, userId);
+                return StatusCode(dbResponse.Status, dbResponse);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error en la carga del archivo: {ex.Message}");
+                response.SetError(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
         }
+
 
         [HttpPost("Delete_Attachment")]
         public async Task<IActionResult> Delete_Attachment(int userId, int attachmentId)
