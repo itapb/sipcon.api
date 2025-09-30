@@ -693,7 +693,7 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCE_PROCCESS", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCE_PROCESS", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
