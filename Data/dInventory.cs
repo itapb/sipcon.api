@@ -1287,6 +1287,42 @@ namespace Data
             return _response;
         }
 
+        /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
+       
+        private async Task<Response<List<PackageList>>> _GetPackagesList(Int32 supplierId, string partInnerCode)
+        {
+            Response<List<PackageList>> _response = new Response<List<PackageList>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VINNERCODE", partInnerCode);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Code", "VCODE");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("PartInnerCode", "VINNERCODE");
+                _mapping.AddItem("PartName", "VDESCRIPTION");
+                _mapping.AddItem("Quantity", "IQUANTITY");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PACKAGESLIST", _parameter);
+                _response.Data = _data.GetList<Models.PackageList>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        /*-----------------------------------------------------------------------------------------------------------------------*/
 
 
         public async Task<Response<List<Customer>>> GetCustomersForPacking(Int32? supplierId)
@@ -1395,6 +1431,21 @@ namespace Data
             }
         }
 
+         /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
+        public async Task<Response<List<PackageList>>> GetPackagesList(Int32 supplierId, string partInnerCode)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPackagesList(supplierId, partInnerCode);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        /*-----------------------------------------------------------------------------------------------------------------------*/
         public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);

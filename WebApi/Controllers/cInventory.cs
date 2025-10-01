@@ -553,6 +553,25 @@ namespace WebApi.Controllers
             }
         }
 
+        /*----------------------------------------------GetPackageList------------------------------------------------------*/
+
+        [HttpGet("/api/Packing/GetPackageList")]
+        public async Task<IActionResult> GetPackageList(Int32 supplierId, string partInnerCode)
+        {
+            try
+            {
+                var _response = await _dInventory.GetPackagesList(supplierId, partInnerCode);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        /*------------------------------------------------------------------------------------------------------------*/
+
+
         [HttpGet("/api/Packing/GetGuides")]
         public async Task<IActionResult> GetGuides(Int32 supplierId, Int32 customerId, Int32 userId)
         {
