@@ -663,7 +663,7 @@ namespace WebApi.Controllers
                 guide.UserId = userId;
                 guide.Delivered = false;
 
-                var _response = await _dInventory.PostGuide(guide);
+                var _response = await _dInventory.PostGuide(guide, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -686,7 +686,7 @@ namespace WebApi.Controllers
                 guide.Number = guideNumber;
                 guide.Closed = true;
 
-                var _response = await _dInventory.PostGuide(guide);
+                var _response = await _dInventory.PostGuide(guide, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
