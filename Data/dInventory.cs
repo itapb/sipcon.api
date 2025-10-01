@@ -1289,14 +1289,14 @@ namespace Data
 
         /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
        
-        private async Task<Response<List<PackageList>>> _GetPackagesList(Int32 supplierId, string partInnerCode)
+        private async Task<Response<List<PackageList>>> _GetPackagesList(Int32 supplierId, string packageCode)
         {
             Response<List<PackageList>> _response = new Response<List<PackageList>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                _parameter.AddSqlParameter("@VINNERCODE", partInnerCode);
+                _parameter.AddSqlParameter("@VPACKAGECODE", packageCode);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1432,12 +1432,12 @@ namespace Data
         }
 
          /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
-        public async Task<Response<List<PackageList>>> GetPackagesList(Int32 supplierId, string partInnerCode)
+        public async Task<Response<List<PackageList>>> GetPackagesList(Int32 supplierId, string packageCode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetPackagesList(supplierId, partInnerCode);
+                return await _GetPackagesList(supplierId, packageCode);
             }
             finally
             {
