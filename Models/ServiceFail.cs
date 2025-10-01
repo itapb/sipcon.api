@@ -83,4 +83,18 @@ namespace Models
         //******************
     }
 
+   public class ServiceFailList
+    {
+
+        [SwaggerIgnore] public Int32? ReportId { get; set; }
+
+        [SwaggerIgnore] public Int32? CustomerId { get; set; }
+
+        [SwaggerIgnore] public String? Customer { get; set; }
+
+        [SwaggerIgnore] public String? Vin { get; set; }
+        [SwaggerIgnore] public Boolean? Paralyzed { get; set; }
+
+    }
+
 }
