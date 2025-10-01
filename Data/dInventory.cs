@@ -1297,8 +1297,7 @@ namespace Data
                 _parameter.AddSqlParameter("@VINNERCODE", partInnerCode);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("Code", "VCODE");
+                _mapping.AddItem("Id", "ID"); 
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
