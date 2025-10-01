@@ -14,7 +14,7 @@ namespace Models
         [SwaggerIgnore] public Int32? ServiceTypeId { get; set; } = 2;
         [SwaggerIgnore] public Int32? ReportTypeId { get; set; } = 1;
         [SwaggerIgnore] public String? ServiceTypeName { get; set; }
-        [Required] public String? OrderNumber { get; set; }
+         public String? OrderNumber { get; set; }
         [Required] public DateTime? ServiceDate { get; set; }
         [Required] public String? CustomerReport { get; set; }
         [Required] public String? DealerReport { get; set; }
