@@ -841,6 +841,25 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpGet("GetUserAssign")]
+        public async Task<IActionResult> GetUserAssign(String? filter, Int32? irowFrom, Int32? Id, Int32 userId, Int32 supplierId)
+        {
+
+            try
+            {
+
+                var _response = await _dService.GetUserAssign(filter,irowFrom,Id,userId,supplierId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
         [HttpPost("PostMaintenance")]
         public async Task<IActionResult> Post_Maintenance(Models.ServiceMaintenance maintenance, Int32 userId)
         {
