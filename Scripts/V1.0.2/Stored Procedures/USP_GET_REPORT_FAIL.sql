@@ -1,0 +1,86 @@
+GO
+/****** Object:  StoredProcedure [dbo].[USP_GET_REPORT_FAIL]    Script Date: 18/08/2025 8:46:26 ******/
+SET ANSI_NULLS ON
+
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF  NOT EXISTS (SELECT * FROM SYS.OBJECTS
+
+                WHERE OBJECT_ID = OBJECT_ID(N'[DBO].[USP_GET_REPORT_FAIL]')
+
+                AND TYPE IN (N'P', N'PC', N'TF', N'FN'))
+EXEC('CREATE PROCEDURE [DBO].[USP_GET_REPORT_FAIL] AS BEGIN SET NOCOUNT ON  END')
+GO
+ALTER PROCEDURE [dbo].[USP_GET_REPORT_FAIL]-- USP_GET_REPORT_FAIL 5103,'G'
+@IDDEALER INT,
+@VTYPE VARCHAR(1),
+@IROWFROM INT =NULL,
+@IDUSER INT =NULL
+AS
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : JUAN GUARECUCO
+  '   CREADO PARA           : 
+  '   FUNCIÓN               :  
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        : 
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+SET XACT_ABORT ON;               
+SET NOCOUNT ON;
+SET LOCK_TIMEOUT 180000;
+
+	
+	DECLARE @TOPE INT
+
+	IF @IROWFROM IS NULL
+	BEGIN
+		SET @TOPE=1000000
+		SET @IROWFROM=0
+	END
+	ELSE
+	BEGIN
+		SET @TOPE=100
+	END
+
+
+	DECLARE @IDREPORTTYPE INT 
+	  SELECT @IDREPORTTYPE=
+	      CASE 
+		  WHEN @VTYPE='G' THEN 3
+		  WHEN @VTYPE='L' THEN 4
+		  ELSE 1
+		  END 
+		
+
+BEGIN
+    WITH T1 AS (
+       SELECT 
+		M.ID AS ID,
+		M.IDCUSTOMER,
+		C.VFIRSTNAME +' ' +C.VLASTNAME AS VCUSTOMER,
+		V.VVIN,
+		M.BPARALYZED
+        FROM MAINTENANCE M WITH (NOLOCK)
+        INNER JOIN VEHICLE V (NOLOCK) ON M.IDVEHICLE = V.ID
+        INNER JOIN V_CONTACTS C  ON M.IDCUSTOMER=C.ID
+        WHERE M.IDSERVICETYPE=3 AND  M.IDREPORTTYPE =@IDREPORTTYPE
+        AND M.IDDEALER=@IDDEALER AND M.IESTATUS=DBO.UFN_GET_ISTATUS('VALIDATE')
+
+	     
+    ), 
+    T2 AS (SELECT COUNT(*) AS TOTAL FROM T1),
+    T3 AS (
+        SELECT * FROM T1
+       ORDER BY T1.ID DESC
+        OFFSET @IROWFROM ROWS
+        FETCH NEXT @TOPE ROWS ONLY
+    )
+    SELECT T3.*, T2.TOTAL
+    FROM T3, T2
+
+END
