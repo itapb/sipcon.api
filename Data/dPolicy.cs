@@ -172,19 +172,19 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response<Models.PolicyExtended>> GetOneBy(Int32 userId, string filter, Int32 filterBy)
+        public async Task<Response<Models.PolicyExtended>> GetOneBy(Int32 userId, string filter, Int32 filterBy,Int32? supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetOneBy(userId,  filter, filterBy);
+                return await _GetOneBy(userId,  filter, filterBy, supplierId);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Models.PolicyExtended>> _GetOneBy(Int32 userId, string filter, Int32 filterBy)
+        private async Task<Response<Models.PolicyExtended>> _GetOneBy(Int32 userId, string filter, Int32 filterBy, Int32? supplierId)
         {
             Response<Models.PolicyExtended> _response = new Response<Models.PolicyExtended>();
 
@@ -194,6 +194,8 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@BY", filterBy);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
 
 
 
