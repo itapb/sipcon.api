@@ -95,29 +95,118 @@ namespace WebApi.Controllers
 
 
 
-        [HttpPost("PostAttachment")]
-        public async Task<IActionResult> Post_Attachment(IFormFile file, int userId, string moduleName, int recordId)
+        //[HttpPost("PostAttachment")]
+        //public async Task<IActionResult> Post_Attachment(IFormFile file, int userId, string moduleName, int recordId)
+        //{
+        //    var response = new Response<Models.Result>();
+
+        //    try
+        //    {
+        //        // Validar archivo recibido
+        //        if (file == null || file.Length == 0)
+        //        {
+        //            response.SetError(new Exception("No se recibió ningún archivo o el archivo está vacío."));
+        //            return BadRequest(response);
+        //        }
+
+        //        // Validar tamaño máximo (15 MB = 15 * 1024 * 1024 bytes)
+        //        const long maxFileSize = 8 * 1024 * 1024;
+        //        if (file.Length > maxFileSize)
+        //        {
+        //            response.SetError(new Exception("El archivo excede el tamaño máximo permitido de 8 MB."));
+        //            return StatusCode(response.Status, response);
+        //        }
+
+        //        // Obtener la ruta base desde la configuración
+        //        string baseUrl = Util.Setting.AttachmentUrl;
+        //        if (string.IsNullOrEmpty(baseUrl))
+        //        {
+        //            response.SetError(new Exception("Ruta base de adjuntos no configurada."));
+        //            return StatusCode(response.Status, response);
+        //        }
+
+        //        string servicesUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+
+        //        // Obtener el módulo desde la base de datos
+        //        var modules = await _dModule.GetAll(moduleName, userId);
+        //        var module = modules?.FirstOrDefault(m => m.Name == moduleName);
+
+        //        if (module == null)
+        //        {
+        //            response.SetError(new Exception($"No se encontró el módulo '{moduleName}' para el usuario {userId}."));
+        //            return StatusCode(response.Status, response);
+        //        }
+
+        //        string modulePath = module.Name;
+        //        int moduleId = module.Id;
+
+        //        // Construir ruta completa
+        //        string basePath = Path.Combine(servicesUrl, modulePath);
+        //        string recordPath = Path.Combine(basePath, recordId.ToString());
+
+        //        // Crear carpetas si no existen
+        //        Directory.CreateDirectory(recordPath);
+
+        //        // Ruta final del archivo
+        //        string filePath = Path.Combine(recordPath, file.FileName);
+
+        //        // Verificar si el archivo ya existe
+        //        if (System.IO.File.Exists(filePath))
+        //        {
+        //            response.SetError(new Exception($"El archivo '{file.FileName}' ya existe."));
+        //            return StatusCode(response.Status, response);
+        //        }
+
+        //        // Guardar el archivo
+        //        using (var stream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            await file.CopyToAsync(stream);
+        //        }
+
+        //        // Registrar en base de datos
+        //        var attachment = new Models.Attachment
+        //        {
+        //            ModuleId = moduleId,
+        //            RecordId = recordId,
+        //            FileName = file.FileName
+        //        };
+
+        //        var dbResponse = await _dAttachment.Post_Attachment(attachment, userId);
+        //        return StatusCode(dbResponse.Status, dbResponse);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.SetError(ex);
+        //        return StatusCode(StatusCodes.Status500InternalServerError, response);
+        //    }
+        //}
+
+
+
+        [HttpPost("PostAttachments")]
+        public async Task<IActionResult> Post_Attachments(List<IFormFile> files, int userId, string moduleName, int recordId)
         {
-            var response = new Response<Models.Result>();
+            var response = new Response<List<Models.Result>>();
+            var results = new List<Models.Result>();
 
             try
             {
-                // Validar archivo recibido
-                if (file == null || file.Length == 0)
+                // Validar archivos recibidos
+                if (files == null || files.Count == 0)
                 {
-                    response.SetError(new Exception("No se recibió ningún archivo o el archivo está vacío."));
-                    return BadRequest(response);
-                }
-
-                // Validar tamaño máximo (15 MB = 15 * 1024 * 1024 bytes)
-                const long maxFileSize = 8 * 1024 * 1024;
-                if (file.Length > maxFileSize)
-                {
-                    response.SetError(new Exception("El archivo excede el tamaño máximo permitido de 8 MB."));
+                    response.SetError(new Exception("No se recibió ningún archivo."));
                     return StatusCode(response.Status, response);
                 }
 
-                // Obtener la ruta base desde la configuración
+                if (files.Count > 6)
+                {
+                    response.SetError(new Exception("Solo se permiten hasta 3 archivos por carga."));
+                    return StatusCode(response.Status, response);
+                }
+
+                const long maxFileSize = 8 * 1024 * 1024;
+
+                // Obtener ruta base
                 string baseUrl = Util.Setting.AttachmentUrl;
                 if (string.IsNullOrEmpty(baseUrl))
                 {
@@ -127,10 +216,9 @@ namespace WebApi.Controllers
 
                 string servicesUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
 
-                // Obtener el módulo desde la base de datos
+                // Obtener módulo
                 var modules = await _dModule.GetAll(moduleName, userId);
                 var module = modules?.FirstOrDefault(m => m.Name == moduleName);
-
                 if (module == null)
                 {
                     response.SetError(new Exception($"No se encontró el módulo '{moduleName}' para el usuario {userId}."));
@@ -139,40 +227,51 @@ namespace WebApi.Controllers
 
                 string modulePath = module.Name;
                 int moduleId = module.Id;
-
-                // Construir ruta completa
-                string basePath = Path.Combine(servicesUrl, modulePath);
-                string recordPath = Path.Combine(basePath, recordId.ToString());
-
-                // Crear carpetas si no existen
+                string recordPath = Path.Combine(servicesUrl, modulePath, recordId.ToString());
                 Directory.CreateDirectory(recordPath);
 
-                // Ruta final del archivo
-                string filePath = Path.Combine(recordPath, file.FileName);
-
-                // Verificar si el archivo ya existe
-                if (System.IO.File.Exists(filePath))
+                foreach (var file in files)
                 {
-                    response.SetError(new Exception($"El archivo '{file.FileName}' ya existe."));
-                    return StatusCode(response.Status, response);
+                    var result = new Models.Result();
+
+                    try
+                    {
+                        if (file == null || file.Length == 0)
+                            throw new Exception("Archivo vacío o no válido.");
+
+                        if (file.Length > maxFileSize)
+                            throw new Exception($"El archivo '{file.FileName}' excede el tamaño máximo permitido de 8 MB.");
+
+                        string filePath = Path.Combine(recordPath, file.FileName);
+
+                        if (System.IO.File.Exists(filePath))
+                            throw new Exception($"El archivo '{file.FileName}' ya existe.");
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var attachment = new Models.Attachment
+                        {
+                            ModuleId = moduleId,
+                            RecordId = recordId,
+                            FileName = file.FileName
+                        };
+
+                        var dbResponse = await _dAttachment.Post_Attachment(attachment, userId);
+                        // Puedes agregar el resultado a la lista si lo deseas
+                        results.Add(dbResponse.Data);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Puedes agregar un resultado de error a la lista si lo deseas
+                        response.SetError(ex);
+                    }
                 }
 
-                // Guardar el archivo
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Registrar en base de datos
-                var attachment = new Models.Attachment
-                {
-                    ModuleId = moduleId,
-                    RecordId = recordId,
-                    FileName = file.FileName
-                };
-
-                var dbResponse = await _dAttachment.Post_Attachment(attachment, userId);
-                return StatusCode(dbResponse.Status, dbResponse);
+                response.Data = results;
+                return StatusCode(response.Status, response);
             }
             catch (Exception ex)
             {
@@ -180,6 +279,7 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
         }
+
 
 
         [HttpPost("Delete_Attachment")]

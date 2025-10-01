@@ -50,12 +50,12 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetOneBy")]
-        public async Task<IActionResult> GetOneBy(Int32 userId, string filter, Int32 filterBy)
+        public async Task<IActionResult> GetOneBy(Int32 userId, string filter, Int32 filterBy, Int32? supplierId )
         {
 
             try
             {
-                var _response = await _dPolicy.GetOneBy(userId, filter, filterBy);
+                var _response = await _dPolicy.GetOneBy(userId, filter, filterBy, supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
