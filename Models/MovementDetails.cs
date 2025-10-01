@@ -23,7 +23,7 @@ namespace Models
         public int? MovementId { get; set; } = 0;
 
         [Required]
-        [Range(1, int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public int? PartId { get; set; } = 0;
 
        

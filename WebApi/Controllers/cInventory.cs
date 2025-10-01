@@ -724,13 +724,18 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("/api/Packing/PostPackagePrint")]
-        public async Task<IActionResult> PostPackagePrint(Models.Printqueue printqueue, Int32 userId)
+        [HttpPost("/api/Packing/PrintPackge")]
+        public async Task<IActionResult> PostPackagePrint(Int32 packageId, Int32 userId)
         {
 
             try
             {
-                var _response = await _dInventory.PostPackagePrint(printqueue, userId);
+                Models.Printqueue _print = new Models.Printqueue();
+                _print.Id = packageId;
+                _print.RecordId = packageId;
+                _print.Type = "PK";
+
+                var _response = await _dInventory.PostPackagePrint(_print, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
