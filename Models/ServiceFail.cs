@@ -94,6 +94,7 @@ namespace Models
 
         [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public Boolean? Paralyzed { get; set; }
+        [SwaggerIgnore] public int? VehicleId { get; set; }
 
     }
 
