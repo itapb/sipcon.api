@@ -108,7 +108,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.LicenseDetails>>> _GetDetails(string? filter, Int32? rowFrom, Int32 userId, Int32? licenseId = null)
+        private async Task<Response<List<Models.LicenseDetails>>> _GetDetails(string? filter, Int32? rowFrom, Int32 userId, Int32? licenseId = null, Boolean? available = false)
         {
 
             Response<List<Models.LicenseDetails>> _response = new Response<List<Models.LicenseDetails>>();
@@ -120,6 +120,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
                 _parameter.AddSqlParameter("@IDLICENSE", licenseId);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@BAVAILABLE", available);
+
 
 
                 Mapping _mapping = new Mapping();
@@ -159,14 +161,14 @@ namespace Data
         }
 
 
-        public async Task<Response<List<Models.LicenseDetails>>> GetDetailBy(String filter, Int32 userId)
+        public async Task<Response<List<Models.LicenseDetails>>> GetDetailBy(String filter, Int32 userId,Boolean? available=true)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
 
-                return await _GetDetails(filter, null, userId,null);
+                return await _GetDetails(filter, null, userId,null, available);
 
             }
             finally
