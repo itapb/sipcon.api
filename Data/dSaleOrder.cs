@@ -114,6 +114,7 @@ namespace Data
                 _mapping.AddItem("Customer", "VCUSTOMER");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Paralyzed", "BPARALYZED");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
 
 
 
