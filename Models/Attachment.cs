@@ -14,6 +14,7 @@ namespace Models
         [Required] public Int32? RecordId { get; set; }
         [SwaggerIgnore] public Int32? ModuleId { get; set; }
         [Required] public String? ModuleName { get; set; }
+        [SwaggerIgnore] public DateTime? DateCreate { get; set; }
 
 
     }
