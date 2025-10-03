@@ -198,7 +198,8 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response<List<Models.Reason>>> GetReasons()
+      /*      
+            public async Task<Response<List<Models.Reason>>> GetReasons()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -211,7 +212,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Reason>>> _GetReasons()
+    private async Task<Response<List<Models.Reason>>> _GetReasons()
         {
             Response<List<Models.Reason>> _response = new Response<List<Models.Reason>>();
             try
@@ -234,7 +235,7 @@ namespace Data
             }
             return _response;
         }
-
+     */
 
         public async Task<Response<Result>> PostSaleOrder(List<Models.SaleOrder> _list, Int32 userId)
         {

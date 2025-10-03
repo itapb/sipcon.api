@@ -2204,15 +2204,16 @@ namespace Data
                 _mapping.AddItem("LocationId", "IDLOCATION");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("Stock", "ISTOCK");
-                _mapping.AddItem("ReasonId", "IDREASON");
+                _mapping.AddItem("ReasonId", "IDREASON"); 
                 _mapping.AddItem("AdjustmentType", "CTYPE");
+             // _mapping.AddItem("ReasonType", "CTYPEREASON");
+                _mapping.AddItem("ReasonDescription", "DESC"); 
                 _mapping.AddItem("Inncercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VPART");
                 _mapping.AddItem("PartPrice", "NPRICE"); 
                 _mapping.AddItem("Location", "VLOCATION");
                 _mapping.AddItem("Zone", "VZONE"); 
                 _mapping.AddItem("Warehouse", "VWAREHOUSE");
-                _mapping.AddItem("ReasonDescription", "VREASON");
                 _mapping.AddItem("Cost", "NCOST");
 
 
@@ -2253,8 +2254,8 @@ namespace Data
             {
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("Description", "DESC");
-
+                _mapping.AddItem("Type", "CTYPE");
+                _mapping.AddItem("Description", "DESC"); 
 
                 var _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_REASONS");
