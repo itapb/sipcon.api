@@ -1,0 +1,103 @@
+GO
+/****** Object:  StoredProcedure [dbo].[USP_POST_ITEM]    Script Date: 18/08/2025 8:46:26 ******/
+SET ANSI_NULLS ON
+
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF  NOT EXISTS (SELECT * FROM SYS.OBJECTS
+
+                WHERE OBJECT_ID = OBJECT_ID(N'[DBO].[USP_POST_ITEM]')
+
+                AND TYPE IN (N'P', N'PC', N'TF', N'FN'))
+EXEC('CREATE PROCEDURE [DBO].[USP_POST_ITEM] AS BEGIN SET NOCOUNT ON  END')
+GO
+CREATE PROCEDURE [dbo].[USP_POST_ITEM]  
+ @DATA VARCHAR(MAX),
+ @IDUSER INT
+AS
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : WILMAN CAMACHO
+  '   CREADO PARA           : 
+  '   FUNCIÓN               :  
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        : JUAN GUARECUCO 
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+SET XACT_ABORT ON               
+SET NOCOUNT ON
+SET LOCK_TIMEOUT 180000
+
+BEGIN
+
+	BEGIN TRY
+		BEGIN TRAN 
+
+				DECLARE @TDATA AS TABLE
+				(
+				    ID INT ,
+					VDESCRIPTION VARCHAR(50),
+					IDSUPPLIER INT,
+					VTYPE VARCHAR(1)
+				);
+
+				INSERT INTO @TDATA
+				SELECT l.Id, l.Description,l.SupplierId,l.Type  FROM OPENJSON(@DATA)
+				WITH (
+					   Id int,Description varchar(100),SupplierId int, Type Varchar(1)
+					  ) AS l
+			
+
+				DECLARE @IID INT
+				DECLARE @IINSERTED INT
+				DECLARE @IUPDATED INT
+				
+				DECLARE @VACTION VARCHAR(20)
+				DECLARE @IDMODULE INT=[dbo].[UFN_GET_IDMODULE]('SERVICIOS-REPORTE FALLA')
+				SET @VACTION='EDIT'
+			    EXEC USP_CHECK_CREDENTIALS @IDUSER,@VACTION,@IDMODULE
+
+      		
+			   IF EXISTS (SELECT * FROM @TDATA WHERE ID >0)
+         		BEGIN
+				INSERT INTO ITEM(VDESCRIPTION,IDSUPPLIER, VTYPE,DCREATED,VUPDATEDBY,BACTIVE)
+				SELECT VDESCRIPTION, IDSUPPLIER, VTYPE,GETDATE(),GETDATE(),DBO.UFN_GET_LOGIN(@IDUSER),1
+				FROM @TDATA D
+
+				SELECT @IINSERTED=@@ROWCOUNT
+				SELECT @IID=SCOPE_IDENTITY()
+				END
+				ELSE 
+					BEGIN
+
+					UPDATE L
+						SET 
+							L.VDESCRIPTION=D.VDESCRIPTION,
+							L.VTYPE=D.VTYPE,
+							L.DUPDATED=GETDATE(),
+							L.VUPDATEDBY =DBO.UFN_GET_LOGIN(@IDUSER)
+					FROM ITEM L
+					INNER JOIN @TDATA D ON L.ID=D.ID AND L.IDSUPPLIER=D.IDSUPPLIER
+
+					SELECT @IUPDATED=@@ROWCOUNT
+					END
+				SELECT
+				ISNULL(@IID,0) AS IID , 
+				ISNULL(@IINSERTED,0) AS IINSERTED,
+				ISNULL(@IUPDATED,0) AS IUPDATED
+
+ 		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		IF XACT_STATE() <> 0
+			ROLLBACK TRAN
+		DECLARE @ErrorMessage NVARCHAR(4000) 
+		SELECT  @ErrorMessage = ERROR_PROCEDURE() + ' : ' + ERROR_MESSAGE()
+		RAISERROR ( @ErrorMessage , 16,1) 
+	END CATCH
+
+END
