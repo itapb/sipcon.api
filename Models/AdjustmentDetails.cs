@@ -45,10 +45,9 @@ namespace Models
 
         [SwaggerIgnore]
         public string? PartSize { get; set; }
-
-
-     /*   [SwaggerIgnore]
-        public string? ReasonType { get; set; } */
+         
+       [SwaggerIgnore]
+        public string? ReasonType { get; set; } 
 
         [SwaggerIgnore]
         public string? ReasonDescription { get; set; } 
