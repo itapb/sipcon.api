@@ -307,8 +307,15 @@ namespace WebApi.Controllers
                     return StatusCode(response.Status, response);
                 }
 
+                string baseUrl = Util.Setting.AttachmentUrl;
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    response.SetError(new Exception("Ruta base de adjuntos no configurada."));
+                    return StatusCode(response.Status, response);
+                }
+
                 // Obtener la ruta base desde la variable de entorno
-                string attachmentUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
+                string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
 
                 // Obtener la lista de módulos desde la base de datos
                 var _modules = await _dModule.GetAll(null, userId);
