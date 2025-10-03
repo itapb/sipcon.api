@@ -1,15 +1,16 @@
-﻿using System.Data;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Models;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Presentation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Models;
 using Util;
 
 namespace Data
@@ -216,7 +217,7 @@ namespace Data
             }
         }
          
-    public async Task<Response<Location>> GetValidLocation(Int32 movementId, string scannedText)
+    public async Task<Response<Models.Location>> GetValidLocation(Int32 movementId, string scannedText)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -441,9 +442,9 @@ namespace Data
             return _response;
         }
  
-        private async Task<Response<Location>> _getValidLocation(Int32 movementId, string scannedText)
+        private async Task<Response<Models.Location>> _getValidLocation(Int32 movementId, string scannedText)
         {
-            Response<Location> _response = new Response<Location>();
+            Response<Models.Location> _response = new Response<Models.Location>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -699,7 +700,7 @@ namespace Data
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
 
-                Parameter _parameter = new Parameter();
+                Util.Parameter _parameter = new Util.Parameter();
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
@@ -759,17 +760,18 @@ namespace Data
 
 
 
-        private async Task<Response<Result>> _postGuide(Models.Guide guide)
+        private async Task<Response<Result>> _postGuide(Models.Guide guide, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
             try
-            {
+             {
 
                 string _jsonstring = Util.Json.ConvertToJsonString(guide);
 
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
- 
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
@@ -1003,12 +1005,12 @@ namespace Data
 
 
 
-        public async Task<Response<Result>> PostGuide(Models.Guide guide)
+        public async Task<Response<Result>> PostGuide(Models.Guide guide,Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _postGuide(guide);
+                return await _postGuide(guide, userId);
             }
             finally
             {
@@ -1287,17 +1289,18 @@ namespace Data
 
         /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
        
-        private async Task<Response<List<PackageList>>> _GetPackagesList(Int32 supplierId, string partInnerCode)
+        private async Task<Response<List<PackageList>>> _GetPackagesList(Int32 supplierId, string packageCode)
         {
             Response<List<PackageList>> _response = new Response<List<PackageList>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                _parameter.AddSqlParameter("@VINNERCODE", partInnerCode);
+                _parameter.AddSqlParameter("@VPACKAGECODE", packageCode);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID"); 
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Code", "VCODE");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
@@ -1429,12 +1432,12 @@ namespace Data
         }
 
          /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
-        public async Task<Response<List<PackageList>>> GetPackagesList(Int32 supplierId, string partInnerCode)
+        public async Task<Response<List<PackageList>>> GetPackagesList(Int32 supplierId, string packageCode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetPackagesList(supplierId, partInnerCode);
+                return await _GetPackagesList(supplierId, packageCode);
             }
             finally
             {
@@ -1898,7 +1901,7 @@ namespace Data
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
 
-                Parameter _parameter = new Parameter();
+                Util.Parameter _parameter = new Util.Parameter();
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
@@ -1999,7 +2002,7 @@ namespace Data
             {
                 string _jsonstring = Util.Json.ConvertToJsonString(_list);
 
-                Parameter _parameter = new Parameter();
+                Util.Parameter _parameter = new Util.Parameter();
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
@@ -2088,7 +2091,7 @@ namespace Data
 
               try
               {
-                  var _parameter = new Parameter();
+                  var _parameter = new Util.Parameter();
                   _parameter.AddSqlParameter("@IDUSER", userId);
                   _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                   _parameter.AddSqlParameter("@IROWFROM", rowFrom);

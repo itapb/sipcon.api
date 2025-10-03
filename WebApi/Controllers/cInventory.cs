@@ -555,12 +555,12 @@ namespace WebApi.Controllers
 
         /*----------------------------------------------GetPackageList------------------------------------------------------*/
 
-        [HttpGet("/api/Packing/GetPackageList")]
-        public async Task<IActionResult> GetPackageList(Int32 supplierId, string partInnerCode)
+        [HttpGet("/api/Packing/GetPackingList")]
+        public async Task<IActionResult> GetPackageList(Int32 supplierId, string packageCode)
         {
             try
             {
-                var _response = await _dInventory.GetPackagesList(supplierId, partInnerCode);
+                var _response = await _dInventory.GetPackagesList(supplierId, packageCode);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -682,7 +682,7 @@ namespace WebApi.Controllers
                 guide.UserId = userId;
                 guide.Delivered = false;
 
-                var _response = await _dInventory.PostGuide(guide);
+                var _response = await _dInventory.PostGuide(guide, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -705,7 +705,7 @@ namespace WebApi.Controllers
                 guide.Number = guideNumber;
                 guide.Closed = true;
 
-                var _response = await _dInventory.PostGuide(guide);
+                var _response = await _dInventory.PostGuide(guide, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

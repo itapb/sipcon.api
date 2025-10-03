@@ -296,6 +296,61 @@ namespace Data
 
 
 
+        public async Task<Response<List<Models.User>>> GetUserAssign(String? filter, Int32? irowFrom, Int32? Id, Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetUserAssign(userId,supplierId, Id, filter, irowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.User>>> _GetUserAssign(Int32 userId, Int32 supplierId,Int32? Id, String? filter, Int32? irowFrom)
+        {
+
+            Response<List<Models.User>> _response = new Response<List<Models.User>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@ID", Id);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IROWFROM", irowFrom);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VFIRSTNAME");
+                _mapping.AddItem("LastName", "VLASTNAME");
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_USERS_ASSIGN",_parameter);
+
+                _response.Data = _data.GetList<Models.User>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+
         public async Task<Response<List<Models.PossibleFault>>> GetPossibleFault()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);

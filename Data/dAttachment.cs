@@ -47,6 +47,7 @@ namespace Data
                 _mapping.AddItem("RecordId", "IDRECORD");
                 _mapping.AddItem("ModuleId", "IDMODULE");
                 _mapping.AddItem("ModuleName", "VMODULE");
+                _mapping.AddItem("DateCreate", "DCREATED");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ATTACHMENT", _parameter);

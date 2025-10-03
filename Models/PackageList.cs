@@ -12,7 +12,10 @@ namespace Models
     public class PackageList
     {
         [SwaggerIgnore]
-        public Int32? Id { get; set; } 
+        public Int32? Id { get; set; }
+
+        [SwaggerIgnore]
+        public string? Code { get; set; }
 
         [SwaggerIgnore]
         public Int32? SupplierId { get; set; }

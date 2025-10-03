@@ -80,6 +80,64 @@ namespace Data
             return _response;
         }
 
+
+        public async Task<Response<List<ServiceFailList>>> GetReportFail(Int32? userId,Int32? dealerId,String? type, Int32? rowfrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetReportFail(userId,dealerId, type,rowfrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<ServiceFailList>>> _GetReportFail(Int32? userId, Int32? dealerId,String? type, Int32? rowfrom)
+        {
+            Response<List<ServiceFailList>> _response = new Response<List<ServiceFailList>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VTYPE", type);
+
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("ReportId", "ID");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("Customer", "VCUSTOMER");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Paralyzed", "BPARALYZED");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
+
+
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FAIL", _parameter);
+                _response.Data = _data.GetList<Models.ServiceFailList>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+
+
+
         private async Task<Response<SaleOrder>> _getOne(Int32? userId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
         {
             Response<SaleOrder> _response = new Response<SaleOrder>();

@@ -139,6 +139,23 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetReportFail")]
+        public async Task<IActionResult> GetReportFail(Int32 userId, Int32? dealerId,String type, Int32 rowfrom)
+        {
+
+            try
+            {
+                var _response = await _dSaleOrder.GetReportFail(userId, dealerId,type, rowfrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+
+        }
+
 
 
         [HttpGet("NewSaleOrderWithContext")]
