@@ -6,6 +6,7 @@ namespace Models
 {
     public class AdjustmentDetails:Record
     { 
+
         [Required]
         public int? AdjustmentId { get; set; }
 
@@ -44,9 +45,12 @@ namespace Models
 
         [SwaggerIgnore]
         public string? PartSize { get; set; }
+         
+       [SwaggerIgnore]
+        public string? ReasonType { get; set; } 
 
         [SwaggerIgnore]
-        public string? ReasonDescription { get; set; }
+        public string? ReasonDescription { get; set; } 
 
         [SwaggerIgnore]
         public decimal? Cost { get; set; }

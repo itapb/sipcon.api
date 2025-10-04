@@ -86,7 +86,7 @@ namespace WebApi.Controllers
             }
         }
 
-
+/*
         [HttpGet("GetReasons")]
         public async Task<IActionResult> GetReasons()
         {
@@ -104,7 +104,7 @@ namespace WebApi.Controllers
 
         }
 
-
+        */
 
         [HttpGet("GetSaleOrderTypes")]
         public async Task<IActionResult> GetSaleOrderTypes()

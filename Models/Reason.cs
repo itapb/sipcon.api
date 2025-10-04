@@ -4,14 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
 {
     public class Reason : Record
-    {
-        [Required]
-        public int? Id { get; set; }
-        [Required]
+    {  
+        [SwaggerIgnore]
+        public string? Type { get; set; }
+
+        [SwaggerIgnore]
         public string? Description { get; set; }
     }
 }
