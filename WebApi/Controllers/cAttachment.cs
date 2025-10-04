@@ -1,6 +1,7 @@
 ﻿using Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using Models;
@@ -345,8 +346,8 @@ namespace WebApi.Controllers
                     response.SetError(new Exception("Error al eliminar el registro en la base de datos."));
                     return StatusCode(response.Status, response);
                 }
-
-                return Ok($"El archivo '{attachment.FileName}' ha sido eliminado correctamente.");
+               
+                return StatusCode(response.Status, deleteResponse);
             }
             catch (Exception ex)
             {
