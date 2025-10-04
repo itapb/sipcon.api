@@ -705,12 +705,12 @@ namespace Data
         }
 
 
-        public async Task<bool> Post_Actions(List<Models.Action> _list)
+        public async Task<bool> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Post_Actions(_list);
+                return await _Post_Actions(_list, userId);
             }
             finally
             {
@@ -718,7 +718,7 @@ namespace Data
             }
         }
 
-        private async Task<bool> _Post_Actions(List<Models.Action> _list)
+        private async Task<bool> _Post_Actions(List<Models.Action> _list,Int32 userId)
         {
             bool _result = false;
             try
@@ -727,6 +727,7 @@ namespace Data
 
                 Parameter _parameter = new Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
 
                 Util.Data _data = Util.Data.GetInstance();
                 _result = await _data.ExecuteNonQueryAsync("USP_POST_CONTACTS_ACTIONS", _parameter);

@@ -299,7 +299,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Post_Contacts")]
-        public async Task<IActionResult> Post_Contacts(List<Models.Contact> _contacts)
+        public async Task<IActionResult> Post_Contacts(List<Models.Contact> _contacts,Int32 userId)
         {
 
             try
@@ -321,7 +321,7 @@ namespace WebApi.Controllers
 
                 }
 
-                Result _resul = await _dContact.Post_Contacts(_contacts, 1);
+                Result _resul = await _dContact.Post_Contacts(_contacts, userId);
                 return StatusCode(StatusCodes.Status200OK, _resul);
             }
             catch (Exception ex)
@@ -348,12 +348,12 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Post_Actions")]
-        public async Task<IActionResult> Post_Actions(List<Models.Action> _actions)
+        public async Task<IActionResult> Post_Actions(List<Models.Action> _actions, Int32 userId)
         {
 
             try
             {
-                bool resul = await _dContact.Post_Actions(_actions);
+                bool resul = await _dContact.Post_Actions(_actions, userId);
                 return StatusCode(StatusCodes.Status200OK, resul);
             }
             catch (Exception ex)
