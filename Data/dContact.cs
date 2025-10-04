@@ -401,12 +401,12 @@ namespace Data
         }
 
 
-        public async Task<List<Related>> GetRelated(Int32 idUser)
+        public async Task<List<Related>> GetRelated(Int32 contactId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetRelated(idUser);
+                return await _GetRelated(contactId);
             }
             finally
             {
@@ -414,14 +414,14 @@ namespace Data
             }
         }
 
-        private async Task<List<Related>> _GetRelated(Int32 idUser)
+        private async Task<List<Related>> _GetRelated(Int32 contactId)
         {
             List<Related> _list = new List<Related>();
             try
             {
 
                 Parameter _parameter = new Parameter();
-                _parameter.AddSqlParameter("@IDUSER", idUser);
+                _parameter.AddSqlParameter("@IDUSER", contactId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("RecordId", "IDUSER");
@@ -449,12 +449,12 @@ namespace Data
         }
 
 
-        public async Task<ContactWithContext> GetOne_WithContext(Int32 idContact)
+        public async Task<ContactWithContext> GetOne_WithContext(Int32 contactId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetOne_WithContext(idContact);
+                return await _GetOne_WithContext(contactId);
             }
             finally
             {
@@ -502,7 +502,7 @@ namespace Data
 
         }
 
-        private async Task<ContactWithContext> _GetOne_WithContext(Int32 idContact)
+        private async Task<ContactWithContext> _GetOne_WithContext(Int32 contactId)
         {
 
             ContactWithContext _data = new ContactWithContext();
@@ -511,9 +511,9 @@ namespace Data
             //{
             //    _data.Contact = new Contact();
             //}
-            if (idContact > 0) 
+            if (contactId > 0) 
             {
-                List<Contact> _list = await GetOne(idContact);
+                List<Contact> _list = await GetOne(contactId);
                 if (_list.Count > 0)
                 {
                     _data.Contact = _list[0];
@@ -526,7 +526,7 @@ namespace Data
             }
 
             _data.Brands = await _dBrand.GetAll(null);
-            _data.Relateds = await GetRelated(idContact);
+            _data.Relateds = await GetRelated(contactId);
             _data.Cities = await GetCitys();
             _data.Groups = (List<Group>)(await GetGroups(true)).Data ;
             _data.PayMethods = (List<PayMethod>)(await GetPayMethods(true)).Data;
