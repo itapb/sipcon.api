@@ -84,6 +84,24 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpGet("GetItems")]
+        public async Task<IActionResult> GetItems( int userId, String type,  int supplierId, string? filter, int rowFrom)
+        {
+
+            try
+            {
+                var _response = await _dService.GetItems(userId, type,supplierId, filter,rowFrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+
+        }
+
+
 
         private MemoryStream ConvertToExcel(List<Models.Service> _services, Int32? serviceTypeId)
         {
@@ -892,7 +910,23 @@ namespace WebApi.Controllers
             }
         }
 
-        
+
+        [HttpPost("PostItem")]
+        public async Task<IActionResult> Post_Item(Models.Item item, Int32 userId)
+        {
+
+
+            try
+            {
+                var _response = await _dService.Post_Item(item, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         [HttpPost("PostFailReport")]
         public async Task<IActionResult> Post_FailReport(Models.ServiceFail failReport, Int32 userId)
         {

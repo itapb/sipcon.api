@@ -205,6 +205,64 @@ namespace Data
         }
 
 
+
+
+
+        public async Task<Models.Response<List<Models.Item>>> GetItems(int userId, String type, int supplierId, string? filter, int rowFrom)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetItems(userId, type, supplierId,filter,rowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.Item>>> _GetItems(int userId, String type, int supplierId, string? filter, int rowFrom)
+        {
+
+            Response<List<Models.Item>> _response = new Response<List<Models.Item>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@VTYPE", type);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ITEMS", _parameter);
+                _response.Data = _data.GetList<Models.Item>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+
         public async Task<Response<List<Models.ReportType>>> GetReportType()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -574,6 +632,49 @@ namespace Data
             return _response;
         }
 
+
+        public async Task<Response<Models.Result>> Post_Item(Models.Item item, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Item(item, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Post_Item(Models.Item item, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(item);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_ITEM", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
 
         public async Task<Response<Models.Result>> Delete_Details(List<Models.Action> _list, Int32 userId)
