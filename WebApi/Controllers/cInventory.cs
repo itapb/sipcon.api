@@ -377,9 +377,8 @@ namespace WebApi.Controllers
                             // Ajusta según tu estructura real
                             Id = 0,
                             InnerCode = row.Cell(1).GetValue<string>(),
-                            //Description = row.Cell(2).GetValue<string>(),
-                            RequiredQty = row.Cell(3).GetValue<int>(),
-                            LocationName = row.Cell(4).GetValue<string>(),
+                            RequiredQty = row.Cell(2).GetValue<int>(),
+                            LocationName = row.Cell(3).GetValue<string>(),
                             MovementId = movementId
 
                         });
