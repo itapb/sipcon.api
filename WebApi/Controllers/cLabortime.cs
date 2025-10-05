@@ -168,7 +168,7 @@ namespace WebApi.Controllers
                         {
                             Reference = row.Cell(1).GetValue<string>(),
                             Description = row.Cell(2).GetValue<string>(),
-                            Hours = row.Cell(3).GetValue<decimal>(),
+                            Hours = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
                             IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
                             ModelId =modelId,
                             RowReference = rowRef
