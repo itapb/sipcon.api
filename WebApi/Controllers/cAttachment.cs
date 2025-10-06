@@ -1,4 +1,5 @@
-﻿using Data;
+﻿using Azure;
+using Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -49,6 +50,7 @@ namespace WebApi.Controllers
         [HttpGet("GetOne")]
         public async Task<IActionResult> GetOne(Int32 userId,Int32 attachmentId)
         {
+            var response = new Models.Response<List<Models.Result>>();
             try
             {
                 // Obtener la información del adjunto desde la base de datos
@@ -67,8 +69,15 @@ namespace WebApi.Controllers
                     return NotFound($"Datos insuficientes para reconstruir la ruta del archivo.");
                 }
 
+                string baseUrl = Util.Setting.AttachmentUrl;
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    response.SetError(new Exception("Ruta base de adjuntos no configurada."));
+                    return StatusCode(response.Status, response);
+                }
+
                 // Obtener la ruta base desde la variable de entorno
-                string attachmentUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
+                string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
                 // Obtener la lista de módulos desde la base de datos
                 var _modules = await _dModule.GetAll(null, userId);
 
@@ -187,7 +196,7 @@ namespace WebApi.Controllers
         [HttpPost("PostAttachments")]
         public async Task<IActionResult> Post_Attachments(List<IFormFile> files, int userId, string moduleName, int recordId)
         {
-            var response = new Response<List<Models.Result>>();
+            var response = new Models.Response<List<Models.Result>>();
             var results = new List<Models.Result>();
 
             try
@@ -288,7 +297,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response<Models.Result> response = new Response<Models.Result>();
+                Models.Response<Models.Result> response = new Models.Response<Models.Result>();
                 // Obtener la información del adjunto desde la base de datos
                 var _response = await _dAttachment.GetOne(attachmentId);
 
