@@ -186,7 +186,7 @@ namespace WebApi.Controllers
                             Name = row.Cell(2).GetValue<string>(),
                             ZoneId = id,
                             TypeId = row.Cell(4).GetValue<string>(),
-                            Mapping = row.Cell(5).GetValue<int>(),
+                            Mapping = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<int>(),
                             IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
                             RowReference = rowRef
 

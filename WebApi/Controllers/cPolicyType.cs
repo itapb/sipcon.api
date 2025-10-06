@@ -57,12 +57,12 @@ namespace WebApi.Controllers
                 // 4. Agregar los encabezados
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "DESCRIPCION";
-                worksheet.Cell(1, 3).Value = "KM";
-                worksheet.Cell(1, 4).Value = "TOLERANCIA KM";
-                worksheet.Cell(1, 5).Value = "TOPE KM";
-                worksheet.Cell(1, 6).Value = "MESES";
+                worksheet.Cell(1, 3).Value = "KM FRECUENCIA";
+                worksheet.Cell(1, 4).Value = "KM TOLERANCIA";
+                worksheet.Cell(1, 5).Value = "KM COBERTURA";
+                worksheet.Cell(1, 6).Value = "MESES FRECUENCIA";
                 worksheet.Cell(1, 7).Value = "TOLERANCIA DIAS";
-                worksheet.Cell(1, 8).Value = "TOPE MESES";
+                worksheet.Cell(1, 8).Value = "COBERTURA MESES";
                 worksheet.Cell(1, 9).Value = "ACTIVA";
                 worksheet.Cell(1, 10).Value = "PLANTA";
                 worksheet.Cell(1, 11).Value = "MARCA";
@@ -207,12 +207,12 @@ namespace WebApi.Controllers
                             // Ajusta según tu estructura real
                             Id = row.Cell(1).GetValue<int>(),
                             Description = row.Cell(2).GetValue<string>(),
-                            Km = row.Cell(3).GetValue< int >(),
-                            GapKm = row.Cell(4).GetValue<int>(),
-                            TopKm = row.Cell(5).GetValue<int>(),
-                            Months = row.Cell(6).GetValue<int>(),
-                            GapMonths= row.Cell(7).GetValue<int>(),
-                            TopMonths= row.Cell(8).GetValue< int >(),
+                            Km = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
+                            GapKm = string.IsNullOrWhiteSpace(row.Cell(4).GetString()) ? 0 : row.Cell(4).GetValue<int>(),
+                            TopKm = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<int>(),
+                            Months = string.IsNullOrWhiteSpace(row.Cell(6).GetString()) ? 0 : row.Cell(6).GetValue<int>(),
+                            GapMonths= string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<int>(),
+                            TopMonths= string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<int>(),
                             IsActive = row.Cell(9).GetValue<string>() == "SI" ? true : false,
                             SupplierId = SupplierId,
                             BrandId = id,

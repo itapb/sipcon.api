@@ -328,8 +328,8 @@ namespace WebApi.Controllers
                           
                             InnerCode = row.Cell(1).GetValue<string>(),
                             Description = row.Cell(2).GetValue<string>(),
-                            Price = row.Cell(3).GetValue<decimal>(),
-                            Cost = row.Cell(4).GetValue<decimal>(),
+                            Price = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
+                            Cost = string.IsNullOrWhiteSpace(row.Cell(4).GetString()) ? 0 : row.Cell(4).GetValue<decimal>(),
                             TaxId = row.Cell(5).GetValue<string>() == "EXENTO" ? 1 : 2,
                             IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
                             MasterCode = row.Cell(7).GetValue<string>(),
