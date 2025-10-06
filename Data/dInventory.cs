@@ -2210,8 +2210,8 @@ namespace Data
                 _mapping.AddItem("Stock", "ISTOCK");
                 _mapping.AddItem("ReasonId", "IDREASON"); 
                 _mapping.AddItem("AdjustmentType", "CTYPE");
-                _mapping.AddItem("ReasonType", "CTYPEREASON");
-                _mapping.AddItem("ReasonDescription", "DESC"); 
+                _mapping.AddItem("ReasonType", "CTYPE");
+                _mapping.AddItem("ReasonDescription", "VREASON"); 
                 _mapping.AddItem("Inncercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VPART");
                 _mapping.AddItem("PartPrice", "NPRICE"); 
