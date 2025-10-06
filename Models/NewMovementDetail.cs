@@ -43,6 +43,8 @@ namespace Models
 
         [SwaggerIgnore]
         public int? Stock { get; set; } = 0;
+        [SwaggerIgnore]
+        public String? RowReference { get; set; }
 
 
 
