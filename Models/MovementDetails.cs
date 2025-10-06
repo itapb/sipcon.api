@@ -39,6 +39,8 @@ namespace Models
 
         public string? PartDescription { get; set; } = string.Empty;
 
+        [SwaggerIgnore]
+        public string? PartSize { get; set; } = string.Empty;
 
         [Required]
         [Range(1, int.MaxValue)]
