@@ -343,7 +343,8 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("MovementId", "IDMOVEMENT");
                 _mapping.AddItem("PartId", "IDPART");
-                _mapping.AddItem("SerialCode", "VSERIAL");
+                _mapping.AddItem("SerialCode", "VSERIAL"); 
+                _mapping.AddItem("PartSize", "VPARTSIZE");
                 _mapping.AddItem("LocationType", "VLOCATIONTYPE");
                 _mapping.AddItem("LocationId", "IDLOCATION");
                 _mapping.AddItem("LocationName", "VLOCATION");
