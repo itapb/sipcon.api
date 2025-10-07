@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿using Azure;
+using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
@@ -141,7 +142,7 @@ namespace WebApi.Controllers
             var _warehouses = new List<Warehouse>();
             var id = 0;
             var warehouseName = "";
-
+            var response = new Models.Response<Models.Result>();
             _warehouses = await _dWarehouse.GetExport(userId, supplierId,null);
 
             using (var stream = new MemoryStream())
@@ -164,20 +165,30 @@ namespace WebApi.Controllers
                         {
                             id = (int)_warehouses.Find(x => x.Name.ToUpper() == warehouseName.ToUpper()).Id;
                         }
-
-                        _list.Add(new Zone
+                        try
                         {
-                            // Mapear las celdas de Excel a las propiedades del modelo
-                            // Ajusta según tu estructura real
-                            Id = row.Cell(1).GetValue<int>(),
-                            Name = row.Cell(2).GetValue<string>(),
-                            Size = row.Cell(3).GetValue<string>(),
-                            WarehouseId = id,
-                           // WarehouseName = row.Cell(4).GetValue<string>(),
-                            IsActive = row.Cell(5).GetValue<string>() == "SI" ? true : false,
-                            RowReference = rowRef
+                            _list.Add(new Zone
+                            {
+                                // Mapear las celdas de Excel a las propiedades del modelo
+                                // Ajusta según tu estructura real
+                                Id = string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ? 0 : row.Cell(1).GetValue<int>(),
+                                Name = row.Cell(2).GetValue<string>(),
+                                Size = row.Cell(3).GetValue<string>(),
+                                WarehouseId = id,
+                                IsActive = row.Cell(5).GetValue<string>().ToUpper() switch
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
+                                RowReference = rowRef
 
-                        });
+                            });
+                        }
+                        catch(Exception ex)
+                         {
+                            response.SetError(ex);
+                        }
                     }
                 }
             }

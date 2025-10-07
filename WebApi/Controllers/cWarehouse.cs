@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿using Azure;
+using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
@@ -141,6 +142,7 @@ namespace WebApi.Controllers
             var _plantas = new List<Contact>();
             var id = 0;
             var supplierReference = "";
+            var response = new Models.Response<Models.Result>();
 
             _plantas = await _dContact.GetAll_by( false ,true);
 
@@ -162,18 +164,28 @@ namespace WebApi.Controllers
 
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}"; // Ej: "A2"
-
-                        _list.Add(new Warehouse
+                        try
                         {
-                            // Mapear las celdas de Excel a las propiedades del modelo
-                            // Ajusta según tu estructura real
-                            Id = row.Cell(1).GetValue<int>(),
-                            Name = row.Cell(2).GetValue<string>(),
-                            SupplierId = supplierId,
-                            IsActive = row.Cell(3).GetValue<string>() == "SI" ? true : false,
-                            RowReference = rowRef
+                            _list.Add(new Warehouse
+                            {
+                                // Mapear las celdas de Excel a las propiedades del modelo
+                                // Ajusta según tu estructura real
+                                Id = string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ? 0 : row.Cell(1).GetValue<int>(),
+                                Name = row.Cell(2).GetValue<string>(),
+                                SupplierId = supplierId,
+                                IsActive = row.Cell(3).GetValue<string>().ToUpper() switch
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
+                                RowReference = rowRef
 
-                        });
+                            });
+                        }catch(Exception ex)
+                        {
+                           response.SetError(ex);
+                        }
                     }
                 }
             }
