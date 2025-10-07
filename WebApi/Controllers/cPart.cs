@@ -212,8 +212,8 @@ namespace WebApi.Controllers
                 //worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 1).Value = "CODPARTE";
                 worksheet.Cell(1, 2).Value = "PARTE";
-                worksheet.Cell(1, 3).Value = "PRECIO";
-                worksheet.Cell(1, 4).Value = "COSTO";
+                worksheet.Cell(1, 3).Value = "PRECIO $";
+                worksheet.Cell(1, 4).Value = "COSTO $";
                 worksheet.Cell(1, 5).Value = "IMPUESTO";
                 worksheet.Cell(1, 6).Value = "ACTIVO";
                 worksheet.Cell(1, 7).Value = "CODFABRICANTE";
