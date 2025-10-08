@@ -52,7 +52,7 @@ namespace Models
         [Required]
         public decimal? Cost { get; set; } = decimal.Zero;
 
-        [Required]
+        
         public decimal? Discount { get; set; } = decimal.Zero;
 
         [Required]
