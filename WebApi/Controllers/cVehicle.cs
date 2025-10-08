@@ -274,6 +274,7 @@ namespace WebApi.Controllers
         //    Int32 supplierId2 = 0;
             Int32 colorId = 0;
             Int32 modelId = 0;
+            var response = new Models.Response<Models.Result>();
 
 
             using (var stream = new MemoryStream())
@@ -300,23 +301,32 @@ namespace WebApi.Controllers
                         modelId = _models.Exists(x => x.Name.ToUpper() == modelName.ToUpper()) ? (int)_models.Find(x => x.Name.ToUpper() == modelName.ToUpper()).Id : 0;
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}"; // Ej: "A2"
-
-
-                        vehicles.Add(new Vehicle
+                        try
                         {
-                           
-                            Vin = row.Cell(1).GetValue<string>(),
-                            EngineSerial = row.Cell(2).GetValue<string>(),
-                            ColorId = colorId,
-                            ModelId = modelId,
-                            Year = row.Cell(5).GetValue<int>(),
-                            Plate = row.Cell(6).GetString(),
-                            IsActive = row.Cell(7).GetValue<string>() == "SI" ? true : false,
-                            DealerId = dealerId,
-                            SupplierId = supplierId,
-                            RowReference = rowRef
-                        });
-                    }
+
+                            vehicles.Add(new Vehicle
+                            {
+
+                                Vin = row.Cell(1).GetValue<string>(),
+                                EngineSerial = row.Cell(2).GetValue<string>(),
+                                ColorId = colorId,
+                                ModelId = modelId,
+                                Year = row.Cell(5).GetValue<int>(),
+                                Plate = row.Cell(6).GetString(),
+                                IsActive = row.Cell(7).GetValue<string>().ToUpper() switch
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
+                                DealerId = dealerId,
+                                SupplierId = supplierId,
+                                RowReference = rowRef
+                            });
+                        }catch (Exception ex)
+                        {
+                            response.SetError(ex);
+                        }
                 }
             }
 
