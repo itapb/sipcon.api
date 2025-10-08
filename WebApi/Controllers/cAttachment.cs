@@ -238,6 +238,7 @@ namespace WebApi.Controllers
                 string modulePath = module.Name;
                 int moduleId = module.Id;
                 string recordPath = Path.Combine(servicesUrl, modulePath, recordId.ToString());
+
                 Directory.CreateDirectory(recordPath);
 
                 foreach (var file in files)

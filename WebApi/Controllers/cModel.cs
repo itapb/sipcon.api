@@ -1,14 +1,15 @@
-﻿using ClosedXML.Excel;
+﻿using Azure;
+using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Models;
 using Model = Models.Model;
-using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -161,7 +162,8 @@ namespace WebApi.Controllers
             var idPolicyType = 0;
             string brandName = "";
             string policyTypeName = "";
-            
+            var response = new Models.Response<Models.Result>();
+
 
             using (var stream = new MemoryStream())
             {
@@ -179,12 +181,13 @@ namespace WebApi.Controllers
                         idPolicyType = _policyTypes.Exists(x => x.Description.ToUpper() == policyTypeName.ToUpper()) ? (int)_policyTypes.Find(x => x.Description.ToUpper() == policyTypeName.ToUpper()).Id : 0;
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}";
-
-                        models.Add(new Model
+                        try
+                        {
+                            models.Add(new Model
                         {
                             // Mapear las celdas de Excel a las propiedades del modelo
                             // Ajusta según tu estructura real
-                            Id = row.Cell(1).GetValue<int>(),
+                            Id = string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ? 0 : row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
                             Description = row.Cell(3).GetValue<string>(),
                             IsActive = row.Cell(5).GetValue<string>() == "SI" ? true : false,
@@ -194,6 +197,14 @@ namespace WebApi.Controllers
 
 
                         });
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                            response.SetError(ex);
+
+                        }
                     }
                 }
             }
