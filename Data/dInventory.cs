@@ -2510,5 +2510,168 @@ namespace Data
 
         #endregion
 
+
+        #region "INVOICECONTROL"
+
+
+        /*--------------------------------------------------------------GET EXPORT-------------------------------------------------------------*/
+        public async Task<List<Invoicecontrol>> GetExportInvoiceControls(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Invoicecontrol>)(await _GetInvoiceControl(customerId, saleOrderId, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControl(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetInvoiceControl(customerId, saleOrderId, rowfrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControl(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        {
+            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDCUSTOMER", customerId);
+                _parameter.AddSqlParameter("@IDSALEORDER", saleOrderId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("InvoiceId", "IDINVOICE");
+                _mapping.AddItem("ControlId", "IDCONTROL");
+                _mapping.AddItem("Invoiced", "IINVOICED");
+                _mapping.AddItem("Dispatched", "IDISPATCHED");
+                _mapping.AddItem("Mark", "BMARK");
+                _mapping.AddItem("UserSinc", "IDUSERSINC");
+                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("LocationName", "VLOCATION");
+                _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
+                _mapping.AddItem("Required", "IREQUIRED");
+                _mapping.AddItem("Cost", "NCOST");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
+                _response.Data = _data.GetList<Models.Invoicecontrol>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+        //*--------------------------------------------------------------POST-------------------------------------------------------------*/
+        public async Task<Response<Result>> PostInvoiceControl(List<Models.Invoicecontrol> invoiceControls, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostInvoiceControl(invoiceControls, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostInvoiceControl(List<Models.Invoicecontrol> invoiceControls, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                var updateData = invoiceControls.Select(ic => new {
+                    Id = ic.Id,
+                    Mark = ic.Mark
+                }).ToList();
+
+                string _jsonstring = Util.Json.ConvertToJsonString(updateData);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVOICECONTROL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+       
+        /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
+        public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostInvoiceControl_Actions(actions, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(actions);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVOICECONTROL_ACTION", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        #endregion
+
     }
 }

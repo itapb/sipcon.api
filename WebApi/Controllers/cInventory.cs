@@ -1635,5 +1635,53 @@ namespace WebApi.Controllers
 
         }
         #endregion
+
+        #region"INVOICECONTROL"
+
+
+        [HttpGet("/api/InvoiceControl/GetAll")]
+        public async Task<IActionResult> GetInvoiceControl(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        {
+            try
+            {
+                var _response = await _dInventory.GetInvoiceControl(customerId, saleOrderId, rowfrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpPost("/api/InvoiceControl/PostActions")]
+        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInventory.PostInvoiceControl_Actions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/InvoiceControl/PostInvoiceControl")]
+        public async Task<IActionResult> PostInvoiceControl(List<Models.Invoicecontrol> invoiceControls, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInventory.PostInvoiceControl(invoiceControls, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        #endregion
     }
 }
