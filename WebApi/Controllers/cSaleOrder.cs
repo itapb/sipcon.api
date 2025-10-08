@@ -184,7 +184,12 @@ namespace WebApi.Controllers
                 if (_get2.Id is null || _get2.Id == 0)
                 {
 
-                    var _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
+                    Response <Result> _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
+                    if (_resp.Processed == false)
+                    {
+                        throw new Exception(_resp.Message);
+                    }
+
                     Result _resul = new Result();
                     _resul = (Result)(_resp.Data);
 
