@@ -285,18 +285,18 @@ namespace WebApi.Controllers
                 {
                     var worksheet = workbook.Worksheet(1); // Primera hoja
                     var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
-           
+
 
                     foreach (var row in rows)
                     {
-                       
+
                         colorName = row.Cell(3).GetValue<string>()?.Trim();
                         modelName = row.Cell(4).GetValue<string>()?.Trim();
-                       // referenceSupplier = row.Cell(9).GetValue<string>()?.Trim();
+                        // referenceSupplier = row.Cell(9).GetValue<string>()?.Trim();
                         referenceDealer = row.Cell(8).GetValue<string>()?.Trim();
 
                         dealerId = _contacts.Exists(x => x.Reference.ToUpper() == referenceDealer.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceDealer.ToUpper()).Id : 0;
-                       // supplierId2 = _contacts.Exists(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()).Id : 0;
+                        // supplierId2 = _contacts.Exists(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()) ? (int)_contacts.Find(x => x.Reference.ToUpper() == referenceSupplier.ToUpper()).Id : 0;
                         colorId = _colors.Exists(x => x.Name.ToUpper() == colorName.ToUpper()) ? (int)_colors.Find(x => x.Name.ToUpper() == colorName.ToUpper()).Id : 0;
                         modelId = _models.Exists(x => x.Name.ToUpper() == modelName.ToUpper()) ? (int)_models.Find(x => x.Name.ToUpper() == modelName.ToUpper()).Id : 0;
                         int fila = row.RowNumber(); // Ej: 2
@@ -323,10 +323,12 @@ namespace WebApi.Controllers
                                 SupplierId = supplierId,
                                 RowReference = rowRef
                             });
-                        }catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             response.SetError(ex);
                         }
+                    }
                 }
             }
 
@@ -364,7 +366,7 @@ namespace WebApi.Controllers
                 List<Vehicle> vehicles = await ReadExcelToVehicles(file,userId, supplierId);
 
                 // Llamar al método existente de tu capa de servicio
-                var response = await _dVehicle.Post_Vehicles(vehicles, userId);
+                var response = await _dVehicle.Import_Vehicles(vehicles, userId);
 
                 return StatusCode(response.Processed ?
                     StatusCodes.Status200OK : StatusCodes.Status409Conflict,
