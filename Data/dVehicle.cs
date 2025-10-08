@@ -493,7 +493,22 @@ namespace Data
             }
         }
 
-        private async Task<Response<Models.Result>> _Post_Vehicles(List<Vehicle> _list, Int32 userId)
+
+
+        public async Task<Response<Models.Result>> Import_Vehicles(List<Vehicle> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Vehicles(_list, userId, true);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Post_Vehicles(List<Vehicle> _list, Int32 userId,Boolean? import=false)
         {
             Response<Models.Result> _response = new Response<Models.Result>();    
             try
@@ -503,7 +518,8 @@ namespace Data
                 Parameter _parameter = new Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                
+                _parameter.AddSqlParameter("@BIMPORT", import);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();

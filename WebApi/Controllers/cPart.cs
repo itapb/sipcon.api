@@ -1,11 +1,12 @@
 ﻿
+using Azure;
 using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -168,7 +169,7 @@ namespace WebApi.Controllers
         [HttpGet("GetOneWithContext")]
         public async Task<IActionResult> GetOneWithContext(Int32 userId,Int32 partId )
         {
-            Response<PartWithContext> _response = new Response<PartWithContext>();
+            Models.Response<PartWithContext> _response = new Models.Response<PartWithContext>();
             try
             {
                 PartWithContext _data = new PartWithContext();
@@ -306,6 +307,7 @@ namespace WebApi.Controllers
         {
             var _list = new List<Part>();
             var _plantas = new List<Contact>();
+            var response = new Models.Response<Models.Result>();
 
             _plantas = await _dContact.GetAll_by(false, true);
 
@@ -319,24 +321,47 @@ namespace WebApi.Controllers
                     var worksheet = workbook.Worksheet(1); // Primera hoja
                     var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
 
+
+                    decimal priceValue;
+                    decimal costValue;
                     foreach (var row in rows)
                     {
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}";
-                        _list.Add(new Part
+                        try
                         {
-                          
-                            InnerCode = row.Cell(1).GetValue<string>(),
-                            Description = row.Cell(2).GetValue<string>(),
-                            Price = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
-                            Cost = string.IsNullOrWhiteSpace(row.Cell(4).GetString()) ? 0 : row.Cell(4).GetValue<decimal>(),
-                            TaxId = row.Cell(5).GetValue<string>() == "EXENTO" ? 1 : 2,
-                            IsActive = row.Cell(6).GetValue<string>() == "SI" ? true : false,
-                            MasterCode = row.Cell(7).GetValue<string>(),
-                            SupplierId = supplierId,
-                            RowReference = rowRef
+                            _list.Add(new Part
+                            {
 
-                        });
+                                InnerCode = row.Cell(1).GetValue<string>(),
+                                Description = row.Cell(2).GetValue<string>(),
+                                Price = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
+                                Cost = string.IsNullOrWhiteSpace(row.Cell(4).GetString()) ? 0 : row.Cell(4).GetValue<decimal>(),
+                                TaxId = row.Cell(5).GetValue<string>().ToUpper() switch
+                                {
+                                    "EXENTO" => 1,
+                                    "GRAVABLE" => 2,
+                                    _ => throw new Exception($"Valor inválido en TaxId: '{row.Cell(5).GetValue<string>()}'. Se esperaba 'EXENTO' o 'GRAVADO'.")
+                                },
+                                IsActive = row.Cell(6).GetValue<string>().ToUpper() switch
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
+
+                                MasterCode = row.Cell(7).GetValue<string>(),
+                                SupplierId = supplierId,
+                                RowReference = rowRef
+
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            response.SetError(ex);
+
+                        }
+
                     }
                 }
             }

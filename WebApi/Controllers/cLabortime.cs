@@ -147,6 +147,7 @@ namespace WebApi.Controllers
         {
             var _list = new List<LaborTime>();
             var _models = new List<Models.Model>();
+            var response = new Models.Response<Models.Result>();
 
 
             using (var stream = new MemoryStream())
@@ -163,17 +164,29 @@ namespace WebApi.Controllers
 
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}";
-
+                        try
+                        { 
                         _list.Add(new LaborTime
                         {
                             Reference = row.Cell(1).GetValue<string>(),
                             Description = row.Cell(2).GetValue<string>(),
                             Hours = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
-                            IsActive = row.Cell(4).GetValue<string>() == "SI" ? true : false,
+                            IsActive = row.Cell(4).GetValue<string>().ToUpper() switch
+                            {
+                                "SI" => true,
+                                "NO" => false,
+                                _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                            },
                             ModelId =modelId,
                             RowReference = rowRef
                         });
+
                     }
+                        catch(Exception ex)
+                         {
+                        response.SetError(ex);
+                    }
+                }
                 }
             }
 

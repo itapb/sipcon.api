@@ -1,12 +1,13 @@
-﻿using ClosedXML.Excel;
+﻿using Azure;
+using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Linq;
-using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -184,6 +185,7 @@ namespace WebApi.Controllers
             var id = 0;
             var _brands = await _dBrand.GetAll(SupplierId);
             id = _brands?.FirstOrDefault()?.Id ?? 0;
+            var response = new Models.Response<Models.Result>();
 
 
             using (var stream = new MemoryStream())
@@ -200,24 +202,37 @@ namespace WebApi.Controllers
                         
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}"; // Ej: "A2"
-
-                        policyTypes.Add(new PolicyType
+                        try
                         {
-                            // Mapear las celdas de Excel a las propiedades del modelo
-                            // Ajusta según tu estructura real
-                            Id = row.Cell(1).GetValue<int>(),
-                            Description = row.Cell(2).GetValue<string>(),
-                            Km = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
-                            GapKm = string.IsNullOrWhiteSpace(row.Cell(4).GetString()) ? 0 : row.Cell(4).GetValue<int>(),
-                            TopKm = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<int>(),
-                            Months = string.IsNullOrWhiteSpace(row.Cell(6).GetString()) ? 0 : row.Cell(6).GetValue<int>(),
-                            GapMonths= string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<int>(),
-                            TopMonths= string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<int>(),
-                            IsActive = row.Cell(9).GetValue<string>() == "SI" ? true : false,
-                            SupplierId = SupplierId,
-                            BrandId = id,
-                            RowReference = rowRef
-                        });
+                            policyTypes.Add(new PolicyType
+                            {
+                                // Mapear las celdas de Excel a las propiedades del modelo
+                                // Ajusta según tu estructura real
+                                Id = string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ? 0 : row.Cell(1).GetValue<int>(),
+                                Description = row.Cell(2).GetValue<string>(),
+                                Km = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
+                                GapKm = string.IsNullOrWhiteSpace(row.Cell(4).GetString()) ? 0 : row.Cell(4).GetValue<int>(),
+                                TopKm = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<int>(),
+                                Months = string.IsNullOrWhiteSpace(row.Cell(6).GetString()) ? 0 : row.Cell(6).GetValue<int>(),
+                                GapMonths = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<int>(),
+                                TopMonths = string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<int>(),
+                                IsActive = row.Cell(9).GetValue<string>().ToUpper() switch
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
+                                SupplierId = SupplierId,
+                                BrandId = id,
+                                RowReference = rowRef
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+
+                            response.SetError(ex);
+
+                        }
                     }
                 }
             }
