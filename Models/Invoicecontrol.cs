@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Models;
 using Swashbuckle.AspNetCore.Annotations;
 
     
@@ -36,7 +37,7 @@ namespace Models
         public DateTime? SincDate { get; set; }
         
         [SwaggerIgnore]
-        public decimal? Cost { get; set; } 
+        public decimal? Price { get; set; } 
 
         //CUSTOMER
         [SwaggerIgnore]
@@ -68,5 +69,19 @@ namespace Models
         [SwaggerIgnore]
         public int? Required { get; set; }
 
+        [SwaggerIgnore]
+        public int? BackOrderId { get; set; }
+
+        [SwaggerIgnore]
+        public int? MovementDetailId { get; set; }
+
+        [SwaggerIgnore]
+        public int? PartId { get; set; }
+
+        [SwaggerIgnore]
+        public int? SupplierId { get; set; }
+
     }
 }
+
+ 
