@@ -311,7 +311,7 @@ namespace WebApi.Controllers
                                 EngineSerial = row.Cell(2).GetValue<string>(),
                                 ColorId = colorId,
                                 ModelId = modelId,
-                                Year = row.Cell(5).GetValue<int>(),
+                                Year = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<int>(),
                                 Plate = row.Cell(6).GetString(),
                                 IsActive = row.Cell(7).GetValue<string>().ToUpper() switch
                                 {

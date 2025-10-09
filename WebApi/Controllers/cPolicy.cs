@@ -74,7 +74,7 @@ namespace WebApi.Controllers
                 var worksheet = workbook.Worksheets.Add("POLIZAS");
 
                 // 4. Agregar los encabezados
-                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 1).Value = "NUMERO";
                 worksheet.Cell(1, 2).Value = "CODIGO";
                 worksheet.Cell(1, 3).Value = "TIPO POLIZA";
                 worksheet.Cell(1, 4).Value = "VIN";
