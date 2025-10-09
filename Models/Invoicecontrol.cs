@@ -19,13 +19,13 @@ namespace Models
         public int? ControlId { get; set; }
 
         [SwaggerIgnore]
-        public int? Invoiced { get; set; } 
+        public int? Invoiced { get; set; }
 
         [SwaggerIgnore]
-        public int? Dispatched { get; set; } 
+        public int? Dispatched { get; set; }
 
         [Required]
-        public int? Mark { get; set; } 
+        public int? Mark { get; set; }
 
         [SwaggerIgnore]
         public int? UserSinc { get; set; }
@@ -34,9 +34,9 @@ namespace Models
         public DateTime? ControlDate { get; set; }
         [SwaggerIgnore]
         public DateTime? SincDate { get; set; }
-        
+
         [SwaggerIgnore]
-        public decimal? Cost { get; set; } 
+        public decimal? Price { get; set; }
 
         //CUSTOMER
         [SwaggerIgnore]
@@ -67,6 +67,18 @@ namespace Models
         //PACKAGELIST
         [SwaggerIgnore]
         public int? Required { get; set; }
+
+        [SwaggerIgnore]
+        public int? BackOrderId { get; set; }
+
+        [SwaggerIgnore]
+        public int? MovementDetailId { get; set; }
+
+        [SwaggerIgnore]
+        public int? PartId { get; set; }
+
+        [SwaggerIgnore]
+        public int? SupplierId { get; set; }
 
     }
 }

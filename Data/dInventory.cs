@@ -2515,12 +2515,12 @@ namespace Data
 
 
         /*--------------------------------------------------------------GET EXPORT-------------------------------------------------------------*/
-        public async Task<List<Invoicecontrol>> GetExportInvoiceControls(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        public async Task<List<Invoicecontrol>> GetExportInvoiceControls(int userId, int supplierId, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Invoicecontrol>)(await _GetInvoiceControl(customerId, saleOrderId, null)).Data;
+                return (List<Invoicecontrol>)(await _GetInvoiceControl(userId, supplierId, null, null, null, null, null)).Data;
             }
             finally
             {
@@ -2530,30 +2530,42 @@ namespace Data
 
         /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControl(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInvoiceControl(customerId, saleOrderId, rowfrom);
+                return await _GetInvoiceControl(userId, supplierId, rowfrom, filter, startdate, enddate, pendant);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControl(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+
+        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
         {
             Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IDCUSTOMER", customerId);
-                _parameter.AddSqlParameter("@IDSALEORDER", saleOrderId);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@STARTDATE", startdate);
+                _parameter.AddSqlParameter("@ENDDATE", enddate);
+                _parameter.AddSqlParameter("@BPENDANT", pendant);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
+                _mapping.AddItem("MovementDetailId", "IDMOVEMENTDETAIL");
+                _mapping.AddItem("BackOrderId", "IDBACKORDER");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("InvoiceId", "IDINVOICE");
                 _mapping.AddItem("ControlId", "IDCONTROL");
                 _mapping.AddItem("Invoiced", "IINVOICED");
@@ -2562,16 +2574,17 @@ namespace Data
                 _mapping.AddItem("UserSinc", "IDUSERSINC");
                 _mapping.AddItem("ControlDate", "DCONTROLDATE");
                 _mapping.AddItem("SincDate", "DSINCDATE");
-                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
                 _mapping.AddItem("LocationName", "VLOCATION");
-                _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
                 _mapping.AddItem("Required", "IREQUIRED");
-                _mapping.AddItem("Cost", "NCOST");
+                _mapping.AddItem("Price", "NPRICE");
+
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
