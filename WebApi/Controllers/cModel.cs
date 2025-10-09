@@ -93,8 +93,8 @@ namespace WebApi.Controllers
                 {
                     var _model = _models[i];
                     worksheet.Cell(i + 2, 1).Value = _model.Id;
-                    worksheet.Cell(i + 2, 2).Value = _model.Name;
-                    worksheet.Cell(i + 2, 3).Value = _model.Description;
+                    worksheet.Cell(i + 2, 2).Value = _model.Code;
+                    worksheet.Cell(i + 2, 3).Value = _model.Name;
                     worksheet.Cell(i + 2, 4).Value = _model.PolicyTypeName;
                     worksheet.Cell(i + 2, 5).Value = _model.IsActive != false ? "SI" : "NO";
                     worksheet.Cell(i + 2, 6).Value = _model.BrandName;
@@ -190,7 +190,12 @@ namespace WebApi.Controllers
                             Id = string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ? 0 : row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
                             Description = row.Cell(3).GetValue<string>(),
-                            IsActive = row.Cell(5).GetValue<string>() == "SI" ? true : false,
+                            IsActive = row.Cell(7).GetValue<string>().ToUpper() switch
+                            {
+                                "SI" => true,
+                                "NO" => false,
+                                _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                            },
                             BrandId = idbrand,
                             PolicyTypeId = idPolicyType,
                             RowReference = rowRef
