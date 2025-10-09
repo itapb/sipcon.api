@@ -28,6 +28,8 @@ namespace Models
 
         [SwaggerIgnore]
         public string? BrandName { get; set; }
+        [SwaggerIgnore]
+        public string? Code { get; set; }
 
         [SwaggerIgnore]
         public String? RowReference { get; set; }

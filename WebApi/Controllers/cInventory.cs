@@ -212,7 +212,7 @@ namespace WebApi.Controllers
                 _mov.Movement = _new;
                 _mov.Details = _details;
 
-                Response<MovementWithContext> _response = new Response<MovementWithContext>();
+                Models.Response<MovementWithContext> _response = new Models.Response<MovementWithContext>();
                 _response.Data = _mov;
                 _response.Total = 1;
 
@@ -250,7 +250,7 @@ namespace WebApi.Controllers
                 }
               
 
-                Response<MovementWithContext> _response = new Response<MovementWithContext>();
+                Models.Response<MovementWithContext> _response = new Models.Response<MovementWithContext>();
                 _response.Data = _mov;
                 _response.Total = _get.Total;
                 _response.Processed = _get.Processed;
@@ -312,7 +312,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response<Result> _response = await _dInventory.PostMovements(movements, userId);
+                Models.Response<Result> _response = await _dInventory.PostMovements(movements, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -326,7 +326,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response<Result> _response = await _dInventory.PostMovementDetail(detail, userId);
+                Models.Response<Result> _response = await _dInventory.PostMovementDetail(detail, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -340,7 +340,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Response<Result> _response = await _dInventory.PostMovementDetailMobile(movementDetail, userId);
+                Models.Response<Result> _response = await _dInventory.PostMovementDetailMobile(movementDetail, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -355,7 +355,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response<Result> _response = await _dInventory.Post_Actions(actions, userId);
+                Models.Response<Result> _response = await _dInventory.Post_Actions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -368,6 +368,7 @@ namespace WebApi.Controllers
         private List<NewMovementDetail> ExceltoMovementDetail(IFormFile file, Int32 movementId)
         {
             var _list = new List<NewMovementDetail>();
+            var response = new Models.Response<Models.Result>();
 
             using (var stream = new MemoryStream())
             {
@@ -382,19 +383,25 @@ namespace WebApi.Controllers
                     {
                         int fila = row.RowNumber(); // Ej: 2
                         string rowRef = $"{fila}";
-
-                        _list.Add(new NewMovementDetail
+                        try
                         {
-                            // Mapear las celdas de Excel a las propiedades del modelo
-                            // Ajusta según tu estructura real
-                            Id = 0,
-                            InnerCode = row.Cell(1).GetValue<string>(),
-                            RequiredQty = string.IsNullOrWhiteSpace(row.Cell(2).GetString()) ? 0 : row.Cell(2).GetValue<int>(),
-                            LocationName = row.Cell(3).GetValue<string>(),
-                            MovementId = movementId,
-                            RowReference = rowRef
+                            _list.Add(new NewMovementDetail
+                            {
+                                // Mapear las celdas de Excel a las propiedades del modelo
+                                // Ajusta según tu estructura real
+                                Id = 0,
+                                InnerCode = row.Cell(1).GetValue<string>(),
+                                RequiredQty = string.IsNullOrWhiteSpace(row.Cell(2).GetString()) ? 0 : row.Cell(2).GetValue<int>(),
+                                LocationName = row.Cell(3).GetValue<string>(),
+                                MovementId = movementId,
+                                RowReference = rowRef
 
-                        });
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            response.SetError(ex);
+                        }
                     }
                 }
             }
@@ -416,7 +423,7 @@ namespace WebApi.Controllers
             {
                 List<Models.RelatedModel> _models = new List<Models.RelatedModel>();
                 List<NewMovementDetail> _details = ExceltoMovementDetail(file, movementId);
-                Response<Result> _response = await _dInventory.PostMovementDetail(_details, userId, true);
+                Models.Response<Result> _response = await _dInventory.PostMovementDetail(_details, userId, true);
                 return StatusCode(_response.Status, _response);
 
             }
@@ -433,7 +440,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response<Result> _response = await _dInventory.DeleteMovementDetail(_list, userId);
+                Models.Response<Result> _response = await _dInventory.DeleteMovementDetail(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -450,7 +457,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response<List<PartialType>> _response = await _dInventory.GetPartialTypes();
+                Models.Response<List<PartialType>> _response = await _dInventory.GetPartialTypes();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -811,7 +818,7 @@ namespace WebApi.Controllers
                 _guide.Guide = (Guide)(_get.Data);
                 _guide.GuideDetails = (List<GuideDetails>)(_details.Data);
 
-                Response<GuideWithContext> _response = new Response<GuideWithContext>();
+                Models.Response<GuideWithContext> _response = new Models.Response<GuideWithContext>();
                 _response.Data = _guide;
                 _response.Total = 1;
 
@@ -1471,7 +1478,7 @@ namespace WebApi.Controllers
                 _req.Adjustment = (Adjustment)(_get.Data);
                 _req.Details = (List<AdjustmentDetails>)(_details.Data);
 
-                Response<AdjustmentWithContext> _response = new Response<AdjustmentWithContext>();
+                Models.Response<AdjustmentWithContext> _response = new Models.Response<AdjustmentWithContext>();
                 _response.Data = _req;
                 _response.Total = _get.Total;
                 _response.Processed = _get.Processed;
@@ -1553,7 +1560,7 @@ namespace WebApi.Controllers
                 _req.Adjustment = _new;
                 _req.Details = _details;
 
-                Response<AdjustmentWithContext> _response = new Response<AdjustmentWithContext>();
+                Models.Response<AdjustmentWithContext> _response = new Models.Response<AdjustmentWithContext>();
                 _response.Data = _req;
                 _response.Total = 1;
 
@@ -1625,7 +1632,7 @@ namespace WebApi.Controllers
 
             try
             {
-                Response<Result> _response = await _dInventory.DeleteAdjustmentDetail(_list, userId);
+                Models.Response<Result> _response = await _dInventory.DeleteAdjustmentDetail(_list, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1681,6 +1688,76 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+
+
+          private List<InvoiceReport> ExcelToList(IFormFile file)
+  {
+      var _list = new List<InvoiceReport>();
+  
+
+      using (var stream = new MemoryStream())
+      {
+          file.CopyTo(stream);
+
+          using (var workbook = new XLWorkbook(stream))
+          {
+              var worksheet = workbook.Worksheet(1); // Primera hoja
+              var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+              foreach (var row in rows)
+              {
+ 
+                  try
+                  {
+                      _list.Add(new InvoiceReport
+                      {
+
+                          PartCode = row.Cell(5).GetValue<string>(),
+                          Quantity = row.Cell(7).GetValue<int>(),
+                          Reference = row.Cell(36).GetValue<string>(),
+                          InvoiceNumber = row.Cell(2).GetValue<string>()
+
+                      });
+                  }
+                  catch (Exception ex)
+                  {
+               
+
+                  }
+
+              }
+          }
+      }
+
+      return _list;
+  }
+
+  [HttpPost("/api/InvoiceControl/ImportInvoiceReport")]
+  public async Task<IActionResult> ImportInvoiceReport(IFormFile file, Int32 userId, Int32 supplierId)
+  {
+
+      if (file == null || file.Length == 0)
+          return BadRequest("No se ha proporcionado un archivo válido.");
+
+      if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+          return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+      try
+      {
+   
+          List<InvoiceReport> _list = ExcelToList(file);
+
+          var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
+
+          return StatusCode(_response.Status, _response);
+
+      }
+      catch (Exception ex)
+      {
+          return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+      }
+
+  }
 
         #endregion
     }

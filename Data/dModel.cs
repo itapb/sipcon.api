@@ -47,7 +47,7 @@ namespace Data
                 _mapping.AddItem("Total", "TOTAL");
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
-                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Code", "VCODE");
                 _mapping.AddItem("BrandId", "IDBRAND");
                 _mapping.AddItem("BrandName", "VBRAND");
                 _mapping.AddItem("PolicyTypeName", "VPOLICYTYPE");
