@@ -66,6 +66,20 @@ namespace Data
                 _semaphore.Release();
             }
         }
+
+        public async Task<Response<Adjustment>> getLastAdjustment(Int32? userId, Int32? supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getlastAdjustment(userId, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task<Response<Movement>> _getlast(Int32? userId, Int32? supplierId , string typeId )
         {
             Response<Movement> _response = new Response<Movement>();
@@ -112,6 +126,43 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<Adjustment>> _getlastAdjustment(Int32? userId, Int32? supplierId)
+        {
+            Response<Adjustment> _response = new Response<Adjustment>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+                var _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                _mapping.AddItem("StatusName", "VSTATUS");
+                _mapping.AddItem("UserLogin", "VLOGIN");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_LASTADJUSTMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Adjustment>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
         private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32? rowfrom, string? filter , bool? withStock = true , string? locationType= null)
         {
@@ -2458,6 +2509,58 @@ namespace Data
 
 
         #endregion
+
+
+        #region INVOICECONTROL
+
+        public async Task<Response<Result>> ImportInvoiceReport(List<Models.InvoiceReport> _list,  Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _importInvoiceReport(_list, userId, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _importInvoiceReport(List<Models.InvoiceReport> _list, Int32 userId, Int32 supplierId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+         
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+     
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVOICEREPORT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        #endregion
+
 
     }
 }

@@ -1,23 +1,24 @@
-﻿using System.Configuration.Provider;
-using System.IO.Packaging;
-using System.Net.Mail;
-using System.Reflection;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using ClosedXML.Graphics;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Newtonsoft.Json.Linq;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using Colors = QuestPDF.Helpers.Colors;
-using Microsoft.AspNetCore.Authorization;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Threading;
+using System;
+using System.Configuration.Provider;
+using System.IO.Packaging;
 using System.Linq.Expressions;
+using System.Net.Mail;
+using System.Reflection;
+using System.Threading;
+using Colors = QuestPDF.Helpers.Colors;
 
 
 namespace WebApi.Controllers
@@ -187,6 +188,11 @@ namespace WebApi.Controllers
                 {
 
                     Response<Result> _resp = await _dInventory.PostMovements(_list, userId);
+                    if (_resp.Processed == false)
+                    {
+                        throw new Exception(_resp.Message);
+                    }
+
                     Result _resul = new Result();
                     _resul = (Result)(_resp.Data);
 
@@ -215,7 +221,11 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                Response<MovementWithContext> _response = new Response<MovementWithContext>();
+                _response.SetError(ex);
+
+                return StatusCode(StatusCodes.Status409Conflict, _response);
+
             }
         }
 
@@ -1509,12 +1519,32 @@ namespace WebApi.Controllers
                 List<Adjustment> _list = new List<Adjustment>();
                 _list.Add(_new);
 
-                var _resp = await _dInventory.PostAdjustment(_new, userId);
-                Result _resul = new Result();
-                _resul = (Result)(_resp.Data);
 
-                var _get = await _dInventory.GetAdjustment( userId, _resul.LastId);
-                _new = (Adjustment)(_get.Data);
+                var _get2 = (Adjustment)(await _dInventory.getLastAdjustment(userId, supplierId)).Data;
+
+                if (_get2.Id is null || _get2.Id == 0)
+                {
+
+                    var _resp = await _dInventory.PostAdjustment(_new, userId);
+
+                    if (_resp.Processed == false)
+                    {
+                        throw new Exception(_resp.Message);
+                    }
+
+                    Result _resul = new Result();
+                    _resul = (Result)(_resp.Data);
+
+                    var _get = await _dInventory.GetAdjustment(userId, _resul.LastId);
+                    _new = (Adjustment)(_get.Data);
+
+                }
+                else
+                {
+                    _new = _get2;
+                }
+               
+              
 
 
                 List<AdjustmentDetails> _details = new List<AdjustmentDetails>();
@@ -1532,7 +1562,10 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                Response<AdjustmentWithContext> _response = new Response<AdjustmentWithContext>();
+                _response.SetError(ex);
+
+                return StatusCode(StatusCodes.Status409Conflict, _response);
             }
         }
 
@@ -1601,6 +1634,82 @@ namespace WebApi.Controllers
             }
 
         }
+        #endregion
+
+
+        #region INVOICECONTROL
+
+
+        private List<InvoiceReport> ExcelToList(IFormFile file)
+        {
+            var _list = new List<InvoiceReport>();
+  
+
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+                    foreach (var row in rows)
+                    {
+ 
+                        try
+                        {
+                            _list.Add(new InvoiceReport
+                            {
+
+                                PartCode = row.Cell(5).GetValue<string>(),
+                                Quantity = row.Cell(7).GetValue<int>(),
+                                Reference = row.Cell(36).GetValue<string>(),
+                                InvoiceNumber = row.Cell(2).GetValue<string>()
+
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                     
+
+                        }
+
+                    }
+                }
+            }
+
+            return _list;
+        }
+
+        [HttpPost("/api/InvoiceControl/ImportInvoiceReport")]
+        public async Task<IActionResult> ImportInvoiceReport(IFormFile file, Int32 userId, Int32 supplierId)
+        {
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
+
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+            try
+            {
+         
+                List<InvoiceReport> _list = ExcelToList(file);
+
+                var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
+
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
         #endregion
     }
 }
