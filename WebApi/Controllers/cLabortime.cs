@@ -58,7 +58,7 @@ namespace WebApi.Controllers
             using (var workbook = new XLWorkbook())
             {
                 // 3. Agregar una hoja al libro
-                var worksheet = workbook.Worksheets.Add($" MANOS DE OBRA-{modelName}");
+                var worksheet = workbook.Worksheets.Add($"LISTA DE MANOS DE OBRA");
 
                 // 4. Agregar los encabezados
                 worksheet.Cell(1, 1).Value = "REFERENCIA";
@@ -166,26 +166,26 @@ namespace WebApi.Controllers
                         string rowRef = $"{fila}";
                         try
                         { 
-                        _list.Add(new LaborTime
-                        {
-                            Reference = row.Cell(1).GetValue<string>(),
-                            Description = row.Cell(2).GetValue<string>(),
-                            Hours = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
-                            IsActive = row.Cell(4).GetValue<string>().ToUpper() switch
+                            _list.Add(new LaborTime
                             {
-                                "SI" => true,
-                                "NO" => false,
-                                _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
-                            },
-                            ModelId =modelId,
-                            RowReference = rowRef
-                        });
+                                Reference = row.Cell(1).GetValue<string>(),
+                                Description = row.Cell(2).GetValue<string>(),
+                                Hours = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<decimal>(),
+                                IsActive = row.Cell(4).GetValue<string>().ToUpper() switch
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
+                                ModelId =modelId,
+                                RowReference = rowRef
+                            });
 
                     }
                         catch(Exception ex)
                          {
-                        response.SetError(ex);
-                    }
+                           response.SetError(ex);
+                         }
                 }
                 }
             }

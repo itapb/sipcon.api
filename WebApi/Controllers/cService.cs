@@ -119,7 +119,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("MANTENIMIENTOS");
                         headers = new()
                 {
-                    "ID", "NUMERO DE ORDEN", "CONCESIONARIO DEL MANTENIMIENTO", "CODIGO CONCESIONARIO",
+                    "NUM ", "NUMERO DE ORDEN", "CONCESIONARIO DEL MANTENIMIENTO", "CODIGO CONCESIONARIO",
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA",
                     "CODIGO CONCESIONARIO", "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CONCESIONARIO",
                     "NUM FACTURA", "FECHA FACTURACION", "ESTATUS"
@@ -130,7 +130,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("ASISTENCIAS TECNICAS");
                         headers = new()
                 {
-                    "ID", "NUMERO DE REPORTE DE FALLA",  "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                    "NUM ", "NUMERO DE REPORTE DE FALLA",  "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
                     "VIN DE VEHICULO", "PLACA","REPORTE DE CLIENTE","REPORTE DE CONCESIONARIO","REPORTE DE PLANTA",
                      "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
                      "FECHA DE FINALIZACION","CALIFICACION" ,"ESTATUS"
@@ -141,7 +141,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("REPORTE DE FALLAS");
                         headers = new()
                 {
-                    "ID", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                    "NUM ", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA", "CODIGO CONCESIONARIO",
                     "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
                      "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
