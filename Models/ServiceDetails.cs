@@ -18,7 +18,7 @@ namespace Models
         [Required] public Int32? ItemId { get; set; }
         [SwaggerIgnore] public String? ItemName { get; set; }
         [Required] [StringLength(1, MinimumLength = 1)] public String? Type { get; set; }
-        [Required] public  Int32? Quantity { get; set; }
+        [Required] public  decimal? Quantity { get; set; }
         [Required] public Decimal? UnitPrice { get; set; }
         [Required] public Boolean? IsExternal { get; set; }
         [Required] public Boolean? IsTax { get; set;}
