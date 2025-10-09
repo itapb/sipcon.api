@@ -140,4 +140,15 @@ namespace Models
      
 
     }
+
+    public class PartItem : Part
+
+    {
+
+        public String? Type { get; set; }
+
+    }
+
+
+
 }

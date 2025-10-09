@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.Collections.Generic;
 using System.Net.Mail;
 using System.Reflection;
 using Colors = QuestPDF.Helpers.Colors;
@@ -85,20 +86,29 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetItems")]
-        public async Task<IActionResult> GetItems( int userId, String type,  int supplierId, string? filter, int rowFrom)
+        public async Task<IActionResult> GetItems(int userId, String type, int supplierId, string? filter, int rowFrom,int modelId)
         {
-
             try
             {
-                var _response = await _dService.GetItems(userId, type,supplierId, filter,rowFrom);
-                return StatusCode(_response.Status, _response);
+                if (type == "L")
+                {
+                    Models.Response<List<Models.LabortimeItem>> _response = await _dService.GetItemsLaborTime(userId, type, supplierId, filter, rowFrom);
+                    return StatusCode(_response.Status, _response);
+                }
+                else if (type == "P")
+                {
+                    Models.Response<List<Models.PartItem>> _response = await _dService.GetItemsParts(userId, type, supplierId, filter, rowFrom);
+                    return StatusCode(_response.Status, _response);
+                }
+                else
+                {
+                    throw new ArgumentException("Tipo de items no válido");
+                }
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
-
-
         }
 
 

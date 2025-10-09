@@ -208,13 +208,13 @@ namespace Data
 
 
 
-        public async Task<Models.Response<List<Models.Item>>> GetItems(int userId, String type, int supplierId, string? filter, int rowFrom)
+        public async Task<Models.Response<List<Models.PartItem>>> GetItemsParts(int userId, String type, int supplierId, string? filter, int rowFrom)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetItems(userId, type, supplierId,filter,rowFrom);
+                return await _GetItemsParts(userId, type, supplierId,filter,rowFrom);
             }
             finally
             {
@@ -223,11 +223,10 @@ namespace Data
         }
 
 
-
-        private async Task<Response<List<Models.Item>>> _GetItems(int userId, String type, int supplierId, string? filter, int rowFrom)
+        private async Task<Response<List<Models.PartItem>>> _GetItemsParts(int userId, String type, int supplierId, string? filter, int rowFrom)
         {
 
-            Response<List<Models.Item>> _response = new Response<List<Models.Item>>();
+            Response<List<Models.PartItem>> _response = new Response<List<Models.PartItem>>();
 
             try
             {
@@ -248,7 +247,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ITEMS", _parameter);
-                _response.Data = _data.GetList<Models.Item>(_mapping, _table);
+                _response.Data = _data.GetList<Models.PartItem>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -260,6 +259,64 @@ namespace Data
             return _response;
 
         }
+
+        public async Task<Models.Response<List<Models.LabortimeItem>>> GetItemsLaborTime(int userId, String type, int supplierId, string? filter, int rowFrom)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetItemsLaborTime(userId, type, supplierId, filter, rowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<List<Models.LabortimeItem>>> _GetItemsLaborTime(int userId, String type, int supplierId, string? filter, int rowFrom)
+        {
+
+            Response<List<Models.LabortimeItem>> _response = new Response<List<Models.LabortimeItem>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@VTYPE", type);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ITEMS", _parameter);
+                _response.Data = _data.GetList<Models.LabortimeItem>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+
+
+
+        
 
 
 
