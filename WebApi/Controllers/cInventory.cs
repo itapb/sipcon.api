@@ -17,6 +17,7 @@ using System.IO.Packaging;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using Colors = QuestPDF.Helpers.Colors;
 
@@ -1757,6 +1758,59 @@ namespace WebApi.Controllers
       }
 
   }
+
+
+        [HttpGet("/api/InvoiceControl/ExportTXT")]
+        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+        {
+            try
+            {
+                // 1. Obtener datos
+                var response = await _dInventory.GetInvoiceControl(userId, supplierId, null, null, null, null, null);
+
+                if (response.Status != 200 || response.Data == null)
+                    return StatusCode(response.Status, response.Message);
+
+                // 2. Filtrar y validar registros
+                var validRecords = response.Data
+                    .Where(x => x.Mark == 1 && x.ControlId > 0)
+                    .GroupBy(x => x.ControlId)
+                    .OrderByDescending(g => g.Max(x => x.ControlDate))
+                    .FirstOrDefault()? // Tomar el último grupo (más reciente)
+                    .ToList();
+
+                if (validRecords == null || !validRecords.Any())
+                    return NotFound("No hay registros marcados con control asignado");
+
+                // 3. Validar máximo 8 registros
+                if (validRecords.Count > 8)
+                    return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+
+                // 4. Obtener el IDCONTROL (ya está agrupado)
+                var controlId = validRecords.First().ControlId;
+                string controlNumber = controlId.ToString().PadLeft(10, '0');
+
+                // 5. Generar contenido TXT (formato similar al ejemplo)
+                var txtContent = new StringBuilder();
+
+                foreach (var record in validRecords)
+                {
+                    // Formato: Código[TAB]Descripción[TAB]Cantidad[TAB]Precio
+                    string line = $"{record.PartInnerCode}\t{record.PartName}\t{record.Dispatched}\t{record.Price:0.00}";
+                    txtContent.AppendLine(line);
+                }
+
+                // 6. Retornar archivo
+                string fileName = $"{controlNumber}.txt";
+                var bytes = Encoding.UTF8.GetBytes(txtContent.ToString());
+
+                return File(bytes, "text/plain", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         #endregion
     }
