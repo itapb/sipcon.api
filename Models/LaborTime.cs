@@ -30,7 +30,7 @@ namespace Models
 
     }
 
-    public class LabortimeItem : Part
+    public class LabortimeItem : LaborTime
 
     {
 

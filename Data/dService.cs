@@ -208,6 +208,61 @@ namespace Data
 
 
 
+
+        public async Task<Models.Response<Models.PartItem>> GetOneItemParts(int userId, String type, int itemId)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOneItemParts(userId, type, itemId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<Models.PartItem>> _GetOneItemParts(int userId, String type, int itemId)
+        {
+
+            Response<Models.PartItem> _response = new Response<Models.PartItem>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@VTYPE", type);
+                _parameter.AddSqlParameter("@IDSUPPLIER", null);
+                _parameter.AddSqlParameter("@VFILTER", null);
+                _parameter.AddSqlParameter("@IROWFROM", null);
+                _parameter.AddSqlParameter("@ID", itemId);
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ITEMS", _parameter);
+                _response.Data = _data.GetItem<Models.PartItem>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
         public async Task<Models.Response<List<Models.PartItem>>> GetItemsParts(int userId, String type, int supplierId, string? filter, int rowFrom)
 
         {
@@ -313,10 +368,61 @@ namespace Data
         }
 
 
+        public async Task<Models.Response<Models.LabortimeItem>> GetOneItemLaborTime(int userId, String type, int itemId)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOneItemLaborTime(userId, type, itemId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<Models.LabortimeItem>> _GetOneItemLaborTime(int userId, String type, int itemId)
+        {
+
+            Response<Models.LabortimeItem> _response = new Response<Models.LabortimeItem>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@VTYPE", type);
+                _parameter.AddSqlParameter("@IDSUPPLIER", null);
+                _parameter.AddSqlParameter("@VFILTER", null);
+                _parameter.AddSqlParameter("@IROWFROM", null);
+                _parameter.AddSqlParameter("@ID", itemId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ITEMS", _parameter);
+                _response.Data = _data.GetItem<Models.LabortimeItem>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
 
 
 
-        
 
 
 

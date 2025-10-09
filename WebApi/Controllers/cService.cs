@@ -113,6 +113,34 @@ namespace WebApi.Controllers
 
 
 
+
+        [HttpGet("GetOneItem")]
+        public async Task<IActionResult> GetOneItem(int userId, String type, int itemId)
+        {
+            try
+            {
+                if (type == "L")
+                {
+                    Models.Response<Models.LabortimeItem> _response = await _dService.GetOneItemLaborTime(userId, type, itemId);
+                    return StatusCode(_response.Status, _response);
+                }
+                else if (type == "P")
+                {
+                    Models.Response<Models.PartItem> _response = await _dService.GetOneItemParts(userId, type, itemId);
+                    return StatusCode(_response.Status, _response);
+                }
+                else
+                {
+                    throw new ArgumentException("Tipo de items no válido");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         private MemoryStream ConvertToExcel(List<Models.Service> _services, Int32? serviceTypeId)
         {
             // 2. Crear el libro de trabajo Excel
