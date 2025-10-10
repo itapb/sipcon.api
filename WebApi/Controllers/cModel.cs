@@ -190,7 +190,7 @@ namespace WebApi.Controllers
                             Id = string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ? 0 : row.Cell(1).GetValue<int>(),
                             Name = row.Cell(2).GetValue<string>(),
                             Description = row.Cell(3).GetValue<string>(),
-                            IsActive = row.Cell(7).GetValue<string>().ToUpper() switch
+                            IsActive = row.Cell(5).GetValue<string>().ToUpper() switch
                             {
                                 "SI" => true,
                                 "NO" => false,
