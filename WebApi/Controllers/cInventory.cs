@@ -1643,15 +1643,15 @@ namespace WebApi.Controllers
         }
         #endregion
 
-        #region"INVOICECONTROL"
 
+        #region "Invoice Control"
 
         [HttpGet("/api/InvoiceControl/GetAll")]
-        public async Task<IActionResult> GetInvoiceControl(Int32 customerId, Int32 saleOrderId, int? rowfrom)
+        public async Task<IActionResult> GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
         {
             try
             {
-                var _response = await _dInventory.GetInvoiceControl(customerId, saleOrderId, rowfrom);
+                var _response = await _dInventory.GetInvoiceControl(userId, supplierId, rowfrom, filter, startdate, enddate, pendant);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1659,7 +1659,6 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
-
 
         [HttpPost("/api/InvoiceControl/PostActions")]
         public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
@@ -1689,75 +1688,75 @@ namespace WebApi.Controllers
             }
         }
 
-
-          private List<InvoiceReport> ExcelToList(IFormFile file)
-  {
-      var _list = new List<InvoiceReport>();
+        private List<InvoiceReport> ExcelToList(IFormFile file)
+        {
+            var _list = new List<InvoiceReport>();
   
 
-      using (var stream = new MemoryStream())
-      {
-          file.CopyTo(stream);
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
 
-          using (var workbook = new XLWorkbook(stream))
-          {
-              var worksheet = workbook.Worksheet(1); // Primera hoja
-              var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
 
-              foreach (var row in rows)
-              {
+                    foreach (var row in rows)
+                    {
  
-                  try
-                  {
-                      _list.Add(new InvoiceReport
-                      {
+                        try
+                        {
+                            _list.Add(new InvoiceReport
+                            {
 
-                          PartCode = row.Cell(5).GetValue<string>(),
-                          Quantity = row.Cell(7).GetValue<int>(),
-                          Reference = row.Cell(36).GetValue<string>(),
-                          InvoiceNumber = row.Cell(2).GetValue<string>()
+                                PartCode = row.Cell(5).GetValue<string>(),
+                                Quantity = row.Cell(7).GetValue<int>(),
+                                Reference = row.Cell(36).GetValue<string>(),
+                                InvoiceNumber = row.Cell(2).GetValue<string>()
 
-                      });
-                  }
-                  catch (Exception ex)
-                  {
-               
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                     
 
-                  }
+                        }
 
-              }
-          }
-      }
+                    }
+                }
+            }
 
-      return _list;
-  }
+            return _list;
+        }
 
-  [HttpPost("/api/InvoiceControl/ImportInvoiceReport")]
-  public async Task<IActionResult> ImportInvoiceReport(IFormFile file, Int32 userId, Int32 supplierId)
-  {
+        [HttpPost("/api/InvoiceControl/ImportInvoiceReport")]
+        public async Task<IActionResult> ImportInvoiceReport(IFormFile file, Int32 userId, Int32 supplierId)
+        {
 
-      if (file == null || file.Length == 0)
-          return BadRequest("No se ha proporcionado un archivo válido.");
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
 
-      if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-          return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
 
-      try
-      {
-   
-          List<InvoiceReport> _list = ExcelToList(file);
+            try
+            {
+         
+                List<InvoiceReport> _list = ExcelToList(file);
 
-          var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
+                var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
 
-          return StatusCode(_response.Status, _response);
+                return StatusCode(_response.Status, _response);
 
-      }
-      catch (Exception ex)
-      {
-          return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-      }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
 
-  }
+        }
+
 
         #endregion
     }
