@@ -2515,17 +2515,52 @@ namespace Data
 
 
         /*--------------------------------------------------------------GET EXPORT-------------------------------------------------------------*/
-        public async Task<List<Invoicecontrol>> GetExportInvoiceControls(int userId, int supplierId, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControlForExport(int userId, int supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Invoicecontrol>)(await _GetInvoiceControl(userId, supplierId, null, null, null, null, null)).Data;
+                return await _GetInvoiceControlForExport(userId, supplierId);
             }
             finally
             {
                 _semaphore.Release();
             }
+        }
+
+        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControlForExport(int userId, int supplierId)
+        {
+            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", null);
+                _parameter.AddSqlParameter("@VFILTER", null);
+                _parameter.AddSqlParameter("@BPENDANT", 1);
+                _parameter.AddSqlParameter("@BMARK", 1);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("Dispatched", "IDISPATCHED");
+                _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("ControlId", "IDCONTROL");
+                _mapping.AddItem("Mark", "BMARK");
+                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
+
+                _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
         }
 
         /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
