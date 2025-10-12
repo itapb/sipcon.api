@@ -16,13 +16,11 @@ namespace Models
         public Models.VehicleFull Vehicle { get; set; } = new Models.VehicleFull();
 
         [SwaggerIgnore]
-        public List<Companies> Suppliers { get; set; } = new List<Companies>();
+        public List<ServiceRecord> serviceRecord { get; set; } = new List<ServiceRecord>();
 
         [SwaggerIgnore]
-        public List<Companies> Dealers { get; set; } = new List<Companies>();
+        public List<EstatusRecord> EstatusRecord { get; set; } = new List<EstatusRecord>();
         
-        [SwaggerIgnore]
-        public List<Module> Modules { get; set; } = new List<Module>();
 
     }
 }
