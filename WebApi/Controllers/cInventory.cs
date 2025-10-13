@@ -1710,7 +1710,7 @@ namespace WebApi.Controllers
                         {
                             _list.Add(new InvoiceReport
                             {
-
+                                Vat = row.Cell(26).GetValue<string>(),
                                 PartCode = row.Cell(5).GetValue<string>(),
                                 Quantity = row.Cell(7).GetValue<int>(),
                                 Reference = row.Cell(36).GetValue<string>(),
