@@ -12,8 +12,10 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Configuration.Provider;
 using System.IO.Packaging;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
@@ -1647,12 +1649,26 @@ namespace WebApi.Controllers
 
         #region "Invoice Control"
 
-        [HttpGet("/api/InvoiceControl/GetAll")]
-        public async Task<IActionResult> GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        [HttpGet("/api/InvoiceControl/GetDispatchedControl")]
+        public async Task<IActionResult> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
         {
             try
             {
-                var _response = await _dInventory.GetInvoiceControl(userId, supplierId, rowfrom, filter, startdate, enddate, pendant);
+                var _response = await _dInventory.GetDispatchedControl(userId, supplierId, rowfrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InvoiceControl/GetDispatchedControlTxt")]
+        public async Task<IActionResult> GetDispatchedControlTxt(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            try
+            {
+                var _response = await _dInventory.GetDispatchedControlTxt(userId, supplierId, rowfrom, filter, pendant);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1772,23 +1788,61 @@ namespace WebApi.Controllers
         {
             var response = await _dInventory.GetInvoiceControlForExport(userId, supplierId);
 
-            var validRecords = response.Data?
-                .GroupBy(x => x.ControlId)
-                .OrderByDescending(g => g.Max(x => x.ControlDate))
-                .FirstOrDefault()?
-                .ToList();
+        /*   private byte[] ConvertToTxt(List<Invoicecontrol> records)
+           {
+               var lines = records.Select(r =>
+                   $"{r.PartInnerCode}\t{r.PartName}\t{r.Dispatched}\t{r.Price:0.00}");
 
-            if (validRecords == null || !validRecords.Any())
-                return NotFound("No hay registros marcados con control asignado");
+               return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
+           }
 
-            if (validRecords.Count > 8)
-                return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
 
-            var txtBytes = ConvertToTxt(validRecords);
-            string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+           [HttpGet("/api/InvoiceControl/ExportTXT")]
+           public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+           {
+               var response = await _dInventory.GetDispatchedControlTxt(userId, supplierId, null, null, null);
 
-            return File(txtBytes, "text/plain", fileName);
-        }
+               var validRecords = response.Data?
+                   .GroupBy(x => x.ControlId)
+                   .OrderByDescending(g => g.Max(x => x.ControlDate))
+                   .FirstOrDefault()?
+                   .ToList();
+
+               if (validRecords == null || !validRecords.Any())
+                       return NotFound("No hay registros marcados con control asignado");
+
+                   if (validRecords.Count > 8)
+                       return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+
+                   var txtBytes = ConvertToTxt(validRecords);
+                   string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+
+                   return File(txtBytes, "text/plain", fileName);
+           } 
+
+
+           [HttpGet("/api/InvoiceControl/ExportTXT")]
+           public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+           {
+               var response = await _dInventory.GetInvoiceControlForExport(userId, supplierId);
+
+               var validRecords = response.Data?
+                   .GroupBy(x => x.ControlId)
+                   .OrderByDescending(g => g.Max(x => x.ControlDate))
+                   .FirstOrDefault()?
+                   .ToList();
+
+               if (validRecords == null || !validRecords.Any())
+                   return NotFound("No hay registros marcados con control asignado");
+
+               if (validRecords.Count > 8)
+                   return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+
+               var txtBytes = ConvertToTxt(validRecords);
+               string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+
+               return File(txtBytes, "text/plain", fileName);
+           }*/
         #endregion
     }
 }

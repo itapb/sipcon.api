@@ -2,7 +2,9 @@
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Data;
@@ -2515,70 +2517,35 @@ namespace Data
 
 
         /*--------------------------------------------------------------GET EXPORT-------------------------------------------------------------*/
-        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControlForExport(int userId, int supplierId)
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControlTxtExport(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInvoiceControlForExport(userId, supplierId);
+                return await _GetDispatchedControlTxt(userId, supplierId, null, null, null);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
+         
+        /*--------------------------------------------------------------GET DISPATCHED-------------------------------------------------------------*/
 
-        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControlForExport(int userId, int supplierId)
-        {
-            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
-            try
-            {
-                Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                _parameter.AddSqlParameter("@IROWFROM", null);
-                _parameter.AddSqlParameter("@VFILTER", null);
-                _parameter.AddSqlParameter("@BPENDANT", 1);
-                _parameter.AddSqlParameter("@BMARK", 1);
-
-                Mapping _mapping = new Mapping();
-                _mapping.AddItem("PartInnerCode", "VCODEPART");
-                _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("Dispatched", "IDISPATCHED");
-                _mapping.AddItem("Price", "NPRICE");
-                _mapping.AddItem("ControlId", "IDCONTROL");
-                _mapping.AddItem("Mark", "BMARK");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
-
-                Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
-
-                _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
-                _response.SetGetResponse(_table);
-            }
-            catch (Exception ex)
-            {
-                _response.SetError(ex);
-            }
-            return _response;
-        }
-
-        /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
-
-        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInvoiceControl(userId, supplierId, rowfrom, filter, startdate, enddate, pendant);
+                return await _GetDispatchedControl(userId, supplierId, rowfrom, filter);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-
-        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        private async Task<Response<List<Invoicecontrol>>> _GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
         {
             Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
             try
@@ -2587,10 +2554,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
-                _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@STARTDATE", startdate);
-                _parameter.AddSqlParameter("@ENDDATE", enddate);
-                _parameter.AddSqlParameter("@BPENDANT", pendant);
+                _parameter.AddSqlParameter("@VFILTER", filter); 
 
 
                 Mapping _mapping = new Mapping();
@@ -2599,30 +2563,20 @@ namespace Data
                 _mapping.AddItem("MovementDetailId", "IDMOVEMENTDETAIL");
                 _mapping.AddItem("BackOrderId", "IDBACKORDER");
                 _mapping.AddItem("PartId", "IDPART");
-                _mapping.AddItem("CustomerId", "IDCUSTOMER");
-                _mapping.AddItem("SupplierId", "IDSUPPLIER");
-                _mapping.AddItem("InvoiceId", "IDINVOICE");
-                _mapping.AddItem("ControlId", "IDCONTROL");
-                _mapping.AddItem("Invoiced", "IINVOICED");
-                _mapping.AddItem("Dispatched", "IDISPATCHED");
-                _mapping.AddItem("Mark", "BMARK");
-                _mapping.AddItem("UserSinc", "IDUSERSINC");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
-                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
+                _mapping.AddItem("SupplierId", "IDSUPPLIER"); 
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("SupplierName", "VSUPPLIER");
-                _mapping.AddItem("LocationName", "VLOCATION");
-                _mapping.AddItem("Required", "IREQUIRED");
+                _mapping.AddItem("SupplierName", "VSUPPLIER"); 
                 _mapping.AddItem("Price", "NPRICE");
 
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL", _parameter);
                 _response.Data = _data.GetList<Models.Invoicecontrol>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
@@ -2634,6 +2588,77 @@ namespace Data
 
             return _response;
         }
+
+
+        /*--------------------------------------------------------------GET DISPATCHED TXT-------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControlTxt(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetDispatchedControlTxt(userId, supplierId, rowfrom, filter, pendant);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Invoicecontrol>>> _GetDispatchedControlTxt(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BPENDANT", pendant); 
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
+                _mapping.AddItem("MovementDetailId", "IDMOVEMENTDETAIL");
+                _mapping.AddItem("BackOrderId", "IDBACKORDER");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("InvoiceId", "IDINVOICE"); //numero de factura
+                _mapping.AddItem("ControlId", "IDCONTROL"); //numero de control
+                _mapping.AddItem("Invoiced", "IINVOICED");  //numero de cantidad facturada
+                _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada
+                _mapping.AddItem("Mark", "BMARK");
+                _mapping.AddItem("UserSinc", "IDUSERSINC");
+                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("Pending", "IPENDING");
+
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("LocationName", "VLOCATION");
+                _mapping.AddItem("Required", "IREQUIRED");
+                _mapping.AddItem("Price", "NPRICE");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
+
+                _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        
         //*--------------------------------------------------------------POST-------------------------------------------------------------*/
         public async Task<Response<Result>> PostInvoiceControl(List<Models.Invoicecontrol> invoiceControls, Int32 userId)
         {
@@ -2708,7 +2733,7 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_INVOICECONTROL_ACTION", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_DISPATCHEDCONTROL_ACTION", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
             }
