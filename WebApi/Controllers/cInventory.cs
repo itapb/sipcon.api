@@ -1783,66 +1783,9 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpGet("/api/InvoiceControl/ExportTXT")]
-        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
-        {
-            var response = await _dInventory.GetInvoiceControlForExport(userId, supplierId);
-
-        /*   private byte[] ConvertToTxt(List<Invoicecontrol> records)
-           {
-               var lines = records.Select(r =>
-                   $"{r.PartInnerCode}\t{r.PartName}\t{r.Dispatched}\t{r.Price:0.00}");
-
-               return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
-           }
 
 
-           [HttpGet("/api/InvoiceControl/ExportTXT")]
-           public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
-           {
-               var response = await _dInventory.GetDispatchedControlTxt(userId, supplierId, null, null, null);
 
-               var validRecords = response.Data?
-                   .GroupBy(x => x.ControlId)
-                   .OrderByDescending(g => g.Max(x => x.ControlDate))
-                   .FirstOrDefault()?
-                   .ToList();
-
-               if (validRecords == null || !validRecords.Any())
-                       return NotFound("No hay registros marcados con control asignado");
-
-                   if (validRecords.Count > 8)
-                       return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
-
-                   var txtBytes = ConvertToTxt(validRecords);
-                   string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
-
-                   return File(txtBytes, "text/plain", fileName);
-           } 
-
-
-           [HttpGet("/api/InvoiceControl/ExportTXT")]
-           public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
-           {
-               var response = await _dInventory.GetInvoiceControlForExport(userId, supplierId);
-
-               var validRecords = response.Data?
-                   .GroupBy(x => x.ControlId)
-                   .OrderByDescending(g => g.Max(x => x.ControlDate))
-                   .FirstOrDefault()?
-                   .ToList();
-
-               if (validRecords == null || !validRecords.Any())
-                   return NotFound("No hay registros marcados con control asignado");
-
-               if (validRecords.Count > 8)
-                   return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
-
-               var txtBytes = ConvertToTxt(validRecords);
-               string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
-
-               return File(txtBytes, "text/plain", fileName);
-           }*/
         #endregion
     }
 }
