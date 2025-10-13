@@ -482,6 +482,118 @@ namespace Data
             return _response;
         }
 
+
+
+        public async Task<Response<Models.CustomerVehicleRecord>> GetCustomerRecordBy(Int32 userId, string filter, Int32 filterBy, Int32? supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetCustomerRecordBy(userId, filter, filterBy, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response<Models.CustomerVehicleRecord>> _GetCustomerRecordBy(Int32 userId, string filter, Int32 filterBy, Int32? supplierId)
+        {
+            Response<Models.CustomerVehicleRecord> _response = new Response<Models.CustomerVehicleRecord>();
+
+            try
+            {
+                var _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BY", filterBy);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+
+
+                var _mapping = new Mapping();
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("CustomerName", "VFIRSTNAME");
+                _mapping.AddItem("CustomerLastName", "VLASTNAME");
+                _mapping.AddItem("Phone", "VPHONE1");
+                _mapping.AddItem("Email", "VEMAIL");
+                _mapping.AddItem("Direction", "VADDRESS");
+    
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLEFULL_BY", _parameter);
+                _response.Data = _data.GetItem<Models.CustomerVehicleRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        public async Task<Response<Models.policyVehicleRecord>> GetPolicyRecordFullBy(Int32 userId, string filter, Int32 filterBy, Int32? supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPolicyRecordFullBy(userId, filter, filterBy, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        private async Task<Response<Models.policyVehicleRecord>> _GetPolicyRecordFullBy(Int32 userId, string filter, Int32 filterBy, Int32? supplierId)
+        {
+            Response<Models.policyVehicleRecord> _response = new Response<Models.policyVehicleRecord>();
+
+            try
+            {
+                var _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BY", filterBy);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+
+
+                var _mapping = new Mapping();
+                _mapping.AddItem("PolicyId", "IDPOLICY");
+                _mapping.AddItem("Number", "VNUMBER");
+                _mapping.AddItem("PolicyTypeId", "IDPOLICYTYPE");
+                _mapping.AddItem("PolicyTypeName", "VDESCRIPTION");
+                _mapping.AddItem("InvoiceNumber", "VINVOICENUMBER");
+                _mapping.AddItem("InvoiceAmount", "NINVOICEAMOUNT");
+                _mapping.AddItem("ActivationDate", "DACTIVATIONDATE");
+                _mapping.AddItem("InvoiceDate", "DINVOICEDATE");
+                _mapping.AddItem("EstatusPolicyId", "IDESTATUSPOLICY");
+                _mapping.AddItem("EstatusPolicyName", "VESTATUSPOLICY");
+                _mapping.AddItem("LockDate", "DLOCKDATE");
+                _mapping.AddItem("ExpirationDate", "DEXPIRATIONDATE");
+                _mapping.AddItem("PayMethodId", "IDPAYMETHOD");
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLEFULL_BY", _parameter);
+                _response.Data = _data.GetItem<Models.policyVehicleRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
         public async Task<Response<List<Models.EstatusRecord>>> GetEstatusRecord(String vin, int supplierId, int userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);

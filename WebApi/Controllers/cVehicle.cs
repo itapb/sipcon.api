@@ -150,13 +150,16 @@ namespace WebApi.Controllers
         {
             Models.Response<VehicleRecord> _response = new Models.Response<VehicleRecord>();
             String filter = vin;
+
             try
             {
                 VehicleRecord _data = new VehicleRecord();
 
-                _data.Vehicle = (VehicleFull)((await _dVehicle.GetVehicleFullBy(userId,filter,0, supplierId)).Data);
+                _data.Vehicle = (Vehicle)((await _dVehicle.GetVehicleFullBy(userId, filter, 0, supplierId)).Data);
+                _data.Customer = (CustomerVehicleRecord)((await _dVehicle.GetCustomerRecordBy(userId, filter, 0, supplierId)).Data);
+                _data.Policy = (policyVehicleRecord)((await _dVehicle.GetPolicyRecordFullBy(userId, filter, 0, supplierId)).Data);
                 _data.EstatusRecord = (List<EstatusRecord>)((await _dVehicle.GetEstatusRecord(vin, supplierId, userId)).Data);
-                _data.serviceRecord = (List<ServiceRecord>)((await _dVehicle.GetServiceRecord(vin,supplierId,userId)).Data);
+                _data.ServiceRecord = (List<ServiceRecord>)((await _dVehicle.GetServiceRecord(vin,supplierId,userId)).Data);
                
                 _response.Data = _data;
                 _response.Total = 1;
