@@ -377,6 +377,8 @@ namespace Data
         }
 
 
+
+
         public async Task<List<Vehicle>> GetExport(Int32 userId, Int32? supplierId, Int32? dealerId, string? _filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -479,6 +481,115 @@ namespace Data
 
             return _response;
         }
+
+        public async Task<Response<List<Models.EstatusRecord>>> GetEstatusRecord(String vin, int supplierId, int userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetEstatusRecord(vin, supplierId, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.EstatusRecord>>> _GetEstatusRecord(String vin, int supplierId,int userId)
+        {
+
+            Response<List<Models.EstatusRecord>> _response = new Response<List<Models.EstatusRecord>>();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VVIN", vin);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+             
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("EstatusId", "IDACTION");
+                _mapping.AddItem("Estatus", "VDISPLAYESTATUS");
+                _mapping.AddItem("Date", "DCREATED");
+                _mapping.AddItem("DealerServiceName", "DEALER");
+                _mapping.AddItem("DealerServiceCod", "VREFERENCEDEALER");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ESTATUSVEHICLE", _parameter);
+                _response.Data = _data.GetList<Models.EstatusRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+        public async Task<Response<List<Models.ServiceRecord>>> GetServiceRecord(String vin, int supplierId, int userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetServiceRecord(vin, supplierId, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.ServiceRecord>>> _GetServiceRecord(String vin, int supplierId, int userId)
+        {
+
+            Response<List<Models.ServiceRecord>> _response = new Response<List<Models.ServiceRecord>>();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VVIN", vin);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("ReportId", "IDREPORT");
+                _mapping.AddItem("ServiceTypeId", "IDSERVICETYPE");
+                _mapping.AddItem("ServiceTypeName", "VSERVICETYPE");
+                _mapping.AddItem("ReportTypeId", "IDREPORTTYPE");
+                _mapping.AddItem("ReportTypeName", "VREPORTTYPE");
+                _mapping.AddItem("OrderNumber", "VSERVICENUMBER");
+                _mapping.AddItem("Km", "IKM");
+                _mapping.AddItem("EstatusId", "IESTATUS");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+                _mapping.AddItem("SrgNumber", "VSRGNUMBER");
+                _mapping.AddItem("ServiceDate", "DMAINTENANCEDATE");
+                _mapping.AddItem("InvoiceAmount", "NINVOICEAMOUNT");
+                _mapping.AddItem("DealerServiceName", "DEALER");
+                _mapping.AddItem("DealerServiceCod", "VREFERENCEDEALER");
+                _mapping.AddItem("Date", "DCREATED");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_SERVICE_BY_VEHICLE", _parameter);
+                _response.Data = _data.GetList<Models.ServiceRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
 
 
         public async Task<Response<Models.Result>> Post_Vehicles(List<Vehicle> _list, Int32 userId)

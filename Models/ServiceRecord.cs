@@ -8,9 +8,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
 {
-    public class ServiceRecord : Record
+    public class ServiceRecord 
     {
         //Datos de Servicio
+        [Required] public int? ReportId { get; set; }
         [Required] public Int32? ServiceTypeId { get; set; }
         [SwaggerIgnore] public String? ServiceTypeName { get; set; }
         [Required] public Int32? ReportTypeId { get; set; }
@@ -23,7 +24,6 @@ namespace Models
         [SwaggerIgnore] public String? DealerServiceCod { get; set; }
         [SwaggerIgnore] public String? SrgNumber { get; set; }
         [SwaggerIgnore] public Int32? Km { get; set; }
-        [SwaggerIgnore] public String? Vin { get; set; }
 
         [SwaggerIgnore] public decimal? InvoiceAmount { get; set; }
 

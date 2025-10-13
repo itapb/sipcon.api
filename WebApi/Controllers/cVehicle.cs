@@ -2,6 +2,7 @@
 using Azure;
 using ClosedXML.Excel;
 using Data;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -139,6 +140,37 @@ namespace WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
+
+        }
+
+
+
+        [HttpGet("GetRecordVehicle")]
+        public async Task<IActionResult> GetRecordVehicle(String vin, int supplierId, int userId)
+        {
+            Models.Response<VehicleRecord> _response = new Models.Response<VehicleRecord>();
+            String filter = vin;
+            try
+            {
+                VehicleRecord _data = new VehicleRecord();
+
+                _data.Vehicle = (VehicleFull)((await _dVehicle.GetVehicleFullBy(userId,filter,0, supplierId)).Data);
+                _data.EstatusRecord = (List<EstatusRecord>)((await _dVehicle.GetEstatusRecord(vin, supplierId, userId)).Data);
+                _data.serviceRecord = (List<ServiceRecord>)((await _dVehicle.GetServiceRecord(vin,supplierId,userId)).Data);
+               
+                _response.Data = _data;
+                _response.Total = 1;
+
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                _response.Processed = false;
+                _response.Message = ex.Message;
+                return StatusCode(StatusCodes.Status409Conflict, _response);
+            }
+
 
         }
 
