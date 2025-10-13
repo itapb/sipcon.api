@@ -3,9 +3,37 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Data; // Tu namespace para servicios personalizados
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 // 1. CreateBuilder
 var builder = WebApplication.CreateBuilder(args);
+
+var cultureInfo = new CultureInfo("en-US");
+var supportedCultures = new[] { cultureInfo };
+
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    // Establecer la cultura por defecto
+    options.DefaultRequestCulture = new RequestCulture(cultureInfo);
+
+    // Forzar el uso de solo en-US en la lista de culturas soportadas
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+
+    // MUY IMPORTANTE: Cambiar el orden de los proveedores. 
+    // Usaremos un proveedor que no se base en el encabezado del navegador.
+    // Aunque no está FixedRequestCultureProvider, al configurar DefaultRequestCulture
+    // y limitar las SupportedCultures, se logra el efecto deseado.
+
+    // Opcionalmente, puedes eliminar todos los proveedores y confiar en DefaultRequestCulture
+    // options.RequestCultureProviders.Clear(); 
+
+    // Si usas un proveedor que se basa en la Query String (opcional)
+    // options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider()); 
+});
+
 
 // 2. Configuración de CORS
 builder.Services.AddCors(options =>
@@ -122,6 +150,7 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseRequestLocalization();
 
 
 // 7. app run

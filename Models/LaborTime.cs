@@ -29,4 +29,13 @@ namespace Models
         public String? RowReference { get; set; }
 
     }
+
+    public class LabortimeItem : LaborTime
+
+    {
+
+        public String? Type { get; set; }
+
+    }
+
 }

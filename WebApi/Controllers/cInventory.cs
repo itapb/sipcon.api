@@ -1646,8 +1646,8 @@ namespace WebApi.Controllers
         }
         #endregion
 
-        #region"INVOICECONTROL"
 
+        #region "Invoice Control"
 
         [HttpGet("/api/InvoiceControl/GetDispatchedControl")]
         public async Task<IActionResult> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
@@ -1705,107 +1705,131 @@ namespace WebApi.Controllers
             }
         }
 
-
-          private List<InvoiceReport> ExcelToList(IFormFile file)
-  {
-      var _list = new List<InvoiceReport>();
+        private List<InvoiceReport> ExcelToList(IFormFile file)
+        {
+            var _list = new List<InvoiceReport>();
   
 
-      using (var stream = new MemoryStream())
-      {
-          file.CopyTo(stream);
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
 
-          using (var workbook = new XLWorkbook(stream))
-          {
-              var worksheet = workbook.Worksheet(1); // Primera hoja
-              var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
 
-              foreach (var row in rows)
-              {
+                    foreach (var row in rows)
+                    {
  
-                  try
-                  {
-                      _list.Add(new InvoiceReport
-                      {
+                        try
+                        {
+                            _list.Add(new InvoiceReport
+                            {
 
-                          PartCode = row.Cell(5).GetValue<string>(),
-                          Quantity = row.Cell(7).GetValue<int>(),
-                          Reference = row.Cell(36).GetValue<string>(),
-                          InvoiceNumber = row.Cell(2).GetValue<string>()
+                                PartCode = row.Cell(5).GetValue<string>(),
+                                Quantity = row.Cell(7).GetValue<int>(),
+                                Reference = row.Cell(36).GetValue<string>(),
+                                InvoiceNumber = row.Cell(2).GetValue<string>()
 
-                      });
-                  }
-                  catch (Exception ex)
-                  {
-               
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                     
 
-                  }
+                        }
 
-              }
-          }
-      }
+                    }
+                }
+            }
 
-      return _list;
-  }
-
-  [HttpPost("/api/InvoiceControl/ImportInvoiceReport")]
-  public async Task<IActionResult> ImportInvoiceReport(IFormFile file, Int32 userId, Int32 supplierId)
-  {
-
-      if (file == null || file.Length == 0)
-          return BadRequest("No se ha proporcionado un archivo válido.");
-
-      if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-          return BadRequest("Solo se permiten archivos Excel (.xlsx)");
-
-      try
-      {
-   
-          List<InvoiceReport> _list = ExcelToList(file);
-
-          var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
-
-          return StatusCode(_response.Status, _response);
-
-      }
-      catch (Exception ex)
-      {
-          return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-      }
-
-  } 
-     /*   private byte[] ConvertToTxt(List<Invoicecontrol> records)
-        {
-            var lines = records.Select(r =>
-                $"{r.PartInnerCode}\t{r.PartName}\t{r.Dispatched}\t{r.Price:0.00}");
-
-            return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
+            return _list;
         }
-        
 
-        [HttpGet("/api/InvoiceControl/ExportTXT")]
-        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+        [HttpPost("/api/InvoiceControl/ImportInvoiceReport")]
+        public async Task<IActionResult> ImportInvoiceReport(IFormFile file, Int32 userId, Int32 supplierId)
         {
-            var response = await _dInventory.GetDispatchedControlTxt(userId, supplierId, null, null, null);
 
-            var validRecords = response.Data?
-                .GroupBy(x => x.ControlId)
-                .OrderByDescending(g => g.Max(x => x.ControlDate))
-                .FirstOrDefault()?
-                .ToList();
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
 
-            if (validRecords == null || !validRecords.Any())
-                    return NotFound("No hay registros marcados con control asignado");
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
 
-                if (validRecords.Count > 8)
-                    return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
-                 
-                var txtBytes = ConvertToTxt(validRecords);
-                string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+            try
+            {
+         
+                List<InvoiceReport> _list = ExcelToList(file);
 
-                return File(txtBytes, "text/plain", fileName);
-        }*/
+                var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
 
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        /*   private byte[] ConvertToTxt(List<Invoicecontrol> records)
+           {
+               var lines = records.Select(r =>
+                   $"{r.PartInnerCode}\t{r.PartName}\t{r.Dispatched}\t{r.Price:0.00}");
+
+               return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
+           }
+
+
+           [HttpGet("/api/InvoiceControl/ExportTXT")]
+           public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+           {
+               var response = await _dInventory.GetDispatchedControlTxt(userId, supplierId, null, null, null);
+
+               var validRecords = response.Data?
+                   .GroupBy(x => x.ControlId)
+                   .OrderByDescending(g => g.Max(x => x.ControlDate))
+                   .FirstOrDefault()?
+                   .ToList();
+
+               if (validRecords == null || !validRecords.Any())
+                       return NotFound("No hay registros marcados con control asignado");
+
+                   if (validRecords.Count > 8)
+                       return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+
+                   var txtBytes = ConvertToTxt(validRecords);
+                   string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+
+                   return File(txtBytes, "text/plain", fileName);
+           } 
+
+
+           [HttpGet("/api/InvoiceControl/ExportTXT")]
+           public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+           {
+               var response = await _dInventory.GetInvoiceControlForExport(userId, supplierId);
+
+               var validRecords = response.Data?
+                   .GroupBy(x => x.ControlId)
+                   .OrderByDescending(g => g.Max(x => x.ControlDate))
+                   .FirstOrDefault()?
+                   .ToList();
+
+               if (validRecords == null || !validRecords.Any())
+                   return NotFound("No hay registros marcados con control asignado");
+
+               if (validRecords.Count > 8)
+                   return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+
+               var txtBytes = ConvertToTxt(validRecords);
+               string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+
+               return File(txtBytes, "text/plain", fileName);
+           }*/
         #endregion
     }
 }

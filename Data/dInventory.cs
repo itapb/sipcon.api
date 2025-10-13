@@ -2530,7 +2530,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-
+         
         /*--------------------------------------------------------------GET DISPATCHED-------------------------------------------------------------*/
 
         public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
@@ -2733,7 +2733,7 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_INVOICECONTROL_ACTION", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_DISPATCHEDCONTROL_ACTION", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
             }
