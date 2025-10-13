@@ -1773,7 +1773,6 @@ namespace WebApi.Controllers
             }
 
         }
-
         private byte[] ConvertToTxt(List<Invoicecontrol> records)
         {
             var lines = records.Select(r =>
@@ -1783,9 +1782,40 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpGet("/api/InvoiceControl/ExportTXT")]
+        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId, int idcontrol)
+        {
+            // Pasar el idcontrol al stored procedure
+            var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, idcontrol);
 
+            List<Invoicecontrol> validRecords;
 
+            if (idcontrol > 0)
+            {
+                // filtr por el control específico
+                validRecords = response.Data?.ToList();
+            }
+            else
+            {
+                //tomar el último control
+                validRecords = response.Data?
+                    .GroupBy(x => x.ControlId)
+                    .OrderByDescending(g => g.Max(x => x.ControlDate))
+                    .FirstOrDefault()?
+                    .ToList();
+            }
 
+            if (validRecords == null || !validRecords.Any())
+                return NotFound($"No hay registros para el control {idcontrol}");
+
+            if (validRecords.Count > 8)
+                return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+
+            var txtBytes = ConvertToTxt(validRecords);
+            string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+
+            return File(txtBytes, "text/plain", fileName);
+        }
         #endregion
     }
 }

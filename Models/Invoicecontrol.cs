@@ -32,7 +32,7 @@ namespace Models
 
         [SwaggerIgnore]
         public DateTime? ControlDate { get; set; }
-         
+
 
         [SwaggerIgnore]
         public DateTime? SincDate { get; set; }
