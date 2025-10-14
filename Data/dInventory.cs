@@ -480,8 +480,7 @@ namespace Data
                 _mapping.AddItem("UserName", "VLOGIN");
                 _mapping.AddItem("Stock", "ISTOCK");
 
-                _mapping.AddItem("PartialTypeId", "IDPARTIALTYPE");
-                _mapping.AddItem("PartialTypeName", "VPARTIALTYPE");
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTDETAILS_GROUPED", _parameter);
