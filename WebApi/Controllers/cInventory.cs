@@ -1677,6 +1677,22 @@ namespace WebApi.Controllers
             }
         }
 
+
+        [HttpGet("/api/InvoiceControl/GetInvoice")]
+        public async Task<IActionResult> GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            try
+            {
+                var _response = await _dInventory.GetInvoice(userId, supplierId, rowfrom, filter, pendant);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         [HttpPost("/api/InvoiceControl/PostActions")]
         public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
         {
