@@ -625,8 +625,6 @@ namespace Data
                 _mapping.AddItem("EstatusId", "IDACTION");
                 _mapping.AddItem("Estatus", "VDISPLAYESTATUS");
                 _mapping.AddItem("Date", "DCREATED");
-                _mapping.AddItem("DealerServiceName", "DEALER");
-                _mapping.AddItem("DealerServiceCod", "VREFERENCEDEALER");
 
 
                 Util.Data _data = Util.Data.GetInstance();
