@@ -578,6 +578,7 @@ namespace Data
                 _mapping.AddItem("LockDate", "DLOCKDATE");
                 _mapping.AddItem("ExpirationDate", "DEXPIRATIONDATE");
                 _mapping.AddItem("PayMethodId", "IDPAYMETHOD");
+                _mapping.AddItem("PayMethod", "NAMEMETHOD");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_VEHICLEFULL_BY", _parameter);
                 _response.Data = _data.GetItem<Models.policyVehicleRecord>(_mapping, _table);

@@ -56,6 +56,7 @@ namespace Models
         [SwaggerIgnore] public decimal? InvoiceAmount { get; set; }
         [SwaggerIgnore] public DateTime? InvoiceDate { get; set; }
         [SwaggerIgnore] public Int32? PayMethodId { get; set; }
+        [SwaggerIgnore] public String? PayMethod { get; set; }
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusPolicyId { get; set; }
         [SwaggerIgnore] public String? EstatusPolicyName { get; set; }
 
