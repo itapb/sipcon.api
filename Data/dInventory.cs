@@ -2,7 +2,9 @@
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Data;
@@ -80,7 +82,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Movement>> _getlast(Int32? userId, Int32? supplierId , string typeId )
+        private async Task<Response<Movement>> _getlast(Int32? userId, Int32? supplierId, string typeId)
         {
             Response<Movement> _response = new Response<Movement>();
             try
@@ -90,7 +92,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@VTYPE", typeId);
-     
+
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("GuideNumber", "VGUIDENUMBER");
@@ -164,7 +166,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId,  Int32? rowfrom, string? filter , bool? withStock = true , string? locationType= null)
+        private async Task<Response<List<Inventory>>> _GetAll(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, bool? withStock = true, string? locationType = null)
         {
             Response<List<Inventory>> _response = new Response<List<Inventory>>();
             try
@@ -179,7 +181,7 @@ namespace Data
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
-                
+
                 _mapping.AddItem("LocationId", "IDLOCATION");
                 _mapping.AddItem("LocationName", "VLOCATION");
 
@@ -198,7 +200,7 @@ namespace Data
                 _mapping.AddItem("PartInnerCode", "VINNERCODE");
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("Stock", "ISTOCK");
-                _mapping.AddItem("Price", "NPRICE"); 
+                _mapping.AddItem("Price", "NPRICE");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -206,7 +208,7 @@ namespace Data
                 _response.Data = _data.GetList<Models.Inventory>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
-             
+
 
             }
             catch (Exception ex)
@@ -221,7 +223,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovements(userId, supplierId,typeId, rowfrom, filter, null);
+                return await _getMovements(userId, supplierId, typeId, rowfrom, filter, null);
             }
             finally
             {
@@ -234,7 +236,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovement(userId,null,null, null, null, movementId);
+                return await _getMovement(userId, null, null, null, null, movementId);
             }
             finally
             {
@@ -260,15 +262,15 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovementDetailsByUser(userId,  movementType,mode);
+                return await _getMovementDetailsByUser(userId, movementType, mode);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-         
-    public async Task<Response<Models.Location>> GetValidLocation(Int32 movementId, string scannedText)
+
+        public async Task<Response<Models.Location>> GetValidLocation(Int32 movementId, string scannedText)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -284,7 +286,7 @@ namespace Data
 
         private async Task<Response<List<Movement>>> _getMovements(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
         {
-            Response<List<Movement>> _response =  new Response<List<Movement>>();
+            Response<List<Movement>> _response = new Response<List<Movement>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -386,7 +388,7 @@ namespace Data
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
-               // _parameter.AddSqlParameter("@IDUSER", userId);
+                // _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDMOVEMENT", movementId);
                 _parameter.AddSqlParameter("@ID", detailId);
 
@@ -394,7 +396,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("MovementId", "IDMOVEMENT");
                 _mapping.AddItem("PartId", "IDPART");
-                _mapping.AddItem("SerialCode", "VSERIAL"); 
+                _mapping.AddItem("SerialCode", "VSERIAL");
                 _mapping.AddItem("PartSize", "VPARTSIZE");
                 _mapping.AddItem("LocationType", "VLOCATIONTYPE");
                 _mapping.AddItem("LocationId", "IDLOCATION");
@@ -410,8 +412,8 @@ namespace Data
                 _mapping.AddItem("Processed", "BPROCESSED");
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartDescription", "VPART");
-              
-              
+
+
                 _mapping.AddItem("UpdatedDate", "VUPDATED");
 
 
@@ -422,8 +424,9 @@ namespace Data
                 _mapping.AddItem("Cost", "NCOST");
                 _mapping.AddItem("SubTotal", "NSUBTOTAL");
                 _mapping.AddItem("Stock", "ISTOCK");
-                
-
+                 
+                _mapping.AddItem("PartialTypeId", "IDPARTIALTYPE");
+                _mapping.AddItem("PartialTypeName", "VPARTIALTYPE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTDETAILS", _parameter);
@@ -449,7 +452,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@VTYPE", movementType);
                 _parameter.AddSqlParameter("@VMODE", mode);
-                
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -468,10 +471,10 @@ namespace Data
                 _mapping.AddItem("LocationType", "VLOCATIONTYPE");
                 _mapping.AddItem("LocationName", "VLOCATION");
                 _mapping.AddItem("Mapping", "IMAPPING");
-                
+
                 _mapping.AddItem("RequiredQty", "IREQUIRED");
                 _mapping.AddItem("RealQty", "IREAL");
-   
+
                 _mapping.AddItem("Processed", "BPROCESSED");
                 _mapping.AddItem("UserId", "IDUSER");
                 _mapping.AddItem("UserName", "VLOGIN");
@@ -493,7 +496,7 @@ namespace Data
             }
             return _response;
         }
- 
+
         private async Task<Response<Models.Location>> _getValidLocation(Int32 movementId, string scannedText)
         {
             Response<Models.Location> _response = new Response<Models.Location>();
@@ -522,65 +525,65 @@ namespace Data
             }
             return _response;
         }
-      
-     /*   public async Task<List<Inventory>> GetExport(string? _filter, Int32 userId)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return await _GetExport(_filter, userId);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
 
-        private async Task<List<Inventory>> _GetExport(string? _filter, Int32 userId)
-        {
-            List<Inventory> _list = new List<Inventory>();
-            try
-            {
-                Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@VFILTER", _filter);
-                _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@ID", null);
+        /*   public async Task<List<Inventory>> GetExport(string? _filter, Int32 userId)
+           {
+               await _semaphore.WaitAsync(Util.Setting.TimeOut);
+               try
+               {
+                   return await _GetExport(_filter, userId);
+               }
+               finally
+               {
+                   _semaphore.Release();
+               }
+           }
 
-
-
-                Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
-
-                _mapping.AddItem("LocationId", "LOCATION_ID");
-                _mapping.AddItem("LocationName", "LOCATION_NAME");
-
-                _mapping.AddItem("ZoneId", "ZONE_ID");
-                _mapping.AddItem("ZoneName", "ZONE_NAME");
-
-                _mapping.AddItem("WarehouseId", "WAREHOUSE_ID");
-                _mapping.AddItem("WarehouseName", "WAREHOUSE_NAME");
-
-                _mapping.AddItem("SupplierId", "IDPLANTA");
-
-                _mapping.AddItem("PartId", "PART_ID");
-                _mapping.AddItem("PartInnerCode", "VINNERCODE");
-                _mapping.AddItem("PartDesc", "PART_DESC");
-                _mapping.AddItem("Stock", "ISTOCK");
-
-                Util.Data _data = Util.Data.GetInstance();
-                _list = await _data.ExecuteReaderAsync<Models.Inventory>("USP_GET_INVENTORIES_EXPORT", _mapping, _parameter);
+           private async Task<List<Inventory>> _GetExport(string? _filter, Int32 userId)
+           {
+               List<Inventory> _list = new List<Inventory>();
+               try
+               {
+                   Util.Parameter _parameter = new Util.Parameter();
+                   _parameter.AddSqlParameter("@VFILTER", _filter);
+                   _parameter.AddSqlParameter("@IDUSER", userId);
+                   _parameter.AddSqlParameter("@ID", null);
 
 
 
-            }
-            catch (Exception ex)
-            {
-                Util.Log.Error(ex);
-                throw;
-            }
+                   Mapping _mapping = new Mapping();
+                   _mapping.AddItem("Id", "ID");
 
-            return _list;
-        }*/
+                   _mapping.AddItem("LocationId", "LOCATION_ID");
+                   _mapping.AddItem("LocationName", "LOCATION_NAME");
+
+                   _mapping.AddItem("ZoneId", "ZONE_ID");
+                   _mapping.AddItem("ZoneName", "ZONE_NAME");
+
+                   _mapping.AddItem("WarehouseId", "WAREHOUSE_ID");
+                   _mapping.AddItem("WarehouseName", "WAREHOUSE_NAME");
+
+                   _mapping.AddItem("SupplierId", "IDPLANTA");
+
+                   _mapping.AddItem("PartId", "PART_ID");
+                   _mapping.AddItem("PartInnerCode", "VINNERCODE");
+                   _mapping.AddItem("PartDesc", "PART_DESC");
+                   _mapping.AddItem("Stock", "ISTOCK");
+
+                   Util.Data _data = Util.Data.GetInstance();
+                   _list = await _data.ExecuteReaderAsync<Models.Inventory>("USP_GET_INVENTORIES_EXPORT", _mapping, _parameter);
+
+
+
+               }
+               catch (Exception ex)
+               {
+                   Util.Log.Error(ex);
+                   throw;
+               }
+
+               return _list;
+           }*/
 
         public async Task<Response<Result>> PostMovements(List<Models.Movement> _list, Int32 userId)
         {
@@ -600,7 +603,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostMovementDetail(_list, userId,isImport);
+                return await _PostMovementDetail(_list, userId, isImport);
             }
             finally
             {
@@ -652,7 +655,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<Result>> _PostMovementDetail(List<Models.NewMovementDetail> _list, Int32 userId, bool  isImport = false)
+        private async Task<Response<Result>> _PostMovementDetail(List<Models.NewMovementDetail> _list, Int32 userId, bool isImport = false)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -717,7 +720,7 @@ namespace Data
             return _response;
         }
 
-    
+
         public async Task<Response<Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -760,7 +763,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-     
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTS_ACTIONS", _parameter);
@@ -816,7 +819,7 @@ namespace Data
         {
             Response<Result> _response = new Response<Result>();
             try
-             {
+            {
 
                 string _jsonstring = Util.Json.ConvertToJsonString(guide);
 
@@ -857,7 +860,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
- 
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_POST_PACKAGES", _parameter);
@@ -874,7 +877,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<Result>> _addPackge(string packageCode , Int32 guideId)
+        private async Task<Response<Result>> _addPackge(string packageCode, Int32 guideId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -953,7 +956,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-     
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_POST_PACKAGEDETAIL", _parameter);
@@ -981,7 +984,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-         
+
         /*----------------------------------------------------------POST PACKAGEPRINT-------------------------------------------------------------*/
 
         public async Task<Response<Result>> PostPackagePrint(Models.Printqueue printqueue, Int32 userId)
@@ -1028,13 +1031,13 @@ namespace Data
             return _response;
         }
         /*-------------------------------------------------------------------------------------------------------------------*/
-       
+
         public async Task<Response<Result>> AddPackge(string packageCode, Int32 guideId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _addPackge(packageCode,guideId);
+                return await _addPackge(packageCode, guideId);
             }
             finally
             {
@@ -1047,7 +1050,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _deletePackge(packageCode,guideId);
+                return await _deletePackge(packageCode, guideId);
             }
             finally
             {
@@ -1057,7 +1060,7 @@ namespace Data
 
 
 
-        public async Task<Response<Result>> PostGuide(Models.Guide guide,Int32 userId)
+        public async Task<Response<Result>> PostGuide(Models.Guide guide, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1117,7 +1120,7 @@ namespace Data
             try
             {
 
- 
+
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VFIRSTNAME");
@@ -1340,7 +1343,7 @@ namespace Data
         }
 
         /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
-       
+
         private async Task<Response<List<PackageList>>> _GetPackagesList(Int32 supplierId, string packageCode)
         {
             Response<List<PackageList>> _response = new Response<List<PackageList>>();
@@ -1442,7 +1445,7 @@ namespace Data
             }
         }
 
-        
+
 
         public async Task<Response<List<PackageDetail>>> GetPackageDetails(Int32 packageId)
         {
@@ -1457,7 +1460,7 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<PackageDetail>>> GetPackageDetailByPart(Int32 packageId,string scanCode)
+        public async Task<Response<List<PackageDetail>>> GetPackageDetailByPart(Int32 packageId, string scanCode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -1483,7 +1486,7 @@ namespace Data
             }
         }
 
-         /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
+        /*----------------------------------------------------------PACKAGELIST------------------------------------------------------*/
         public async Task<Response<List<PackageList>>> GetPackagesList(Int32 supplierId, string packageCode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -1573,9 +1576,9 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter = "", int? guideId=null)
+        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter = "", int? guideId = null)
         {
-            Response <List<Models.Guide>> _response = new Response<List<Models.Guide>>();
+            Response<List<Models.Guide>> _response = new Response<List<Models.Guide>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -1599,7 +1602,7 @@ namespace Data
                 _mapping.AddItem("ProviderName", "VPROVIDER");
 
                 _mapping.AddItem("Number", "VNUMBER");
-     
+
                 _mapping.AddItem("CreatedDate", "DCREATEDDATE");
                 _mapping.AddItem("DeliveredDate", "DDELIVERYDATE");
                 _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
@@ -1757,7 +1760,7 @@ namespace Data
         }
 
         #region "BACKORDEN"
-         
+
         /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
 
         public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
@@ -1787,7 +1790,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
- 
+
         private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
@@ -1834,7 +1837,7 @@ namespace Data
             return _response;
         }
         /*--------------------------------------------------------------POST IMPORT-------------------------------------------------------------*/
-         
+
         public async Task<Response<Result>> PostImportBackOrders(List<Models.BackOrder> backOrder, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -1862,7 +1865,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-      
+
         private async Task<Response<Result>> _postBacKOrder(Models.BackOrder backOrder, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
@@ -1957,7 +1960,7 @@ namespace Data
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-             
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -1980,7 +1983,7 @@ namespace Data
         }
 
 
- 
+
 
 
         #endregion
@@ -2062,7 +2065,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
 
-   
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_POST_GUIDES_ACTIONS", _parameter);
@@ -2085,7 +2088,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _postGuideNumber( userId,guideId,guideNumber);
+                return await _postGuideNumber(userId, guideId, guideNumber);
             }
             finally
             {
@@ -2098,7 +2101,7 @@ namespace Data
             try
             {
 
-              
+
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDGUIDE", guideId);
@@ -2124,56 +2127,56 @@ namespace Data
 
         #region ADJUSTMENT
         /*--------------------------------------------------------------GetAll---------------------------------------------------------------*/
-            public async Task<Response<List<Models.Adjustment>>> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
-          {
-              await _semaphore.WaitAsync(Util.Setting.TimeOut);
-              try
-              {
-                  return await _GetAdjustments(userId, supplierId, rowFrom, filter, null);
-              }
-              finally
-              {
-                  _semaphore.Release();
-              }
-          }
+        public async Task<Response<List<Models.Adjustment>>> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAdjustments(userId, supplierId, rowFrom, filter, null);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
-          private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, Int32? adjustmentId = null)
-          {
-              Response<List<Models.Adjustment>> _response = new Response<List<Models.Adjustment>>();
+        private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, Int32? adjustmentId = null)
+        {
+            Response<List<Models.Adjustment>> _response = new Response<List<Models.Adjustment>>();
 
-              try
-              {
-                  var _parameter = new Util.Parameter();
-                  _parameter.AddSqlParameter("@IDUSER", userId);
-                  _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                  _parameter.AddSqlParameter("@IROWFROM", rowFrom);
-                  _parameter.AddSqlParameter("@VFILTER", filter);
-                  _parameter.AddSqlParameter("@ID", adjustmentId);  
+            try
+            {
+                var _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", adjustmentId);
 
-                  var _mapping = new Mapping();
-                  _mapping.AddItem("Id","ID");
-                  _mapping.AddItem("UserId", "IDUSER");
-                  _mapping.AddItem("DCreated", "DCREATED");
-                  _mapping.AddItem("DUpdated", "DUPDATED");
-                  _mapping.AddItem("Comment", "VCOMMENT");
-                  _mapping.AddItem("StatusId", "IDSTATUS");
-                  _mapping.AddItem("StatusName", "VSTATUS");  
-                  _mapping.AddItem("UserLogin", "VLOGIN");
-                  _mapping.AddItem("SupplierId", "IDSUPPLIER");
-                  _mapping.AddItem("SupplierName", "VSUPPLIER");
+                var _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                _mapping.AddItem("StatusName", "VSTATUS");
+                _mapping.AddItem("UserLogin", "VLOGIN");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
 
                 Util.Data _data = Util.Data.GetInstance();
-                  DataTable _table = await _data.GetDataTable("USP_GET_ADJUSTMENT", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_ADJUSTMENT", _parameter);
 
-                  _response.Data = _data.GetList<Models.Adjustment>(_mapping, _table);
-                  _response.SetGetResponse(_table);
-              }
-              catch (Exception ex)
-              {
-                  _response.SetError(ex);
-              }
-              return _response;
-          } 
+                _response.Data = _data.GetList<Models.Adjustment>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
 
         /*--------------------------------------------------------------GetOne---------------------------------------------------------------*/
@@ -2199,10 +2202,10 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
-                _parameter.AddSqlParameter("@VFILTER", filter); 
+                _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@ID", adjustmentId);
-                 
-                Mapping _mapping = new Mapping(); 
+
+                Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("UserId", "IDUSER");
                 _mapping.AddItem("DCreated", "DCREATED");
@@ -2229,7 +2232,7 @@ namespace Data
         }
 
         /*-------------------------------------------------------------- GetDetails ---------------------------------------------------------------*/
-         
+
 
         public async Task<Response<List<AdjustmentDetails>>> GetAdjustmentDetails(Int32 adjustmentId)
         {
@@ -2259,15 +2262,15 @@ namespace Data
                 _mapping.AddItem("LocationId", "IDLOCATION");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("Stock", "ISTOCK");
-                _mapping.AddItem("ReasonId", "IDREASON"); 
+                _mapping.AddItem("ReasonId", "IDREASON");
                 _mapping.AddItem("AdjustmentType", "CTYPE");
                 _mapping.AddItem("ReasonType", "CTYPE");
-                _mapping.AddItem("ReasonDescription", "VREASON"); 
+                _mapping.AddItem("ReasonDescription", "VREASON");
                 _mapping.AddItem("Inncercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VPART");
-                _mapping.AddItem("PartPrice", "NPRICE"); 
+                _mapping.AddItem("PartPrice", "NPRICE");
                 _mapping.AddItem("Location", "VLOCATION");
-                _mapping.AddItem("Zone", "VZONE"); 
+                _mapping.AddItem("Zone", "VZONE");
                 _mapping.AddItem("Warehouse", "VWAREHOUSE");
                 _mapping.AddItem("Cost", "NCOST");
 
@@ -2310,7 +2313,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Type", "CTYPE");
-                _mapping.AddItem("Description", "DESC"); 
+                _mapping.AddItem("Description", "DESC");
 
                 var _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_REASONS");
@@ -2328,48 +2331,48 @@ namespace Data
 
         /*-------------------------------------------------------------- POST ADJUSTMENT ---------------------------------------------------------------*/
         public async Task<Response<Result>> PostAdjustment(Models.Adjustment _item, Int32 userId)
-          {
-              await _semaphore.WaitAsync(Util.Setting.TimeOut);
-              try
-              {
-                  return await _PostAdjustment(_item, userId);
-              }
-              finally
-              {
-                  _semaphore.Release();
-              }
-          }
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostAdjustment(_item, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
 
-          private async Task<Response<Result>> _PostAdjustment(Adjustment _item, Int32 userId)
-          {
-              Response<Result> _response = new Response<Result>();
-              try
-              {
-                  string _jsonstring = Util.Json.ConvertToJsonString(_item);
+        private async Task<Response<Result>> _PostAdjustment(Adjustment _item, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_item);
 
-                  Util.Parameter _parameter = new Util.Parameter();
-                  _parameter.AddSqlParameter("@DATA", _jsonstring);
-                  _parameter.AddSqlParameter("@IDUSER", userId);
-
-
-                  Mapping _mapping = new Mapping();
-                  _mapping.SetDefaultPostMapping();
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
 
 
-                  Util.Data _data = Util.Data.GetInstance();
-                  DataTable _table = await _data.GetDataTable("USP_POST_ADJUSTMENT", _parameter);
-                  _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
-                  _response.SetPostResponse();
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
 
-              }
-              catch (Exception ex)
-              {
-                  _response.SetError(ex);
-              }
 
-              return _response;
-          }
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_ADJUSTMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
         /*----------------------------------------------------------- POST ADJUSTMENTDETAILS -------------------------------------------------------------*/
 
@@ -2439,7 +2442,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                 
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -2515,12 +2518,13 @@ namespace Data
 
 
         /*--------------------------------------------------------------GET EXPORT-------------------------------------------------------------*/
-        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControlForExport(int userId, int supplierId)
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControlTxtExport(int userId, int supplierId, int idcontrol)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInvoiceControlForExport(userId, supplierId);
+                return await _GetDispatchedControlTxtExport(userId, supplierId, idcontrol);
             }
             finally
             {
@@ -2528,7 +2532,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControlForExport(int userId, int supplierId)
+        private async Task<Response<List<Invoicecontrol>>> _GetDispatchedControlTxtExport(int userId, int supplierId, int idcontrol)
         {
             Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
             try
@@ -2539,7 +2543,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", null);
                 _parameter.AddSqlParameter("@VFILTER", null);
                 _parameter.AddSqlParameter("@BPENDANT", 1);
-                _parameter.AddSqlParameter("@BMARK", 1);
+                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);  // Nuevo parámetro
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
@@ -2551,7 +2555,7 @@ namespace Data
                 _mapping.AddItem("ControlDate", "DCONTROLDATE");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
 
                 _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
                 _response.SetGetResponse(_table);
@@ -2562,23 +2566,21 @@ namespace Data
             }
             return _response;
         }
+        /*--------------------------------------------------------------GET DISPATCHED-------------------------------------------------------------*/
 
-        /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
-
-        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInvoiceControl(userId, supplierId, rowfrom, filter, startdate, enddate, pendant);
+                return await _GetDispatchedControl(userId, supplierId, rowfrom, filter);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-
-        private async Task<Response<List<Invoicecontrol>>> _GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        private async Task<Response<List<Invoicecontrol>>> _GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
         {
             Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
             try
@@ -2587,10 +2589,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
-                _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@STARTDATE", startdate);
-                _parameter.AddSqlParameter("@ENDDATE", enddate);
-                _parameter.AddSqlParameter("@BPENDANT", pendant);
+                _parameter.AddSqlParameter("@VFILTER", filter); 
 
 
                 Mapping _mapping = new Mapping();
@@ -2599,30 +2598,20 @@ namespace Data
                 _mapping.AddItem("MovementDetailId", "IDMOVEMENTDETAIL");
                 _mapping.AddItem("BackOrderId", "IDBACKORDER");
                 _mapping.AddItem("PartId", "IDPART");
-                _mapping.AddItem("CustomerId", "IDCUSTOMER");
-                _mapping.AddItem("SupplierId", "IDSUPPLIER");
-                _mapping.AddItem("InvoiceId", "IDINVOICE");
-                _mapping.AddItem("ControlId", "IDCONTROL");
-                _mapping.AddItem("Invoiced", "IINVOICED");
-                _mapping.AddItem("Dispatched", "IDISPATCHED");
-                _mapping.AddItem("Mark", "BMARK");
-                _mapping.AddItem("UserSinc", "IDUSERSINC");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
-                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
+                _mapping.AddItem("SupplierId", "IDSUPPLIER"); 
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("SupplierName", "VSUPPLIER");
-                _mapping.AddItem("LocationName", "VLOCATION");
-                _mapping.AddItem("Required", "IREQUIRED");
+                _mapping.AddItem("SupplierName", "VSUPPLIER"); 
                 _mapping.AddItem("Price", "NPRICE");
 
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_INVOICECONTROL", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL", _parameter);
                 _response.Data = _data.GetList<Models.Invoicecontrol>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
@@ -2634,6 +2623,79 @@ namespace Data
 
             return _response;
         }
+
+
+        /*--------------------------------------------------------------GET DISPATCHED TXT-------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControlTxt(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetDispatchedControlTxt(userId, supplierId, rowfrom, filter, pendant);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Invoicecontrol>>> _GetDispatchedControlTxt(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BPENDANT", pendant);
+                _parameter.AddSqlParameter("@IDCONTROL", 0);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("SaleOrderNumber", "IDSALEORDER");
+                _mapping.AddItem("MovementDetailId", "IDMOVEMENTDETAIL");
+                _mapping.AddItem("BackOrderId", "IDBACKORDER");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("InvoiceId", "IDINVOICE"); //numero de factura
+                _mapping.AddItem("ControlId", "IDCONTROL"); //numero de control
+                _mapping.AddItem("Invoiced", "IINVOICED");  //numero de cantidad facturada
+                _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada
+                _mapping.AddItem("Mark", "BMARK");
+                _mapping.AddItem("UserSinc", "IDUSERSINC");
+                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("Pending", "IPENDING");
+
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("LocationName", "VLOCATION");
+                _mapping.AddItem("Required", "IREQUIRED");
+                _mapping.AddItem("Price", "NPRICE");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
+
+                _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+
         //*--------------------------------------------------------------POST-------------------------------------------------------------*/
         public async Task<Response<Result>> PostInvoiceControl(List<Models.Invoicecontrol> invoiceControls, Int32 userId)
         {
@@ -2653,7 +2715,8 @@ namespace Data
             Response<Result> _response = new Response<Result>();
             try
             {
-                var updateData = invoiceControls.Select(ic => new {
+                var updateData = invoiceControls.Select(ic => new
+                {
                     Id = ic.Id,
                     Mark = ic.Mark
                 }).ToList();
@@ -2678,7 +2741,7 @@ namespace Data
             }
             return _response;
         }
-       
+
         /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
         public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
         {
@@ -2708,7 +2771,7 @@ namespace Data
                 _mapping.SetDefaultPostMapping();
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_INVOICECONTROL_ACTION", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_DISPATCHEDCONTROL_ACTION", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
             }
@@ -2721,52 +2784,52 @@ namespace Data
 
 
 
-         public async Task<Response<Result>> ImportInvoiceReport(List<Models.InvoiceReport> _list,  Int32 userId, Int32 supplierId)
- {
-     await _semaphore.WaitAsync(Util.Setting.TimeOut);
-     try
-     {
-         return await _importInvoiceReport(_list, userId, supplierId);
-     }
-     finally
-     {
-         _semaphore.Release();
-     }
- }
+        public async Task<Response<Result>> ImportInvoiceReport(List<Models.InvoiceReport> _list, Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _importInvoiceReport(_list, userId, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
- private async Task<Response<Result>> _importInvoiceReport(List<Models.InvoiceReport> _list, Int32 userId, Int32 supplierId)
- {
-     Response<Result> _response = new Response<Result>();
-     try
-     {
+        private async Task<Response<Result>> _importInvoiceReport(List<Models.InvoiceReport> _list, Int32 userId, Int32 supplierId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
 
-         string _jsonstring = Util.Json.ConvertToJsonString(_list);
-  
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
 
-         Util.Parameter _parameter = new Util.Parameter();
-         _parameter.AddSqlParameter("@DATA", _jsonstring);
-         _parameter.AddSqlParameter("@IDUSER", userId);
-         _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-     
 
-         Mapping _mapping = new Mapping();
-         _mapping.SetDefaultPostMapping();
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
 
-         Util.Data _data = Util.Data.GetInstance();
-         DataTable _table = await _data.GetDataTable("USP_POST_INVOICEREPORT", _parameter);
-         _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
-         _response.SetPostResponse();
 
-     }
-     catch (Exception ex)
-     {
-         _response.SetError(ex);
-     }
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
 
-     return _response;
- }
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVOICEREPORT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
-        
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex); 
+            }
+
+            return _response;
+        }
+
+
 
         #endregion
 

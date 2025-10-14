@@ -32,6 +32,8 @@ namespace Models
 
         [SwaggerIgnore]
         public DateTime? ControlDate { get; set; }
+
+
         [SwaggerIgnore]
         public DateTime? SincDate { get; set; }
 
@@ -79,6 +81,9 @@ namespace Models
 
         [SwaggerIgnore]
         public int? SupplierId { get; set; }
+
+        [SwaggerIgnore]
+        public int? Pending { get; set; }
 
     }
 }

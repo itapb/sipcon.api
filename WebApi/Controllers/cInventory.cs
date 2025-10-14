@@ -12,8 +12,10 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Configuration.Provider;
 using System.IO.Packaging;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
@@ -1647,12 +1649,26 @@ namespace WebApi.Controllers
 
         #region "Invoice Control"
 
-        [HttpGet("/api/InvoiceControl/GetAll")]
-        public async Task<IActionResult> GetInvoiceControl(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? pendant)
+        [HttpGet("/api/InvoiceControl/GetDispatchedControl")]
+        public async Task<IActionResult> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
         {
             try
             {
-                var _response = await _dInventory.GetInvoiceControl(userId, supplierId, rowfrom, filter, startdate, enddate, pendant);
+                var _response = await _dInventory.GetDispatchedControl(userId, supplierId, rowfrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InvoiceControl/GetDispatchedControlTxt")]
+        public async Task<IActionResult> GetDispatchedControlTxt(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            try
+            {
+                var _response = await _dInventory.GetDispatchedControlTxt(userId, supplierId, rowfrom, filter, pendant);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1710,7 +1726,7 @@ namespace WebApi.Controllers
                         {
                             _list.Add(new InvoiceReport
                             {
-
+                                Vat = row.Cell(26).GetValue<string>(),
                                 PartCode = row.Cell(5).GetValue<string>(),
                                 Quantity = row.Cell(7).GetValue<int>(),
                                 Reference = row.Cell(36).GetValue<string>(),
@@ -1757,7 +1773,6 @@ namespace WebApi.Controllers
             }
 
         }
-
         private byte[] ConvertToTxt(List<Invoicecontrol> records)
         {
             var lines = records.Select(r =>
@@ -1768,18 +1783,30 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/InvoiceControl/ExportTXT")]
-        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId)
+        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId, int idcontrol)
         {
-            var response = await _dInventory.GetInvoiceControlForExport(userId, supplierId);
+            // Pasar el idcontrol al stored procedure
+            var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, idcontrol);
 
-            var validRecords = response.Data?
-                .GroupBy(x => x.ControlId)
-                .OrderByDescending(g => g.Max(x => x.ControlDate))
-                .FirstOrDefault()?
-                .ToList();
+            List<Invoicecontrol> validRecords;
+
+            if (idcontrol > 0)
+            {
+                // filtr por el control específico
+                validRecords = response.Data?.ToList();
+            }
+            else
+            {
+                //tomar el último control
+                validRecords = response.Data?
+                    .GroupBy(x => x.ControlId)
+                    .OrderByDescending(g => g.Max(x => x.ControlDate))
+                    .FirstOrDefault()?
+                    .ToList();
+            }
 
             if (validRecords == null || !validRecords.Any())
-                return NotFound("No hay registros marcados con control asignado");
+                return NotFound($"No hay registros para el control {idcontrol}");
 
             if (validRecords.Count > 8)
                 return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");

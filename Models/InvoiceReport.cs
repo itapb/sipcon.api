@@ -11,6 +11,9 @@ namespace Models
     {
 
         [Required]
+        public string? Vat { get; set; }
+
+        [Required]
         public string? PartCode { get; set; }
 
         [Required]
