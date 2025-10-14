@@ -23,7 +23,7 @@ namespace Models
         [Required] public Boolean? IsExternal { get; set; }
         [Required] public Boolean? IsTax { get; set;}
         [SwaggerIgnore] public Decimal? Price { get; set; }
-        [SwaggerIgnore] public String? Serial { get; set; }
+        public String? Serial { get; set; }
         [SwaggerIgnore] public String? Reference { get; set; }
         public String? InvoiceNumber { get; set; }
 
