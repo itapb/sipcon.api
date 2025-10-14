@@ -173,6 +173,8 @@ namespace Data
                 _mapping.AddItem("VehicleId", "IDVEHICLE");
                 _mapping.AddItem("VehicleVin", "VVIN");
                 _mapping.AddItem("VehicleCustomer", "VCUSTOMER");
+                _mapping.AddItem("NameCreatedBy", "VNAMECREATEDBY");
+                
 
 
 
