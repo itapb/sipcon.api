@@ -32,7 +32,8 @@ namespace Models
 
     public class CustomerVehicleRecord
     {
-
+        [SwaggerIgnore]  public Int32? CustomerId { get; set; }
+        [SwaggerIgnore] public string? CustomerName { get; set; }
         [SwaggerIgnore] public String? CustomerLastName { get; set; }
         [SwaggerIgnore] public String? Phone { get; set; }
         [SwaggerIgnore] public String? Email { get; set; }
