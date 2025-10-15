@@ -1440,6 +1440,22 @@ namespace WebApi.Controllers
             }
         }
 
+
+        [HttpGet("/api/InvoiceControl/GetInvoice")]
+        public async Task<IActionResult> GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            try
+            {
+                var _response = await _dInventory.GetInvoice(userId, supplierId, rowfrom, filter, pendant);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         [HttpPost("/api/InvoiceControl/PostActions")]
         public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
         {
@@ -1536,6 +1552,7 @@ namespace WebApi.Controllers
             }
 
         }
+   
         private byte[] ConvertToTxt(List<Invoicecontrol> records)
         {
             var lines = records.Select(r =>
@@ -1546,37 +1563,25 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/InvoiceControl/ExportTXT")]
-        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId, int idcontrol)
+        public async Task<IActionResult> ExportTXTByControl(int userId, int supplierId, int controlId)
         {
-            // Pasar el idcontrol al stored procedure
-            var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, idcontrol);
+            var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, controlId);
 
-            List<Invoicecontrol> validRecords;
+            List<Invoicecontrol> recordsForControl = response.Data?.ToList();
 
-            if (idcontrol > 0)
-            {
-                // filtr por el control específico
-                validRecords = response.Data?.ToList();
-            }
-            else
-            {
-                //tomar el último control
-                validRecords = response.Data?
-                    .GroupBy(x => x.ControlId)
-                    .OrderByDescending(g => g.Max(x => x.ControlDate))
-                    .FirstOrDefault()?
-                    .ToList();
-            }
+            if (recordsForControl == null || !recordsForControl.Any())
+                return NotFound($"No hay registros para el control {controlId}");
 
-            if (validRecords == null || !validRecords.Any())
-                return NotFound($"No hay registros para el control {idcontrol}");
+            var filteredRecords = recordsForControl.Where(r => r.ControlId == controlId).ToList();
 
-            if (validRecords.Count > 8)
-                return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
+            if (!filteredRecords.Any())
+                return NotFound($"No se encontraron registros para el control {controlId}");
 
-            var txtBytes = ConvertToTxt(validRecords);
-            string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
+            if (filteredRecords.Count > 8)
+                return BadRequest($"Máximo 8 registros permitidos por archivo. Encontrados: {filteredRecords.Count}");
 
+            var txtBytes = ConvertToTxt(filteredRecords);
+            string fileName = $"{controlId.ToString().PadLeft(10, '0')}.txt";
             return File(txtBytes, "text/plain", fileName);
         }
         #endregion

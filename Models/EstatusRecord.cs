@@ -22,14 +22,7 @@ namespace Models
 
         public DateTime Date { get; set; }
 
-        [Required]
-        public String? DealerServiceName { get; set; }
-
-        [Required]
-        public String? DealerServiceCod { get; set; }
-
-
-
+   
 
     }
 }
