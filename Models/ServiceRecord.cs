@@ -30,8 +30,6 @@ namespace Models
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusId { get; set; }
         [SwaggerIgnore] public String? EstatusName { get; set; }
 
-        [SwaggerIgnore] public DateTime? Date { get; set; }
-
 
 
     }

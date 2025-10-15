@@ -578,6 +578,7 @@ namespace Data
                 _mapping.AddItem("LockDate", "DLOCKDATE");
                 _mapping.AddItem("ExpirationDate", "DEXPIRATIONDATE");
                 _mapping.AddItem("PayMethodId", "IDPAYMETHOD");
+                _mapping.AddItem("PayMethod", "NAMEMETHOD");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_VEHICLEFULL_BY", _parameter);
                 _response.Data = _data.GetItem<Models.policyVehicleRecord>(_mapping, _table);
@@ -624,8 +625,6 @@ namespace Data
                 _mapping.AddItem("EstatusId", "IDACTION");
                 _mapping.AddItem("Estatus", "VDISPLAYESTATUS");
                 _mapping.AddItem("Date", "DCREATED");
-                _mapping.AddItem("DealerServiceName", "DEALER");
-                _mapping.AddItem("DealerServiceCod", "VREFERENCEDEALER");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -681,12 +680,10 @@ namespace Data
                 _mapping.AddItem("EstatusId", "IESTATUS");
                 _mapping.AddItem("EstatusName", "VESTATUS");
                 _mapping.AddItem("SrgNumber", "VSRGNUMBER");
-                _mapping.AddItem("ServiceDate", "DMAINTENANCEDATE");
+                _mapping.AddItem("ServiceDate", "DCREATED");
                 _mapping.AddItem("InvoiceAmount", "NINVOICEAMOUNT");
                 _mapping.AddItem("DealerServiceName", "DEALER");
                 _mapping.AddItem("DealerServiceCod", "VREFERENCEDEALER");
-                _mapping.AddItem("Date", "DCREATED");
-
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_SERVICE_BY_VEHICLE", _parameter);
                 _response.Data = _data.GetList<Models.ServiceRecord>(_mapping, _table);

@@ -32,7 +32,8 @@ namespace Models
 
     public class CustomerVehicleRecord
     {
-
+        [SwaggerIgnore]  public Int32? CustomerId { get; set; }
+        [SwaggerIgnore] public string? CustomerName { get; set; }
         [SwaggerIgnore] public String? CustomerLastName { get; set; }
         [SwaggerIgnore] public String? Phone { get; set; }
         [SwaggerIgnore] public String? Email { get; set; }
@@ -55,6 +56,7 @@ namespace Models
         [SwaggerIgnore] public decimal? InvoiceAmount { get; set; }
         [SwaggerIgnore] public DateTime? InvoiceDate { get; set; }
         [SwaggerIgnore] public Int32? PayMethodId { get; set; }
+        [SwaggerIgnore] public String? PayMethod { get; set; }
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusPolicyId { get; set; }
         [SwaggerIgnore] public String? EstatusPolicyName { get; set; }
 
