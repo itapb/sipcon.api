@@ -2541,8 +2541,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", null);
-                _parameter.AddSqlParameter("@VFILTER", null);
-                _parameter.AddSqlParameter("@BPENDANT", 1);
+                _parameter.AddSqlParameter("@VFILTER", null); 
                 _parameter.AddSqlParameter("@IDCONTROL", idcontrol);  // Nuevo parámetro
 
                 Mapping _mapping = new Mapping();
