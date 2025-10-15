@@ -2541,20 +2541,17 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", null);
-                _parameter.AddSqlParameter("@VFILTER", null); 
-                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);  // Nuevo parámetro
+                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("Dispatched", "IDISPATCHED");
+                _mapping.AddItem("Dispatched", "IDISPATCHED");  
                 _mapping.AddItem("Price", "NPRICE");
-                _mapping.AddItem("ControlId", "IDCONTROL");
-                _mapping.AddItem("Mark", "BMARK");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("ControlId", "IDCONTROL"); 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_GROUP", _parameter);
 
                 _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
                 _response.SetGetResponse(_table);
@@ -2565,6 +2562,8 @@ namespace Data
             }
             return _response;
         }
+
+       
         /*--------------------------------------------------------------GET DISPATCHED-------------------------------------------------------------*/
 
         public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)

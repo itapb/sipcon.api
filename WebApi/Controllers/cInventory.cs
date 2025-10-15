@@ -1789,7 +1789,7 @@ namespace WebApi.Controllers
             }
 
         }
-   
+
         private byte[] ConvertToTxt(List<Invoicecontrol> records)
         {
             var lines = records.Select(r =>
@@ -1798,26 +1798,17 @@ namespace WebApi.Controllers
             return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
         }
 
-
         [HttpGet("/api/InvoiceControl/ExportTXT")]
         public async Task<IActionResult> ExportTXTByControl(int userId, int supplierId, int controlId)
         {
             var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, controlId);
 
-            List<Invoicecontrol> recordsForControl = response.Data?.ToList();
+            List<Invoicecontrol> groupedRecords = response.Data?.ToList();
 
-            if (recordsForControl == null || !recordsForControl.Any())
-                return NotFound($"No hay registros para el control {controlId}");
+            if (groupedRecords == null || !groupedRecords.Any())
+                return NotFound($"No hay registros agrupados para el control {controlId}"); 
 
-            var filteredRecords = recordsForControl.Where(r => r.ControlId == controlId).ToList();
-
-            if (!filteredRecords.Any())
-                return NotFound($"No se encontraron registros para el control {controlId}");
-
-            if (filteredRecords.Count > 8)
-                return BadRequest($"Máximo 8 registros permitidos por archivo. Encontrados: {filteredRecords.Count}");
-
-            var txtBytes = ConvertToTxt(filteredRecords);
+            var txtBytes = ConvertToTxt(groupedRecords);
             string fileName = $"{controlId.ToString().PadLeft(10, '0')}.txt";
             return File(txtBytes, "text/plain", fileName);
         }
