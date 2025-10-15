@@ -2541,8 +2541,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", null);
-                _parameter.AddSqlParameter("@VFILTER", null);
-                _parameter.AddSqlParameter("@BPENDANT", 1);
+                _parameter.AddSqlParameter("@VFILTER", null); 
                 _parameter.AddSqlParameter("@IDCONTROL", idcontrol);  // Nuevo parámetro
 
                 Mapping _mapping = new Mapping();
@@ -2694,6 +2693,69 @@ namespace Data
             return _response;
         }
 
+
+
+        /*--------------------------------------------------------------GET INVOICE-------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetInvoice(userId, supplierId, rowfrom, filter, pendant);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Invoicecontrol>>> _GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BSURPLUS", pendant);
+                
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID"); 
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("InvoiceId", "IDINVOICE"); //numero de factura
+                _mapping.AddItem("ControlId", "IDCONTROL"); //numero de control
+                _mapping.AddItem("Invoiced", "IINVOICED");  //numero de cantidad facturada
+                _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada 
+                _mapping.AddItem("UserSinc", "IDUSERSINC");
+                _mapping.AddItem("ControlDate", "DCREATED");
+                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("Pending", "ISURPLUS");
+
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("SupplierName", "VSUPPLIER"); 
+                _mapping.AddItem("Price", "NPRICE");
+              
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INVOICE", _parameter);
+
+                _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
 
         //*--------------------------------------------------------------POST-------------------------------------------------------------*/
