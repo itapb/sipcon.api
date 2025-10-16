@@ -13,7 +13,7 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Location>>> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Location>>> GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
