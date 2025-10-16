@@ -65,6 +65,9 @@ namespace Models
 
         [SwaggerIgnore]
         public string? VehicleCustomer { get; set; }
+        
+        [SwaggerIgnore]
+        public string? NameCreatedBy { get; set; }
 
 
 

@@ -21,7 +21,7 @@ namespace Models
         public Int32? Km { get; set; }
 
         [Required]
-        [Range(1, 1000)]
+        [Range(1, 1500)]
         public Int32? GapKm { get; set; }
 
         [Required]
