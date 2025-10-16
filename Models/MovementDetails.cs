@@ -115,6 +115,9 @@ namespace Models
 
         [SwaggerIgnore]
         public bool? Serializable { get; set; } = false;
+         
 
+        [SwaggerIgnore]
+        public string? PartialTypeName { get; set; }  
     }
 }

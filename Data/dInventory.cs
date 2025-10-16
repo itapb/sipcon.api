@@ -43,12 +43,12 @@ namespace Data
             }
         }
 
-        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Inventory>)(await _GetAll(userId, supplierId, null, filter, null, null)).Data;
+                return (List<Inventory>)(await _GetAll(userId, supplierId, null, null, null, null)).Data;
             }
             finally
             {
@@ -424,8 +424,9 @@ namespace Data
                 _mapping.AddItem("Cost", "NCOST");
                 _mapping.AddItem("SubTotal", "NSUBTOTAL");
                 _mapping.AddItem("Stock", "ISTOCK");
-
-
+                 
+                _mapping.AddItem("PartialTypeId", "IDPARTIALTYPE");
+                _mapping.AddItem("PartialTypeName", "VPARTIALTYPE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTDETAILS", _parameter);
@@ -1762,12 +1763,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, filter, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null)).Data;
             }
             finally
             {
@@ -2540,21 +2541,17 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", null);
-                _parameter.AddSqlParameter("@VFILTER", null);
-                _parameter.AddSqlParameter("@BPENDANT", 1);
-                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);  // Nuevo parámetro
+                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("Dispatched", "IDISPATCHED");
+                _mapping.AddItem("Dispatched", "IDISPATCHED");  
                 _mapping.AddItem("Price", "NPRICE");
-                _mapping.AddItem("ControlId", "IDCONTROL");
-                _mapping.AddItem("Mark", "BMARK");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("ControlId", "IDCONTROL"); 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_GROUP", _parameter);
 
                 _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
                 _response.SetGetResponse(_table);
@@ -2565,6 +2562,8 @@ namespace Data
             }
             return _response;
         }
+
+       
         /*--------------------------------------------------------------GET DISPATCHED-------------------------------------------------------------*/
 
         public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
@@ -2598,7 +2597,9 @@ namespace Data
                 _mapping.AddItem("BackOrderId", "IDBACKORDER");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
-                _mapping.AddItem("SupplierId", "IDSUPPLIER"); 
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+
+                _mapping.AddItem("StockInfo", "STOCKINFO");
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
@@ -2670,6 +2671,9 @@ namespace Data
                 _mapping.AddItem("SincDate", "DSINCDATE");
                 _mapping.AddItem("Pending", "IPENDING");
 
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
@@ -2693,6 +2697,72 @@ namespace Data
             return _response;
         }
 
+
+
+        /*--------------------------------------------------------------GET INVOICE-------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Invoicecontrol>>> GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetInvoice(userId, supplierId, rowfrom, filter, pendant);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Invoicecontrol>>> _GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            Response<List<Invoicecontrol>> _response = new Response<List<Invoicecontrol>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BSURPLUS", pendant);
+                
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID"); 
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("InvoiceId", "IDINVOICE"); //numero de factura
+                _mapping.AddItem("ControlId", "IDCONTROL"); //numero de control
+                _mapping.AddItem("Invoiced", "IINVOICED");  //numero de cantidad facturada
+                _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada 
+                _mapping.AddItem("UserSinc", "IDUSERSINC");
+                _mapping.AddItem("ControlDate", "DCREATED");
+                _mapping.AddItem("SincDate", "DSINCDATE");
+                _mapping.AddItem("Pending", "ISURPLUS");
+
+                _mapping.AddItem("StatusId", "IESTATUS");
+                _mapping.AddItem("StatusName", "STATUS_DISPLAY"); 
+
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("SupplierName", "VSUPPLIER"); 
+                _mapping.AddItem("Price", "NPRICE");
+              
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INVOICE", _parameter);
+
+                _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
 
         //*--------------------------------------------------------------POST-------------------------------------------------------------*/

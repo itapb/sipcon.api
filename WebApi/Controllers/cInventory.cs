@@ -62,7 +62,7 @@ namespace WebApi.Controllers
 
             using (var workbook = new XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add("BACKORDER");
+                var worksheet = workbook.Worksheets.Add("INVENTORY");
 
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "CODIGO";
@@ -117,11 +117,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Inventory/Export")]
-        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId)
         { 
             try
             { 
-                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId, null, filter, null, null);
+                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId);
                 MemoryStream _excel = ConvertToExcelInventory(_response);
                 string _fileName = "Inventory.xlsx";
 
@@ -394,8 +394,8 @@ namespace WebApi.Controllers
                                 // Ajusta según tu estructura real
                                 Id = 0,
                                 InnerCode = row.Cell(1).GetValue<string>(),
-                                RequiredQty = string.IsNullOrWhiteSpace(row.Cell(2).GetString()) ? 0 : row.Cell(2).GetValue<int>(),
-                                LocationName = row.Cell(3).GetValue<string>(),
+                                RequiredQty = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
+                                LocationName = row.Cell(4).GetValue<string>(),
                                 MovementId = movementId,
                                 RowReference = rowRef
 
@@ -944,244 +944,7 @@ namespace WebApi.Controllers
         }
 
 
-        //[HttpGet("ExportGuide")]
-        //public async Task<IActionResult> GetExportGuide(Int32 userId, Int32 movementId)
-        //{
-        //    try
-        //    {
-        //        Models.Response response = await _dInventory.GetMovement(userId, movementId);
-
-        //        // 2. Validar que la respuesta es exitosa y contiene datos
-        //        if (response.Status != StatusCodes.Status200OK || response.Data == null)
-        //        {
-        //            return NotFound("No se encontró Guia de Movimiento");
-        //        }
-
-        //        // 3. Convertir los datos correctamente
-        //        List<Movement> movement = new List<Movement>();
-
-        //        if (response.Data is Movement singleMovement)
-        //        {
-        //            // Si es un solo objeto
-        //            movement.Add(singleMovement);
-        //        }
-        //        else if (response.Data is IEnumerable<Movement> movementList)
-        //        {
-        //            // Si ya es una lista/enumerable
-        //            movement = movementList.ToList();
-        //        }
-        //        else if (response.Data is JArray jsonArray)
-        //        {
-        //            // Si viene como JArray (JSON)
-        //            movement = jsonArray.ToObject<List<Movement>>();
-        //        }
-        //        else
-        //        {
-        //            // Si no reconocemos el formato
-        //            return StatusCode(StatusCodes.Status500InternalServerError,
-        //                "Formato de datos de Servicio no reconocido");
-        //        }
-
-        //        // 4. Validar que tenemos datos
-        //        if (!movement.Any())
-        //        {
-        //            return NotFound("No se encontraron datos válidos de servicio");
-        //        }
-
-        //        // 5. Generar el PDF
-        //        byte[] pdfBytes = GeneratePdfReport(movement, movementId, userId);
-        //        string fileName = $"Orden_{movement.FirstOrDefault()?.Id?.ToString() ?? "reporte"}.pdf";
-
-        //        return File(pdfBytes, "application/pdf", fileName);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-        //    }
-        //}
-
-        //[Obsolete]
-        //private byte[] GeneratePdfReport(List<Movement> movement, int movementId, Int32 userId)
-        //{
-        //    QuestPDF.Settings.License = LicenseType.Community;
-
-        //    var selectedMovement = movement.FirstOrDefault(m => m.Id == movementId);
-
-        //    var response = _dInventory.GetMovementDetails(userId, movementId, null).GetAwaiter().GetResult();
-        //    var MovementDetailsList = new List<MovementDetails>();
-
-
-
-        //    if (response.Data is IEnumerable<MovementDetails> detailList)
-        //        MovementDetailsList = detailList.ToList();
-        //    else if (response.Data is JArray jsonArray)
-        //        MovementDetailsList = jsonArray.ToObject<List<MovementDetails>>();
-
-        //    // Aplicamos el filtro según el tipo del movimiento
-        //    var movementType = selectedMovement?.TypeId;
-        //    List<MovementDetails> filteredDetails = new();
-
-        //    if (movementType != null)
-        //    {
-        //        var typeMap = new Dictionary<string, string>
-        //                        {
-        //                            { "D", "E" },
-        //                            { "R", "P" },
-        //                            { "T", "E" }
-        //                        };
-
-        //        if (typeMap.TryGetValue(movementType, out string expectedDetailType))
-        //        {
-        //            filteredDetails = MovementDetailsList
-        //                .Where(detail => detail.MovementId == movementId && detail.TypeId == expectedDetailType)
-        //                .ToList();
-        //        }
-        //    }
-
-        //    int totalProductos = filteredDetails
-        //    .Select(d => d.Id) // Asumiendo que existe un campo ProductId
-        //    .Distinct()
-        //    .Count();
-
-        //    int? totalUnidades = selectedMovement?.TypeId switch
-        //    {
-        //        "T" or "D" => filteredDetails.Sum(d => d.RealQty),
-        //        "R" => filteredDetails.Sum(d => d.RequiredQty),
-        //        _ => 0
-        //    };
-        //    // Asumiendo que existe un campo Quantity
-
-
-        //    var document = Document.Create(container =>
-        //    {
-        //        container.Page(page =>
-        //        {
-        //            page.Margin(50);
-        //            page.Size(PageSizes.Ledger.Portrait());
-
-        //            page.Header().Element(header =>
-        //            {
-        //                header.Column(col =>
-        //                {
-        //                    col.Item().Row(row =>
-        //                    {
-        //                        // LOGO (izquierda)
-        //                        row.ConstantItem(110).Image($@"\\{Environment.MachineName}{Util.Setting.ImagesUrl}\mdv logo.PNG", ImageScaling.FitWidth);
-
-        //                        // TÍTULO (centro)
-        //                        string tituloMovimiento = selectedMovement?.TypeId switch
-        //                        {
-        //                            "D" => "GUÍA DE DESPACHO",
-        //                            "R" => "GUÍA DE RECEPCIÓN",
-        //                            "T" => "GUÍA DE TRASLADO",
-        //                            _ => "GUÍA DE MOVIMIENTO" // valor por defecto
-        //                        };
-
-        //                        row.RelativeItem()
-        //                           .AlignCenter()
-        //                           .Text(tituloMovimiento)
-        //                           .FontSize(20)
-        //                           .Bold();
-
-
-        //                        // ID y fecha (derecha)
-        //                        row.ConstantItem(130).Column(right =>
-        //                        {
-        //                            right.Item().AlignRight().Text($"Numero de Guia: {selectedMovement.GuideNumber ?? "N/A"}");
-        //                            right.Item().AlignRight().Text($"Fecha: {DateTime.Now:dd/MM/yyyy}");
-        //                        });
-        //                    });
-
-        //                    // BLOQUE DE INFORMACIÓN debajo del título
-        //                    col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
-        //                    {
-
-        //                        info.Item().Row(r =>
-        //                        {
-        //                            r.ConstantItem(75).Text("Proveedor:").Bold();
-        //                            r.RelativeItem().Text(selectedMovement?.SupplierName ?? "N/A").WrapAnywhere();
-        //                        });
-
-        //                        info.Item().Row(r =>
-        //                        {
-        //                            r.ConstantItem(75).Text("Cliente:").Bold();
-        //                            r.RelativeItem().Text(selectedMovement?.ContactName ?? "N/A").WrapAnywhere();
-        //                        });
-
-        //                        info.Item().Row(r =>
-        //                        {
-        //                            r.ConstantItem(75).Text("Responsable:").Bold();
-        //                            r.RelativeItem().Text($"{selectedMovement?.ManagerName ?? "N/A"}").WrapAnywhere();
-
-        //                        });
-
-
-        //                    });
-        //                });
-        //            });
-
-        //            page.Content().Column(column =>
-        //            {
-        //                column.Item().LineHorizontal(1);
-
-        //                column.Item().Table(table =>
-        //                {
-        //                    table.ColumnsDefinition(columns =>
-        //                    {
-        //                        columns.RelativeColumn(1); // Código
-        //                        columns.RelativeColumn(3); // Descripción
-        //                        columns.RelativeColumn(1); // Cantidad
-        //                    });
-
-        //                    table.Header(header =>
-        //                    {
-        //                        header.Cell().Element(CellStyle).Text("Código");
-        //                        header.Cell().Element(CellStyle).Text("Producto");
-        //                        header.Cell().Element(CellStyle).Text("Cantidad");
-
-        //                        IContainer CellStyle(IContainer container) =>
-        //                            container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
-        //                    });
-
-        //                    foreach (var movementdetail in filteredDetails)
-        //                    {
-        //                        table.Cell().Element(CellStyle).Text(movementdetail.PartInnerCode);
-        //                        table.Cell().Element(CellStyle).Text(movementdetail.PartDescription);
-
-        //                        var cantidadMostrar = selectedMovement?.TypeId switch
-        //                        {
-        //                            "T" or "D" => movementdetail.RealQty,
-        //                            "R" => movementdetail.RequiredQty,
-        //                            _ => 0
-        //                        };
-        //                        table.Cell().Element(CellStyle).Text(cantidadMostrar.ToString());
-
-
-        //                        IContainer CellStyle(IContainer container) =>
-        //                            container.Padding(5);
-        //                    }
-
-        //                    table.Footer(footer =>
-        //                    {
-
-        //                        footer.Cell().ColumnSpan(2).BorderTop(1).AlignRight().Element(CellStyle).Text($"Total productos: {totalProductos}");
-        //                        footer.Cell().ColumnSpan(1).BorderTop(1).Element(CellStyle).Text($"Total unidades: {totalUnidades}");
-
-        //                        IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
-        //                    });
-        //                    column.Item().LineHorizontal(1);
-        //                });
-
-        //                column.Item().PaddingTop(25).Text("Observaciones: ______________________________________________________________________________________________________________");
-        //                column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
-        //            });
-
-
-        //        });
-        //    });
-
-        //    return document.GeneratePdf();
-        //}
+    
 
 
 
@@ -1308,15 +1071,12 @@ namespace WebApi.Controllers
 
         }
 
-
         [HttpGet("/api/BackOrder/Export")]
-        public async Task<IActionResult> GetExportBackOrder(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<IActionResult> GetExportBackOrder(Int32 userId, Int32 supplierId)
         {
-
             try
             {
-
-                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId, null, filter, null, null);
+                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId);
                 MemoryStream _excel = ConvertToExcel(_response);
                 string _fileName = "BackOrder.xlsx";
 
@@ -1333,7 +1093,6 @@ namespace WebApi.Controllers
 
         }
 
-     
 
         [HttpPost("/api/BackOrder/Import")]
         public async Task<IActionResult> PostImportBackOrder(IFormFile file, Int32 userId, string? supplierId)
@@ -1677,6 +1436,22 @@ namespace WebApi.Controllers
             }
         }
 
+
+        [HttpGet("/api/InvoiceControl/GetInvoice")]
+        public async Task<IActionResult> GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
+        {
+            try
+            {
+                var _response = await _dInventory.GetInvoice(userId, supplierId, rowfrom, filter, pendant);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         [HttpPost("/api/InvoiceControl/PostActions")]
         public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
         {
@@ -1773,6 +1548,7 @@ namespace WebApi.Controllers
             }
 
         }
+   
         private byte[] ConvertToTxt(List<Invoicecontrol> records)
         {
             var lines = records.Select(r =>
@@ -1781,39 +1557,18 @@ namespace WebApi.Controllers
             return Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, lines));
         }
 
-
         [HttpGet("/api/InvoiceControl/ExportTXT")]
-        public async Task<IActionResult> ExportInvoiceControlTXT(int userId, int supplierId, int idcontrol)
+        public async Task<IActionResult> ExportTXTByControl(int userId, int supplierId, int controlId)
         {
-            // Pasar el idcontrol al stored procedure
-            var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, idcontrol);
+            var response = await _dInventory.GetDispatchedControlTxtExport(userId, supplierId, controlId);
 
-            List<Invoicecontrol> validRecords;
+            List<Invoicecontrol> groupedRecords = response.Data?.ToList();
 
-            if (idcontrol > 0)
-            {
-                // filtr por el control específico
-                validRecords = response.Data?.ToList();
-            }
-            else
-            {
-                //tomar el último control
-                validRecords = response.Data?
-                    .GroupBy(x => x.ControlId)
-                    .OrderByDescending(g => g.Max(x => x.ControlDate))
-                    .FirstOrDefault()?
-                    .ToList();
-            }
+            if (groupedRecords == null || !groupedRecords.Any())
+                return NotFound($"No hay registros agrupados para el control {controlId}"); 
 
-            if (validRecords == null || !validRecords.Any())
-                return NotFound($"No hay registros para el control {idcontrol}");
-
-            if (validRecords.Count > 8)
-                return BadRequest($"Máximo 8 registros permitidos. Encontrados: {validRecords.Count}");
-
-            var txtBytes = ConvertToTxt(validRecords);
-            string fileName = $"{validRecords.First().ControlId?.ToString().PadLeft(10, '0')}.txt";
-
+            var txtBytes = ConvertToTxt(groupedRecords);
+            string fileName = $"{controlId.ToString().PadLeft(10, '0')}.txt";
             return File(txtBytes, "text/plain", fileName);
         }
         #endregion
