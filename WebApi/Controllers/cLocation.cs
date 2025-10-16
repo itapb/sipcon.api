@@ -28,7 +28,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
         {
 
             try

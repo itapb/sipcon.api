@@ -1,11 +1,27 @@
-﻿using ClosedXML.Excel;
+﻿using Azure;
+using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Http;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json.Linq;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System;
+using System.Configuration.Provider;
+using System.IO.Packaging;
+using System.Linq.Expressions;
+using System.Net.Mail;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using Colors = QuestPDF.Helpers.Colors;
 
 
 namespace WebApi.Controllers
@@ -18,10 +34,12 @@ namespace WebApi.Controllers
     public class cSaleOrder : ControllerBase
     {
         private readonly dSaleOrder _dSaleOrder;
-
-        public cSaleOrder(dSaleOrder dSaleOrder)
+        private readonly dAttachment _dAttachment;
+        public cSaleOrder(dSaleOrder dSaleOrder, dAttachment dAttachment)
         {
             _dSaleOrder = dSaleOrder;
+            _dAttachment = dAttachment;
+         
         }
 
 
@@ -71,7 +89,7 @@ namespace WebApi.Controllers
                 _req.SaleOrder = (SaleOrder)(_get.Data);
                 _req.Details = (List<SaleOrderDetail>)(_details.Data);
 
-                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
+                Models.Response<SaleOrderWithContext> _response = new Models.Response<SaleOrderWithContext>();
                 _response.Data = _req;
                 _response.Total = _get.Total;
                 _response.Processed = _get.Processed;
@@ -184,7 +202,7 @@ namespace WebApi.Controllers
                 if (_get2.Id is null || _get2.Id == 0)
                 {
 
-                    Response <Result> _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
+                    Models.Response <Result> _resp = await _dSaleOrder.PostSaleOrder(_list, userId);
                     if (_resp.Processed == false)
                     {
                         throw new Exception(_resp.Message);
@@ -211,7 +229,7 @@ namespace WebApi.Controllers
                 _req.SaleOrder = _new;
                 _req.Details = _details;
 
-                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
+                Models.Response<SaleOrderWithContext> _response = new Models.Response<SaleOrderWithContext>();
                 _response.Data = _req;
                 _response.Total = 1;
 
@@ -220,13 +238,216 @@ namespace WebApi.Controllers
             }
             catch (Exception ex)
             {
-                Response<SaleOrderWithContext> _response = new Response<SaleOrderWithContext>();
+                Models.Response<SaleOrderWithContext> _response = new Models.Response<SaleOrderWithContext>();
                 _response.SetError(ex);
 
                 return StatusCode(StatusCodes.Status409Conflict, _response);
             }
         }
 
+
+
+        [HttpGet("ExportSaleOrder")]
+        public async Task<IActionResult> ExportSaleOrder(int saleOrderId, int userId)
+        {
+            try
+            {
+                Models.Response<Models.SaleOrder> response = await _dSaleOrder.GetOne(saleOrderId, userId);
+
+                // 2. Validar que la respuesta es exitosa y contiene datos
+                if (response.Status != StatusCodes.Status200OK || response.Data == null)
+                {
+                    response.SetError(new Exception("DATOS DE PEDIDO NO ENCONTRADOS"));
+                    return StatusCode(response.Status, response);
+                }
+
+                // 3. Convertir los datos correctamente
+                SaleOrder saleOrder;
+
+                if (response.Data is SaleOrder saleOrderSingle)
+                {
+                    // Asignar directamente el modelo
+                    saleOrder = saleOrderSingle;
+                }
+                else
+                {
+                    // Si no reconocemos el formato
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        "Formato de datos de Servicio no reconocido");
+                }
+
+                // 4. Validar que tenemos datos
+                if (saleOrder == null)
+                {
+                    return NotFound("No se encontraron datos válidos de servicio");
+                }
+
+                // 5. Generar el PDF
+                byte[] pdfBytes = await GeneratePdfReport(saleOrder, saleOrderId, userId);
+                string fileName = $"Pedido_{saleOrderId.ToString() ?? "reporte"}.pdf";
+
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        private async Task<string> GetFirstAttachmentFilePath(string moduleName, int? recordId)
+        {
+            var _response = await _dAttachment.GetAll(moduleName, recordId);
+            if (_response?.Data == null) return null;
+
+            var attachment = ((List<Models.Attachment>)_response.Data).FirstOrDefault();
+            if (attachment == null || string.IsNullOrEmpty(attachment.FileName)) return null;
+
+            string attachmentUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
+            var _modules = moduleName;
+
+            return Path.Combine(attachmentUrl, _modules, attachment.RecordId.ToString(), attachment.FileName);
+        }
+
+
+        [Obsolete]
+        private async Task<byte[]> GeneratePdfReport(Models.SaleOrder saleOrder,int saleOrderId, int userId)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var response = _dSaleOrder.GetDetails(saleOrderId).GetAwaiter().GetResult();
+            var SaleOrderDetailsList = new List<SaleOrderDetail>();
+
+            SaleOrderDetailsList = response.Data.ToList();
+
+            
+            int? supplierId = saleOrder.SupplierId;
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", supplierId);
+
+            var document = QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(50);
+                    page.Size(PageSizes.Ledger.Portrait());
+
+                    page.Header().Element(header =>
+                    {
+                        header.Column(col =>
+                        {
+                            col.Item().Row(row =>
+                            {
+                                // LOGO (izquierda)
+                                row.ConstantItem(110).Image(supplierImagePath, ImageScaling.FitWidth);
+
+                                // TÍTULO (centro)
+                               
+                                row.RelativeItem()
+                                   .AlignCenter()
+                                   .Text($"COMPROBANTE DE PEDIDO")
+                                   .FontSize(20)
+                                   .Bold();
+
+
+                                // ID y fecha (derecha)
+                                row.ConstantItem(130).Column(right =>
+                                {
+                                    right.Item().AlignRight().Text($"NUMERO DE PEDIDO: {saleOrderId}");
+                                    right.Item().AlignRight().Text($"Fecha: {saleOrder.Created:dd/MM/yyyy}");
+                                });
+                            });
+
+                            // BLOQUE DE INFORMACIÓN debajo del título
+                            col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
+                            {
+
+                                info.Item().Row(r =>
+                                {
+                                    r.ConstantItem(90).Text("PROVEEDOR:").Bold();
+                                    r.RelativeItem().Text(saleOrder?.SupplierName ?? "N/A").WrapAnywhere();
+                                });
+
+                                info.Item().Row(r =>
+                                {
+                                    r.ConstantItem(90).Text("CLIENTE:").Bold();
+                                    r.RelativeItem().Text(saleOrder?.DealerName ?? "N/A").WrapAnywhere();
+                                });
+
+                                info.Item().Row(r =>
+                                {
+                                    r.ConstantItem(90).Text("RESPONSABLE:").Bold();
+                                    r.RelativeItem().Text($"{saleOrder?.NameCreatedBy ?? "N/A"}").WrapAnywhere();
+
+                                });
+
+
+                            });
+                        });
+                    });
+
+                    page.Content().Column(column =>
+                    {
+                        column.Item().LineHorizontal(1);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1); // Código
+                                columns.RelativeColumn(3); // Descripción
+                                columns.RelativeColumn(1); // Cantidad
+                                columns.RelativeColumn(1); // PRECIOUNITARIO
+                                columns.RelativeColumn(1); // SUBTOTAL
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("CODIGO");
+                                header.Cell().Element(CellStyle).Text("DESCRIPCION");
+                                header.Cell().Element(CellStyle).Text("CANTIDAD");
+                                header.Cell().Element(CellStyle).Text("PRECIO UNITARIO");
+                                header.Cell().Element(CellStyle).Text("SUBTOTAL");
+
+                                IContainer CellStyle(IContainer container) =>
+                                    container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
+                            });
+                            decimal total=0.00m;
+                            int totalunidades = 0;
+                            foreach (var detail in SaleOrderDetailsList)
+                            {
+                                table.Cell().Element(CellStyle).Text(detail.PartInnerCode);
+                                table.Cell().Element(CellStyle).Text(detail.PartName);
+                                table.Cell().Element(CellStyle).Text(detail.Quantity.ToString());
+                                table.Cell().Element(CellStyle).Text($"{detail.Price.ToString()}$");
+                                table.Cell().Element(CellStyle).Text($"{detail.SubTotal.ToString()}$");
+
+                                IContainer CellStyle(IContainer container) =>
+                                    container.Padding(5);
+                                total += (decimal)detail.SubTotal;
+                                totalunidades += (int)detail.Quantity;
+                            }
+
+                            table.Footer(footer =>
+                            {
+
+                                footer.Cell().ColumnSpan(5).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        MONTO TOTAL: {total}$");
+                              
+
+                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
+                            });
+                            column.Item().LineHorizontal(1);
+                        });
+
+                        column.Item().PaddingTop(25).Text("Observaciones: ______________________________________________________________________________________________________________");
+                        column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
+                    });
+
+
+                });
+            });
+
+            return document.GeneratePdf();
+        }
 
 
         [HttpPost("PostSaleOrder")]
