@@ -43,12 +43,12 @@ namespace Data
             }
         }
 
-        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Inventory>)(await _GetAll(userId, supplierId, null, filter, null, null)).Data;
+                return (List<Inventory>)(await _GetAll(userId, supplierId, null, null, null, null)).Data;
             }
             finally
             {
@@ -1763,12 +1763,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, filter, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null)).Data;
             }
             finally
             {

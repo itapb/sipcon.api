@@ -62,7 +62,7 @@ namespace WebApi.Controllers
 
             using (var workbook = new XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add("BACKORDER");
+                var worksheet = workbook.Worksheets.Add("INVENTORY");
 
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "CODIGO";
@@ -117,11 +117,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Inventory/Export")]
-        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId, Int32 rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId)
         { 
             try
             { 
-                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId, null, filter, null, null);
+                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId);
                 MemoryStream _excel = ConvertToExcelInventory(_response);
                 string _fileName = "Inventory.xlsx";
 
@@ -1071,15 +1071,12 @@ namespace WebApi.Controllers
 
         }
 
-
         [HttpGet("/api/BackOrder/Export")]
-        public async Task<IActionResult> GetExportBackOrder(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<IActionResult> GetExportBackOrder(Int32 userId, Int32 supplierId)
         {
-
             try
             {
-
-                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId, null, filter, null, null);
+                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId);
                 MemoryStream _excel = ConvertToExcel(_response);
                 string _fileName = "BackOrder.xlsx";
 
@@ -1096,7 +1093,6 @@ namespace WebApi.Controllers
 
         }
 
-     
 
         [HttpPost("/api/BackOrder/Import")]
         public async Task<IActionResult> PostImportBackOrder(IFormFile file, Int32 userId, string? supplierId)
