@@ -85,5 +85,9 @@ namespace Models
         [SwaggerIgnore]
         public int? Pending { get; set; }
 
+
+        [SwaggerIgnore]
+        public string? StatusName { get; set; }
+
     }
 }

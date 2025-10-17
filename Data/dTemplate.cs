@@ -24,12 +24,12 @@ namespace Data
          
         }
 
-        public async Task<Response<Result>> ImportInventoryTamplate(List<Models.InventoryTamplate> _list, Int32 supplierId)
+        public async Task<Response<Result>> ImportInventoryTemplate(List<Models.InventoryTamplate> _list, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _importInventoryTamplate(_list, supplierId);
+                return await _importInventoryTemplate(_list, supplierId);
             }
             finally
             {
@@ -37,12 +37,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<Result>> ImportLocationTamplate(List<Models.LocationTemplate> _list, Int32 supplierId)
+        public async Task<Response<Result>> ImportLocationTemplate(List<Models.LocationTemplate> _list, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _importLocationTamplate(_list, supplierId);
+                return await _importLocationTemplate(_list, supplierId);
             }
             finally
             {
@@ -50,12 +50,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<Result>> ImportPartModelTamplate(List<Models.PartModelTemplate> _list, Int32 supplierId)
+        public async Task<Response<Result>> ImportPartModelTemplate(List<Models.PartModelTemplate> _list, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _importPartModelTamplate(_list, supplierId);
+                return await _importPartModelTemplate(_list, supplierId);
             }
             finally
             {
@@ -63,7 +63,20 @@ namespace Data
             }
         }
 
-        private async Task<Response<Result>> _importInventoryTamplate(List<Models.InventoryTamplate> _list, Int32 supplierId)
+        public async Task<Response<Result>> ImportContactTemplate(List<Models.ContactTemplate> _list)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _importContactTemplate(_list);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _importInventoryTemplate(List<Models.InventoryTamplate> _list, Int32 supplierId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -94,7 +107,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<Result>> _importLocationTamplate(List<Models.LocationTemplate> _list, Int32 supplierId)
+        private async Task<Response<Result>> _importLocationTemplate(List<Models.LocationTemplate> _list, Int32 supplierId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -125,7 +138,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<Result>> _importPartModelTamplate(List<Models.PartModelTemplate> _list, Int32 supplierId)
+        private async Task<Response<Result>> _importPartModelTemplate(List<Models.PartModelTemplate> _list, Int32 supplierId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -144,6 +157,38 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_TEMPLATE_PARTMODEL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+        private async Task<Response<Result>> _importContactTemplate(List<Models.ContactTemplate> _list)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+               // _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_TEMPLATE_CONTACT", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
