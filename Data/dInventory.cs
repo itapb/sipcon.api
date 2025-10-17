@@ -2597,7 +2597,9 @@ namespace Data
                 _mapping.AddItem("BackOrderId", "IDBACKORDER");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
-                _mapping.AddItem("SupplierId", "IDSUPPLIER"); 
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+
+                _mapping.AddItem("StockInfo", "STOCKINFO");
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
@@ -2669,6 +2671,9 @@ namespace Data
                 _mapping.AddItem("SincDate", "DSINCDATE");
                 _mapping.AddItem("Pending", "IPENDING");
 
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
@@ -2734,6 +2739,9 @@ namespace Data
                 _mapping.AddItem("ControlDate", "DCREATED");
                 _mapping.AddItem("SincDate", "DSINCDATE");
                 _mapping.AddItem("Pending", "ISURPLUS");
+
+                _mapping.AddItem("StatusId", "IESTATUS");
+                _mapping.AddItem("StatusName", "STATUS_DISPLAY"); 
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
