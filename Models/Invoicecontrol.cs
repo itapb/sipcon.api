@@ -25,7 +25,7 @@ namespace Models
         public int? Dispatched { get; set; }
 
         [Required]
-        public int? Mark { get; set; }
+        public bool? Mark { get; set; }
 
         [SwaggerIgnore]
         public int? UserSinc { get; set; }

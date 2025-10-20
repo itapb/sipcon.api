@@ -2607,6 +2607,7 @@ namespace Data
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("SupplierName", "VSUPPLIER"); 
                 _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("Mark", "BMARK");
 
 
 
