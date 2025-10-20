@@ -448,6 +448,74 @@ namespace WebApi.Controllers
 
             return document.GeneratePdf();
         }
+        [HttpGet("ExportExcelsaleOrder")]
+        public async Task<IActionResult> GetExport(Int32 userId, Int32 supplierId)
+        {
+            try
+            {
+                List<SaleOrder> _response = await _dSaleOrder.GetExport(userId, supplierId);
+                MemoryStream _excel = ConvertToExcel(_response);
+                string _fileName = "Pedidos.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+        private MemoryStream ConvertToExcel(List<Models.SaleOrder> _saleOrders)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("PEDIDOS");
+
+                // Encabezados (fila 1)  
+
+                worksheet.Cell(1, 1).Value = "NRO";
+                worksheet.Cell(1, 2).Value = "FECHA";
+                worksheet.Cell(1, 3).Value = "CONCESIONARIO";
+                worksheet.Cell(1, 4).Value = "TIPO";
+                worksheet.Cell(1, 5).Value = "ESTATUS";
+                worksheet.Cell(1, 6).Value = "USUARIO";
+
+                var headerRange = worksheet.Range("A1:F1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:F1").SetAutoFilter();
+
+                for (int i = 0; i < _saleOrders.Count; i++)
+                {
+                    var _saleOrder = _saleOrders[i];
+                    int row = i + 2;
+
+                    worksheet.Cell(row, 1).Value = _saleOrder.Id;
+                    worksheet.Cell(row, 2).Value = _saleOrder.Created;
+                    worksheet.Cell(row, 3).Value = _saleOrder.DealerName;
+                    worksheet.Cell(row, 4).Value = _saleOrder.TypeName;
+                    worksheet.Cell(row, 5).Value = _saleOrder.StatusName;
+                    worksheet.Cell(row, 6).Value = _saleOrder.CreatedBy;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
 
 
         [HttpPost("PostSaleOrder")]

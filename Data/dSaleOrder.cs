@@ -28,7 +28,18 @@ namespace Data
                 _semaphore.Release();
             }
         }
-
+        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<SaleOrder>)(await _GetAll(userId, supplierId, null, null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
         private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
         {
             Response<List<SaleOrder>> _response =  new Response<List<SaleOrder>>();
