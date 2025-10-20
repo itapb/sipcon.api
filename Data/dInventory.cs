@@ -2893,12 +2893,12 @@ namespace Data
         }
 
         /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
-        public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostInvoiceControl_Actions(actions, userId);
+                return await _PostInvoiceControl_Actions(actions, userId, supplierId);
             }
             finally
             {
@@ -2906,7 +2906,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Result>> _PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        private async Task<Response<Result>> _PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -2916,6 +2916,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
