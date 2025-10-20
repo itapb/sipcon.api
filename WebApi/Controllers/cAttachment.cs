@@ -22,12 +22,10 @@ namespace WebApi.Controllers
     {
 
         private readonly dAttachment _dAttachment;
-        private readonly dModule _dModule;
 
-        public cAttachment(dAttachment dAttachment, dModule dModule)
+        public cAttachment(dAttachment dAttachment)
         {
             _dAttachment = dAttachment;
-            _dModule = dModule;
         }
 
         [HttpGet("GetAll")]
@@ -79,7 +77,7 @@ namespace WebApi.Controllers
                 // Obtener la ruta base desde la variable de entorno
                 string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
                 // Obtener la lista de módulos desde la base de datos
-                var _modules = await _dModule.GetAll(null, userId);
+                var _modules = await _dAttachment.GetModule(null, userId);
 
                 // Buscar el módulo correspondiente según el ModuleId del attachment
                 string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
@@ -227,7 +225,7 @@ namespace WebApi.Controllers
                 string servicesUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
 
                 // Obtener módulo
-                var modules = await _dModule.GetAll(moduleName, userId);
+                var modules = await _dAttachment.GetModule(moduleName, userId);
                 var module = modules?.FirstOrDefault(m => m.Name == moduleName);
                 if (module == null)
                 {
@@ -329,7 +327,7 @@ namespace WebApi.Controllers
                 string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
 
                 // Obtener la lista de módulos desde la base de datos
-                var _modules = await _dModule.GetAll(null, userId);
+                var _modules = await _dAttachment.GetModule(null, userId);
 
                 // Buscar el módulo correspondiente según el ModuleId del attachment
                 string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
