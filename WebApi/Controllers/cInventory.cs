@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading;
 using Colors = QuestPDF.Helpers.Colors;
@@ -156,6 +157,95 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/Movements/ReceptionExport")]
+        public async Task<IActionResult> GetExportMovementsReception(Int32 userId, Int32 supplierId)
+        {
+            try
+            {
+                List<Movement> _response = await _dInventory.GetExportMovementsReception(userId, supplierId);
+                MemoryStream _excel = ConvertToExcelMovements(_response);
+                string _fileName = "Recepcion.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+        [HttpGet("/api/Movements/RelocationExport")]
+        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId)
+        {
+            try
+            {
+                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId);
+                MemoryStream _excel = ConvertToExcelMovements(_response);
+                string _fileName = "Traslado.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+        private MemoryStream ConvertToExcelMovements(List<Models.Movement> _movements)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("MOVIMIENTOS");
+
+                // Encabezados (fila 1)
+                worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
+                worksheet.Cell(1, 2).Value = "FECHA";
+                worksheet.Cell(1, 3).Value = "PROVEEDOR";
+                worksheet.Cell(1, 4).Value = "REFERENCIA"; 
+                worksheet.Cell(1, 5).Value = "ESTATUS";
+                worksheet.Cell(1, 6).Value = "USUARIO";
+                 
+                var headerRange = worksheet.Range("A1:F1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:F1").SetAutoFilter();
+
+                for (int i = 0; i < _movements.Count; i++)
+                {
+                    var _movement = _movements[i];
+                    int row = i + 2;
+
+                    worksheet.Cell(row, 1).Value = _movement.Id;
+                    worksheet.Cell(row, 2).Value = _movement.Created;
+                    worksheet.Cell(row, 3).Value = _movement.SupplierReference;
+                    worksheet.Cell(row, 4).Value = _movement.Reference; 
+                    worksheet.Cell(row, 5).Value = _movement.StatusName;
+                    worksheet.Cell(row, 6).Value = _movement.CreatedBy;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
+
         [HttpGet("/api/Movements/GetMovement")]
         public async Task<IActionResult> GetMovement(Int32 userId, Int32  movementId)
         {
@@ -169,7 +259,7 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
-
+         
         [HttpGet("/api/Movements/NewMovementWithContext")]
         public async Task<IActionResult> NewMovementWithContext(Int32 userId, Int32 supplierId, string typeId)
         {
@@ -1272,6 +1362,75 @@ namespace WebApi.Controllers
             }
         }
 
+        //#### GET EXPORT
+
+        private MemoryStream ConvertToExcelAdjustment(List<Models.Adjustment> _adjustments)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("AJUSTES");
+
+                // Encabezados (fila 1)
+                worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
+                worksheet.Cell(1, 2).Value = "FECHA";
+                worksheet.Cell(1, 3).Value = "USUARIO";
+                worksheet.Cell(1, 4).Value = "ESTATUS";
+                worksheet.Cell(1, 5).Value = "OBSERVACION";
+
+                var headerRange = worksheet.Range("A1:E1");  
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:E1").SetAutoFilter();  
+ 
+                for (int i = 0; i < _adjustments.Count; i++)
+                {
+                    var _adjustment = _adjustments[i];
+                    int row = i + 2;  
+
+                    worksheet.Cell(row, 1).Value = _adjustment.Id;
+                    worksheet.Cell(row, 2).Value = _adjustment.DCreated;
+                    worksheet.Cell(row, 3).Value = _adjustment.UserLogin;
+                    worksheet.Cell(row, 4).Value = _adjustment.StatusName;
+                    worksheet.Cell(row, 5).Value = _adjustment.Comment;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
+      
+
+        [HttpGet("/api/Adjustment/Export")]
+        public async Task<IActionResult> GetExportAdjustment(Int32 userId, Int32 supplierId)
+        {
+            try
+            {
+                List<Adjustment> _response = await _dInventory.GetExportAdjustment(userId, supplierId);
+                MemoryStream _excel = ConvertToExcelAdjustment(_response);
+                string _fileName = "Adjustes.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+       
         //#### GET NEW WITH CONTEXT
 
         [HttpGet("/api/Adjustment/NewAdjustmentWithContext")]
@@ -1403,6 +1562,7 @@ namespace WebApi.Controllers
             }
 
         }
+
         #endregion
 
 

@@ -231,6 +231,36 @@ namespace Data
             }
         }
 
+        /*-------------------------------------------------------------- Get Export Reception   ---------------------------------------------------------------*/
+
+        public async Task<List<Movement>> GetExportMovementsReception(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Movement>)(await _getMovements(userId, supplierId, "R", null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        /*-------------------------------------------------------------- Get Export relocation   ---------------------------------------------------------------*/
+
+        public async Task<List<Movement>> GetExportMovementsRelocation(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Movement>)(await _getMovements(userId, supplierId, "T", null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        /*------------------------------------------------------------------------------------------------------------------------------------*/
+
         public async Task<Response<Movement>> GetMovement(Int32 userId, Int32? movementId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -2140,7 +2170,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, Int32? adjustmentId = null)
+        private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32? rowFrom, string? filter, Int32? adjustmentId = null)
         {
             Response<List<Models.Adjustment>> _response = new Response<List<Models.Adjustment>>();
 
@@ -2229,6 +2259,20 @@ namespace Data
                 _response.SetError(ex);
             }
             return _response;
+        }
+        /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
+
+        public async Task<List<Adjustment>> GetExportAdjustment(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Adjustment>)(await _GetAdjustments(userId, supplierId, null, null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         /*-------------------------------------------------------------- GetDetails ---------------------------------------------------------------*/
