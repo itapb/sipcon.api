@@ -43,12 +43,12 @@ namespace Data
             }
         }
 
-        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, bool? withStock = true, string? locationType = null)
+        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Inventory>)(await _GetAll(userId, supplierId, null, filter, null, null)).Data;
+                return (List<Inventory>)(await _GetAll(userId, supplierId, null, null, null, null)).Data;
             }
             finally
             {
@@ -230,6 +230,36 @@ namespace Data
                 _semaphore.Release();
             }
         }
+
+        /*-------------------------------------------------------------- Get Export Reception   ---------------------------------------------------------------*/
+
+        public async Task<List<Movement>> GetExportMovementsReception(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Movement>)(await _getMovements(userId, supplierId, "R", null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        /*-------------------------------------------------------------- Get Export relocation   ---------------------------------------------------------------*/
+
+        public async Task<List<Movement>> GetExportMovementsRelocation(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Movement>)(await _getMovements(userId, supplierId, "T", null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        /*------------------------------------------------------------------------------------------------------------------------------------*/
 
         public async Task<Response<Movement>> GetMovement(Int32 userId, Int32? movementId)
         {
@@ -1763,12 +1793,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, filter, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null)).Data;
             }
             finally
             {
@@ -2140,7 +2170,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, Int32? adjustmentId = null)
+        private async Task<Response<List<Models.Adjustment>>> _GetAdjustments(Int32 userId, Int32 supplierId, Int32? rowFrom, string? filter, Int32? adjustmentId = null)
         {
             Response<List<Models.Adjustment>> _response = new Response<List<Models.Adjustment>>();
 
@@ -2229,6 +2259,20 @@ namespace Data
                 _response.SetError(ex);
             }
             return _response;
+        }
+        /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
+
+        public async Task<List<Adjustment>> GetExportAdjustment(Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Adjustment>)(await _GetAdjustments(userId, supplierId, null, null, null)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         /*-------------------------------------------------------------- GetDetails ---------------------------------------------------------------*/
@@ -2541,20 +2585,17 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", null);
-                _parameter.AddSqlParameter("@VFILTER", null); 
-                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);  // Nuevo parámetro
+                _parameter.AddSqlParameter("@IDCONTROL", idcontrol);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("PartInnerCode", "VCODEPART");
                 _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("Dispatched", "IDISPATCHED");
+                _mapping.AddItem("Dispatched", "IDISPATCHED");  
                 _mapping.AddItem("Price", "NPRICE");
-                _mapping.AddItem("ControlId", "IDCONTROL");
-                _mapping.AddItem("Mark", "BMARK");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("ControlId", "IDCONTROL"); 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_GROUP", _parameter);
 
                 _response.Data = _data.GetList<Invoicecontrol>(_mapping, _table);
                 _response.SetGetResponse(_table);
@@ -2565,6 +2606,8 @@ namespace Data
             }
             return _response;
         }
+
+       
         /*--------------------------------------------------------------GET DISPATCHED-------------------------------------------------------------*/
 
         public async Task<Response<List<Models.Invoicecontrol>>> GetDispatchedControl(int userId, int supplierId, int? rowfrom, string? filter)
@@ -2598,7 +2641,9 @@ namespace Data
                 _mapping.AddItem("BackOrderId", "IDBACKORDER");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
-                _mapping.AddItem("SupplierId", "IDSUPPLIER"); 
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada
+                _mapping.AddItem("StockInfo", "STOCKINFO");
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
@@ -2606,6 +2651,7 @@ namespace Data
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("SupplierName", "VSUPPLIER"); 
                 _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("Mark", "BMARK");
 
 
 
@@ -2669,6 +2715,9 @@ namespace Data
                 _mapping.AddItem("ControlDate", "DCONTROLDATE");
                 _mapping.AddItem("SincDate", "DSINCDATE");
                 _mapping.AddItem("Pending", "IPENDING");
+
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
@@ -2735,6 +2784,9 @@ namespace Data
                 _mapping.AddItem("ControlDate", "DCREATED");
                 _mapping.AddItem("SincDate", "DSINCDATE");
                 _mapping.AddItem("Pending", "ISURPLUS");
+
+                _mapping.AddItem("StatusId", "IESTATUS");
+                _mapping.AddItem("StatusName", "STATUS_DISPLAY"); 
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
