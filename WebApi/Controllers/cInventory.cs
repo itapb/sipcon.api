@@ -1613,11 +1613,11 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/InvoiceControl/PostActions")]
-        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId )
         {
             try
             {
-                var _response = await _dInventory.PostInvoiceControl_Actions(actions, userId);
+                var _response = await _dInventory.PostInvoiceControl_Actions(actions, userId, supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
