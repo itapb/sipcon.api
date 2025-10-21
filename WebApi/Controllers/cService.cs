@@ -672,7 +672,7 @@ namespace WebApi.Controllers
                             {
                                 header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Ítem").Bold().AlignCenter().FontSize(10);
                                 header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Referencia").Bold().AlignCenter().FontSize(10);
-                                header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Serial").Bold().AlignCenter().FontSize(10);
+                                header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Num Factura").Bold().AlignCenter().FontSize(10);
                                 header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Tipo").Bold().AlignCenter().FontSize(10);
                                 header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Compra Externa").Bold().AlignCenter().FontSize(10);
                                 header.Cell().PaddingTop(4).Border(1).Background(Colors.Grey.Lighten1).Padding(1.5f).Text("Descripción").Bold().AlignCenter().FontSize(10);
