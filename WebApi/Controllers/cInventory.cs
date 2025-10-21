@@ -1058,11 +1058,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             try
             {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, dealerId, rowFrom, filter, startdate, enddate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
