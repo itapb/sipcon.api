@@ -874,7 +874,43 @@ namespace Data
 
             return _response;
         }
+        public async Task<Response<Result>> PostClaim(Int32 guideId, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postClaim(guideId, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
+        private async Task<Response<Result>> _postClaim(Int32 guideId, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDGUIDE", guideId);   
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_CLAIM", _parameter);   
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+        //-------------------------------------------------------------------------CLAIM
         private async Task<Response<Result>> _postPackage(Models.Package package)
         {
             Response<Result> _response = new Response<Result>();
