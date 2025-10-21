@@ -229,7 +229,7 @@ namespace WebApi.Controllers
                 var module = modules?.FirstOrDefault(m => m.Name == moduleName);
                 if (module == null)
                 {
-                    response.SetError(new Exception($"No se encontró el módulo '{moduleName}' para el usuario {userId}."));
+                    response.SetError(new Exception($"El Usuario no posee permisos para cargar archivos"));
                     return StatusCode(response.Status, response);
                 }
 
@@ -328,6 +328,12 @@ namespace WebApi.Controllers
 
                 // Obtener la lista de módulos desde la base de datos
                 var _modules = await _dAttachment.GetModule(null, userId);
+               
+                if (_modules == null)
+                {
+                    response.SetError(new Exception($"El Usuario no posee permisos para eliminar archivos"));
+                    return StatusCode(response.Status, response);
+                }
 
                 // Buscar el módulo correspondiente según el ModuleId del attachment
                 string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
