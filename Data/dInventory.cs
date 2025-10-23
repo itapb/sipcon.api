@@ -874,7 +874,43 @@ namespace Data
 
             return _response;
         }
+        public async Task<Response<Result>> PostClaim(Int32 guideId, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postClaim(guideId, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
+        private async Task<Response<Result>> _postClaim(Int32 guideId, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDGUIDE", guideId);   
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_CLAIM", _parameter);   
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+        //-------------------------------------------------------------------------CLAIM
         private async Task<Response<Result>> _postPackage(Models.Package package)
         {
             Response<Result> _response = new Response<Result>();
@@ -1798,7 +1834,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null, null)).Data;
             }
             finally
             {
@@ -1808,12 +1844,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetBackOrders(userId, supplierId, rowfrom, filter, startdate, enddate);
+                return await _GetBackOrders(userId, supplierId, dealerId, rowfrom, filter, startdate, enddate);
             }
             finally
             {
@@ -1821,7 +1857,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
             try
@@ -1829,6 +1865,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@STARTDATE", startdate);
@@ -2857,12 +2894,12 @@ namespace Data
         }
 
         /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
-        public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostInvoiceControl_Actions(actions, userId);
+                return await _PostInvoiceControl_Actions(actions, userId, supplierId);
             }
             finally
             {
@@ -2870,7 +2907,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Result>> _PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        private async Task<Response<Result>> _PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -2880,6 +2917,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();

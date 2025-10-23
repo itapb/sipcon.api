@@ -972,7 +972,20 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpPost("/api/Guide/Claim")]
+        public async Task<IActionResult> postClaim(Int32 guideId, Int32 userId)
+        {
+            try
+            {
 
+                var _response = await _dInventory.PostClaim(guideId, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
         private MemoryStream ConvertToExcel(List<Models.Inventory> _inventories)
         {
             // 2. Crear el libro de trabajo Excel
@@ -1045,11 +1058,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             try
             {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, rowFrom, filter, startdate, enddate);
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, dealerId, rowFrom, filter, startdate, enddate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1613,11 +1626,11 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/InvoiceControl/PostActions")]
-        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId)
+        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId )
         {
             try
             {
-                var _response = await _dInventory.PostInvoiceControl_Actions(actions, userId);
+                var _response = await _dInventory.PostInvoiceControl_Actions(actions, userId, supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
