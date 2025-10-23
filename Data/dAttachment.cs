@@ -97,7 +97,7 @@ namespace Data
                 _mapping.AddItem("ActionDisplay", "VDISPLAY");
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response = await _data.ExecuteReaderAsync<Models.Module>("USP_GET_MODULES", _mapping, _parameter);
+                _response = await _data.ExecuteReaderAsync<Models.Module>("USP_GET_MODULES_FORATTACHMENT", _mapping, _parameter);
 
             }
             catch (Exception ex)

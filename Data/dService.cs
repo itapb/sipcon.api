@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Util;
 using Mapping = Util.Mapping;
+using Parameter = Util.Parameter;
 
 namespace Data
 {
@@ -679,6 +680,61 @@ namespace Data
         }
 
 
+        public async Task<List<SrgPending>> GetExportSrg(Int32 userId, Int32? supplierId, Int32? dealerId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                Response<List<Models.SrgPending>> response = await _GetExportSrg(userId, supplierId, dealerId);
+                if (response.Data is List<SrgPending> srgList)
+                {
+                    return srgList;
+                }
+                return new List<SrgPending>();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<List<Models.SrgPending>>> _GetExportSrg(Int32 userId, Int32? supplierId, Int32? dealerId)
+        {
+            Response<List<Models.SrgPending>> _response = new Response<List<Models.SrgPending>>();
+
+            try
+            {
+                var _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                var _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Srg", "VSRGNUMBER");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Model", "VMODEL");
+                _mapping.AddItem("DescriptionFail", "VTECHNICALSOLUTION");
+                _mapping.AddItem("Invoice", "VINVOICENUMBER");
+                _mapping.AddItem("InvoiceDate", "DINVOICEDATE");
+                _mapping.AddItem("Exent", "NEXEMPT");
+                _mapping.AddItem("TaxBase", "NTAXBASE");
+                _mapping.AddItem("Mount", "NINVOICEAMOUNT");
+                _mapping.AddItem("Tax", "TAX");
+                var _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_SRG_PENDING", _parameter);
+                _response.Data = _data.GetList<Models.SrgPending>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
 
 
