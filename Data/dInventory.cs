@@ -1834,7 +1834,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null, null)).Data;
             }
             finally
             {
@@ -1844,12 +1844,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetBackOrders(userId, supplierId, rowfrom, filter, startdate, enddate);
+                return await _GetBackOrders(userId, supplierId, dealerId, rowfrom, filter, startdate, enddate);
             }
             finally
             {
@@ -1857,7 +1857,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
             try
@@ -1865,6 +1865,7 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@STARTDATE", startdate);
