@@ -915,6 +915,107 @@ namespace WebApi.Controllers
 
         }
 
+        private MemoryStream ConvertToExcel(List<Models.Policy> _policies)
+        {
+            // 2. Crear el libro de trabajo Excel
+            using (var workbook = new XLWorkbook())
+            {
+                // 3. Agregar una hoja al libro
+                var worksheet = workbook.Worksheets.Add("POLIZAS");
+
+                // 4. Agregar los encabezados
+                worksheet.Cell(1, 1).Value = "NUMERO";
+                worksheet.Cell(1, 2).Value = "CODIGO";
+                worksheet.Cell(1, 3).Value = "TIPO POLIZA";
+                worksheet.Cell(1, 4).Value = "VIN";
+                worksheet.Cell(1, 5).Value = "PLACA";
+                worksheet.Cell(1, 6).Value = "MODELO";
+                worksheet.Cell(1, 7).Value = "RIF";
+                worksheet.Cell(1, 8).Value = "NOMBRE";
+                worksheet.Cell(1, 9).Value = "APELLIDO";
+                worksheet.Cell(1, 10).Value = "FECHA ACTIVACION";
+                worksheet.Cell(1, 11).Value = "CONCECIONARIO";
+                worksheet.Cell(1, 12).Value = "PLANTA";
+                worksheet.Cell(1, 13).Value = "NUM FACTURA";
+                worksheet.Cell(1, 14).Value = "MONTO FACTURA";
+                worksheet.Cell(1, 15).Value = "FEC FACTURA";
+                worksheet.Cell(1, 16).Value = "ACTIVA";
+                worksheet.Cell(1, 17).Value = "ESTATUS";
+
+                // 5. Estilo para los encabezados
+                var headerRange = worksheet.Range("A1:Q1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+                var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
+                worksheet.Range("A1:Q1").SetAutoFilter();
+                // 6. Llenar los datos
+                for (int i = 0; i < _policies.Count; i++)
+                {
+                    var _policy = _policies[i];
+                    worksheet.Cell(i + 2, 1).Value = _policy.Id;
+                    worksheet.Cell(i + 2, 2).Value = _policy.Number;
+                    worksheet.Cell(i + 2, 3).Value = _policy.Description;
+                    worksheet.Cell(i + 2, 4).Value = _policy.Vin;
+                    worksheet.Cell(i + 2, 5).Value = _policy.Plate;
+                    worksheet.Cell(i + 2, 6).Value = _policy.ModelName;
+                    worksheet.Cell(i + 2, 7).Value = _policy.Vat;
+                    worksheet.Cell(i + 2, 8).Value = _policy.FirstName;
+                    worksheet.Cell(i + 2, 9).Value = _policy.LastName;
+                    worksheet.Cell(i + 2, 10).Value = _policy.ActivationDate;
+                    worksheet.Cell(i + 2, 10).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
+                    worksheet.Cell(i + 2, 11).Value = _policy.DealerCod;
+                    worksheet.Cell(i + 2, 12).Value = _policy.SupplierCod;
+                    worksheet.Cell(i + 2, 13).Value = _policy.InvoiceNumber;
+                    worksheet.Cell(i + 2, 14).Value = _policy.InvoiceAmount;
+                    worksheet.Cell(i + 2, 15).Value = _policy.InvoiceDate;
+                    worksheet.Cell(i + 2, 15).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
+                    worksheet.Cell(i + 2, 16).Value = _policy.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(i + 2, 17).Value = _policy.EstatusName;
+                    worksheet.Cell(i + 2, 17).Style.Fill.BackgroundColor = colorMap.TryGetValue(_policy.EstatusName, out var color) ? color : XLColor.Yellow;
+
+                }
+                // 7. Ajustar el ancho de las columnas al contenido 
+                worksheet.Columns().AdjustToContents();
+
+                // 8. Centra contenido de las columnas 
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                // 8. Preparar el stream para la respuesta
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0; // Importante: rebobinar el stream
+                return stream;
+
+            }
+
+        }
+
+        [HttpGet("ExportSrgPending")]
+        public async Task<IActionResult> ExportSrgPending(string? filter, Int32 userId, Int32? supplierId, Int32? dealerId)
+        {
+
+            try
+            {
+
+                List<Policy> _policies = await _dService.GetExport(filter, userId, supplierId, dealerId);
+                MemoryStream _excel = ConvertToExcel(_policies);
+                string _fileName = "Polizas.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
 
         [HttpPost("PostMaintenance")]
         public async Task<IActionResult> Post_Maintenance(Models.ServiceMaintenance maintenance, Int32 userId)
