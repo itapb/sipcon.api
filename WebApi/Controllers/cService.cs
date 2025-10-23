@@ -915,64 +915,50 @@ namespace WebApi.Controllers
 
         }
 
-        private MemoryStream ConvertToExcel(List<Models.Policy> _policies)
+        private MemoryStream ConvertToExcelSrg(List<Models.SrgPending> _srg)
         {
             // 2. Crear el libro de trabajo Excel
             using (var workbook = new XLWorkbook())
             {
                 // 3. Agregar una hoja al libro
-                var worksheet = workbook.Worksheets.Add("POLIZAS");
+                var worksheet = workbook.Worksheets.Add("SOLICTUD PAGO DE GARANTIA A CONCESIONARIO");
 
                 // 4. Agregar los encabezados
-                worksheet.Cell(1, 1).Value = "NUMERO";
-                worksheet.Cell(1, 2).Value = "CODIGO";
-                worksheet.Cell(1, 3).Value = "TIPO POLIZA";
-                worksheet.Cell(1, 4).Value = "VIN";
-                worksheet.Cell(1, 5).Value = "PLACA";
-                worksheet.Cell(1, 6).Value = "MODELO";
-                worksheet.Cell(1, 7).Value = "RIF";
-                worksheet.Cell(1, 8).Value = "NOMBRE";
-                worksheet.Cell(1, 9).Value = "APELLIDO";
-                worksheet.Cell(1, 10).Value = "FECHA ACTIVACION";
-                worksheet.Cell(1, 11).Value = "CONCECIONARIO";
-                worksheet.Cell(1, 12).Value = "PLANTA";
-                worksheet.Cell(1, 13).Value = "NUM FACTURA";
-                worksheet.Cell(1, 14).Value = "MONTO FACTURA";
-                worksheet.Cell(1, 15).Value = "FEC FACTURA";
-                worksheet.Cell(1, 16).Value = "ACTIVA";
-                worksheet.Cell(1, 17).Value = "ESTATUS";
-
+                worksheet.Cell(11, 1).Value = "VIN";
+                worksheet.Cell(11, 2).Value = "N° SRG ";
+                worksheet.Cell(11, 3).Value = "N° RELACION";
+                worksheet.Cell(11, 4).Value = "MODELO";
+                worksheet.Cell(11, 5).Value = "DESCRIPCION DEL TRABAJO REALIZADO";
+                worksheet.Cell(11, 6).Value = "FACTURA N°";
+                worksheet.Cell(11, 7).Value = "F/FACTURA";
+                worksheet.Cell(11, 8).Value = "TASA BCV DE LA FECHA DE FACTURA";
+                worksheet.Cell(11, 9).Value = "TOTAL NETO";
+                worksheet.Cell(11, 10).Value = "IMPUESTO (IVA)";
+                worksheet.Cell(11, 11).Value = "TOTAL GENERAL";
+                worksheet.Cell(11, 12).Value = "TOTAL $$";
+                
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:Q1");
+                var headerRange = worksheet.Range("A11:L11");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
-                var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
-                worksheet.Range("A1:Q1").SetAutoFilter();
+                worksheet.Range("A11:L11").SetAutoFilter();
                 // 6. Llenar los datos
-                for (int i = 0; i < _policies.Count; i++)
+                for (int i = 9; i < _srg.Count; i++)
                 {
-                    var _policy = _policies[i];
-                    worksheet.Cell(i + 2, 1).Value = _policy.Id;
-                    worksheet.Cell(i + 2, 2).Value = _policy.Number;
-                    worksheet.Cell(i + 2, 3).Value = _policy.Description;
-                    worksheet.Cell(i + 2, 4).Value = _policy.Vin;
-                    worksheet.Cell(i + 2, 5).Value = _policy.Plate;
-                    worksheet.Cell(i + 2, 6).Value = _policy.ModelName;
-                    worksheet.Cell(i + 2, 7).Value = _policy.Vat;
-                    worksheet.Cell(i + 2, 8).Value = _policy.FirstName;
-                    worksheet.Cell(i + 2, 9).Value = _policy.LastName;
-                    worksheet.Cell(i + 2, 10).Value = _policy.ActivationDate;
-                    worksheet.Cell(i + 2, 10).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
-                    worksheet.Cell(i + 2, 11).Value = _policy.DealerCod;
-                    worksheet.Cell(i + 2, 12).Value = _policy.SupplierCod;
-                    worksheet.Cell(i + 2, 13).Value = _policy.InvoiceNumber;
-                    worksheet.Cell(i + 2, 14).Value = _policy.InvoiceAmount;
-                    worksheet.Cell(i + 2, 15).Value = _policy.InvoiceDate;
-                    worksheet.Cell(i + 2, 15).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
-                    worksheet.Cell(i + 2, 16).Value = _policy.IsActive != false ? "SI" : "NO";
-                    worksheet.Cell(i + 2, 17).Value = _policy.EstatusName;
-                    worksheet.Cell(i + 2, 17).Style.Fill.BackgroundColor = colorMap.TryGetValue(_policy.EstatusName, out var color) ? color : XLColor.Yellow;
-
+                    var _s = _srg[i];
+                    worksheet.Cell(i + 2, 1).Value = _s.Vin;
+                    worksheet.Cell(i + 2, 2).Value = _s.Srg;
+                    worksheet.Cell(i + 2, 3).Value = _s.Id;
+                    worksheet.Cell(i + 2, 4).Value = _s.Model;
+                    worksheet.Cell(i + 2, 5).Value = _s.DescriptionFail;
+                    worksheet.Cell(i + 2, 6).Value = _s.Invoice;
+                    worksheet.Cell(i + 2, 7).Value = _s.InvoiceDate;
+                    worksheet.Cell(i + 2, 7).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
+                    worksheet.Cell(i + 2, 8).Value = _s.TaxBase;
+                    worksheet.Cell(i + 2, 9).Value = _s.Tax;
+                    worksheet.Cell(i + 2, 10).Value = _s.Mount;
+                    worksheet.Cell(i + 2, 11).Value = _s.Mount;
+                    
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
                 worksheet.Columns().AdjustToContents();
@@ -993,14 +979,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("ExportSrgPending")]
-        public async Task<IActionResult> ExportSrgPending(string? filter, Int32 userId, Int32? supplierId, Int32? dealerId)
+        public async Task<IActionResult> ExportSrgPending(Int32 userId, Int32? supplierId, Int32? dealerId)
         {
 
             try
             {
 
-                List<Policy> _policies = await _dService.GetExport(filter, userId, supplierId, dealerId);
-                MemoryStream _excel = ConvertToExcel(_policies);
+                List<SrgPending> _srg = await _dService.GetExportSrg(userId, supplierId, dealerId);
+                MemoryStream _excel = ConvertToExcelSrg(_srg);
                 string _fileName = "Polizas.xlsx";
 
                 return File(
@@ -1015,6 +1001,7 @@ namespace WebApi.Controllers
             }
 
         }
+
 
 
         [HttpPost("PostMaintenance")]
