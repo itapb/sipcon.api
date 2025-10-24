@@ -915,6 +915,94 @@ namespace WebApi.Controllers
 
         }
 
+        private MemoryStream ConvertToExcelSrg(List<Models.SrgPending> _srg)
+        {
+            // 2. Crear el libro de trabajo Excel
+            using (var workbook = new XLWorkbook())
+            {
+                // 3. Agregar una hoja al libro
+                var worksheet = workbook.Worksheets.Add("SOLICTUD PAGO DE GARANTIA A CONCESIONARIO");
+
+                // 4. Agregar los encabezados
+                worksheet.Cell(11, 1).Value = "VIN";
+                worksheet.Cell(11, 2).Value = "N° SRG ";
+                worksheet.Cell(11, 3).Value = "N° RELACION";
+                worksheet.Cell(11, 4).Value = "MODELO";
+                worksheet.Cell(11, 5).Value = "DESCRIPCION DEL TRABAJO REALIZADO";
+                worksheet.Cell(11, 6).Value = "FACTURA N°";
+                worksheet.Cell(11, 7).Value = "F/FACTURA";
+                worksheet.Cell(11, 8).Value = "TASA BCV DE LA FECHA DE FACTURA";
+                worksheet.Cell(11, 9).Value = "TOTAL NETO";
+                worksheet.Cell(11, 10).Value = "IMPUESTO (IVA)";
+                worksheet.Cell(11, 11).Value = "TOTAL GENERAL";
+                worksheet.Cell(11, 12).Value = "TOTAL $$";
+                
+                // 5. Estilo para los encabezados
+                var headerRange = worksheet.Range("A11:L11");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+                worksheet.Range("A11:L11").SetAutoFilter();
+                // 6. Llenar los datos
+                for (int i = 9; i < _srg.Count; i++)
+                {
+                    var _s = _srg[i];
+                    worksheet.Cell(i + 2, 1).Value = _s.Vin;
+                    worksheet.Cell(i + 2, 2).Value = _s.Srg;
+                    worksheet.Cell(i + 2, 3).Value = _s.Id;
+                    worksheet.Cell(i + 2, 4).Value = _s.Model;
+                    worksheet.Cell(i + 2, 5).Value = _s.DescriptionFail;
+                    worksheet.Cell(i + 2, 6).Value = _s.Invoice;
+                    worksheet.Cell(i + 2, 7).Value = _s.InvoiceDate;
+                    worksheet.Cell(i + 2, 7).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
+                    worksheet.Cell(i + 2, 8).Value = _s.TaxBase;
+                    worksheet.Cell(i + 2, 9).Value = _s.Tax;
+                    worksheet.Cell(i + 2, 10).Value = _s.Mount;
+                    worksheet.Cell(i + 2, 11).Value = _s.Mount;
+                    
+                }
+                // 7. Ajustar el ancho de las columnas al contenido 
+                worksheet.Columns().AdjustToContents();
+
+                // 8. Centra contenido de las columnas 
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                // 8. Preparar el stream para la respuesta
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0; // Importante: rebobinar el stream
+                return stream;
+
+            }
+
+        }
+
+        [HttpGet("ExportSrgPending")]
+        public async Task<IActionResult> ExportSrgPending(Int32 userId, Int32? supplierId, Int32? dealerId)
+        {
+
+            try
+            {
+
+                List<SrgPending> _srg = await _dService.GetExportSrg(userId, supplierId, dealerId);
+                MemoryStream _excel = ConvertToExcelSrg(_srg);
+                string _fileName = "Polizas.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+
 
         [HttpPost("PostMaintenance")]
         public async Task<IActionResult> Post_Maintenance(Models.ServiceMaintenance maintenance, Int32 userId)

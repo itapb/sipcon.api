@@ -287,12 +287,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<MovementDetails>>> GetMovementDetailsByUser(Int32 userId, string movementType, string mode)
+        public async Task<Response<List<MovementDetails>>> GetMovementDetailsByUser(Int32 userId, Int32? supplierId ,string movementType, string mode)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovementDetailsByUser(userId, movementType, mode);
+                return await _getMovementDetailsByUser(userId,supplierId, movementType, mode);
             }
             finally
             {
@@ -473,13 +473,14 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<MovementDetails>>> _getMovementDetailsByUser(Int32 userId, string movementType, string mode)
+        private async Task<Response<List<MovementDetails>>> _getMovementDetailsByUser(Int32 userId, Int32? supplierId ,string movementType, string mode)
         {
             Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@VTYPE", movementType);
                 _parameter.AddSqlParameter("@VMODE", mode);
 
@@ -1844,12 +1845,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, bool stockOnly = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetBackOrders(userId, supplierId, dealerId, rowfrom, filter, startdate, enddate);
+                return await _GetBackOrders(userId, supplierId, dealerId, rowfrom, filter, startdate, enddate, stockOnly);
             }
             finally
             {
@@ -1857,7 +1858,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate)
+        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, bool stockOnly =false)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
             try
@@ -1870,6 +1871,8 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@STARTDATE", startdate);
                 _parameter.AddSqlParameter("@ENDDATE", enddate);
+                _parameter.AddSqlParameter("@BSTOCKONLY", stockOnly);
+                
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "IDBACKORDER");
