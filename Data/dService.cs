@@ -722,6 +722,12 @@ namespace Data
                 _mapping.AddItem("TaxBase", "NTAXBASE");
                 _mapping.AddItem("Mount", "NINVOICEAMOUNT");
                 _mapping.AddItem("Tax", "TAX");
+                _mapping.AddItem("Dealer", "DEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("Reporttype", "REPORTTYPE");
+                
+
                 var _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_SRG_PENDING", _parameter);
                 _response.Data = _data.GetList<Models.SrgPending>(_mapping, _table);
