@@ -104,25 +104,20 @@ namespace WebApi.Controllers
             }
         }
 
-/*
-        [HttpGet("GetReasons")]
-        public async Task<IActionResult> GetReasons()
+        //#### GET CLAIM REASONS
+        [HttpGet("/api/SaleOrder/GetClaimReasons")]
+        public async Task<IActionResult> GetClaimReasons()
         {
-
             try
             {
-                var _response = await _dSaleOrder.GetReasons();
+                var _response = await _dSaleOrder.GetClaimReasons();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
-
-
         }
-
-        */
 
         [HttpGet("GetSaleOrderTypes")]
         public async Task<IActionResult> GetSaleOrderTypes()

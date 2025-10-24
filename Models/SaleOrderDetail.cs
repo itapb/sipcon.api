@@ -32,7 +32,14 @@ namespace Models
         [SwaggerIgnore]
         public int? Invoiced { get; set; }
 
+        [Required]
         public int? ReasonId { get; set; }
+
+        [SwaggerIgnore]
+        public string? ReasonType { get; set; }
+
+        [SwaggerIgnore]
+        public string? ReasonDescription { get; set; }
 
         [SwaggerIgnore]
         public decimal? Cost { get; set; }
