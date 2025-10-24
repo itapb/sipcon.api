@@ -290,7 +290,7 @@ namespace Data
             {
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("Type", "CTYPE");
+                _mapping.AddItem("Type", "CCLAIM");
                 _mapping.AddItem("Description", "DESC");
 
                 var _data = Util.Data.GetInstance();
@@ -420,8 +420,8 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("SaleOrdeId", "IDSALEORDER");
                 _mapping.AddItem("PartId", "IDPART");
-                _mapping.AddItem("ReasonId", "IDREASON"); 
-              //  _mapping.AddItem("ReasonType", "CTYPE");
+                _mapping.AddItem("ReasonId", "IDREASON");
+                //  _mapping.AddItem("ReasonType", "CCLAIM");
                 _mapping.AddItem("ReasonDescription", "VREASON"); 
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("PartInnerCode", "VINNERCODE");
