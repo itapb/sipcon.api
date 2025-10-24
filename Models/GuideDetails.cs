@@ -14,6 +14,12 @@ namespace Models
         [Required]
         public int? Id { get; set; }
 
+        [Required]
+        public int? ReasonId { get; set; }
+
+        [SwaggerIgnore]
+        public string? ReasonDescription { get; set; }
+
         [SwaggerIgnore]
         public int? GuideId { get; set; }
 
