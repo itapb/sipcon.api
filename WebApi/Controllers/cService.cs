@@ -1,6 +1,8 @@
 ﻿using Azure;
 using ClosedXML.Excel;
+using ClosedXML.Excel.Drawings;
 using Data;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -915,58 +917,162 @@ namespace WebApi.Controllers
 
         }
 
-        private MemoryStream ConvertToExcelSrg(List<Models.SrgPending> _srg)
+        private async Task<MemoryStream> ConvertToExcelSrgAsync(List<Models.SrgPending> _srg)
         {
+             var dealer = _srg.FirstOrDefault()?.Dealer ?? "DESCONOCIDO";
+            int? brandId = _srg.First().BrandId;
+            int? supplierId = _srg.First().SupplierId;
+
+            string brandImagePath = await GetFirstAttachmentFilePath("RECURSOS-MARCAS", brandId);
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", supplierId);
+
             // 2. Crear el libro de trabajo Excel
             using (var workbook = new XLWorkbook())
             {
+
+
                 // 3. Agregar una hoja al libro
-                var worksheet = workbook.Worksheets.Add("SOLICTUD PAGO DE GARANTIA A CONCESIONARIO");
+                var worksheet = workbook.Worksheets.Add("SOLICTUD PAGO DE GARANTIA");
+                worksheet.ShowGridLines = false;
+
+                var image = worksheet.AddPicture(supplierImagePath)
+               .WithPlacement(XLPicturePlacement.FreeFloating)
+               .MoveTo(worksheet.Cell("C1"), 10, 5);
+                image.Width = 180;   // Ancho en píxeles
+                image.Height = 80;
+
+
+                var image2 = worksheet.AddPicture(brandImagePath)
+                .WithPlacement(XLPicturePlacement.FreeFloating)
+                .MoveTo(worksheet.Cell("I1"), 10, 5); // 10 px a la derecha, 5 px hacia abajo
+                image2.Width = 180;
+                image2.Height = 80;
+
+                worksheet.Cell(2, 4).Value = "SOLICITUD PAGO DE GARANTIA A CONCESIONARIO";
+                worksheet.Cell(2, 4).Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                worksheet.Range(2, 4, 2, 9).Merge();
+                worksheet.Cell(2, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Cell(2, 4).Style.Font.Bold = true;
+
+                worksheet.Cell(5, 1).Value = "DIRIGIDO A :";
+                worksheet.Cell(5, 2).Value = "JEFA DE CONTABILIDAD";
+                ApplyFullBorder(worksheet, 5, 2);
+                worksheet.Cell(6, 1).Value = "CONCESIONARIO: ";
+                worksheet.Cell(6, 2).Value = dealer;
+                ApplyFullBorder(worksheet, 6, 2);
+
+                worksheet.Cell(5, 12).Value = "FECHA:";
+                ApplyFullBorder(worksheet, 5, 12);
+                worksheet.Cell(5, 13).Value = DateTime.Now.ToString("dd/MM/yyyy");
+                ApplyFullBorder(worksheet, 5, 13);
+
+                worksheet.Cell(6, 12).Value = "RELACION N° ";
+                ApplyFullBorder(worksheet, 6, 12);
+                worksheet.Cell(6, 13).Value = "  ";
+                ApplyFullBorder(worksheet, 6, 13);
+
+                worksheet.Cell(8, 2).Value = "La presente es para solicitarle, realizar cruce de cuenta a favor del Concesionario";
+                worksheet.Range(8, 2, 8, 5).Merge();
+                worksheet.Cell(8, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                worksheet.Cell(8, 2).Style.Font.Bold = true;
+
+                worksheet.Cell(8, 6).Value =dealer;
+                worksheet.Range(8, 6, 8, 8).Merge();
+                worksheet.Cell(8, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Cell(8, 6).Style.Font.Bold = true;
+
+                worksheet.Cell(8, 9).Value = "por Concepto de Solicitud de Reembolso de Garantias y Facturas.";
+                worksheet.Range(8, 9, 8, 13).Merge();
+                worksheet.Cell(8, 9).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                worksheet.Cell(8, 9).Style.Font.Bold = true;
+
 
                 // 4. Agregar los encabezados
                 worksheet.Cell(11, 1).Value = "VIN";
                 worksheet.Cell(11, 2).Value = "N° SRG ";
                 worksheet.Cell(11, 3).Value = "N° RELACION";
-                worksheet.Cell(11, 4).Value = "MODELO";
-                worksheet.Cell(11, 5).Value = "DESCRIPCION DEL TRABAJO REALIZADO";
-                worksheet.Cell(11, 6).Value = "FACTURA N°";
-                worksheet.Cell(11, 7).Value = "F/FACTURA";
-                worksheet.Cell(11, 8).Value = "TASA BCV DE LA FECHA DE FACTURA";
-                worksheet.Cell(11, 9).Value = "TOTAL NETO";
-                worksheet.Cell(11, 10).Value = "IMPUESTO (IVA)";
-                worksheet.Cell(11, 11).Value = "TOTAL GENERAL";
-                worksheet.Cell(11, 12).Value = "TOTAL $$";
+                worksheet.Cell(11, 4).Value = "TIPO REPORTE";
+                worksheet.Cell(11, 5).Value = "MODELO";
+                worksheet.Cell(11, 6).Value = "DESCRIPCION DEL TRABAJO REALIZADO";
+                worksheet.Cell(11, 7).Value = "FACTURA N°";
+                worksheet.Cell(11, 8).Value = "F/FACTURA";
+                worksheet.Cell(11, 9).Value = "TASA BCV";
+                worksheet.Cell(11, 10).Value = "TOTAL NETO";
+                worksheet.Cell(11, 11).Value = "IMPUESTO (IVA)";
+                worksheet.Cell(11, 12).Value = "TOTAL GENERAL";
+                worksheet.Cell(11, 13).Value = "TOTAL $$";
                 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A11:L11");
+                var headerRange = worksheet.Range("A11:M11");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
-                worksheet.Range("A11:L11").SetAutoFilter();
+                worksheet.Range("A11:M11").SetAutoFilter();
                 // 6. Llenar los datos
-                for (int i = 9; i < _srg.Count; i++)
+                int i;
+                decimal total = 0;
+                for (i = 0; i < _srg.Count; i++)
                 {
                     var _s = _srg[i];
-                    worksheet.Cell(i + 2, 1).Value = _s.Vin;
-                    worksheet.Cell(i + 2, 2).Value = _s.Srg;
-                    worksheet.Cell(i + 2, 3).Value = _s.Id;
-                    worksheet.Cell(i + 2, 4).Value = _s.Model;
-                    worksheet.Cell(i + 2, 5).Value = _s.DescriptionFail;
-                    worksheet.Cell(i + 2, 6).Value = _s.Invoice;
-                    worksheet.Cell(i + 2, 7).Value = _s.InvoiceDate;
-                    worksheet.Cell(i + 2, 7).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
-                    worksheet.Cell(i + 2, 8).Value = _s.TaxBase;
-                    worksheet.Cell(i + 2, 9).Value = _s.Tax;
-                    worksheet.Cell(i + 2, 10).Value = _s.Mount;
-                    worksheet.Cell(i + 2, 11).Value = _s.Mount;
-                    
+                    int row = i + 12;
+
+                    worksheet.Cell(row, 1).Value = _s.Vin;
+                    worksheet.Cell(row, 2).Value = _s.Srg;
+                    worksheet.Cell(row, 3).Value = _s.Id;
+                    worksheet.Cell(row, 4).Value = _s.Reporttype;
+                    worksheet.Cell(row, 5).Value = _s.Model;
+                    worksheet.Cell(row, 6).Value = _s.DescriptionFail;
+                    worksheet.Cell(row, 7).Value = _s.Invoice;
+                    worksheet.Cell(row, 8).Value = _s.InvoiceDate;
+                    worksheet.Cell(row, 9).Style.DateFormat.Format = "dd/MM/yyyy";
+                    worksheet.Cell(row, 10).Value = _s.TaxBase+_s.Exent;
+                    worksheet.Cell(row, 11).Value = _s.Tax;
+                    worksheet.Cell(row, 12).Value = "";
+                    worksheet.Cell(row, 13).Value = _s.Mount;
+                    total += (decimal)_s.Mount;
+                    // Aplicar bordes a todas las columnas de esta fila
+                    for (int col = 1; col <= 13; col++)
+                    {
+                        ApplyFullBorder(worksheet, row, col);
+                    }
                 }
+
+                worksheet.Cell(i + 12, 11).Value = "TOTAL";
+                ApplyFullBorder(worksheet, i + 12, 11);
+                worksheet.Cell(i + 12, 12).Value = "0.00";
+                ApplyFullBorder(worksheet, i + 12, 12);
+                worksheet.Cell(i + 12, 13).Value = total;
+                ApplyFullBorder(worksheet, i + 12, 13);
+
+                worksheet.Cell(i + 13, 1).Value = "Asimismo, hacemos entrega de soporte original: Factura Fiscal original o copia, el expediente original queda bajo resguardo de garantia.";
+                worksheet.Range(i + 13, 1, i + 13, 11).Merge();
+                worksheet.Cell(i + 13, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                worksheet.Cell(i + 13, 1).Style.Font.Bold = true;
+
+                worksheet.Cell(i + 15, 1).Value = "ENTREGADO";
+                worksheet.Range(i + 15, 1, i + 15, 3).Merge();
+                worksheet.Cell(i + 15, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Cell(i + 15, 1).Style.Font.Bold = true;
+                ApplyFullBorderToRange(worksheet, i + 15, 1, 3);
+
+                worksheet.Cell(i + 15, 9).Value = "RECIBIDO";
+                worksheet.Range(i + 15, 9, i + 15, 13).Merge();
+                worksheet.Cell(i + 15, 9).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheet.Cell(i + 15, 9).Style.Font.Bold = true;
+                ApplyFullBorderToRange(worksheet, i + 15, 9, 13);
+
+                worksheet.Cell(i + 18, 1).Value = "NOMBRE: ";
+                worksheet.Range(i + 18, 1, i + 18, 3).Merge();
+                worksheet.Cell(i + 18, 9).Value = "NOMBRE: ";
+                worksheet.Range(i + 18, 9, i + 18, 13).Merge();
+
+                worksheet.Cell(i + 22, 1).Value = "NOTA: ";
+
+                worksheet.Cell(i + 23, 1).Value = "* Los montos expresados en Bolívares  varian según la tasa del dia del BCV : ";
+                worksheet.Range(i + 23, 1, i + 23, 2).Merge();
+
                 // 7. Ajustar el ancho de las columnas al contenido 
                 worksheet.Columns().AdjustToContents();
-
-                // 8. Centra contenido de las columnas 
-                var centerStyle = worksheet.Style;
-                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                 // 8. Preparar el stream para la respuesta
                 var stream = new MemoryStream();
@@ -978,6 +1084,40 @@ namespace WebApi.Controllers
 
         }
 
+
+       
+
+        private void ApplyFullBorder(IXLWorksheet sheet, int row, int column, XLBorderStyleValues style = XLBorderStyleValues.Thin)
+        {
+            var cell = sheet.Cell(row, column);
+
+            cell.Style.Border.TopBorder = style;
+            cell.Style.Border.BottomBorder = style;
+            cell.Style.Border.LeftBorder = style;
+            cell.Style.Border.RightBorder = style;
+
+            cell.Style.Border.TopBorderColor = XLColor.Black;
+            cell.Style.Border.BottomBorderColor = XLColor.Black;
+            cell.Style.Border.LeftBorderColor = XLColor.Black;
+            cell.Style.Border.RightBorderColor = XLColor.Black;
+        }
+
+        private void ApplyFullBorderToRange(IXLWorksheet sheet, int row, int startColumn, int endColumn, XLBorderStyleValues style = XLBorderStyleValues.Thin)
+        {
+            var range = sheet.Range(row, startColumn, row, endColumn);
+            range.Merge();
+
+            range.Style.Border.TopBorder = style;
+            range.Style.Border.BottomBorder = style;
+            range.Style.Border.LeftBorder = style;
+            range.Style.Border.RightBorder = style;
+
+            range.Style.Border.TopBorderColor = XLColor.Black;
+            range.Style.Border.BottomBorderColor = XLColor.Black;
+            range.Style.Border.LeftBorderColor = XLColor.Black;
+            range.Style.Border.RightBorderColor = XLColor.Black;
+        }
+
         [HttpGet("ExportSrgPending")]
         public async Task<IActionResult> ExportSrgPending(Int32 userId, Int32? supplierId, Int32? dealerId)
         {
@@ -986,8 +1126,8 @@ namespace WebApi.Controllers
             {
 
                 List<SrgPending> _srg = await _dService.GetExportSrg(userId, supplierId, dealerId);
-                MemoryStream _excel = ConvertToExcelSrg(_srg);
-                string _fileName = "Polizas.xlsx";
+                MemoryStream _excel = await ConvertToExcelSrgAsync(_srg);
+                string _fileName = "ListadoSrg.xlsx";
 
                 return File(
                  _excel,

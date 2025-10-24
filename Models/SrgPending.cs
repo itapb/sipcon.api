@@ -44,6 +44,21 @@ namespace Models
         [SwaggerIgnore]
         public decimal? Tax { get; set; }
 
+        [SwaggerIgnore]
+
+        public string? Dealer { get; set; }
+
+        [SwaggerIgnore]
+
+        public int? SupplierId { get; set; }
+
+        [SwaggerIgnore]
+
+        public int? BrandId { get; set; }
+        
+        [SwaggerIgnore]
+
+        public String? Reporttype { get; set; }
 
 
     }
