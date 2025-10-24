@@ -28,12 +28,12 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId)
+        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<SaleOrder>)(await _GetAll(userId, supplierId, null, null, null)).Data;
+                return (List<SaleOrder>)(await _GetAll(userId, supplierId, dealerId, null, null)).Data;
             }
             finally
             {
