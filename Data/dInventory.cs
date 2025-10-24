@@ -1751,6 +1751,8 @@ namespace Data
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("PartInnercode", "VINNERCODE");
                 _mapping.AddItem("PartDescription", "VDESCRIPTION");
+                _mapping.AddItem("ReasonId", "IDREASON");
+                _mapping.AddItem("ReasonDescription", "VREASON");
                 _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("PackageId", "IDPACKAGE");
                 _mapping.AddItem("PackageNumber", "IPACKAGENUMBER");
