@@ -373,11 +373,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/GetMovementDetailsByUser")]
-        public async Task<IActionResult> GetMovementDetailsByUser(Int32 userId, string movementType, string mode)
+        public async Task<IActionResult> GetMovementDetailsByUser(Int32 userId, Int32? supplierId, string movementType, string mode)
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsByUser(userId, movementType, mode);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsByUser(userId, supplierId,movementType, mode);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1058,11 +1058,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowFrom, string? filter, DateTime? startdate, DateTime? enddate)
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32? dealerId, Int32? rowFrom, string? filter, DateTime? startdate, DateTime? enddate, bool stockOnly = false)
         {
             try
             {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, dealerId, rowFrom, filter, startdate, enddate);
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, dealerId, rowFrom, filter, startdate, enddate, stockOnly);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
