@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Models
 
         [Required] public String? Password { get; set; }
         [Required] public String? TemporaryKey { get; set; }
+        [Required] public String? Salt { get; set; }
 
     }
 
