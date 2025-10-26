@@ -104,25 +104,20 @@ namespace WebApi.Controllers
             }
         }
 
-/*
-        [HttpGet("GetReasons")]
-        public async Task<IActionResult> GetReasons()
+        //#### GET CLAIM REASONS
+        [HttpGet("/api/SaleOrder/GetClaimReasons")]
+        public async Task<IActionResult> GetClaimReasons()
         {
-
             try
             {
-                var _response = await _dSaleOrder.GetReasons();
+                var _response = await _dSaleOrder.GetClaimReasons();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
-
-
         }
-
-        */
 
         [HttpGet("GetSaleOrderTypes")]
         public async Task<IActionResult> GetSaleOrderTypes()
@@ -449,11 +444,11 @@ namespace WebApi.Controllers
             return document.GeneratePdf();
         }
         [HttpGet("ExportExcelsaleOrder")]
-        public async Task<IActionResult> GetExport(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId)
         {
             try
             {
-                List<SaleOrder> _response = await _dSaleOrder.GetExport(userId, supplierId);
+                List<SaleOrder> _response = await _dSaleOrder.GetExport(userId, supplierId, dealerId);
                 MemoryStream _excel = ConvertToExcel(_response);
                 string _fileName = "Pedidos.xlsx";
 

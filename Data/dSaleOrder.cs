@@ -28,12 +28,12 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId)
+        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<SaleOrder>)(await _GetAll(userId, supplierId, null, null, null)).Data;
+                return (List<SaleOrder>)(await _GetAll(userId, supplierId, dealerId, null, null)).Data;
             }
             finally
             {
@@ -269,13 +269,13 @@ namespace Data
                 _semaphore.Release();
             }
         }
-      /*      
-            public async Task<Response<List<Models.Reason>>> GetReasons()
+        //------------------------------------- Claim Reasons ------------------------------------------
+        public async Task<Response<List<Models.Reason>>> GetClaimReasons()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetReasons();
+                return await _GetClaimReasons();
             }
             finally
             {
@@ -283,22 +283,20 @@ namespace Data
             }
         }
 
-    private async Task<Response<List<Models.Reason>>> _GetReasons()
+        private async Task<Response<List<Models.Reason>>> _GetClaimReasons()
         {
             Response<List<Models.Reason>> _response = new Response<List<Models.Reason>>();
             try
             {
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Type", "CCLAIM");
                 _mapping.AddItem("Description", "DESC");
 
-
                 var _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_REASONS");
+                DataTable _table = await _data.GetDataTable("USP_GET_CLAIM_REASONS");
                 _response.Data = _data.GetList<Models.Reason>(_mapping, _table);
                 _response.SetGetResponse(_table);
-
-
             }
             catch (Exception ex)
             {
@@ -306,7 +304,7 @@ namespace Data
             }
             return _response;
         }
-     */
+        //-----------------------------------------------------------------------------------------------
 
         public async Task<Response<Result>> PostSaleOrder(List<Models.SaleOrder> _list, Int32 userId)
         {
@@ -422,6 +420,9 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("SaleOrdeId", "IDSALEORDER");
                 _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("ReasonId", "IDREASON");
+                //  _mapping.AddItem("ReasonType", "CCLAIM");
+                _mapping.AddItem("ReasonDescription", "VREASON"); 
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("PartInnerCode", "VINNERCODE");
                 _mapping.AddItem("Quantity", "IREQUIRED");
