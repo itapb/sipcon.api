@@ -53,6 +53,7 @@ namespace WebApi.Controllers
             }
 
         }
+
         [Authorize]
         [HttpGet("GetAccessGroupDetails")]
         public async Task<IActionResult> GetAccessGroupDetails(Int32 groupAccessId, Int32? rowFrom, String? filter)
@@ -108,6 +109,22 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetSalt")]
+        public async Task<IActionResult> GetSalt(String Login)
+
+        {
+
+            try
+            {
+                var _response = await _dSecurity.GetSalt(Login);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
 
         [Authorize]
@@ -218,6 +235,11 @@ namespace WebApi.Controllers
             }
 
         }
+
+
+      
+
+
 
 
         [HttpPost("Auth_User")]

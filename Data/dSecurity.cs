@@ -566,7 +566,50 @@ namespace Data
         }
 
 
-         public async Task<Response<List<Models.Companies>>> Get_CompanyByUser(Int32? userId)
+        public async Task<Response<Models.Credentials>> GetSalt(String login)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetSalt(login);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<Models.Credentials>> _GetSalt(String login)
+        {
+
+            Response<Models.Credentials> _response = new Response<Models.Credentials>();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VLOGIN", login);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Salt", "SALT");
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_SALT", _parameter);
+                _response.Data = _data.GetItem<Models.Credentials>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+        public async Task<Response<List<Models.Companies>>> Get_CompanyByUser(Int32? userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
