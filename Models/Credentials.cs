@@ -13,7 +13,7 @@ namespace Models
 
         [Required] public String? Password { get; set; }
         [Required] public String? TemporaryKey { get; set; }
-        [Required] public String? Salt { get; set; }
+        public String? Salt { get; set; }
 
     }
 

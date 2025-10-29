@@ -566,6 +566,56 @@ namespace Data
         }
 
 
+
+
+
+        public async Task<Response<Models.User>> Auth_User2(Models.AuthUser credentials)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Auth_User2(credentials);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.User>> _Auth_User2(Models.AuthUser _credentials)
+        {
+
+
+            Response<Models.User> _response = new Response<Models.User>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_credentials);
+
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("Name", "VFIRSTNAME");
+                _mapping.AddItem("LastName", "VLASTNAME");
+                _mapping.AddItem("Vat", "VVAT");
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_AUTH_ACCESSUSER2", _parameter);
+                _response.Data = _data.GetItem<Models.User>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
         public async Task<Response<Models.Credentials>> GetSalt(String login)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
