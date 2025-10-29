@@ -53,6 +53,7 @@ namespace WebApi.Controllers
             }
 
         }
+
         [Authorize]
         [HttpGet("GetAccessGroupDetails")]
         public async Task<IActionResult> GetAccessGroupDetails(Int32 groupAccessId, Int32? rowFrom, String? filter)
@@ -108,6 +109,22 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetSalt")]
+        public async Task<IActionResult> GetSalt(String Login)
+
+        {
+
+            try
+            {
+                var _response = await _dSecurity.GetSalt(Login);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
 
         [Authorize]
@@ -220,6 +237,11 @@ namespace WebApi.Controllers
         }
 
 
+      
+
+
+
+
         [HttpPost("Auth_User")]
         public async Task<IActionResult> Auth_User(Models.AuthUser credentials)
         {
@@ -307,6 +329,96 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, _response);
             }
         }
+
+
+        [HttpPost("Auth_User2")]
+        public async Task<IActionResult> Auth_User2(Models.AuthUser credentials)
+        {
+            Response<AuthResult> _response = new Response<AuthResult>();
+            try
+            {
+                // Initialize AuthResult with required properties
+                AuthResult _data = new AuthResult
+                {
+                    Token = string.Empty, // Placeholder value
+                    RefreshToken = string.Empty // Placeholder value
+                };
+
+                // 1. Autenticación y obtención del usuario
+                var authResponse = await _dSecurity.Auth_User2(credentials);
+
+                if (authResponse.Data is not Models.User user || user.Id == 0)
+                {
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: USUARIO O CLAVE INVALIDOS"));
+                    return StatusCode(_response.Status, _response);
+                }
+
+                _data.Users = user;
+
+
+                // 2. Obtener todas las compañías relacionadas (suppliers + dealers mezclados)
+                var companyResponse = await _dSecurity.Get_CompanyByUser(user.Id);
+                if (companyResponse.Data is not List<Companies> allCompanies || allCompanies.Count == 0)
+                {
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
+                    return StatusCode(_response.Status, _response);
+                }
+
+                // 3. Separar por tipo
+                _data.Suppliers = allCompanies.Where(c => c.Type == "SUPPLIER").ToList();
+                _data.Dealers = allCompanies.Where(c => c.Type == "DEALER").ToList();
+
+                var modulesResponse = await _dSecurity.Get_ModulesByUser(user.Id);
+                if (modulesResponse?.Data is not List<Module> allModules || allModules.Count == 0)
+                {
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
+                    return StatusCode(_response.Status, _response);
+                }
+
+                // Obtener acciones por usuario
+                var actionsResponse = await _dSecurity.Get_ActionByUser(user.Id);
+                if (actionsResponse?.Data is not List<ActionModule> allActions || allActions.Count == 0)
+                {
+                    _response.SetError(new Exception("ERROR DE AUTENTICACION: CONSULTE CON EL ADMINISTRADOR"));
+                    return StatusCode(_response.Status, _response);
+                }
+
+                // Agrupar acciones por módulo
+                var modulesWithActions = allModules
+                    .Select(m => {
+                        m.Actions = allActions
+                            .Where(a => a.ModuleId == m.Id && a.ActionId.HasValue && !string.IsNullOrWhiteSpace(a.ActionName))
+                            .DistinctBy(a => a.ActionId)
+                            .ToList();
+                        return m;
+                    })
+                    .ToList();
+
+                // Asignar módulos enriquecidos
+                _data.Modules = modulesWithActions;
+
+                var jwtToken = GenerateJwtToken(user.Login, _config);
+                var refreshToken = GenerateRefreshToken();
+
+                // Guardar refreshToken por usuario si usas alguna clase tipo RefreshTokenStore
+                _refreshTokenStore.Save(user.Login, refreshToken);
+
+                // Empaquetar en la respuesta
+                _data.Token = jwtToken;
+                _data.RefreshToken = refreshToken;
+                _response.Data = _data;
+                _response.Total = 1;
+
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                _response.Processed = false;
+                _response.Message = ex.Message;
+                return StatusCode(StatusCodes.Status409Conflict, _response);
+            }
+        }
+
 
 
         [HttpPost("RefreshToken")]
