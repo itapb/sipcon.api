@@ -1255,6 +1255,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("GuideId", "IDGUIDE");
                 _mapping.AddItem("Number", "INUMBER");
                 _mapping.AddItem("Code", "VCODE");
                 _mapping.AddItem("Weight", "NWEIGHT");
