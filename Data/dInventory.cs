@@ -1832,12 +1832,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId)
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, dealerId, null, null, null, null)).Data;
             }
             finally
             {
