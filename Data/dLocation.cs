@@ -50,6 +50,7 @@ namespace Data
                 _mapping.AddItem("Mapping", "IMAPPING");
                 _mapping.AddItem("TypeId", "VTYPE");
                 _mapping.AddItem("TypeName", "VTYPENAME");
+                _mapping.AddItem("IsFullActive", "BFULLACTIVE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_LOCATIONS", _parameter);
@@ -89,6 +90,7 @@ namespace Data
                 _mapping.AddItem("Mapping", "IMAPPING");
                 _mapping.AddItem("TypeId", "VTYPE");
                 _mapping.AddItem("TypeName", "VTYPENAME");
+                _mapping.AddItem("IsFullActive", "BFULLACTIVE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_LOCATIONS", _parameter);

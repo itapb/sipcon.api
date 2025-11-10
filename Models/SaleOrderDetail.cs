@@ -32,7 +32,7 @@ namespace Models
         [SwaggerIgnore]
         public int? Invoiced { get; set; }
 
-        [Required]
+      
         public int? ReasonId { get; set; }
 
         [SwaggerIgnore]

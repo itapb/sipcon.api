@@ -42,6 +42,9 @@ namespace Models
         [SwaggerIgnore]
         public String? RowReference { get; set; }
 
+        [SwaggerIgnore]
+        public bool? IsFullActive { get; set; }
+
 
     }
 }
