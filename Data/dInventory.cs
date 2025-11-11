@@ -1255,6 +1255,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("GuideId", "IDGUIDE");
                 _mapping.AddItem("Number", "INUMBER");
                 _mapping.AddItem("Code", "VCODE");
                 _mapping.AddItem("Weight", "NWEIGHT");
@@ -1832,12 +1833,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId)
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, null, null, null, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, dealerId, null, null, null, null)).Data;
             }
             finally
             {
