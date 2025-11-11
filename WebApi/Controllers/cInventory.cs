@@ -1175,11 +1175,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/BackOrder/Export")]
-        public async Task<IActionResult> GetExportBackOrder(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExportBackOrder(Int32 userId, Int32 supplierId, Int32 dealerId)
         {
             try
             {
-                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId);
+                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId, dealerId);
                 MemoryStream _excel = ConvertToExcel(_response);
                 string _fileName = "BackOrder.xlsx";
 
