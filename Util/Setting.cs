@@ -105,7 +105,14 @@ namespace Util
                     _valor = _Configuration.GetSection("Custom:ConnectionStrings:DEV").Value ?? "";
                     ConnectionString = _valor;
                 }
-                else
+              
+                if (Environment == "QA")
+                {
+                    _valor = _Configuration.GetSection("Custom:ConnectionStrings:QA").Value ?? "";
+                    ConnectionString = _valor;
+                }
+
+                if (Environment == "PROD")
                 {
                     _valor = _Configuration.GetSection("Custom:ConnectionStrings:PROD").Value ?? "";
                     ConnectionString = _valor;
@@ -257,7 +264,13 @@ namespace Util
                 {
                     ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DEV"].ConnectionString;
                 }
-                else
+
+                if (Environment == "QA")
+                {
+                    ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["QA"].ConnectionString;
+                }
+
+                if (Environment == "PROD")
                 {
                     ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["PROD"].ConnectionString;
                 }
