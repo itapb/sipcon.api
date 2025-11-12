@@ -341,21 +341,7 @@ namespace WebApi.Controllers
 
         }
 
-        [HttpPost("DeleteLicenseDetail")]
-        public async Task<IActionResult> DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
-        {
-
-            try
-            {
-                var _response = await _dLicense.DeleteLicenseDetail(_list, userId);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-
-        }
+        
 
 
 

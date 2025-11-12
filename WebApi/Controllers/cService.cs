@@ -500,7 +500,10 @@ namespace WebApi.Controllers
             var serviceDetailsList = new List<ServiceDetails>();
 
             if (response.Data is IEnumerable<ServiceDetails> detailList)
-                serviceDetailsList = detailList.ToList();
+                serviceDetailsList = detailList
+                    .Where(detalle => detalle.EstatusId != 19)
+                    .ToList();
+
 
             decimal? totalManoObra = serviceDetailsList
            .Where(x => x.Type == "L")
@@ -599,7 +602,9 @@ namespace WebApi.Controllers
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(3); // Concesionario ocupará 3 columnas
+                                columns.RelativeColumn(2); // Concesionario ocupará 3 columnas
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(1);
                                 columns.RelativeColumn(1);
                                 columns.RelativeColumn(1);
                             });
@@ -628,6 +633,23 @@ namespace WebApi.Controllers
                                 .Text("Ciudad")
                                 .Bold()
                                 .FontSize(10);
+                           
+                            table.Cell()
+                                .Border(1)
+                                .Background(Colors.Grey.Lighten1)
+                                .Padding(1.5f)
+                                .Text("Factura")
+                                .Bold()
+                                .FontSize(10);
+
+                            table.Cell()
+                               .Border(1)
+                               .Background(Colors.Grey.Lighten1)
+                               .Padding(1.5f)
+                               .Text("Fecha Facturacion")
+                               .Bold()
+                               .FontSize(10);
+
 
                             // Fila independiente para los valores
                             table.Cell()
@@ -648,6 +670,18 @@ namespace WebApi.Controllers
                                 .Padding(1.5f)
                                 .Text(service.DealerServiceCity)
                                 .FontSize(10);
+
+                            table.Cell()
+                               .Border(1)
+                               .Padding(1.5f)
+                               .Text(service.InvoiceNumber)
+                               .FontSize(10);
+                            
+                            table.Cell()
+                               .Border(1)
+                               .Padding(1.5f)
+                               .Text(service.InvoiceDate)
+                               .FontSize(10);
                         });
 
 

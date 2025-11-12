@@ -369,52 +369,6 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_LICENSEDETAILS_ACTIONS", _parameter);
-                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
-                _response.SetPostResponse();
-
-
-            }
-            catch (Exception ex)
-            {
-                _response.SetError(ex);
-            }
-
-            return _response;
-        }
-
-        public async Task<Response<Models.Result>> DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return await _DeleteLicenseDetail(_list, userId);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
-        private async Task<Response<Models.Result>> _DeleteLicenseDetail(List<Models.Action> _list, Int32 userId)
-        {
-            Response<Models.Result> _response = new Response<Models.Result>();
-            try
-            {
-
-                string _jsonstring = Util.Json.ConvertToJsonString(_list);
-
-                Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@DATA", _jsonstring);
-                _parameter.AddSqlParameter("@IDUSER", userId);
-
-
-                Mapping _mapping = new Mapping();
-                _mapping.SetDefaultPostMapping();
-
-   
-
-                Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_DELETE_LICENSEDETAIL", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
@@ -428,6 +382,8 @@ namespace Data
 
             return _response;
         }
+
+        
 
 
         public async Task<Response<List<Models.LicenseTypes>>> GetLicenseType()
