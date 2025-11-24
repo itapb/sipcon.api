@@ -1,10 +1,12 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
 using Data; // Tu namespace para servicios personalizados
-using System.Globalization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using Scalar.AspNetCore;
+using System.Globalization;
+using System.Text;
+using WebApi;
 
 // 1. CreateBuilder
 var builder = WebApplication.CreateBuilder(args);
@@ -48,34 +50,38 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
+builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
+
 // Swagger con seguridad Bearer
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SIPCON", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Ejemplo: \"Bearer eyJhbGciOiJIUzI1NiIs...\""
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
-});
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SIPCON", Version = "v1" });
+//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        Name = "Authorization",
+//        Type = SecuritySchemeType.Http,
+//        Scheme = "bearer",
+//        BearerFormat = "JWT",
+//        In = ParameterLocation.Header,
+//        Description = "Ejemplo: \"Bearer eyJhbGciOiJIUzI1NiIs...\""
+//    });
+//    //c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//    //{
+//    //    {
+//    //        new OpenApiSecurityScheme
+//    //        {
+//    //            Reference = new OpenApiReference
+//    //            {
+//    //                Type = ReferenceType.SecurityScheme,
+//    //                Id = "Bearer"
+//    //            }
+//    //        },
+//    //        new string[] {}
+//    //    }
+//    //});
+//});
+
+
 //*****************************************
 
 // Autenticación JWT
@@ -132,8 +138,8 @@ builder.Services.AddSingleton<dTemplate>();
 var app = builder.Build();
 
 // 6. Use. ORDEN: UseSwagger,UseSwaggerUI,UseRouting,UseCors,Use,UseAuthentication,UseAuthorization,MapControllers
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
 
 app.UseRouting();
@@ -148,6 +154,22 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+//*****************
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
+{
+
+    //options.OpenApiRoutePattern = "/MCAExpenseWebApi/openapi/v1.json";
+    options.OpenApiRoutePattern = "/openapi/{documentName}.json";
+    options.WithTitle("WebApi");
+    options.WithTheme(ScalarTheme.BluePlanet);
+    //options.HideSidebar();
+    //options.Servers = [new ScalarServer("/MCAExpenseWebApi")];
+
+});
+//*****************
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
