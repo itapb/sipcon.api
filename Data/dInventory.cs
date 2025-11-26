@@ -2686,7 +2686,7 @@ namespace Data
                 _mapping.AddItem("CustomerId", "IDCUSTOMER"); //id cliente
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada
-                _mapping.AddItem("StockInfo", "STOCKINFO");
+                _mapping.AddItem("StockInfo", "STOCK_INFO");//cantidad disponible en info
 
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
