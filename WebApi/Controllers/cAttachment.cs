@@ -341,6 +341,15 @@ namespace WebApi.Controllers
                 // Construir la ruta completa
                 string filePath = Path.Combine(attachmentUrl, modulePath, attachment.RecordId.ToString(), attachment.FileName);
 
+                var deleteResponse = await _dAttachment.Delete_Attachment(attachmentId, userId);
+
+                if (deleteResponse.Status != StatusCodes.Status200OK)
+                {
+
+                    response.SetError(new Exception(deleteResponse.Message));
+                    return StatusCode(response.Status, response);
+                }
+
                 // Verificar si el archivo existe antes de eliminarlo
                 if (!System.IO.File.Exists(filePath))
                 {
@@ -352,14 +361,7 @@ namespace WebApi.Controllers
                 System.IO.File.Delete(filePath);
 
                 // Ahora eliminar el registro de la base de datos
-                var deleteResponse = await _dAttachment.Delete_Attachment(attachmentId, userId);
-
-                if (deleteResponse.Status != StatusCodes.Status200OK)
-                {
-
-                    response.SetError(new Exception("Error al eliminar el registro en la base de datos."));
-                    return StatusCode(response.Status, response);
-                }
+               
                
                 return StatusCode(response.Status, deleteResponse);
             }

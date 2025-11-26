@@ -56,13 +56,17 @@ namespace Data
                 _mapping.AddItem("PolicyTypeId", "IDPOLICYTYPE");
                 _mapping.AddItem("Description", "VDESCRIPTION");
                 _mapping.AddItem("VehicleId", "IDVEHICLE");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("ModelName", "MODELNAME");
+                _mapping.AddItem("Color", "VCOLOR");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("Vat", "VVAT");
                 _mapping.AddItem("FirstName", "VFIRSTNAME");
                 _mapping.AddItem("LastName", "VLASTNAME");
+                _mapping.AddItem("Email", "VEMAIL");
+                _mapping.AddItem("Phone", "VPHONE1");
                 _mapping.AddItem("ActivationDate", "DACTIVATIONDATE");
                 _mapping.AddItem("DealerCod", "CODDEALER");
                 _mapping.AddItem("SupplierCod", "CODSUPPLIER");
@@ -72,6 +76,12 @@ namespace Data
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("EstatusName", "ESTATUSNAME");
                 _mapping.AddItem("ExpirationDate", "DEXPIRATIONDATE");
+                _mapping.AddItem("Seller", "VSELLER");
+                _mapping.AddItem("CustomerCity", "VCITYCUSTOMER");
+                _mapping.AddItem("DealerCity", "VCITYDEALER");
+                _mapping.AddItem("DateCreated", "DCREATED");
+                _mapping.AddItem("DealerName", "VDEALER");
+
 
 
                 Util.Data _data = Util.Data.GetInstance();
