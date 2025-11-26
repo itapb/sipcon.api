@@ -73,6 +73,49 @@ namespace WebApi.Controllers
             return _list;
         }
 
+        private List<BackOrderTemplate> ExcelToBackOrderTamplate(IFormFile file)
+        {
+            var _list = new List<BackOrderTemplate>();
+
+
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+                    foreach (var row in rows)
+                    {
+
+                        try
+                        {
+                            _list.Add(new BackOrderTemplate
+                            {
+                                Vat = row.Cell(1).GetValue<string>(),
+                                DealerName = row.Cell(2).GetValue<string>(),
+                                SaleOrderType = row.Cell(3).GetValue<string>(),
+                                InnerCode = row.Cell(4).GetValue<string>(),
+                                Description = row.Cell(5).GetValue<string>(),
+                                Quantity = row.Cell(6).GetValue<int>()
+
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+
+
+                        }
+
+                    }
+                }
+            }
+
+            return _list;
+        }
+
         private List<LocationTemplate> ExcelToLocationTamplate(IFormFile file)
         {
             var _list = new List<LocationTemplate>();
@@ -213,6 +256,11 @@ namespace WebApi.Controllers
             if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
                 return BadRequest("Solo se permiten archivos Excel (.xlsx)");
 
+            if (supplierId == 0)
+            {
+                return BadRequest("Planta invalida");
+            }
+
             try
             {
 
@@ -241,6 +289,11 @@ namespace WebApi.Controllers
             if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
                 return BadRequest("Solo se permiten archivos Excel (.xlsx)");
 
+            if (supplierId == 0)
+            {
+                return BadRequest("Planta invalida");
+            }
+
             try
             {
 
@@ -268,6 +321,11 @@ namespace WebApi.Controllers
 
             if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
                 return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+            if (supplierId == 0)
+            {
+                return BadRequest("Planta invalida");
+            }
 
             try
             {
@@ -302,6 +360,39 @@ namespace WebApi.Controllers
                 List<ContactTemplate> _list = ExcelToContactTamplate(file);
 
                 var _response = await _dTemplate.ImportContactTemplate(_list);
+
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpPost("/api/Templates/ImportBackOrdersTemplate")]
+        public async Task<IActionResult> ImportBackOrdersTemplate(IFormFile file, Int32 supplierId)
+        {
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
+
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+            if (supplierId == 0)
+            {
+                return BadRequest("Planta invalida");
+            }
+
+
+            try
+            {
+
+                List<BackOrderTemplate> _list = ExcelToBackOrderTamplate(file);
+
+                var _response = await _dTemplate.ImportBackOrdersTemplate(_list, supplierId);
 
                 return StatusCode(_response.Status, _response);
 
