@@ -47,6 +47,10 @@ namespace Models
         [SwaggerIgnore] public String? BrandName { get; set; }
         [SwaggerIgnore] public Int32? BrandId { get; set; }
         [SwaggerIgnore] public Int32? SupplierId { get; set; }
+        [SwaggerIgnore] public String? Seller { get; set; }
+        [SwaggerIgnore] public String? CustomerCity { get; set; }
+        [SwaggerIgnore] public String? DealerCity { get; set; }
+        [SwaggerIgnore] public DateTime? DateCreated { get; set; }
 
 
     }
