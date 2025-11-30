@@ -235,12 +235,12 @@ namespace Data
 
 
 
-        public async Task<Response<List<Models.Part>>> GetByModel(Int32 modelId,Int32 userId, Int32 supplierId)
+        public async Task<Response<List<Models.Part>>> GetByModel(Int32 modelId,Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetByModel(modelId, userId, supplierId);
+                return await _GetByModel(modelId, userId, supplierId, rowfrom, filter);
             }
             finally
             {
@@ -250,7 +250,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Models.Part>>> _GetByModel(Int32 modelId,Int32 userId, Int32? supplierId)
+        private async Task<Response<List<Models.Part>>> _GetByModel(Int32 modelId,Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
         {
             Response<List<Models.Part>> _response = new Response<List<Models.Part>>();
             try
@@ -259,6 +259,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDMODEL", modelId);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
 
 
 
