@@ -94,5 +94,9 @@ namespace Models
         [SwaggerIgnore]
         public string? StockInfo { get; set; }
 
+
+        [SwaggerIgnore]
+        public string? SaleOrderType { get; set; }
+
     }
 }
