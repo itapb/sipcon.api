@@ -2695,6 +2695,8 @@ namespace Data
                 _mapping.AddItem("SupplierName", "VSUPPLIER"); 
                 _mapping.AddItem("Price", "NPRICE");
                 _mapping.AddItem("Mark", "BMARK");
+                _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
+                
 
 
 
@@ -2770,7 +2772,7 @@ namespace Data
                 _mapping.AddItem("LocationName", "VLOCATION");
                 _mapping.AddItem("Required", "IREQUIRED");
                 _mapping.AddItem("Price", "NPRICE");
-
+                _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);

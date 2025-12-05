@@ -485,7 +485,8 @@ namespace WebApi.Controllers
                                 Id = 0,
                                 InnerCode = row.Cell(1).GetValue<string>(),
                                 RequiredQty = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
-                                LocationName = row.Cell(4).GetValue<string>(),
+                                LocationName   = row.Cell(4).GetValue<string>(),
+                                DestinationName = row.Cell(5).GetValue<string>(),
                                 MovementId = movementId,
                                 RowReference = rowRef
 
@@ -1149,7 +1150,7 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 6).Value = _backOrder.SaleOrderNumber;
                     worksheet.Cell(i + 2, 7).Value = _backOrder.CreatedDate;
                     worksheet.Cell(i + 2, 8).Value = _backOrder.Arrival;
-                    worksheet.Cell(i + 2, 9).Value = _backOrder.DealerRef;
+                    worksheet.Cell(i + 2, 9).Value = _backOrder.DealerName;
                     worksheet.Cell(i + 2, 10).Value = _backOrder.SupplierRef;
                     worksheet.Cell(i + 2, 11).Value = _backOrder.IsActive != false ? "SI" : "NO";
 

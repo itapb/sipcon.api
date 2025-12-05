@@ -150,12 +150,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetByModel")]
-        public async Task<IActionResult> GetByModel(Int32 modelId,Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetByModel(Int32 modelId,Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter)
         {
 
             try
             {
-                var _response = await _dPart.GetByModel(modelId,userId, supplierId);
+                var _response = await _dPart.GetByModel(modelId,userId, supplierId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

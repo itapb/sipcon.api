@@ -24,5 +24,24 @@ namespace Models
         
         [SwaggerIgnore]
         public string? ZPL { get; set; }
+
+        public string PrintedDate { get; set; } = "";
+
+        public string Code { get; set; } = "";
+
+        public string Description { get; set; } = "";
+
+        public string? Supplier { get; set; }
+
+
+        public string CodePair { get; set; } = "";
+
+        public string DescriptionPair { get; set; } = "";
+
+        public int? IdPair { get; set; }
+
+        public string Note { get; set; } = "";
+
+        public string NotePair { get; set; } = "";
     }
 }

@@ -42,6 +42,9 @@ namespace Models
         public string? LocationName { get; set; } = string.Empty;
 
         [SwaggerIgnore]
+        public string? DestinationName { get; set; } = string.Empty;
+
+        [SwaggerIgnore]
         public int? Stock { get; set; } = 0;
         [SwaggerIgnore]
         public String? RowReference { get; set; }

@@ -13,7 +13,7 @@ namespace WebApi.Controllers
 {
     [Route("api/Print")]
     [ApiController]
-    [Authorize]
+
     public class cPrintqueue : ControllerBase
     {
 
@@ -41,5 +41,22 @@ namespace WebApi.Controllers
             }
 
         }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll(string printerName, bool pair)
+        {
+
+            try
+            {
+                var _response = await _dPrintqueue.GetAll(printerName, pair);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
     }
 }

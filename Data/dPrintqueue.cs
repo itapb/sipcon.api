@@ -64,5 +64,57 @@ namespace Data
 
 
 
+        public async Task<Response<List<Models.Printqueue>>> GetAll(string printerName, bool pair)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAll(printerName, pair);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Printqueue>>> _GetAll(string printerName, bool pair)
+        {
+            Response<List<Models.Printqueue>> _response = new Response<List<Models.Printqueue>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@VPRINTER", printerName);
+                _parameter.AddSqlParameter("@BPAIR", pair);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Type", "VTYPE");
+                //_mapping.AddItem("RecordId", "IDRECORD");
+                _mapping.AddItem("PrintedDate", "DPRINTED");
+                //_mapping.AddItem("ZPL", "VZPL");
+                _mapping.AddItem("Code", "VCODE");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Supplier", "VSUPPLIER");
+                _mapping.AddItem("CodePair", "VCODEPAIR");
+                _mapping.AddItem("DescriptionPair", "VDESCRIPTIONPAIR");
+                _mapping.AddItem("IdPair", "IDPAIR");
+                _mapping.AddItem("Note", "VNOTE");
+                _mapping.AddItem("NotePair", "VNOTEPAIR");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PRINTQUEUE",_parameter);
+                _response.Data = _data.GetList<Models.Printqueue>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
     }
 }
