@@ -51,6 +51,9 @@ namespace Models
         [SwaggerIgnore] public String? CustomerCity { get; set; }
         [SwaggerIgnore] public String? DealerCity { get; set; }
         [SwaggerIgnore] public DateTime? DateCreated { get; set; }
+        [SwaggerIgnore] public int? Topkm { get; set; }
+        [SwaggerIgnore] public int? TopMonths { get; set; }
+        [SwaggerIgnore] public int? TopYear { get; set; }
 
 
     }
