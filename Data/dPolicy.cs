@@ -164,6 +164,9 @@ namespace Data
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("ExpirationDate", "DEXPIRATIONDATE");
                 _mapping.AddItem("PayMethodId", "IDPAYMETHOD");
+                _mapping.AddItem("Topkm", "ITOPKM");
+                _mapping.AddItem("TopMonths", "ITOPMONTHS");
+                _mapping.AddItem("TopYear", "ITOPYEARS");
                 _mapping.AddItem("Total", "TOTAL");
 
       
