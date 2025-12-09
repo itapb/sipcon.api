@@ -15,12 +15,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Part>>> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter, Int32? modelId, bool? isSell = null)
+        public async Task<Response<List<Models.Part>>> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId, rowfrom, filter, null, modelId, isSell);
+                return await _GetAll(userId, supplierId, rowfrom, filter, null);
             }
             finally
             {
@@ -28,19 +28,19 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Part>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter,Int32? partId = null, Int32? modelId = null, bool? isSell = null)
+        private async Task<Response<List<Models.Part>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter,Int32? partId = null)
         {
             Response<List<Models.Part>> _response = new Response<List<Models.Part>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@ID", partId);
-                _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                _parameter.AddSqlParameter("@BSELL", isSell);
-                _parameter.AddSqlParameter("@IDMODEL", modelId);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -235,12 +235,12 @@ namespace Data
 
 
 
-        public async Task<Response<List<Models.Part>>> GetByModel(Int32 modelId,Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter)
+        public async Task<Response<List<Models.Part>>> GetByModel(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, Int32? modelId, bool? isSell = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetByModel(modelId, userId, supplierId, rowfrom, filter);
+                return await _GetByModel(userId, supplierId, rowfrom, filter, modelId, isSell);
             }
             finally
             {
@@ -250,17 +250,19 @@ namespace Data
 
 
 
-        private async Task<Response<List<Models.Part>>> _GetByModel(Int32 modelId,Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
+        private async Task<Response<List<Models.Part>>> _GetByModel(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? modelId, bool? isSell = null)
         {
             Response<List<Models.Part>> _response = new Response<List<Models.Part>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IDMODEL", modelId);
+              
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IDMODEL", modelId);
+                _parameter.AddSqlParameter("@BSELL", isSell);
 
 
 
