@@ -747,7 +747,7 @@ namespace WebApi.Controllers
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Serial).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Type).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text((bool)part.IsExternal ? "Sí" : "No").FontSize(10);
-                                    table.Cell().Border(1).Padding(1.5f).Text(part.ItemName).FontSize(10);
+                                    table.Cell().Border(1).Padding(1.5f).Text(part.ItemDescription).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Quantity.ToString()).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.UnitPrice.ToString()).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text((part.Price).ToString()).FontSize(10);
