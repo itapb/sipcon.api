@@ -29,12 +29,12 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter, Int32? modelId, bool? isSell)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32 rowfrom, string? filter)
         {
 
             try
             {
-                var _response = await _dPart.GetAll(userId, supplierId, rowfrom,  filter, modelId, isSell );
+                var _response = await _dPart.GetAll(userId, supplierId, rowfrom, filter);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -150,12 +150,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetByModel")]
-        public async Task<IActionResult> GetByModel(Int32 modelId,Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter)
+        public async Task<IActionResult> GetByModel(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, Int32? modelId, bool? isSell = null)
         {
 
             try
             {
-                var _response = await _dPart.GetByModel(modelId,userId, supplierId, rowfrom, filter);
+                var _response = await _dPart.GetByModel(userId, supplierId, rowfrom, filter, modelId, isSell);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
