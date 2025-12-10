@@ -178,6 +178,7 @@ namespace Data
                 _mapping.AddItem("ServiceId", "IDMAINTENANCE");
                 _mapping.AddItem("ItemId", "IDITEM");
                 _mapping.AddItem("ItemName", "VITEMNAME");
+                _mapping.AddItem("ItemDescription", "VITEMDESCRIPTION");
                 _mapping.AddItem("Type", "CTYPE");
                 _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("Price", "NPRICE");

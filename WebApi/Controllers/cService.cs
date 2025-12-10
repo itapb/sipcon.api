@@ -172,7 +172,8 @@ namespace WebApi.Controllers
                 {
                     "NUM ", "NUMERO DE REPORTE DE FALLA",  "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
                     "VIN DE VEHICULO", "PLACA","REPORTE DE CLIENTE","REPORTE DE CONCESIONARIO","REPORTE DE PLANTA",
-                     "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
+                     "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE",
+                            "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
                      "FECHA DE FINALIZACION","CALIFICACION" ,"ESTATUS"
                 };
                         break;
@@ -182,8 +183,8 @@ namespace WebApi.Controllers
                         headers = new()
                 {
                     "NUM ", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
-                    "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA", "CODIGO CONCESIONARIO",
-                    "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
+                    "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO",  "RIF CLIENTE", "NOMBRE DE CLIENTE", 
+                    "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
                      "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
                     "ESTATUS"
                 };
@@ -231,7 +232,7 @@ namespace WebApi.Controllers
                     {
                         worksheet.Cell(row, 2).Value = s.OrderNumber;
                         worksheet.Cell(row, 3).Value = s.DealerServiceName;
-                        worksheet.Cell(row, 4).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 4).Value = s.DealerServiceCod;
                         worksheet.Cell(row, 5).Value = s.Vin;
                         worksheet.Cell(row, 6).Value = s.Plate;
                         worksheet.Cell(row, 7).Value = s.Km;
@@ -279,28 +280,26 @@ namespace WebApi.Controllers
                     {
                         worksheet.Cell(row, 2).Value = s.OrderNumber;
                         worksheet.Cell(row, 3).Value = s.DealerServiceName;
-                        worksheet.Cell(row, 4).Value = s.DealerSaleCod;
+                        worksheet.Cell(row, 4).Value = s.DealerServiceCod;
                         worksheet.Cell(row, 5).Value = s.Vin;
                         worksheet.Cell(row, 6).Value = s.Plate;
                         worksheet.Cell(row, 7).Value = s.Km;
                         worksheet.Cell(row, 8).Value = s.Year;
                         worksheet.Cell(row, 9).Value = s.ModelName;
-                        worksheet.Cell(row, 10).Value = s.DealerSaleName;
-                        worksheet.Cell(row, 11).Value = s.DealerSaleCod;
-                        worksheet.Cell(row, 12).Value = s.Vat;
-                        worksheet.Cell(row, 13).Value = s.CustomerName;
-                        worksheet.Cell(row, 14).Value = s.CustomerLastName;
-                        worksheet.Cell(row, 15).Value = s.CustomerReport;
-                        worksheet.Cell(row, 16).Value = s.DealerReport;
-                        worksheet.Cell(row, 17).Value = s.TechnicalSolution;
-                        worksheet.Cell(row, 18).Value = s.SupplierReport;
-                        worksheet.Cell(row, 19).Value = s.AuthorizedUserName;
-                        worksheet.Cell(row, 20).Value = s.SrgNumber;
-                        worksheet.Cell(row, 21).Value = s.InvoiceNumber;
-                        worksheet.Cell(row, 22).Value = s.InvoiceAmount;
-                        worksheet.Cell(row, 23).Value = s.InvoiceDate;
-                        worksheet.Cell(row, 23).Style.DateFormat.Format = "dd/MM/yyyy";
-                        worksheet.Cell(row, 24).Value = s.EstatusName;
+                        worksheet.Cell(row, 10).Value = s.Vat;
+                        worksheet.Cell(row, 11).Value = s.CustomerName;
+                        worksheet.Cell(row, 12).Value = s.CustomerLastName;
+                        worksheet.Cell(row, 13).Value = s.CustomerReport;
+                        worksheet.Cell(row, 14).Value = s.DealerReport;
+                        worksheet.Cell(row, 15).Value = s.TechnicalSolution;
+                        worksheet.Cell(row, 16).Value = s.SupplierReport;
+                        worksheet.Cell(row, 17).Value = s.AuthorizedUserName;
+                        worksheet.Cell(row, 18).Value = s.SrgNumber;
+                        worksheet.Cell(row, 19).Value = s.InvoiceNumber;
+                        worksheet.Cell(row, 20).Value = s.InvoiceAmount;
+                        worksheet.Cell(row, 21).Value = s.InvoiceDate;
+                        worksheet.Cell(row, 21).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 22).Value = s.EstatusName;
                     }
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
@@ -747,7 +746,7 @@ namespace WebApi.Controllers
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Serial).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Type).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text((bool)part.IsExternal ? "Sí" : "No").FontSize(10);
-                                    table.Cell().Border(1).Padding(1.5f).Text(part.ItemName).FontSize(10);
+                                    table.Cell().Border(1).Padding(1.5f).Text(part.ItemDescription).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Quantity.ToString()).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.UnitPrice.ToString()).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text((part.Price).ToString()).FontSize(10);
