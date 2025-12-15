@@ -1745,6 +1745,20 @@ namespace WebApi.Controllers
             string fileName = $"{controlId.ToString().PadLeft(10, '0')}.txt";
             return File(txtBytes, "text/plain", fileName);
         }
+
+        [HttpPost("/api/InvoiceControl/PostReplicatePackage")]
+        public async Task<IActionResult> PostReplicatePackage(int packageId, int replicationCount)
+        {
+            try
+            {
+                var _response = await _dInventory.PostReplicatePackage(packageId, replicationCount);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
         #endregion
     }
 }
