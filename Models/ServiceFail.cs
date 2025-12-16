@@ -77,6 +77,9 @@ namespace Models
         [SwaggerIgnore] public DateTime? AuthotizationDate { get; set; }
         [SwaggerIgnore] public Int32? SupplierId { get; set; }
         [SwaggerIgnore] public Int32? BrandId { get; set; }
+        [SwaggerIgnore] public DateTime? StartDate { get; set; }
+
+        [SwaggerIgnore] public DateTime? EndDate { get; set; }
 
 
 
