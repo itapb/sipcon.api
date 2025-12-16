@@ -75,7 +75,7 @@ namespace WebApi.Controllers
 
             try
             {
-                var _response = await _dService.GetDetails(serviceId, type,filter);
+                var _response = await _dService.GetDetails(serviceId, type,filter,null,null);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -116,6 +116,8 @@ namespace WebApi.Controllers
 
 
 
+
+
         [HttpGet("GetOneItem")]
         public async Task<IActionResult> GetOneItem(int userId, String type, int itemId)
         {
@@ -143,8 +145,17 @@ namespace WebApi.Controllers
         }
 
 
-        private MemoryStream ConvertToExcel(List<Models.Service> _services, Int32? serviceTypeId)
+        private MemoryStream ConvertToExcel(List<Models.Service> _services, Int32? serviceTypeId, int dealerId, int supplierId)
         {
+            var response = _dService.GetDetails(null, null, null,supplierId,dealerId).GetAwaiter().GetResult();
+
+            var serviceDetailsList = new List<ServiceDetails>();
+
+            if (response.Data is IEnumerable<ServiceDetails> detailList)
+                serviceDetailsList = detailList
+                    .Where(detalle => detalle.EstatusId != 19)
+                    .ToList();
+
             // 2. Crear el libro de trabajo Excel
             using (var workbook = new XLWorkbook())
             {
@@ -186,7 +197,7 @@ namespace WebApi.Controllers
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO",  "RIF CLIENTE", "NOMBRE DE CLIENTE", 
                     "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
                      "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
-                    "ESTATUS"
+                    "ESTATUS","TIPO DE REPORTE","FECHA APERTURA","FECHA CIERRE"
                 };
                         break;
 
@@ -208,14 +219,14 @@ namespace WebApi.Controllers
                 headerRange.SetAutoFilter();
 
                 var colorMap = new Dictionary<string, XLColor>
-        {
-            { "Validado", XLColor.GreenYellow },
-            { "Rechazado", XLColor.Red },
-            { "Para Validar", XLColor.Orange },
-            { "Para Aprobar", XLColor.GreenYellow },
-            { "Aprobado", XLColor.Green },
-            { "Procesado", XLColor.Blue }
-        };
+                {
+                    { "Validado", XLColor.GreenYellow },
+                    { "Rechazado", XLColor.Red },
+                    { "Para Validar", XLColor.Orange },
+                    { "Para Aprobar", XLColor.GreenYellow },
+                    { "Aprobado", XLColor.Green },
+                    { "Procesado", XLColor.Blue }
+                };
 
                 // 4. Filtrar datos
                 var filteredServices = _services.Where(s => s.ServiceTypeId == serviceTypeId).ToList();
@@ -296,10 +307,16 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 17).Value = s.AuthorizedUserName;
                         worksheet.Cell(row, 18).Value = s.SrgNumber;
                         worksheet.Cell(row, 19).Value = s.InvoiceNumber;
-                        worksheet.Cell(row, 20).Value = s.InvoiceAmount;
+                        worksheet.Cell(row, 20).Value = s.InvoiceAmount-s.Tax;
                         worksheet.Cell(row, 21).Value = s.InvoiceDate;
                         worksheet.Cell(row, 21).Style.DateFormat.Format = "dd/MM/yyyy";
                         worksheet.Cell(row, 22).Value = s.EstatusName;
+                        worksheet.Cell(row, 23).Value = s.ReportTypeName;
+                        worksheet.Cell(row, 24).Value = s.StartDate;
+                        worksheet.Cell(row, 24).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 25).Value = s.EndDate;
+                        worksheet.Cell(row, 25).Style.DateFormat.Format = "dd/MM/yyyy";
+
                     }
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
@@ -309,6 +326,58 @@ namespace WebApi.Controllers
                 var centerStyle = worksheet.Style;
                 centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+
+                // Hoja ELEMENTOS REPORTE FALLA
+                if (serviceTypeId == 3)
+                {
+                        var summarySheet = workbook.Worksheets.Add("ELEMENTOS REPORTE FALLA");
+                        summarySheet.Columns().AdjustToContents();
+
+                        summarySheet.Cell(1, 1).Value = "NUM REPORTE";
+                        summarySheet.Cell(1, 2).Value = "CODIGO";
+                        summarySheet.Cell(1, 3).Value = "DESCRIPCION";
+                        summarySheet.Cell(1, 4).Value = "TIPO ELEMENTO";
+                        summarySheet.Cell(1, 5).Value = "COMPRA EXTERNA";
+                        summarySheet.Cell(1, 6).Value = "CANTIDAD";
+                        summarySheet.Cell(1, 7).Value = "PRECIO UNITARIO";
+                        summarySheet.Cell(1, 8).Value = "PRECIO TOTAL";
+                        summarySheet.Cell(1, 9).Value = "ESTATUS";
+                        summarySheet.Cell(1, 10).Value = "NUM FACTURA";
+
+
+                        // Opcional: ponerlos en negrita y con fondo
+                        summarySheet.Range("A1:J1").Style.Font.Bold = true;
+                        summarySheet.Range("A1:J1").Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                        int fila = 2; // empezamos en la fila 2 porque la 1 son encabezados
+                        foreach (var falla in serviceDetailsList)
+                        {
+                            summarySheet.Cell(fila, 1).Value = falla.ServiceId;
+                            summarySheet.Cell(fila, 2).Value = falla.Reference;
+                            summarySheet.Cell(fila, 3).Value = falla.ItemDescription;
+                            summarySheet.Cell(fila, 4).Value = falla.Type == "P" ? "R" : falla.Type == "L" ? "M" : falla.Type;
+                            summarySheet.Cell(fila, 5).Value = (bool)falla.IsExternal ? "Sí" : "No";
+                            summarySheet.Cell(fila, 6).Value = falla.Quantity;
+                            summarySheet.Cell(fila, 7).Value = falla.UnitPrice;
+                            summarySheet.Cell(fila, 8).Value = falla.Price;
+                            summarySheet.Cell(fila, 9).Value = falla.EstatusName;
+                            summarySheet.Cell(fila, 10).Value = falla.InvoiceNumber;
+
+
+
+
+                        fila++;
+                        }
+
+
+                        summarySheet.Columns().AdjustToContents();
+                        var centerStyle2 = summarySheet.Style;
+                        centerStyle2.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        centerStyle2.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                }
+
+
 
                 // 8. Preparar el stream para la respuesta
                 var stream = new MemoryStream();
@@ -369,7 +438,7 @@ namespace WebApi.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "No se pudo convertir la data a List<Service>");
 
                 // Exportar a Excel
-                var excel = ConvertToExcel(services, serviceTypeId);
+                var excel = ConvertToExcel(services, serviceTypeId,dealerId,supplierId);
                 var fileName = $"SERVICIOS_{serviceTypeId}.xlsx";
 
                 return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
@@ -494,7 +563,7 @@ namespace WebApi.Controllers
 
             // 🔄 Cargar los datos antes del documento
 
-            var response = _dService.GetDetails(serviceId, null, null).GetAwaiter().GetResult();
+            var response = _dService.GetDetails(serviceId, null, null,null,null).GetAwaiter().GetResult();
 
             var serviceDetailsList = new List<ServiceDetails>();
 
@@ -744,7 +813,7 @@ namespace WebApi.Controllers
                                     table.Cell().Border(1).Padding(1.5f).Text(index++.ToString()).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Reference).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Serial).FontSize(10);
-                                    table.Cell().Border(1).Padding(1.5f).Text(part.Type).FontSize(10);
+                                    table.Cell().Border(1).Padding(1.5f).Text(part.Type == "P" ? "R" : part.Type == "L" ? "M" : part.Type).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text((bool)part.IsExternal ? "Sí" : "No").FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.ItemDescription).FontSize(10);
                                     table.Cell().Border(1).Padding(1.5f).Text(part.Quantity.ToString()).FontSize(10);
@@ -766,7 +835,7 @@ namespace WebApi.Controllers
 
                             // Celda 1: Autorización del Cliente
                             table.Cell().Border(1).Padding(1)
-                                .Text("SRG                                                                     500000002876\nAUTORIZACIÓN DEL CLIENTE:\n* Para efectuar las reparaciones arriba mencionadas.\n* Para probar este vehículo fuera del taller si fuere necesario.\n               Aceptado: ___________________________\n                       FIRMAS AUTORIZADAS DEL CONCESIONARIO:\n____________________________               ____________________________\n     Gerente de Servicio                                        Gerente Repuestos\n_____________________________                                2024-06-18\n     Gte. de Administración                                   Fecha de Registro ")
+                                .Text($"SRG                                                                     {service.SrgNumber}\nAUTORIZACIÓN DEL CLIENTE:\n* Para efectuar las reparaciones arriba mencionadas.\n* Para probar este vehículo fuera del taller si fuere necesario.\n               Aceptado: ___________________________\n                       FIRMAS AUTORIZADAS DEL CONCESIONARIO:\n____________________________               ____________________________\n     Gerente de Servicio                                        Gerente Repuestos\n_____________________________                                {service.ServiceDate}\n     Gte. de Administración                                   Fecha de Registro ")
                                 .Justify().FontSize(10).LineHeight(1).Bold();
 
                             // Celda 2: Certificación del Servicio Efectuado
