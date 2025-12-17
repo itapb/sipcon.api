@@ -1187,7 +1187,44 @@ namespace Data
                 _semaphore.Release();
             }
         }
+        /*------------------------------------------------------------------------------------------------------------------------------------------*/
+         
+        private async Task<Response<Result>> _postReplicatePackage(int packageId, int replicationCount)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            { 
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDPACKAGE", packageId);
+                _parameter.AddSqlParameter("@REPLICATION_COUNT", replicationCount);
 
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_REPLICATE_PACKAGE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        public async Task<Response<Result>> PostReplicatePackage(int packageId, int replicationCount)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postReplicatePackage(packageId, replicationCount);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
         /*----------------------------------------------------------POST PACKAGEPRINT-------------------------------------------------------------*/
 
         public async Task<Response<Result>> PostPackagePrint(Models.Printqueue printqueue, Int32 userId)
