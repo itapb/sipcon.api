@@ -47,7 +47,7 @@ namespace Data
             return _response;
         }
 
-
+    
         public async Task<Response<Result>> Post_PrintQueue(List<Models.Printqueue> _list, int userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);

@@ -25,23 +25,34 @@ namespace Models
         [SwaggerIgnore]
         public string? ZPL { get; set; }
 
+        [SwaggerIgnore]
         public string PrintedDate { get; set; } = "";
 
+        [SwaggerIgnore]
         public string Code { get; set; } = "";
 
+        [SwaggerIgnore]
         public string Description { get; set; } = "";
 
+        [SwaggerIgnore]
         public string? Supplier { get; set; }
 
-
+        [SwaggerIgnore]
         public string CodePair { get; set; } = "";
 
+        [SwaggerIgnore]
         public string DescriptionPair { get; set; } = "";
 
+        [SwaggerIgnore]
         public int? IdPair { get; set; }
 
+        [SwaggerIgnore]
         public string Note { get; set; } = "";
 
+        [SwaggerIgnore]
         public string NotePair { get; set; } = "";
+
+    
+        public int? Quantity { get; set; } = 1;
     }
 }
