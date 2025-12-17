@@ -661,7 +661,7 @@ namespace WebApi.Controllers
 
                             // Fila 3
                             AddTitleRow("VIN-Serial Completo", "Fecha de Salida", "Ciudad", "Estado", "Telefonos", "Fecha Autorizacion");
-                            AddValueRow(service.Vin, $"{service.ServiceDate:yyyy-MM-dd}", service.DealerServiceCity, service.DealerServiceState, service.CustomerPhone, $"{service.AuthotizationDate:yyyy-MM-dd}");
+                            AddValueRow(service.Vin, $"{service.EndDate:yyyy-MM-dd}", service.DealerServiceCity, service.DealerServiceState, service.CustomerPhone, $"{service.AuthotizationDate:yyyy-MM-dd}");
 
 
                         });
