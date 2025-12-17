@@ -145,13 +145,13 @@ namespace Data
 
 
 
-        public async Task<Models.Response<List<Models.ServiceDetails>>> GetDetails( Int32 serviceId, String? type ,String? filter)
+        public async Task<Models.Response<List<Models.ServiceDetails>>> GetDetails( Int32? serviceId, String? type ,String? filter, Int32? supplierId, Int32? dealerId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetDetails(serviceId,type, filter);
+                return await _GetDetails(serviceId, type, filter, supplierId,dealerId);
             }
             finally
             {
@@ -161,7 +161,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Models.ServiceDetails>>> _GetDetails(Int32 serviceId, String? type , String? filter)
+        private async Task<Response<List<Models.ServiceDetails>>> _GetDetails(Int32? serviceId, String? type , String? filter,Int32? supplierId, Int32? dealerId)
         {
 
             Response<List<Models.ServiceDetails>> _response = new Response<List<Models.ServiceDetails>>();
@@ -172,6 +172,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDMAINTENANCE", serviceId);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@VTYPE", type);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
