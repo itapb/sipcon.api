@@ -3,6 +3,7 @@ using ClosedXML.Graphics;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -372,6 +373,22 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/Movements/GetMovementDetailsPicking")]
+        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            try
+            {
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
         [HttpGet("/api/Movements/GetMovementDetailsByUser")]
         public async Task<IActionResult> GetMovementDetailsByUser(Int32 userId, Int32? supplierId, string movementType, string mode)
         {
@@ -449,6 +466,23 @@ namespace WebApi.Controllers
             try
             {
                 Models.Response<Result> _response = await _dInventory.Post_Actions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("/api/Movements/PostMovementDetailsPickingActions")]
+        public async Task<IActionResult> PostMovementDetailsPickingActions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostMovementDetailsPickingActions(actions, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -848,6 +882,20 @@ namespace WebApi.Controllers
             try
             {
                 var _response = await _dInventory.DeletePackge(packageCode, guideId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/Packing/OpenPackage")]
+        public async Task<IActionResult> OpenPackage(int packageId, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInventory.OpenPackage(packageId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
