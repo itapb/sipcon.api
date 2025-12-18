@@ -1632,6 +1632,33 @@ namespace Data
         }
 
 
+        private async Task<Response<List<PackageList>>> _GetPackingList(Int32 supplierId)
+        {
+            Response<List<PackageList>> _response = new Response<List<PackageList>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("PartName", "VDESCRIPTION");
+                _mapping.AddItem("Quantity", "IQUANTITY");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PACKINGLIST", _parameter);
+                _response.Data = _data.GetList<Models.PackageList>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
         /*-----------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -1748,6 +1775,19 @@ namespace Data
             try
             {
                 return await _GetPackagesList(supplierId, packageCode);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<List<PackageList>>> GetPackingList(Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPackingList(supplierId);
             }
             finally
             {
