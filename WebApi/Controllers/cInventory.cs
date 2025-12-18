@@ -518,12 +518,13 @@ namespace WebApi.Controllers
                                 // Ajusta según tu estructura real
                                 Id = 0,
                                 InnerCode = row.Cell(1).GetValue<string>(),
+                                PartName = row.Cell(2).GetValue<string>(),
                                 RequiredQty = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
                                 LocationName   = row.Cell(4).GetValue<string>(),
                                 DestinationName = row.Cell(5).GetValue<string>(),
                                 MovementId = movementId,
-                                RowReference = rowRef
-
+                                RowReference = rowRef,
+                                Cost = row.Cell(6).GetValue<decimal>(),
                             });
                         }
                         catch (Exception ex)
@@ -702,12 +703,26 @@ namespace WebApi.Controllers
 
         /*----------------------------------------------GetPackageList------------------------------------------------------*/
 
-        [HttpGet("/api/Packing/GetPackingList")]
+        [HttpGet("/api/Packing/GetPackageList")]
         public async Task<IActionResult> GetPackageList(Int32 supplierId, string packageCode)
         {
             try
             {
                 var _response = await _dInventory.GetPackagesList(supplierId, packageCode);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/Packing/GetPackingList")]
+        public async Task<IActionResult> GetPackingList(Int32 supplierId)
+        {
+            try
+            {
+                var _response = await _dInventory.GetPackingList(supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
