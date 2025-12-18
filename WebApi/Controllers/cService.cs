@@ -170,7 +170,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("MANTENIMIENTOS");
                         headers = new()
                 {
-                    "NUM ", "NUMERO DE ORDEN", "CONCESIONARIO DEL MANTENIMIENTO", "CODIGO CONCESIONARIO",
+                    "CONCESIONARIO DEL MANTENIMIENTO", "CODIGO CONCESIONARIO","NUM ", "NUMERO DE ORDEN", 
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO", "CONCESIONARIO DE VENTA",
                     "CODIGO CONCESIONARIO", "RIF CLIENTE", "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE","REPORTE DE CONCESIONARIO",
                     "NUM FACTURA", "FECHA FACTURACION", "ESTATUS"
@@ -181,7 +181,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("ASISTENCIAS TECNICAS");
                         headers = new()
                 {
-                    "NUM ", "NUMERO DE REPORTE DE FALLA",  "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                     "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO", "NUM ", "NUMERO DE REPORTE DE FALLA", 
                     "VIN DE VEHICULO", "PLACA","REPORTE DE CLIENTE","REPORTE DE CONCESIONARIO","REPORTE DE PLANTA",
                      "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE",
                             "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
@@ -193,7 +193,7 @@ namespace WebApi.Controllers
                         worksheet = workbook.Worksheets.Add("REPORTE DE FALLAS");
                         headers = new()
                 {
-                    "NUM ", "NUMERO DE ORDEN", "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO",
+                    "CONCESIONARIO DEL SERVICIO", "CODIGO CONCESIONARIO","NUM ", "NUMERO DE ORDEN", 
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO",  "RIF CLIENTE", "NOMBRE DE CLIENTE", 
                     "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
                      "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
@@ -237,13 +237,13 @@ namespace WebApi.Controllers
                     var s = filteredServices[i];
                     int row = i + 2;
 
-                    worksheet.Cell(row, 1).Value = s.Id;
+                    worksheet.Cell(row, 3).Value = s.Id;
 
                     if (serviceTypeId == 1)
                     {
-                        worksheet.Cell(row, 2).Value = s.OrderNumber;
-                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
-                        worksheet.Cell(row, 4).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 1).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 2).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 4).Value = s.OrderNumber;
                         worksheet.Cell(row, 5).Value = s.Vin;
                         worksheet.Cell(row, 6).Value = s.Plate;
                         worksheet.Cell(row, 7).Value = s.Km;
@@ -262,9 +262,9 @@ namespace WebApi.Controllers
                     }
                     else if (serviceTypeId == 2)
                     {
-                        worksheet.Cell(row, 2).Value = s.OrderNumber;
-                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
-                        worksheet.Cell(row, 4).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 1).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 2).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 4).Value = s.OrderNumber;
                         worksheet.Cell(row, 5).Value = s.Vin;
                         worksheet.Cell(row, 6).Value = s.Plate;
                         worksheet.Cell(row, 7).Value = s.CustomerReport;
@@ -289,9 +289,9 @@ namespace WebApi.Controllers
                     }
                     else if (serviceTypeId == 3)
                     {
-                        worksheet.Cell(row, 2).Value = s.OrderNumber;
-                        worksheet.Cell(row, 3).Value = s.DealerServiceName;
-                        worksheet.Cell(row, 4).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 1).Value = s.DealerServiceName;
+                        worksheet.Cell(row, 2).Value = s.DealerServiceCod;
+                        worksheet.Cell(row, 4).Value = s.OrderNumber;
                         worksheet.Cell(row, 5).Value = s.Vin;
                         worksheet.Cell(row, 6).Value = s.Plate;
                         worksheet.Cell(row, 7).Value = s.Km;
@@ -339,30 +339,33 @@ namespace WebApi.Controllers
                         summarySheet.Cell(1, 3).Value = "DESCRIPCION";
                         summarySheet.Cell(1, 4).Value = "TIPO ELEMENTO";
                         summarySheet.Cell(1, 5).Value = "COMPRA EXTERNA";
-                        summarySheet.Cell(1, 6).Value = "CANTIDAD";
+                        summarySheet.Cell(1, 6).Value = "CANTIDAD MANO DE OBRA";
                         summarySheet.Cell(1, 7).Value = "PRECIO UNITARIO";
-                        summarySheet.Cell(1, 8).Value = "PRECIO TOTAL";
-                        summarySheet.Cell(1, 9).Value = "ESTATUS";
-                        summarySheet.Cell(1, 10).Value = "NUM FACTURA";
+                        summarySheet.Cell(1, 8).Value = "CANTIDAD DE REPUESTOS";
+                        summarySheet.Cell(1, 9).Value = "PRECIO TOTAL";
+                        summarySheet.Cell(1, 10).Value = "ESTATUS";
+                        summarySheet.Cell(1, 11).Value = "NUM FACTURA";
 
 
                         // Opcional: ponerlos en negrita y con fondo
-                        summarySheet.Range("A1:J1").Style.Font.Bold = true;
-                        summarySheet.Range("A1:J1").Style.Fill.BackgroundColor = XLColor.LightGray;
+                        summarySheet.Range("A1:K1").Style.Font.Bold = true;
+                        summarySheet.Range("A1:K1").Style.Fill.BackgroundColor = XLColor.LightGray;
 
                         int fila = 2; // empezamos en la fila 2 porque la 1 son encabezados
                         foreach (var falla in serviceDetailsList)
                         {
+                          int columna = (falla.Type == "P") ? 8 : 6; 
+
                             summarySheet.Cell(fila, 1).Value = falla.ServiceId;
                             summarySheet.Cell(fila, 2).Value = falla.Reference;
                             summarySheet.Cell(fila, 3).Value = falla.ItemDescription;
                             summarySheet.Cell(fila, 4).Value = falla.Type == "P" ? "R" : falla.Type == "L" ? "M" : falla.Type;
                             summarySheet.Cell(fila, 5).Value = (bool)falla.IsExternal ? "Sí" : "No";
-                            summarySheet.Cell(fila, 6).Value = falla.Quantity;
+                            summarySheet.Cell(fila, columna).Value = falla.Quantity;
                             summarySheet.Cell(fila, 7).Value = falla.UnitPrice;
-                            summarySheet.Cell(fila, 8).Value = falla.Price;
-                            summarySheet.Cell(fila, 9).Value = falla.EstatusName;
-                            summarySheet.Cell(fila, 10).Value = falla.InvoiceNumber;
+                            summarySheet.Cell(fila, 9).Value = falla.Price;
+                            summarySheet.Cell(fila, 10).Value = falla.EstatusName;
+                            summarySheet.Cell(fila, 11).Value = falla.InvoiceNumber;
 
 
 
