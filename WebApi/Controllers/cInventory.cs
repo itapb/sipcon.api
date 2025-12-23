@@ -3,6 +3,7 @@ using ClosedXML.Graphics;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -372,6 +373,22 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/Movements/GetMovementDetailsPicking")]
+        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            try
+            {
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
         [HttpGet("/api/Movements/GetMovementDetailsByUser")]
         public async Task<IActionResult> GetMovementDetailsByUser(Int32 userId, Int32? supplierId, string movementType, string mode)
         {
@@ -458,6 +475,23 @@ namespace WebApi.Controllers
 
         }
 
+
+        [HttpPost("/api/Movements/PostMovementDetailsPickingActions")]
+        public async Task<IActionResult> PostMovementDetailsPickingActions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostMovementDetailsPickingActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
         private List<NewMovementDetail> ExceltoMovementDetail(IFormFile file, Int32 movementId)
         {
             var _list = new List<NewMovementDetail>();
@@ -484,12 +518,13 @@ namespace WebApi.Controllers
                                 // Ajusta según tu estructura real
                                 Id = 0,
                                 InnerCode = row.Cell(1).GetValue<string>(),
+                                PartName = row.Cell(2).GetValue<string>(),
                                 RequiredQty = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
                                 LocationName   = row.Cell(4).GetValue<string>(),
                                 DestinationName = row.Cell(5).GetValue<string>(),
                                 MovementId = movementId,
-                                RowReference = rowRef
-
+                                RowReference = rowRef,
+                                Cost = row.Cell(6).GetValue<decimal>(),
                             });
                         }
                         catch (Exception ex)
@@ -668,12 +703,26 @@ namespace WebApi.Controllers
 
         /*----------------------------------------------GetPackageList------------------------------------------------------*/
 
-        [HttpGet("/api/Packing/GetPackingList")]
+        [HttpGet("/api/Packing/GetPackageList")]
         public async Task<IActionResult> GetPackageList(Int32 supplierId, string packageCode)
         {
             try
             {
                 var _response = await _dInventory.GetPackagesList(supplierId, packageCode);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/Packing/GetPackingList")]
+        public async Task<IActionResult> GetPackingList(Int32 supplierId)
+        {
+            try
+            {
+                var _response = await _dInventory.GetPackingList(supplierId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -848,6 +897,20 @@ namespace WebApi.Controllers
             try
             {
                 var _response = await _dInventory.DeletePackge(packageCode, guideId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/Packing/OpenPackage")]
+        public async Task<IActionResult> OpenPackage(int packageId, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInventory.OpenPackage(packageId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1129,6 +1192,8 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 9).Value = "CONCESIONARIO";
                 worksheet.Cell(1, 10).Value = "PLANTA";
                 worksheet.Cell(1, 11).Value = "ACTIVA";
+                worksheet.Cell(1, 12).Value = "PRECIO";
+                worksheet.Cell(1, 13).Value = "COSTO";
 
 
 
@@ -1153,7 +1218,8 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 9).Value = _backOrder.DealerName;
                     worksheet.Cell(i + 2, 10).Value = _backOrder.SupplierRef;
                     worksheet.Cell(i + 2, 11).Value = _backOrder.IsActive != false ? "SI" : "NO";
-
+                    worksheet.Cell(i + 2, 12).Value = _backOrder.Price;
+                    worksheet.Cell(i + 2, 13).Value = _backOrder.Cost;
 
 
                 }

@@ -313,6 +313,18 @@ namespace Data
             }
         }
 
+        public async Task<Response<List<MovementDetails>>> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         private async Task<Response<List<Movement>>> _getMovements(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
         {
@@ -410,6 +422,53 @@ namespace Data
             }
             return _response;
         }
+
+
+        private async Task<Response<List<MovementDetails>>> _getMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VTYPE", "P");
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BPENDING", pending);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("MovementId", "IDMOVEMENT");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartDescription", "VPART");
+                _mapping.AddItem("LocationName", "VLOCATION");
+                _mapping.AddItem("RequiredQty", "IREQUIRED");
+                _mapping.AddItem("RealQty", "IREAL");
+                _mapping.AddItem("TypeId", "VMOVEMENTTYPEDETAIL");
+                _mapping.AddItem("Processed", "BPROCESSED");
+                _mapping.AddItem("UserName", "VLOGIN");
+                _mapping.AddItem("Stock", "ISTOCK");
+                _mapping.AddItem("SaleOrderId", "VIDSALEORDER"); 
+                _mapping.AddItem("DealerName", "VDEALER");
+            
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_MOVEMENTDETAILSMAIN", _parameter);
+                _response.Data = _data.GetList<Models.MovementDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
 
 
         private async Task<Response<List<MovementDetails>>> _getMovementDetails(Int32 userId, Int32 movementId, Int32? detailId)
@@ -810,6 +869,49 @@ namespace Data
             return _response;
         }
 
+        public async Task<Response<Result>> PostMovementDetailsPickingActions(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postMovementDetailsPickingActions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _postMovementDetailsPickingActions(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTDETAIL_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
 
         private async Task<Response<Result>> _deleteMovementDetail(List<Models.Action> _list, Int32 userId)
@@ -944,6 +1046,8 @@ namespace Data
             return _response;
         }
 
+
+
         private async Task<Response<Result>> _addPackge(string packageCode, Int32 guideId)
         {
             Response<Result> _response = new Response<Result>();
@@ -977,6 +1081,38 @@ namespace Data
             return _response;
         }
 
+
+        private async Task<Response<Result>> _openPackage(int packageId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDPACKAGE", packageId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_PACKAGE_OPEN", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
         private async Task<Response<Result>> _deletePackge(string packageCode, Int32 guideId)
         {
             Response<Result> _response = new Response<Result>();
@@ -1155,6 +1291,20 @@ namespace Data
             try
             {
                 return await _deletePackge(packageCode, guideId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        public async Task<Response<Result>> OpenPackage(int packageId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _openPackage(packageId);
             }
             finally
             {
@@ -1482,6 +1632,33 @@ namespace Data
         }
 
 
+        private async Task<Response<List<PackageList>>> _GetPackingList(Int32 supplierId)
+        {
+            Response<List<PackageList>> _response = new Response<List<PackageList>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("PartName", "VDESCRIPTION");
+                _mapping.AddItem("Quantity", "IQUANTITY");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PACKINGLIST", _parameter);
+                _response.Data = _data.GetList<Models.PackageList>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
         /*-----------------------------------------------------------------------------------------------------------------------*/
 
 
@@ -1598,6 +1775,19 @@ namespace Data
             try
             {
                 return await _GetPackagesList(supplierId, packageCode);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<List<PackageList>>> GetPackingList(Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPackingList(supplierId);
             }
             finally
             {
@@ -1931,6 +2121,8 @@ namespace Data
                 _mapping.AddItem("SupplierRef", "VREFERENCESUPPLIER");
                 _mapping.AddItem("DealerRef", "VREFERENCEDEALER");
                 _mapping.AddItem("Stock", "ISTOCK");
+                _mapping.AddItem("Cost", "NCOST");
+                _mapping.AddItem("Price", "NPRICE");
 
 
                 Util.Data _data = Util.Data.GetInstance();

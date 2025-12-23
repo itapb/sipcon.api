@@ -118,6 +118,12 @@ namespace Models
          
 
         [SwaggerIgnore]
-        public string? PartialTypeName { get; set; }  
+        public string? PartialTypeName { get; set; }
+
+        [SwaggerIgnore]
+        public string? SaleOrderId { get; set; }
+
+        [SwaggerIgnore]
+        public string? DealerName { get; set; }
     }
 }

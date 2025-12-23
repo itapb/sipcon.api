@@ -26,7 +26,7 @@ namespace WebApi.Controllers
 
 
 
-        [HttpPost("RequestPrint")]
+        [HttpPost("api/Print/RequestPrint")]
         public async Task<IActionResult> Post_PrintQueue(List<Models.Printqueue> Printqueue, int userId)
         {
 
@@ -42,7 +42,24 @@ namespace WebApi.Controllers
 
         }
 
-        [HttpGet("GetAll")]
+
+        [HttpPost("api/Print/PostPrintQueue")]
+        public async Task<IActionResult> PostPrintQueue(List<Models.Printqueue> Printqueue, int userId)
+        {
+
+            try
+            {
+                var _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpGet("api/Print/GetAll")]
         public async Task<IActionResult> GetAll(string printerName, bool pair)
         {
 
