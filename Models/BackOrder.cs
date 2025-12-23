@@ -51,6 +51,14 @@ namespace Models
         public int? Stock { get; set; }
 
 
+        [SwaggerIgnore]
+        public decimal? Cost { get; set; }
+
+
+        [SwaggerIgnore]
+        public decimal? Price { get; set; }
+
+
     }
 
 }

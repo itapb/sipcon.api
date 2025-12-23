@@ -1192,6 +1192,8 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 9).Value = "CONCESIONARIO";
                 worksheet.Cell(1, 10).Value = "PLANTA";
                 worksheet.Cell(1, 11).Value = "ACTIVA";
+                worksheet.Cell(1, 12).Value = "PRECIO";
+                worksheet.Cell(1, 13).Value = "COSTO";
 
 
 
@@ -1216,7 +1218,8 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 9).Value = _backOrder.DealerName;
                     worksheet.Cell(i + 2, 10).Value = _backOrder.SupplierRef;
                     worksheet.Cell(i + 2, 11).Value = _backOrder.IsActive != false ? "SI" : "NO";
-
+                    worksheet.Cell(i + 2, 12).Value = _backOrder.Price;
+                    worksheet.Cell(i + 2, 13).Value = _backOrder.Cost;
 
 
                 }
