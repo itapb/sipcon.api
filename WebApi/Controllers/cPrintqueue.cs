@@ -26,7 +26,7 @@ namespace WebApi.Controllers
 
 
 
-        [HttpPost("api/Print/RequestPrint")]
+        [HttpPost("RequestPrint")]
         public async Task<IActionResult> Post_PrintQueue(List<Models.Printqueue> Printqueue, int userId)
         {
 
@@ -43,7 +43,7 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpPost("api/Print/PostPrintQueue")]
+        [HttpPost("PostPrintQueue")]
         public async Task<IActionResult> PostPrintQueue(List<Models.Printqueue> Printqueue, int userId)
         {
 
@@ -59,7 +59,7 @@ namespace WebApi.Controllers
 
         }
 
-        [HttpGet("api/Print/GetAll")]
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll(string printerName, bool pair)
         {
 
