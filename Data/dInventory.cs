@@ -2121,6 +2121,8 @@ namespace Data
                 _mapping.AddItem("SupplierRef", "VREFERENCESUPPLIER");
                 _mapping.AddItem("DealerRef", "VREFERENCEDEALER");
                 _mapping.AddItem("Stock", "ISTOCK");
+                _mapping.AddItem("Cost", "NCOST");
+                _mapping.AddItem("Price", "NPRICE");
 
 
                 Util.Data _data = Util.Data.GetInstance();
