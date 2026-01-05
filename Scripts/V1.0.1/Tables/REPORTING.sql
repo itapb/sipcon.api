@@ -11,6 +11,7 @@ GO
 CREATE TABLE [dbo].[REPORTING](
 	[ID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
 	[VNAME] [varchar](200) NOT NULL,
+	[IDMODULE] [INT] NOT NULL,
 	[DCREATED] [datetime] NULL,
 	[DUPDATED] [datetime] NULL,
 	[VUPDATEDBY] [varchar](30) NULL,

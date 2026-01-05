@@ -614,28 +614,7 @@ namespace Util
             return await _ExecuteReaderAsyncTop<T>(_storedProcedure, _mapping.Items);
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(string storedProcedure, Parameter _parameter)
-        {
-            using (var connection = new SqlConnection(_stringConnection))
-            using (var _command = new SqlCommand(storedProcedure, connection))
-            {
-                _command.CommandTimeout = Setting.TimeOut.Seconds;
-                _command.CommandType = CommandType.StoredProcedure;
-                if (_parameter != null)
-                {
-                    if (_parameter.SqlParameters != null && _parameter.SqlParameters.Count() > 0)
-                        foreach (SqlParameter parametro in _parameter.SqlParameters)
-                        {
-                            _command.Parameters.Add(parametro);
-                        }
-                }
-
-                await connection.OpenAsync();
-                object result = await _command.ExecuteScalarAsync();
-                return result != null && result != DBNull.Value ? (T)Convert.ChangeType(result, typeof(T)) : default;
-            }
-        }
-
+       
 
         #endregion
 
