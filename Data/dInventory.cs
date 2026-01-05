@@ -3268,21 +3268,19 @@ namespace Data
                 _mapping.AddItem("DCreated", "DDATE");
                 _mapping.AddItem("DUpdated", "DUPDATED");
                 _mapping.AddItem("StatusId", "IDSTATUS");
-                // Supplier
+                 
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
-
-                // Dealer
+                 
                 _mapping.AddItem("DealerId", "IDDEALER");
                 _mapping.AddItem("DealerName", "DEALER");
-
-                // User/Creator
+                 
                 _mapping.AddItem("UserId", "IDUSER");
                 _mapping.AddItem("Login", "VLOGIN");
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
-                // Status
+                 
                 _mapping.AddItem("StatusName", "DISPLAY_STATUS");
-                // contadores
+                 
                 _mapping.AddItem("TotalItems", "TOTAL_ITEMS");
                 _mapping.AddItem("ApprovedItems", "APPROVED_ITEMS");
                 _mapping.AddItem("RejectedItems", "REJECTED_ITEMS");
@@ -3341,20 +3339,17 @@ namespace Data
                 _mapping.AddItem("DCreated", "DDATE");
                 _mapping.AddItem("DUpdated", "DUPDATED");
                 _mapping.AddItem("StatusId", "IDSTATUS");  
-                // Supplier
+                 
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
-
-                // Dealer
+                 
                 _mapping.AddItem("DealerId", "IDDEALER");
                 _mapping.AddItem("DealerName", "DEALER");
-
-                // User/Creator
+                 
                 _mapping.AddItem("UserId", "IDUSER");
                 _mapping.AddItem("Login", "VLOGIN");
                 _mapping.AddItem("FiscalName", "VFISCALNAME"); 
-
-                // Status 
+                 
                 _mapping.AddItem("StatusName", "DISPLAY_STATUS");
 
                 _mapping.AddItem("TotalItems", "TOTAL_ITEMS");
@@ -3397,12 +3392,10 @@ namespace Data
 
             try
             {
-                var _parameter = new Util.Parameter();
-                // Usar @IDCLAIM como parámetro (igual que en el stored procedure)
+                var _parameter = new Util.Parameter(); 
                 _parameter.AddSqlParameter("@IDCLAIM", claimId);
 
-                var _mapping = new Mapping();
-                // Mapeo de columnas base
+                var _mapping = new Mapping(); 
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("ClaimId", "IDCLAIM");
                 _mapping.AddItem("PartId", "IDPART");
@@ -3410,14 +3403,12 @@ namespace Data
                 _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("ReplacementPartId", "IDREPLACEMENT_PART");
                 _mapping.AddItem("ReasonId", "IDREASON");
-
-                // Mapeo de información de partes
+                 
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("PartInnerCode", "PARTCODE");
                 _mapping.AddItem("ReplacemetName", "VREPLACEMENT");
                 _mapping.AddItem("RemplacemetInnerCode", "REPLACEMENTCODE");
-
-                // Mapeo de razón y estado
+                 
                 _mapping.AddItem("ReasonDescription", "VDESCRIPTION");   
                 _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
 
