@@ -1188,7 +1188,7 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 3).Value = "DESCRIPCION";
                 worksheet.Cell(1, 4).Value = "TIPO";
                 worksheet.Cell(1, 5).Value = "CANTIDAD";
-                worksheet.Cell(1, 6).Value = "NRO ORDEN";
+                worksheet.Cell(1, 6).Value = "NRO PEDIDO";
                 worksheet.Cell(1, 7).Value = "FECHA DE CREACION";
                 worksheet.Cell(1, 8).Value = "FECHA DE LLEGADA";
                 worksheet.Cell(1, 9).Value = "CONCESIONARIO";
