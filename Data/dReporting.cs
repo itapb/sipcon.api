@@ -70,12 +70,12 @@ namespace Data
 
 
 
-        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson( string? filter, int? rowFrom, int userId,int? supplierId,int? dealerId,DateTime? fromDate,DateTime? upToDate,string? estatus,int reportingId)
+        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson( string? filter, int? rowFrom, int userId,int? supplierId,int? dealerId,DateTime? fromDate,DateTime? upToDate,int reportingId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await GetAllJsonAsync(filter, rowFrom, userId, supplierId, dealerId, fromDate, upToDate, estatus, reportingId)
+                return await GetAllJsonAsync(filter, rowFrom, userId, supplierId, dealerId, fromDate, upToDate, reportingId)
                     .ConfigureAwait(false);
             }
             finally
@@ -86,7 +86,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Dictionary<string, object>>>> GetAllJsonAsync( string? filter, int? rowFrom, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, string? estatus, int reportingId)
+        private async Task<Response<List<Dictionary<string, object>>>> GetAllJsonAsync( string? filter, int? rowFrom, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate,int reportingId)
         {
             var response = new Response<List<Dictionary<string, object>>>();
             try
@@ -100,7 +100,6 @@ namespace Data
                 parameter.AddSqlParameter("@IDREPORTING", reportingId);
                 parameter.AddSqlParameter("@DFROMDATE", fromDate ?? (object)DBNull.Value);
                 parameter.AddSqlParameter("@DUPTODATE", upToDate ?? (object)DBNull.Value);
-                parameter.AddSqlParameter("@VESTATUS", estatus ?? (object)DBNull.Value);
 
                 var data = Util.Data.GetInstance();
                 DataTable table = await data.GetDataTable("USP_GET_REPORTS", parameter);
@@ -120,7 +119,13 @@ namespace Data
                             continue; // no se agrega al diccionario
                         }
 
-                        dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
+                        if (col.ColumnName.Equals("IDSUPPLIER", StringComparison.OrdinalIgnoreCase) || col.ColumnName.Equals("IDDEALER", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+
+                            dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
                     }
                     rows.Add(dict);
                 }

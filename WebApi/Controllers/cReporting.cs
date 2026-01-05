@@ -40,12 +40,12 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetReports")]
-        public async Task<IActionResult> GetAllJson( string? filter, int? rowFrom, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, string? estatus, int reportingId)
+        public async Task<IActionResult> GetAllJson( string? filter, int? rowFrom, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, int reportingId)
         {
             try
             {
                 var response = await _dReporting.GetAllJson(
-                    filter, rowFrom, userId, supplierId, dealerId, fromDate, upToDate, estatus, reportingId
+                    filter, rowFrom, userId, supplierId, dealerId, fromDate, upToDate, reportingId
                 );
 
                 return StatusCode(StatusCodes.Status200OK, response);
