@@ -1937,7 +1937,7 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("PostActionsClaim")]
+        [HttpPost("/api/Claim/PostActionsClaim")]
         public async Task<IActionResult> Post_ActionsClaim(List<Models.Action> actions, Int32 userId)
         {
 
@@ -1957,7 +1957,7 @@ namespace WebApi.Controllers
 
 
 
-        [HttpPost("PostActionsClaimDetails")]
+        [HttpPost("/api/Claim/PostActionsClaimDetails")]
         public async Task<IActionResult> Post_ActionsDetails(List<Models.Action> actions, Int32 userId)
         {
 
@@ -1975,6 +1975,21 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpPost("/api/Claim/DeleteClaimDetails")]
+        public async Task<IActionResult> DeleteClaimDetail(List<Models.Action> _list, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.DeleteClaimDetail(_list, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
         //[HttpPost("/api/Claim/PostClaimActions")]
         //public async Task<IActionResult> PostActions(List<Models.Action> actions, Int32 userId)
         //{
