@@ -46,6 +46,10 @@ namespace Models
         public string? PendingItems { get; set; }
         [SwaggerIgnore]
         public string? StatusSummary { get; set; }
+        [SwaggerIgnore]
+        public DateTime? DCreated { get; set; }
+        [SwaggerIgnore]
+        public DateTime? DUpdated { get; set; }
 
     }
 

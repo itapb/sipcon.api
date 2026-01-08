@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Swashbuckle.AspNetCore.Annotations;
+using Util;
 
 namespace Models
 {
@@ -44,6 +45,12 @@ namespace Models
 
         [SwaggerIgnore]
         public string? StatusName { get; set; }
+
+        [SwaggerIgnore]
+        public string? Comment { get; set; }
+
+        [SwaggerIgnore]
+        public int? IApproved { get; set; }
     }
 
 }

@@ -3265,7 +3265,7 @@ namespace Data
                 _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("Invoice", "VINVOICE");
                 _mapping.AddItem("Guide", "VGUIDE");
-                _mapping.AddItem("DCreated", "DDATE");
+                _mapping.AddItem("DCreated", "DCREATED");
                 _mapping.AddItem("DUpdated", "DUPDATED");
                 _mapping.AddItem("StatusId", "IDSTATUS");
                 // Supplier
@@ -3330,7 +3330,7 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@ID", claimId);
 
-                var _mapping = new Mapping();   
+                var _mapping = new Mapping();  
                   
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Reference", "VREFERENCE");
@@ -3338,7 +3338,7 @@ namespace Data
                 _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("Invoice", "VINVOICE");
                 _mapping.AddItem("Guide", "VGUIDE");
-                _mapping.AddItem("DCreated", "DDATE");
+                _mapping.AddItem("DCreated", "DCREATED");
                 _mapping.AddItem("DUpdated", "DUPDATED");
                 _mapping.AddItem("StatusId", "IDSTATUS");  
                 // Supplier
@@ -3410,6 +3410,9 @@ namespace Data
                 _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("ReplacementPartId", "IDREPLACEMENT_PART");
                 _mapping.AddItem("ReasonId", "IDREASON");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("IApproved", "IAPPROVEDQUANTITY");
+                 
 
                 // Mapeo de información de partes
                 _mapping.AddItem("PartName", "VPART");
