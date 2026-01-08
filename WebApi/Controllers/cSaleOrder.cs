@@ -443,6 +443,7 @@ namespace WebApi.Controllers
 
             return document.GeneratePdf();
         }
+
         [HttpGet("ExportExcelsaleOrder")]
         public async Task<IActionResult> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId)
         {
@@ -450,6 +451,28 @@ namespace WebApi.Controllers
             {
                 List<SaleOrder> _response = await _dSaleOrder.GetExport(userId, supplierId, dealerId);
                 MemoryStream _excel = ConvertToExcel(_response);
+                string _fileName = "Pedidos.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+        [HttpGet("GetExportResume")]
+        public async Task<IActionResult> GetExportResume(Int32 userId, Int32 supplierId, Int32 dealerId)
+        {
+            try
+            {
+                List<SaleOrderResume> _response = await _dSaleOrder.GetExportResume(userId, supplierId, dealerId);
+                MemoryStream _excel = ConvertToExcelExportResume(_response);
                 string _fileName = "Pedidos.xlsx";
 
                 return File(
@@ -497,6 +520,78 @@ namespace WebApi.Controllers
                     worksheet.Cell(row, 4).Value = _saleOrder.TypeName;
                     worksheet.Cell(row, 5).Value = _saleOrder.StatusName;
                     worksheet.Cell(row, 6).Value = _saleOrder.CreatedBy;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
+
+        private MemoryStream ConvertToExcelExportResume(List<Models.SaleOrderResume> _saleOrders)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("PEDIDOS");
+
+                // Encabezados (fila 1)  
+
+                worksheet.Cell(1, 1).Value = "NROPEDIDO";
+                worksheet.Cell(1, 2).Value = "FECHAPEDIDO";
+                worksheet.Cell(1, 3).Value = "TIPO";
+                worksheet.Cell(1, 4).Value = "PARALIZADO";
+                worksheet.Cell(1, 5).Value = "VIN";
+                worksheet.Cell(1, 6).Value = "CLIENTE";
+                worksheet.Cell(1, 7).Value = "CONCESIONARIO";
+                worksheet.Cell(1, 8).Value = "CODIGOREPUESTO";
+                worksheet.Cell(1, 9).Value = "NOMBREREPUESTO";
+                worksheet.Cell(1, 10).Value = "PRECIO";
+                worksheet.Cell(1, 11).Value = "SOLICITADO";
+                worksheet.Cell(1, 12).Value = "BACKORDER";
+                worksheet.Cell(1, 13).Value = "DESESTIMADO";
+                worksheet.Cell(1, 14).Value = "ENPROCESO";
+                worksheet.Cell(1, 15).Value = "DESPACHADO";
+                worksheet.Cell(1, 16).Value = "FACTURADO";
+                worksheet.Cell(1, 17).Value = "ENVIADO";
+                worksheet.Cell(1, 18).Value = "RECIBIDO";
+
+
+                var headerRange = worksheet.Range("A1:R1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:R1").SetAutoFilter();
+
+                for (int i = 0; i < _saleOrders.Count; i++)
+                {
+                    var _saleOrder = _saleOrders[i];
+                    int row = i + 2;
+
+                    worksheet.Cell(row, 1).Value = _saleOrder.SaleOrderId;
+                    worksheet.Cell(row, 2).Value = _saleOrder.SaleOrderDate;
+                    worksheet.Cell(row, 3).Value = _saleOrder.SaleOrderType;
+                    worksheet.Cell(row, 4).Value = _saleOrder.Paralyzed == true ? "SI" : "NO";
+                    worksheet.Cell(row, 5).Value = _saleOrder.SaleOrderVin;
+                    worksheet.Cell(row, 6).Value = _saleOrder.SaleOrderCustomer;
+                    worksheet.Cell(row, 7).Value = _saleOrder.DealerName;
+                    worksheet.Cell(row, 8).Value = _saleOrder.PartCode;
+                    worksheet.Cell(row, 9).Value = _saleOrder.PartName;
+                    worksheet.Cell(row, 10).Value = _saleOrder.Price;
+                    worksheet.Cell(row, 11).Value = _saleOrder.Required;
+                    worksheet.Cell(row, 12).Value = _saleOrder.BackOrder;
+                    worksheet.Cell(row, 13).Value = _saleOrder.Dismissed;
+                    worksheet.Cell(row, 14).Value = _saleOrder.Picking;
+                    worksheet.Cell(row, 15).Value = _saleOrder.Dispatched;
+                    worksheet.Cell(row, 16).Value = _saleOrder.Invoiced;
+                    worksheet.Cell(row, 17).Value = _saleOrder.Sent;
+                    worksheet.Cell(row, 18).Value = _saleOrder.Received;
                 }
 
                 worksheet.Columns().AdjustToContents();

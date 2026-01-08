@@ -1812,7 +1812,7 @@ namespace WebApi.Controllers
             return File(txtBytes, "text/plain", fileName);
         }
 
-        [HttpPost("/api/InvoiceControl/PostReplicatePackage")]
+        [HttpPost("/api/Packing/ClonePackage")]
         public async Task<IActionResult> PostReplicatePackage(int packageId, int replicationCount)
         {
             try
