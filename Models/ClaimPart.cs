@@ -35,17 +35,7 @@ namespace Models
         [SwaggerIgnore]
         public string? StatusName { get; set; } 
         [SwaggerIgnore]
-        public string? FiscalName { get; set; } 
-        [SwaggerIgnore]
-        public string? TotalItems { get; set; }
-        [SwaggerIgnore]
-        public string? ApprovedItems { get; set; }
-        [SwaggerIgnore]
-        public string? RejectedItems { get; set; }
-        [SwaggerIgnore]
-        public string? PendingItems { get; set; }
-        [SwaggerIgnore]
-        public string? StatusSummary { get; set; }
+        public string? FiscalName { get; set; }  
         [SwaggerIgnore]
         public DateTime? DCreated { get; set; }
         [SwaggerIgnore]

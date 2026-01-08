@@ -3282,12 +3282,7 @@ namespace Data
                 _mapping.AddItem("FiscalName", "VFISCALNAME");
                 // Status
                 _mapping.AddItem("StatusName", "DISPLAY_STATUS");
-                // contadores
-                _mapping.AddItem("TotalItems", "TOTAL_ITEMS");
-                _mapping.AddItem("ApprovedItems", "APPROVED_ITEMS");
-                _mapping.AddItem("RejectedItems", "REJECTED_ITEMS");
-                _mapping.AddItem("PendingItems", "PENDING_ITEMS");
-                _mapping.AddItem("StatusSummary", "STATUS_SUMMARY");
+                
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_CLAIMS", _parameter);
@@ -3356,12 +3351,7 @@ namespace Data
 
                 // Status 
                 _mapping.AddItem("StatusName", "DISPLAY_STATUS");
-
-                _mapping.AddItem("TotalItems", "TOTAL_ITEMS");
-                _mapping.AddItem("ApprovedItems", "APPROVED_ITEMS");
-                _mapping.AddItem("RejectedItems", "REJECTED_ITEMS");
-                _mapping.AddItem("PendingItems", "PENDING_ITEMS");
-                _mapping.AddItem("StatusSummary", "STATUS_SUMMARY");
+                 
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_CLAIMS", _parameter);
