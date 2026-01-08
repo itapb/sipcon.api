@@ -446,13 +446,16 @@ namespace Data
                 _mapping.AddItem("LocationName", "VLOCATION");
                 _mapping.AddItem("RequiredQty", "IREQUIRED");
                 _mapping.AddItem("RealQty", "IREAL");
-                _mapping.AddItem("TypeId", "VMOVEMENTTYPEDETAIL");
+                _mapping.AddItem("TypeName", "VMOVEMENTTYPEDETAIL");
                 _mapping.AddItem("Processed", "BPROCESSED");
                 _mapping.AddItem("UserName", "VLOGIN");
                 _mapping.AddItem("Stock", "ISTOCK");
                 _mapping.AddItem("SaleOrderId", "VIDSALEORDER"); 
                 _mapping.AddItem("DealerName", "VDEALER");
-            
+                _mapping.AddItem("GeneratedDate", "DGENERATED");
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+                
+
 
 
                 Util.Data _data = Util.Data.GetInstance();

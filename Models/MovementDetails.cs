@@ -125,5 +125,11 @@ namespace Models
 
         [SwaggerIgnore]
         public string? DealerName { get; set; }
+
+        [SwaggerIgnore]
+        public string GeneratedDate { get; set; } = string.Empty;
+
+        [SwaggerIgnore]
+        public string StatusName { get; set; } = string.Empty;
     }
 }
