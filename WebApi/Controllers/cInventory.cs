@@ -13,6 +13,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration.Provider;
 using System.IO.Packaging;
@@ -20,6 +21,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
+using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading;
@@ -28,7 +30,7 @@ using Colors = QuestPDF.Helpers.Colors;
 
 namespace WebApi.Controllers
 {
-  
+
     [Route("api/Inventory")]
     [ApiController]
     [Authorize]
@@ -47,7 +49,7 @@ namespace WebApi.Controllers
         #region "Inventory"
 
         [HttpGet("/api/Inventory/GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId ,Int32 rowFrom, string? filter, bool? withStock = true, string?  locationType = null )
+        public async Task<IActionResult> GetAll(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, bool? withStock = true, string? locationType = null)
         {
             try
             {
@@ -68,7 +70,7 @@ namespace WebApi.Controllers
 
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "CODIGO";
-                worksheet.Cell(1, 3).Value = "DESCRIPCION"; 
+                worksheet.Cell(1, 3).Value = "DESCRIPCION";
                 worksheet.Cell(1, 4).Value = "TAMAÑO PARTE";
                 worksheet.Cell(1, 5).Value = "EXISTENCIA";
                 worksheet.Cell(1, 6).Value = "PRECIO";
@@ -93,12 +95,12 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 4).Value = _inventor.PartSize;
                     worksheet.Cell(i + 2, 5).Value = _inventor.Stock;
                     worksheet.Cell(i + 2, 6).Value = _inventor.Price;
-                    worksheet.Cell(i + 2, 7).Value = _inventor.WarehouseName; 
+                    worksheet.Cell(i + 2, 7).Value = _inventor.WarehouseName;
                     worksheet.Cell(i + 2, 8).Value = _inventor.LocationName;
                     worksheet.Cell(i + 2, 9).Value = _inventor.ZoneName;
                     worksheet.Cell(i + 2, 10).Value = _inventor.ZoneSize;
                     worksheet.Cell(i + 2, 11).Value = _inventor.SupplierName;
-                    worksheet.Cell(i + 2, 11).Value = _inventor.IsActive != false ? "SI" : "NO"; 
+                    worksheet.Cell(i + 2, 11).Value = _inventor.IsActive != false ? "SI" : "NO";
 
 
                 }
@@ -120,9 +122,9 @@ namespace WebApi.Controllers
 
         [HttpGet("/api/Inventory/Export")]
         public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId)
-        { 
+        {
             try
-            { 
+            {
                 List<Inventory> _response = await _dInventory.GetExport(userId, supplierId);
                 MemoryStream _excel = ConvertToExcelInventory(_response);
                 string _fileName = "Inventory.xlsx";
@@ -145,7 +147,7 @@ namespace WebApi.Controllers
         #region "Movements"
 
         [HttpGet("/api/Movements/GetMovements")]
-        public async Task<IActionResult> GetMovements(Int32 userId, Int32 supplierId,string typeId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetMovements(Int32 userId, Int32 supplierId, string typeId, Int32 rowfrom, string? filter)
         {
             try
             {
@@ -211,10 +213,10 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
                 worksheet.Cell(1, 2).Value = "FECHA";
                 worksheet.Cell(1, 3).Value = "PROVEEDOR";
-                worksheet.Cell(1, 4).Value = "REFERENCIA"; 
+                worksheet.Cell(1, 4).Value = "REFERENCIA";
                 worksheet.Cell(1, 5).Value = "ESTATUS";
                 worksheet.Cell(1, 6).Value = "USUARIO";
-                 
+
                 var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
@@ -229,7 +231,7 @@ namespace WebApi.Controllers
                     worksheet.Cell(row, 1).Value = _movement.Id;
                     worksheet.Cell(row, 2).Value = _movement.Created;
                     worksheet.Cell(row, 3).Value = _movement.SupplierReference;
-                    worksheet.Cell(row, 4).Value = _movement.Reference; 
+                    worksheet.Cell(row, 4).Value = _movement.Reference;
                     worksheet.Cell(row, 5).Value = _movement.StatusName;
                     worksheet.Cell(row, 6).Value = _movement.CreatedBy;
                 }
@@ -248,7 +250,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/GetMovement")]
-        public async Task<IActionResult> GetMovement(Int32 userId, Int32  movementId)
+        public async Task<IActionResult> GetMovement(Int32 userId, Int32 movementId)
         {
             try
             {
@@ -260,13 +262,13 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
-         
+
         [HttpGet("/api/Movements/NewMovementWithContext")]
         public async Task<IActionResult> NewMovementWithContext(Int32 userId, Int32 supplierId, string typeId)
         {
             try
             {
-                
+
                 Movement _new = new Movement();
                 _new.Id = 0;
                 _new.SupplierId = supplierId;
@@ -299,7 +301,7 @@ namespace WebApi.Controllers
                     _new = _get2;
                 }
 
-           
+
                 List<MovementDetails> _details = new List<MovementDetails>();
 
                 MovementWithContext _mov = new MovementWithContext();
@@ -342,7 +344,7 @@ namespace WebApi.Controllers
                 {
 
                 }
-              
+
 
                 Models.Response<MovementWithContext> _response = new Models.Response<MovementWithContext>();
                 _response.Data = _mov;
@@ -394,7 +396,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsByUser(userId, supplierId,movementType, mode);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsByUser(userId, supplierId, movementType, mode);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -520,7 +522,7 @@ namespace WebApi.Controllers
                                 InnerCode = row.Cell(1).GetValue<string>(),
                                 PartName = row.Cell(2).GetValue<string>(),
                                 RequiredQty = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
-                                LocationName   = row.Cell(4).GetValue<string>(),
+                                LocationName = row.Cell(4).GetValue<string>(),
                                 DestinationName = row.Cell(5).GetValue<string>(),
                                 MovementId = movementId,
                                 RowReference = rowRef,
@@ -636,7 +638,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                var _response = await _dInventory.GetPackages( supplierId,  customerId,  userId);
+                var _response = await _dInventory.GetPackages(supplierId, customerId, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -674,7 +676,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Packing/GetPackageDetailByPart")]
-        public async Task<IActionResult> GetPackageDetailByPart(Int32 packageId,string scanCode)
+        public async Task<IActionResult> GetPackageDetailByPart(Int32 packageId, string scanCode)
         {
             try
             {
@@ -778,7 +780,7 @@ namespace WebApi.Controllers
             try
             {
                 Models.Package package = new Models.Package();
-                package.Id= packageId;
+                package.Id = packageId;
                 package.Weight = weight;
                 package.Closed = true;
 
@@ -882,7 +884,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                var _response = await _dInventory.AddPackge( packageCode,  guideId);
+                var _response = await _dInventory.AddPackge(packageCode, guideId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -946,7 +948,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Guide/GetAllGuides")]
-        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId,int rowfrom, string? filter)
+        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, int rowfrom, string? filter)
         {
             try
             {
@@ -1021,7 +1023,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("/api/Guide/PostGuideNumber")]
-        public async Task<IActionResult> PostGuideNumber(Int32 userId,Int32 guideId, string guideNumber)
+        public async Task<IActionResult> PostGuideNumber(Int32 userId, Int32 guideId, string guideNumber)
         {
 
             try
@@ -1036,20 +1038,20 @@ namespace WebApi.Controllers
 
         }
 
-        [HttpPost("/api/Guide/Claim")]
-        public async Task<IActionResult> postClaim(Int32 guideId, Int32 userId)
-        {
-            try
-            {
+        //[HttpPost("/api/Guide/Claim")]
+        //public async Task<IActionResult> postClaim(Int32 guideId, Int32 userId)
+        //{
+        //    try
+        //    {
 
-                var _response = await _dInventory.PostClaim(guideId, userId);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-        }
+        //        var _response = await _dInventory.PostClaim(guideId, userId);
+        //        return StatusCode(_response.Status, _response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+        //    }
+        //}
         private MemoryStream ConvertToExcel(List<Models.Inventory> _inventories)
         {
             // 2. Crear el libro de trabajo Excel
@@ -1111,7 +1113,7 @@ namespace WebApi.Controllers
         }
 
 
-    
+
 
 
 
@@ -1276,12 +1278,12 @@ namespace WebApi.Controllers
             try
             {
                 List<Models.BackOrder> _BackOrder = await ExceltoPostBackOrder(file, supplierId);
-                 
+
                 if (_BackOrder == null || !_BackOrder.Any())
                     return BadRequest("El archivo no contiene datos válidos para procesar.");
 
                 var _response = await _dInventory.PostImportBackOrders(_BackOrder, userId);
-                 
+
                 if (_response.Data?.UpdatedRows == 0 && _response.Data?.InsertedRows == 0)
                 {
                     _response.Message = "No se realizaron actualizaciones. Verifique que los IDs existan y haya cambios en los datos.";
@@ -1314,21 +1316,21 @@ namespace WebApi.Controllers
                     var rows = worksheet.RowsUsed().Skip(1);
 
                     foreach (var row in rows)
-                    { 
+                    {
                         if (row.IsEmpty()) continue;
 
                         try
                         {
                             _list.Add(new BackOrder
                             {
-                                Id = row.Cell(1).GetValue<int>(), 
+                                Id = row.Cell(1).GetValue<int>(),
                                 Quantity = row.Cell(5).GetValue<int>(),
                                 Arrival = row.Cell(8).GetValue<DateTime>(),
                                 SupplierId = supplierId
                             });
                         }
                         catch (Exception ex)
-                        { 
+                        {
                             Console.WriteLine($"Error en fila {row.RowNumber()}: {ex.Message}");
                             throw new Exception($"Error en fila {row.RowNumber()}: Formato de datos inválido");
                         }
@@ -1339,8 +1341,8 @@ namespace WebApi.Controllers
             return _list;
         }
 
-     
-         
+
+
         #endregion
 
         #region "Adjustment"
@@ -1348,18 +1350,18 @@ namespace WebApi.Controllers
         //#### GET ALL
 
         [HttpGet("/api/Adjustment/GetAdjustments")]
-         public async Task<IActionResult> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
-         {
+        public async Task<IActionResult> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
+        {
             try
             {
-             var _response = await _dInventory.GetAdjustments(userId, supplierId, rowFrom, filter);
-             return StatusCode(_response.Status, _response);
+                var _response = await _dInventory.GetAdjustments(userId, supplierId, rowFrom, filter);
+                return StatusCode(_response.Status, _response);
             }
-              catch (Exception ex)
-              {
-               return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-               }
-         }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
         //#### GET ONE
         [HttpGet("/api/Adjustment/GetAdjustment")]
@@ -1457,16 +1459,16 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 4).Value = "ESTATUS";
                 worksheet.Cell(1, 5).Value = "OBSERVACION";
 
-                var headerRange = worksheet.Range("A1:E1");  
+                var headerRange = worksheet.Range("A1:E1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
-                worksheet.Range("A1:E1").SetAutoFilter();  
- 
+                worksheet.Range("A1:E1").SetAutoFilter();
+
                 for (int i = 0; i < _adjustments.Count; i++)
                 {
                     var _adjustment = _adjustments[i];
-                    int row = i + 2;  
+                    int row = i + 2;
 
                     worksheet.Cell(row, 1).Value = _adjustment.Id;
                     worksheet.Cell(row, 2).Value = _adjustment.DCreated;
@@ -1487,7 +1489,7 @@ namespace WebApi.Controllers
                 return stream;
             }
         }
-      
+
 
         [HttpGet("/api/Adjustment/Export")]
         public async Task<IActionResult> GetExportAdjustment(Int32 userId, Int32 supplierId)
@@ -1510,7 +1512,7 @@ namespace WebApi.Controllers
             }
 
         }
-       
+
         //#### GET NEW WITH CONTEXT
 
         [HttpGet("/api/Adjustment/NewAdjustmentWithContext")]
@@ -1519,7 +1521,7 @@ namespace WebApi.Controllers
             try
             {
                 Adjustment _new = new Adjustment();
-                _new.Id = 0; 
+                _new.Id = 0;
                 _new.SupplierId = supplierId;
                 _new.UserId = userId;
                 _new.StatusId = 2;
@@ -1551,8 +1553,8 @@ namespace WebApi.Controllers
                 {
                     _new = _get2;
                 }
-               
-              
+
+
 
 
                 List<AdjustmentDetails> _details = new List<AdjustmentDetails>();
@@ -1580,19 +1582,19 @@ namespace WebApi.Controllers
         //#### POST CABECERA
 
         [HttpPost("/api/Adjustment/PostAdjustment")]
-          public async Task<IActionResult> PostAdjustment(Models.Adjustment adjustment, Int32 userId)
-          {
+        public async Task<IActionResult> PostAdjustment(Models.Adjustment adjustment, Int32 userId)
+        {
 
-              try
-              {
-                  var _response = await _dInventory.PostAdjustment(adjustment, userId);
-                  return StatusCode(_response.Status, _response); 
-              }
-              catch (Exception ex)
-              {
-                  return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-              }
-          }
+            try
+            {
+                var _response = await _dInventory.PostAdjustment(adjustment, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
         //#### POST DETAILS
         [HttpPost("/api/Adjustment/PostAdjustmentDetails")]
@@ -1693,7 +1695,7 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/InvoiceControl/PostActions")]
-        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId )
+        public async Task<IActionResult> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
             try
             {
@@ -1723,7 +1725,7 @@ namespace WebApi.Controllers
         private List<InvoiceReport> ExcelToList(IFormFile file)
         {
             var _list = new List<InvoiceReport>();
-  
+
 
             using (var stream = new MemoryStream())
             {
@@ -1736,7 +1738,7 @@ namespace WebApi.Controllers
 
                     foreach (var row in rows)
                     {
- 
+
                         try
                         {
                             _list.Add(new InvoiceReport
@@ -1751,7 +1753,7 @@ namespace WebApi.Controllers
                         }
                         catch (Exception ex)
                         {
-                     
+
 
                         }
 
@@ -1774,7 +1776,7 @@ namespace WebApi.Controllers
 
             try
             {
-         
+
                 List<InvoiceReport> _list = ExcelToList(file);
 
                 var _response = await _dInventory.ImportInvoiceReport(_list, userId, supplierId);
@@ -1788,7 +1790,7 @@ namespace WebApi.Controllers
             }
 
         }
-   
+
         private byte[] ConvertToTxt(List<Invoicecontrol> records)
         {
             var lines = records.Select(r =>
@@ -1805,7 +1807,7 @@ namespace WebApi.Controllers
             List<Invoicecontrol> groupedRecords = response.Data?.ToList();
 
             if (groupedRecords == null || !groupedRecords.Any())
-                return NotFound($"No hay registros agrupados para el control {controlId}"); 
+                return NotFound($"No hay registros agrupados para el control {controlId}");
 
             var txtBytes = ConvertToTxt(groupedRecords);
             string fileName = $"{controlId.ToString().PadLeft(10, '0')}.txt";
@@ -1825,6 +1827,202 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+        #endregion
+
+        #region "CLAIM"
+
+        [HttpGet("/api/Claim/GetAllClaims")]
+        public async Task<IActionResult> GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, int? claimId = null)
+        {
+            try
+            {
+                var _response = await _dInventory.GetAllClaims(userId, supplierId, dealerId, rowFrom, filter, claimId);
+    
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/Claim/GetClaim")]
+        public async Task<IActionResult> GetClaim(int userId, int claimId)
+        {
+            {
+                try
+                {
+                    var _response = await _dInventory.GetClaim(userId, claimId);
+                    return StatusCode(_response.Status, _response);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                }
+            }
+        }
+
+        [HttpGet("/api/Claim/GetClaimDetails")]
+        public async Task<IActionResult> GetClaimDetails(Int32 claimId)
+        {
+
+            try
+            {
+                var _response = await _dInventory.GetClaimDetails(claimId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }  
+        }
+
+        [HttpGet("/api/Claim/GetClaimWithContext")]
+        public async Task<IActionResult> GetClaimWithContext(int userId, int claimId)
+        {
+            try
+            {
+                var _get = await _dInventory.GetClaim(userId, claimId);   
+                var _details = await _dInventory.GetClaimDetails(claimId);
+
+                if (_get.Data == null)
+                {
+                    return NotFound("Claim not found");
+                }
+
+                ClaimWithContext _req = new ClaimWithContext();
+                _req.Claim = _get.Data;  
+                _req.Details = (List<ClaimDetails>)_details.Data;
+
+                Models.Response<ClaimWithContext> _response = new Models.Response<ClaimWithContext>();
+                _response.Data = _req;
+                _response.Total = _get.Total;
+                _response.Processed = _get.Processed;
+                _response.Message = _get.Message;
+
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/Claim/PostClaim")]
+        public async Task<IActionResult> PostClaim(List<Models.ClaimPart> claims, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostClaim(claims, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/Claim/PostClaimDetail")]
+        public async Task<IActionResult> PostClaimDetail(List<Models.ClaimDetails> detail, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostClaimDetails(detail, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/Claim/PostActionsClaim")]
+        public async Task<IActionResult> Post_ActionsClaim(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+
+                var _response = await _dInventory.Post_ActionsClaim(actions, userId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+
+        [HttpPost("/api/Claim/PostActionsClaimDetails")]
+        public async Task<IActionResult> Post_ActionsDetails(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+
+                var _response = await _dInventory.Post_ActionsDetails(actions, userId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpPost("/api/Claim/DeleteClaimDetails")]
+        public async Task<IActionResult> DeleteClaimDetail(List<Models.Action> _list, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.DeleteClaimDetail(_list, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+        //[HttpPost("/api/Claim/PostClaimActions")]
+        //public async Task<IActionResult> PostActions(List<Models.Action> actions, Int32 userId)
+        //{
+
+        //    try
+        //    {
+        //        Models.Response<Result> _response = await _dInventory.PostActions(actions, userId);
+        //        return StatusCode(_response.Status, _response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+        //    }
+
+        //}
+
+        //[HttpPost("/api/Claim/PostDetailsActions")]
+        //public async Task<IActionResult> PostDetailsActions(Int32 userId, List<Models.Action> actions)
+        //{
+
+        //    try
+        //    { 
+        //        var _response = await _dInventory.PostDetailsActions(actions, userId);
+        //        return StatusCode(_response.Status, _response);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+        //    }
+
+        //}
+
         #endregion
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2021.Excel.NamedSheetViews;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Components;
@@ -7,10 +8,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Swashbuckle.AspNetCore.Annotations;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Security.Claims;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using Util;
@@ -980,42 +987,42 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response<Result>> PostClaim(Int32 guideId, Int32 userId)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return await _postClaim(guideId, userId);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
+        //public async Task<Response<Result>> PostClaim(Int32 guideId, Int32 userId)
+        //{
+        //    await _semaphore.WaitAsync(Util.Setting.TimeOut);
+        //    try
+        //    {
+        //        return await _postClaim(guideId, userId);
+        //    }
+        //    finally
+        //    {
+        //        _semaphore.Release();
+        //    }
+        //}
 
-        private async Task<Response<Result>> _postClaim(Int32 guideId, Int32 userId)
-        {
-            Response<Result> _response = new Response<Result>();
-            try
-            {
-                Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IDGUIDE", guideId);   
-                _parameter.AddSqlParameter("@IDUSER", userId);
+        //private async Task<Response<Result>> _postClaim(Int32 guideId, Int32 userId)
+        //{
+        //    Response<Result> _response = new Response<Result>();
+        //    try
+        //    {
+        //        Util.Parameter _parameter = new Util.Parameter();
+        //        _parameter.AddSqlParameter("@IDGUIDE", guideId);   
+        //        _parameter.AddSqlParameter("@IDUSER", userId);
 
-                Mapping _mapping = new Mapping();
-                _mapping.SetDefaultPostMapping();
+        //        Mapping _mapping = new Mapping();
+        //        _mapping.SetDefaultPostMapping();
 
-                Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_CLAIM", _parameter);   
-                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
-                _response.SetPostResponse();
-            }
-            catch (Exception ex)
-            {
-                _response.SetError(ex);
-            }
-            return _response;
-        }
+        //        Util.Data _data = Util.Data.GetInstance();
+        //        DataTable _table = await _data.GetDataTable("USP_POST_CLAIM", _parameter);   
+        //        _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+        //        _response.SetPostResponse();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _response.SetError(ex);
+        //    }
+        //    return _response;
+        //}
         //-------------------------------------------------------------------------CLAIM
         private async Task<Response<Result>> _postPackage(Models.Package package)
         {
@@ -3221,6 +3228,436 @@ namespace Data
             return _response;
         }
 
+
+
+        #endregion
+
+        #region "CLAIM"
+        /*--------------------------------------------------------------GetOne---------------------------------------------------------------*/
+         
+        public async Task<Response<Models.ClaimPart>> GetClaim(int userId, int claimId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetClaim(userId, claimId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.ClaimPart>> _GetClaim(int userId, int claimId)
+        {
+            Response<Models.ClaimPart> _response = new Response<Models.ClaimPart>();
+            try
+            {
+                var _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", null);  
+                _parameter.AddSqlParameter("@IDDEALER", null);    
+                _parameter.AddSqlParameter("@IROWFROM", null);
+                _parameter.AddSqlParameter("@VFILTER", null);
+                _parameter.AddSqlParameter("@ID", claimId);  
+
+                var _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("Note", "VNOTE");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("Invoice", "VINVOICE");
+                _mapping.AddItem("Guide", "VGUIDE");
+                _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                // Supplier
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                // Dealer
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "DEALER");
+
+                // User/Creator
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                // Status
+                _mapping.AddItem("StatusName", "DISPLAY_STATUS");
+                
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_CLAIMS", _parameter);
+                 
+                _response.Data = _data.GetItem<Models.ClaimPart>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        /*--------------------------------------------------------------GetAll---------------------------------------------------------------*/
+        public async Task<Response<List<Models.ClaimPart>>> GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, int? claimId = null)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAllClaims( userId, supplierId, dealerId, rowFrom, filter, claimId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.ClaimPart>>> _GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, int? claimId = null)
+        {  
+            Response<List<Models.ClaimPart>> _response = new Response<List<Models.ClaimPart>>();
+
+            try
+            { 
+                var _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", claimId);
+
+                var _mapping = new Mapping();  
+                  
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("Note", "VNOTE");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("Invoice", "VINVOICE");
+                _mapping.AddItem("Guide", "VGUIDE");
+                _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("StatusId", "IDSTATUS");  
+                // Supplier
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                // Dealer
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "DEALER");
+
+                // User/Creator
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("FiscalName", "VFISCALNAME"); 
+
+                // Status 
+                _mapping.AddItem("StatusName", "DISPLAY_STATUS");
+                 
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_CLAIMS", _parameter);
+
+                _response.Data = _data.GetList<Models.ClaimPart>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        /*--------------------------------------------------------------Details---------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.ClaimDetails>>> GetClaimDetails(Int32 claimId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetClaimDetails(claimId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.ClaimDetails>>> _GetClaimDetails(Int32 claimId)
+        {
+            Response<List<Models.ClaimDetails>> _response = new Response<List<Models.ClaimDetails>>();
+
+            try
+            {
+                var _parameter = new Util.Parameter();
+                // Usar @IDCLAIM como parámetro (igual que en el stored procedure)
+                _parameter.AddSqlParameter("@IDCLAIM", claimId);
+
+                var _mapping = new Mapping();
+                // Mapeo de columnas base
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("ClaimId", "IDCLAIM");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                _mapping.AddItem("Quantity", "IQUANTITY");
+                _mapping.AddItem("ReplacementPartId", "IDREPLACEMENT_PART");
+                _mapping.AddItem("ReasonId", "IDREASON");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("IApproved", "IAPPROVEDQUANTITY");
+                 
+
+                // Mapeo de información de partes
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("PartInnerCode", "PARTCODE");
+                _mapping.AddItem("ReplacemetName", "VREPLACEMENT");
+                _mapping.AddItem("RemplacemetInnerCode", "REPLACEMENTCODE");
+
+                // Mapeo de razón y estado
+                _mapping.AddItem("ReasonDescription", "VDESCRIPTION");   
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_CLAIMDETAILS", _parameter);
+
+                _response.Data = _data.GetList<Models.ClaimDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        /*---------------------------------------------------------------POST CLAIM---------------------------------------------------------------------------*/
+        public async Task<Response<Result>> PostClaim(List<Models.ClaimPart> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostClaim(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostClaim(List<Models.ClaimPart> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_CLAIM", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        //------------------------------------------------------------------POST CLAIMDETAILS-------------------------------------------------------------------------
+        public async Task<Response<Result>> PostClaimDetails(List<Models.ClaimDetails> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostClaimDetails(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostClaimDetails(List<Models.ClaimDetails> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_CLAIMDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+       //------------------------------------------------------------------POST ACTIONS DETAILS-------------------------------------------------------------------------
+        public async Task<Response<Models.Result>> Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+
+                return await _Post_ActionsDetails(_list, userId);
+
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_CLAIMDETAILS_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+        //------------------------------------------------------------------POST ACTIONS CLAIM-------------------------------------------------------------------------
+        public async Task<Response<Models.Result>> Post_ActionsClaim(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+
+                return await _Post_ActionsClaim(_list, userId);
+
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Post_ActionsClaim(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDGUIDE", 0);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_CLAIM_ACTION", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+        //---------------------------------------------------------------DELETE CLAIM---------------------------------------------------------------*/
+
+
+
+        public async Task<Response<Result>> DeleteClaimDetail(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _DeleteClaimDetail(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _DeleteClaimDetail(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_DELETE_CLAIMDETAILS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
 
         #endregion
