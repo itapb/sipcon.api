@@ -133,7 +133,7 @@ builder.Services.AddSingleton<dSecurity>();
 builder.Services.AddSingleton<dAssessment>();
 builder.Services.AddSingleton<RefreshTokenStore>();
 builder.Services.AddSingleton<dTemplate>();
-
+builder.Services.AddSingleton<dReporting>();
 // 5. crear app
 var app = builder.Build();
 

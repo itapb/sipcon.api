@@ -1,0 +1,20 @@
+USE [SODA]
+GO
+
+/****** Object:  Table [dbo].[REPORTTYPE]    Script Date: 23/12/2025 10:47:12 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[REPORTING](
+	[ID] [int] NOT NULL PRIMARY KEY IDENTITY(1,1),
+	[VNAME] [varchar](200) NOT NULL,
+	[IDACCESSGROUP] [INT] NOT NULL,
+	[DCREATED] [datetime] NULL,
+	[DUPDATED] [datetime] NULL,
+	[VUPDATEDBY] [varchar](30) NULL,
+	[BACTIVE] [bit] NULL,
+)
+

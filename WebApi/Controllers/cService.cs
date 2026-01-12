@@ -2,6 +2,7 @@
 using ClosedXML.Excel;
 using ClosedXML.Excel.Drawings;
 using Data;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
@@ -1331,6 +1332,93 @@ namespace WebApi.Controllers
         }
 
 
+        //private async Task<List<Dms>> ReadExcelToDms(IFormFile file, Int32? SupplierId,Int32 type)
+        //{
+
+
+        //    var dms = new List<Dms>();
+        //    var id = 0;
+        //    var response = new Models.Response<Models.Result>();
+
+
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        file.CopyTo(stream);
+
+        //        using (var workbook = new XLWorkbook(stream))
+        //        {
+        //            var worksheet = workbook.Worksheet(1); // Primera hoja
+        //            var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+        //            foreach (var row in rows)
+        //            {
+
+        //                int fila = row.RowNumber(); // Ej: 2
+        //                string rowRef = $"{fila}"; // Ej: "A2"
+        //                try
+        //                {
+                           
+                              
+        //                    dms.Add(new Dms
+        //                    {
+        //                        Id = 0,
+        //                        CodDms = row.Cell(3).GetValue<string>(),
+        //                        CodItem = row.Cell(3).GetValue<string>(),
+        //                        Description = row.Cell(3).GetValue<string>(),
+        //                        PreApproval = row.Cell(3).GetValue<string>(),
+        //                        PaidAmount = row.Cell(3).GetValue<string>(),
+        //                        IsActive = row.Cell(9).GetValue<string>().ToUpper() switch
+        //                        {
+        //                            "SI" => true,
+        //                            "NO" => false,
+        //                            _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+        //                        },
+        //                        SupplierId = SupplierId,
+        //                        RowReference = rowRef
+        //                    });
+        //                }
+        //                catch (Exception ex)
+        //                {
+
+        //                    response.SetError(ex);
+
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return policyTypes;
+        //}
+
+
+        //[HttpPost("ImportDms")]
+        //public async Task<IActionResult> Import(Int32 userId, Int32 type, IFormFile file)
+        //{
+        //    if (file == null || file.Length == 0)
+        //        return BadRequest("No se ha proporcionado un archivo válido.");
+
+        //    if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+        //        return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+        //    try
+        //    {
+        //        // Leer el archivo Excel y convertirlo a List<PolicyType>
+        //        List<Dms> dms = await ReadExcelToDms(file,type);
+
+        //        // Llamar al método existente de tu capa de servicio
+        //        var response = await _dPolicyType.Post_PolicyType(policyTypes, userId);
+
+        //        return StatusCode(response.Processed ?
+        //            StatusCodes.Status200OK : StatusCodes.Status409Conflict,
+        //            response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        //}
+
+
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions, Int32 userId, Int32 serviceTypeId)
         {
@@ -1402,6 +1490,10 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error al eliminar el archivo: {ex.Message}");
             }
         }
+
+
+
+
 
 
 
