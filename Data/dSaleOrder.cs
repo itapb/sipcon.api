@@ -40,6 +40,22 @@ namespace Data
                 _semaphore.Release();
             }
         }
+
+        public async Task<List<SaleOrderResume>> GetExportResume(Int32 userId, Int32 supplierId, Int32 dealerId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<SaleOrderResume>)(await _getExportResume(userId, supplierId, dealerId)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
         private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
         {
             Response<List<SaleOrder>> _response =  new Response<List<SaleOrder>>();
@@ -80,6 +96,55 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_SALEORDERS", _parameter);
                 _response.Data =  _data.GetList<Models.SaleOrder>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        private async Task<Response<List<SaleOrderResume>>> _getExportResume(Int32? userId, Int32? supplierId, Int32? dealerId)
+        {
+            Response<List<SaleOrderResume>> _response = new Response<List<SaleOrderResume>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+        
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("SaleOrderId", "IDSALEORDER");
+                _mapping.AddItem("SaleOrderDate", "VSALEORDERDATE");
+                _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
+                _mapping.AddItem("Paralyzed", "BPARALYZED");
+                _mapping.AddItem("SaleOrderVin", "VVIN");
+                _mapping.AddItem("SaleOrderCustomer", "VCUSTOMER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("PartCode", "VINNERCODE");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("Required", "IREQUIRED");
+                _mapping.AddItem("BackOrder", "IBACKORDER");
+                _mapping.AddItem("Dismissed", "IDISMISSED");
+                _mapping.AddItem("Picking", "IPICKING");
+                _mapping.AddItem("Dispatched", "IDISPATCHED");
+                _mapping.AddItem("Invoiced", "IINVOICED");
+                _mapping.AddItem("Sent", "ISENT");
+                _mapping.AddItem("Received", "IRECEIVED");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_EXPORTSALEORDERS", _parameter);
+                _response.Data = _data.GetList<Models.SaleOrderResume>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 
