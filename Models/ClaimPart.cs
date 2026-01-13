@@ -33,7 +33,9 @@ namespace Models
         [SwaggerIgnore]
         public string? SupplierName { get; set; }  
         [SwaggerIgnore]
-        public string? StatusName { get; set; } 
+        public string? StatusName { get; set; }
+        [SwaggerIgnore]
+        public string? Login { get; set; }
         [SwaggerIgnore]
         public string? FiscalName { get; set; }  
         [SwaggerIgnore]
