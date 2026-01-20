@@ -21,18 +21,31 @@ namespace Models
 
         [Required]
         public int? Quantity { get; set; } 
+          
+        [Required]
+        public int? ReasonId { get; set; }
 
         [Required]
         public int? ReplacementPartId { get; set; }
 
-        [Required]
-        public int? ReasonId { get; set; }
+        [SwaggerIgnore]
+        public string? Comment { get; set; }
+
+        [SwaggerIgnore]
+        public int? IApproved { get; set; }
+
+        [SwaggerIgnore]
+        public string? StatusName { get; set; }
 
         [SwaggerIgnore]
         public string? PartInnerCode { get; set; }
 
         [SwaggerIgnore]
         public string? PartName { get; set; }
+
+        [SwaggerIgnore]
+        public decimal? Price { get; set; }
+         
 
         [SwaggerIgnore]
         public string? RemplacemetInnerCode { get; set; }
@@ -44,13 +57,9 @@ namespace Models
         public string? ReasonDescription { get; set; }
 
         [SwaggerIgnore]
-        public string? StatusName { get; set; }
+        public decimal? RemplacemetPrice { get; set; }
+         
 
-        [SwaggerIgnore]
-        public string? Comment { get; set; }
-
-        [SwaggerIgnore]
-        public int? IApproved { get; set; }
     }
 
 }

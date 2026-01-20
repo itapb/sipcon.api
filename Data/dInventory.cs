@@ -3395,24 +3395,29 @@ namespace Data
                 _parameter.AddSqlParameter("@IDCLAIM", claimId);
 
                 var _mapping = new Mapping();
-                // Mapeo de columnas base
+                // Mapeo de columnas requeridas
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("ClaimId", "IDCLAIM");
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("StatusId", "IDSTATUS");
                 _mapping.AddItem("Quantity", "IQUANTITY");
-                _mapping.AddItem("ReplacementPartId", "IDREPLACEMENT_PART");
                 _mapping.AddItem("ReasonId", "IDREASON");
+
                 _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("ReplacementPartId", "IDREPLACEMENT_PART");
                 _mapping.AddItem("IApproved", "IAPPROVEDQUANTITY");
                  
 
                 // Mapeo de información de partes
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("PartInnerCode", "PARTCODE");
+                _mapping.AddItem("Price", "PRICE");
+
                 _mapping.AddItem("ReplacemetName", "VREPLACEMENT");
                 _mapping.AddItem("RemplacemetInnerCode", "REPLACEMENTCODE");
+                _mapping.AddItem("RemplacemetPrice", "REPLACEMENTPRICE");
 
+                 
                 // Mapeo de razón y estado
                 _mapping.AddItem("ReasonDescription", "VDESCRIPTION");   
                 _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
@@ -3429,7 +3434,71 @@ namespace Data
             }
             return _response;
         }
+        /*-----------------------------------------------------------------------------------------------------------------------------------------------*/
 
+        private async Task<Response<ClaimPart>> _getlastClaim(Int32? userId, Int32? dealerId)
+        {
+            Response<ClaimPart> _response = new Response<ClaimPart>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("Note", "VNOTE");
+                _mapping.AddItem("Comment", "VCOMMENT");
+                _mapping.AddItem("Invoice", "VINVOICE");
+                _mapping.AddItem("Guide", "VGUIDE");
+                _mapping.AddItem("DCreated", "DCREATED");
+                _mapping.AddItem("DUpdated", "DUPDATED");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                // Supplier
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                // Dealer
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "DEALER");
+
+                // User/Creator
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("FiscalName", "VFISCALNAME");
+                // Status
+                _mapping.AddItem("StatusName", "DISPLAY_STATUS");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_LASTSCLAIM", _parameter);
+                _response.Data = _data.GetItem<Models.ClaimPart>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+         
+
+        public async Task<Response<ClaimPart>> GetlastClaim(Int32? userId, Int32? dealerId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getlastClaim(userId, dealerId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
         /*---------------------------------------------------------------POST CLAIM---------------------------------------------------------------------------*/
         public async Task<Response<Result>> PostClaim(List<Models.ClaimPart> _list, Int32 userId)
         {

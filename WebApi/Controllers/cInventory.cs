@@ -6,6 +6,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Newtonsoft.Json.Linq;
@@ -1934,6 +1935,70 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/Claim/NewClaimWithContext")] 
+        public async Task<IActionResult> NewClaimWithContext(Int32 userId, Int32 dealerId)
+        {
+            try
+            {
+
+                ClaimPart _new = new ClaimPart();
+                _new.Id = 0;
+                _new.DealerId = dealerId;
+                _new.SupplierId = 0;
+
+                List<ClaimPart> _list = new List<ClaimPart>();
+                _list.Add(_new);
+
+
+                var _get2 = (ClaimPart)(await _dInventory.GetlastClaim(userId, dealerId)).Data;
+
+                if (_get2.Id is null || _get2.Id == 0)
+                {
+
+                    var _resp = await _dInventory.PostClaim(_list, userId);
+
+                    if (_resp.Processed == false)
+                    {
+                        throw new Exception(_resp.Message);
+                    }
+                     
+                    Result _resul = new Result();
+                    _resul = (Result)(_resp.Data);
+
+                    var _get = await _dInventory.GetClaim(_resul.LastId, userId);
+                    _new = (ClaimPart)(_get.Data);
+
+
+                }
+                else
+                {
+                    _new = _get2;
+                }
+
+
+
+                List<ClaimDetails> _details = new List<ClaimDetails>();
+
+                ClaimWithContext _req = new ClaimWithContext();
+                _req.Claim = _new;
+                _req.Details = _details;
+
+                Models.Response<ClaimWithContext> _response = new Models.Response<ClaimWithContext>();
+                _response.Data = _req;
+                _response.Total = 1;
+
+
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                Models.Response<ClaimWithContext> _response = new Models.Response<ClaimWithContext>();
+                _response.SetError(ex);
+
+                return StatusCode(StatusCodes.Status409Conflict, _response);
             }
         }
 
