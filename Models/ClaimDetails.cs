@@ -25,7 +25,7 @@ namespace Models
         [Required]
         public int? ReasonId { get; set; }
 
-        [Required]
+        [Required] //esto no es requerido 
         public int? ReplacementPartId { get; set; }
 
         [SwaggerIgnore]
@@ -54,11 +54,10 @@ namespace Models
         public string? ReplacemetName { get; set; } 
 
         [SwaggerIgnore]
-        public string? ReasonDescription { get; set; }
+        public decimal? RemplacemetPrice { get; set; }
 
         [SwaggerIgnore]
-        public decimal? RemplacemetPrice { get; set; }
-         
+        public string? ReasonDescription { get; set; } 
 
     }
 

@@ -1946,8 +1946,8 @@ namespace WebApi.Controllers
 
                 ClaimPart _new = new ClaimPart();
                 _new.Id = 0;
-                _new.DealerId = dealerId;
-                _new.SupplierId = 0;
+                _new.DealerId = dealerId; 
+                _new.UserId = userId;  
 
                 List<ClaimPart> _list = new List<ClaimPart>();
                 _list.Add(_new);
