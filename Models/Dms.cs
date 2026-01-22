@@ -16,11 +16,21 @@ namespace Models
         [SwaggerIgnore] public String? CodItem { get; set; }
         [SwaggerIgnore] public String? Description { get; set; }
         [SwaggerIgnore] public String? PreApproval { get; set; }
-        [SwaggerIgnore] public String? PaidAmount { get; set; }
+        [SwaggerIgnore] public Decimal? PaidAmount { get; set; }
         [SwaggerIgnore] public Decimal? BaseAmount { get; set; }
-        [SwaggerIgnore] public Decimal? SupplierId { get; set; }
+        [SwaggerIgnore] public int? SupplierId { get; set; }
+        [SwaggerIgnore] public String? RowReference { get; set; }
+        [SwaggerIgnore] public DateTime? DmsDate { get; set; }
+        [SwaggerIgnore] public DateTime? PreApprovalDate { get; set; }
+        [SwaggerIgnore] public DateTime? finalApprovalDate { get; set; }
+        [SwaggerIgnore] public String? Estatus { get; set; }
+        [SwaggerIgnore] public int? EstatusId { get; set; }
+        [SwaggerIgnore] public Boolean? Completed { get; set; }
+
 
     }
+
+
 
 
 }

@@ -209,6 +209,118 @@ namespace Data
         }
 
 
+        public async Task<Models.Response<List<Models.Dms>>> GetDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetDms( userId, supplierId, filter, row, fromDate, upToDate);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.Dms>>> _GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
+        {
+
+            Response<List<Models.Dms>> _response = new Response<List<Models.Dms>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IROWFROM", row);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Srg", "SRG");
+                _mapping.AddItem("BaseAmount", "NBASEAMOUNT");
+                _mapping.AddItem("CodDms", "VCODITEM");
+                _mapping.AddItem("DmsDate", "DDATEDMS");
+                _mapping.AddItem("CodItem", "VCODITEM");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("PreApproval", "VPREAPPROVAL");
+                _mapping.AddItem("PreApprovalDate", "DDATEPREAPPROVAL");
+                _mapping.AddItem("PaidAmount", "NPAIDAMOUNT");
+                _mapping.AddItem("finalApprovalDate", "DDATEFINALAPPROVAL");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("EstatusId", "IESTATUS");
+                _mapping.AddItem("Estatus", "VESTATUS");
+                _mapping.AddItem("Completed", "BCOMPLETED");
+                _mapping.AddItem("Created", "DCREATED");
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DMS", _parameter);
+                _response.Data = _data.GetList<Models.Dms>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+        public async Task<Models.Response<List<Models.ReportType>>> GetImportType( Int32? supplierId)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetImportType(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.ReportType>>> _GetImportType( Int32? supplierId)
+        {
+
+            Response<List<Models.ReportType>> _response = new Response<List<Models.ReportType>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DMS", _parameter);
+                _response.Data = _data.GetList<Models.ReportType>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
 
 
 
@@ -766,6 +878,10 @@ namespace Data
             }
         }
 
+
+
+        
+
         private async Task<Response<Models.Result>> _Post_Service(Models.ServiceMaintenance? maintenance, Models.ServiceAssistance? assistance, Models.ServiceFail? failReport, Int32 userId)
         {
             Response<Models.Result> _response = new Response<Models.Result>();
@@ -814,6 +930,50 @@ namespace Data
 
 
 
+        public async Task<Response<Models.Result>> Post_Dms(List<Models.Dms?> _list, Int32 userId, Int32 type)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Dms(_list, userId,type);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Post_Dms(List<Models.Dms?> _list, Int32 userId,Int32 type)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@TYPE", type);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_DMS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
 
 
@@ -996,6 +1156,8 @@ namespace Data
 
             return _response;
         }
+
+
 
         public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId, Int32 serviceTypeId)
         {

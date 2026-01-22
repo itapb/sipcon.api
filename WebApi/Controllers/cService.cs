@@ -1005,6 +1005,44 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpGet("GetDms")]
+        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId,  String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+        {
+
+            try
+            {
+
+                var _response = await _dService.GetDms( userId, supplierId, filter, row, fromDate, upToDate);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpGet("GetImportType")]
+        public async Task<IActionResult> GetImportType(Int32 supplierId)
+        {
+
+            try
+            {
+
+                var _response = await _dService.GetImportType(supplierId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
         [HttpGet("GetUserAssign")]
         public async Task<IActionResult> GetUserAssign(String? filter, Int32? irowFrom, Int32? Id, Int32 userId, Int32 supplierId)
         {
@@ -1332,91 +1370,140 @@ namespace WebApi.Controllers
         }
 
 
-        //private async Task<List<Dms>> ReadExcelToDms(IFormFile file, Int32? SupplierId,Int32 type)
-        //{
+        private async Task<List<Dms>> ReadExcelToDms(IFormFile file, int type, int? SupplierId)
+        {
+            var dms = new List<Dms>();
+            var response = new Models.Response<Models.Result>();
+
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+                    foreach (var row in rows)
+                    {
+                        int fila = row.RowNumber();
+                        string rowRef = $"{fila}";
+
+                        try
+                        {
+                            // 🔑 Condicionales según type y SupplierId
+                            if (type == 1)
+                            {
+                                var dmsObj = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    Srg = row.Cell(1).GetValue<string>(),
+                                    CodDms = row.Cell(2).GetValue<string>()
+            
+                                };
+                                dms.Add(dmsObj);
+                            }
+                            else if (type == 2 && SupplierId == 4069)
+                            {
+                                var dmsObj = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    CodDms = row.Cell(3).GetValue<string>(),
+                                    PreApproval = row.Cell(4).GetValue<string>()         
+                                };
+                                dms.Add(dmsObj);
+                            }
+                            else if (type == 2 && SupplierId == 4076)
+                            {
+                                var dmsObj = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    CodDms = row.Cell(1).GetValue<string>(),
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(9).GetString()) ? 0 : row.Cell(9).GetValue<decimal>()
+                                };
+                                dms.Add(dmsObj);
+                            }
+                            else if (type == 3 && SupplierId == 4069)
+                            {
+                                // Primer objeto con PaidAmount de columna 3
+                                var dmsObj1 = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    PreApproval = row.Cell(1).GetValue<string>(),
+                                    CodItem = row.Cell(3).GetValue<string>(),
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<decimal>()
+                                };
+                                dms.Add(dmsObj1);
+
+                                // Segundo objeto con PaidAmount de columna 7
+                                var dmsObj2 = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    PreApproval = row.Cell(1).GetValue<string>(),
+                                    CodItem = row.Cell(5).GetValue<string>(),
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<decimal>()
+                                
+                                };
+                                dms.Add(dmsObj2);
+                            }
+                            else
+                            {
+                                throw new Exception($"Configuración no soportada para type={type}, supplier={SupplierId}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            response.SetError(ex);
+                        }
+                    }
+                }
+            }
+
+            return dms;
+        }
 
 
-        //    var dms = new List<Dms>();
-        //    var id = 0;
-        //    var response = new Models.Response<Models.Result>();
+        [HttpPost("ImportDms")]
+        public async Task<IActionResult> ImportDms(IFormFile file,int userId, int supplierId, int type)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
 
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
 
-        //    using (var stream = new MemoryStream())
-        //    {
-        //        file.CopyTo(stream);
+            if (userId <= 0 || supplierId <= 0 || type <= 0)
+                return BadRequest("Parámetros inválidos.");
 
-        //        using (var workbook = new XLWorkbook(stream))
-        //        {
-        //            var worksheet = workbook.Worksheet(1); // Primera hoja
-        //            var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+            try
+            {
+                // Leer el archivo Excel y convertirlo a List<Dms>
+                List<Dms> dms = await ReadExcelToDms(file, type, supplierId);
 
-        //            foreach (var row in rows)
-        //            {
+                // Llamar al método existente de tu capa de servicio
+                var response = await _dService.Post_Dms(dms, userId, type);
 
-        //                int fila = row.RowNumber(); // Ej: 2
-        //                string rowRef = $"{fila}"; // Ej: "A2"
-        //                try
-        //                {
-                           
-                              
-        //                    dms.Add(new Dms
-        //                    {
-        //                        Id = 0,
-        //                        CodDms = row.Cell(3).GetValue<string>(),
-        //                        CodItem = row.Cell(3).GetValue<string>(),
-        //                        Description = row.Cell(3).GetValue<string>(),
-        //                        PreApproval = row.Cell(3).GetValue<string>(),
-        //                        PaidAmount = row.Cell(3).GetValue<string>(),
-        //                        IsActive = row.Cell(9).GetValue<string>().ToUpper() switch
-        //                        {
-        //                            "SI" => true,
-        //                            "NO" => false,
-        //                            _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
-        //                        },
-        //                        SupplierId = SupplierId,
-        //                        RowReference = rowRef
-        //                    });
-        //                }
-        //                catch (Exception ex)
-        //                {
-
-        //                    response.SetError(ex);
-
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return policyTypes;
-        //}
-
-
-        //[HttpPost("ImportDms")]
-        //public async Task<IActionResult> Import(Int32 userId, Int32 type, IFormFile file)
-        //{
-        //    if (file == null || file.Length == 0)
-        //        return BadRequest("No se ha proporcionado un archivo válido.");
-
-        //    if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-        //        return BadRequest("Solo se permiten archivos Excel (.xlsx)");
-
-        //    try
-        //    {
-        //        // Leer el archivo Excel y convertirlo a List<PolicyType>
-        //        List<Dms> dms = await ReadExcelToDms(file,type);
-
-        //        // Llamar al método existente de tu capa de servicio
-        //        var response = await _dPolicyType.Post_PolicyType(policyTypes, userId);
-
-        //        return StatusCode(response.Processed ?
-        //            StatusCodes.Status200OK : StatusCodes.Status409Conflict,
-        //            response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-        //    }
-        //}
+                return StatusCode(
+                    response.Processed ? StatusCodes.Status200OK : StatusCodes.Status409Conflict,
+                    response
+                );
+            }
+            catch (Exception ex)
+            {
+                // Captura de error simple, como lo tenías
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
 
         [HttpPost("PostActions")]
