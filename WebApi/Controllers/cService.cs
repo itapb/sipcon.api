@@ -1031,7 +1031,7 @@ namespace WebApi.Controllers
             try
             {
 
-                var _response = await _dService.GetImportType(supplierId);
+                var _response = await _dService.GetImportType(supplierId, null);
                 return StatusCode(_response.Status, _response);
 
             }

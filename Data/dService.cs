@@ -275,13 +275,13 @@ namespace Data
 
         }
 
-        public async Task<Models.Response<List<Models.ReportType>>> GetImportType( Int32? supplierId)
+        public async Task<Models.Response<List<Models.ReportType>>> GetImportType( Int32? supplierId, int? row )
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetImportType(supplierId);
+                return await _GetImportType(supplierId,row);
             }
             finally
             {
@@ -291,7 +291,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Models.ReportType>>> _GetImportType( Int32? supplierId)
+        private async Task<Response<List<Models.ReportType>>> _GetImportType( Int32? supplierId, int? row)
         {
 
             Response<List<Models.ReportType>> _response = new Response<List<Models.ReportType>>();
@@ -300,6 +300,7 @@ namespace Data
             {
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", row);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
