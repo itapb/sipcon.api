@@ -308,7 +308,7 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_DMS", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_IMPORTTYPE", _parameter);
                 _response.Data = _data.GetList<Models.ReportType>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
