@@ -1023,6 +1023,101 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetPaidDetails")]
+        public async Task<IActionResult> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int dmsId)
+        {
+
+            try
+            {
+
+                var _response = await _dService.GetPaidDetails(userId, supplierId, row, dmsId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpGet("GetExportDms")]
+        public async Task<IActionResult> GetExportDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+        {
+
+            try
+            {
+
+                var response = await _dService.GetDms(userId, supplierId, filter, null, fromDate, upToDate);
+                List<Dms> _dms = response.Data;
+                MemoryStream _excel = ConvertToExcel(_dms);
+                string _fileName = "Dms.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+
+        private MemoryStream ConvertToExcel(List<Models.Dms> _dms)
+        {
+            // 2. Crear el libro de trabajo Excel
+            using (var workbook = new XLWorkbook())
+            {
+                // 3. Agregar una hoja al libro
+                var worksheet = workbook.Worksheets.Add("DMS");
+
+                // 4. Agregar los encabezados
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "SRG";
+                worksheet.Cell(1, 3).Value = "DMS";
+                worksheet.Cell(1, 4).Value = "MONTO BASE";
+                worksheet.Cell(1, 5).Value = "MONTO PAGADO";
+
+
+                // 5. Estilo para los encabezados
+                var headerRange = worksheet.Range("A1:Y1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+                var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
+                worksheet.Range("A1:Y1").SetAutoFilter();
+                // 6. Llenar los datos
+                for (int i = 0; i < _dms.Count; i++)
+                {
+                    var _dm = _dms[i];
+                    worksheet.Cell(i + 2, 1).Value = _dm.Id;
+                    worksheet.Cell(i + 2, 2).Value = _dm.Srg;
+                    worksheet.Cell(i + 2, 3).Value = _dm.CodDms;
+                    worksheet.Cell(i + 2, 4).Value = _dm.BaseAmount;
+                    worksheet.Cell(i + 2, 5).Value = _dm.PaidAmount;
+
+                }
+                // 7. Ajustar el ancho de las columnas al contenido 
+                worksheet.Columns().AdjustToContents();
+
+                // 8. Centra contenido de las columnas 
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                // 8. Preparar el stream para la respuesta
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0; // Importante: rebobinar el stream
+                return stream;
+
+            }
+
+        }
+
 
         [HttpGet("GetImportType")]
         public async Task<IActionResult> GetImportType(Int32 supplierId)
@@ -1505,6 +1600,24 @@ namespace WebApi.Controllers
             }
         }
 
+
+        [HttpPost("PostActionsDms")]
+        public async Task<IActionResult> Post_Actions_Dms(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+
+                var _response = await _dService.Post_Actions_Dms(actions, userId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions, Int32 userId, Int32 serviceTypeId)
