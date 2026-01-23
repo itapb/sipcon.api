@@ -242,6 +242,7 @@ namespace Data
 
 
                 Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Srg", "SRG");
                 _mapping.AddItem("BaseAmount", "NBASEAMOUNT");
                 _mapping.AddItem("CodDms", "VCODITEM");
