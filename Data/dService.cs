@@ -209,7 +209,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response<List<Models.Dms>>> GetDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<Models.Response<List<Models.Dms>>> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -264,6 +264,56 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DMS", _parameter);
                 _response.Data = _data.GetList<Models.Dms>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
+        public async Task<Models.Response<List<Models.PaidDetailsDms>>> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int dmsId)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPaidDetails(userId, supplierId, row, dmsId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.PaidDetailsDms>>> _GetPaidDetails(Int32? userId, Int32? supplierId, int? row, int? dmsId)
+        {
+
+            Response<List<Models.PaidDetailsDms>> _response = new Response<List<Models.PaidDetailsDms>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", row);
+                _parameter.AddSqlParameter("@IDDMS", dmsId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("DmsId", "IDDMS");
+                _mapping.AddItem("Date", "DPAIDDATE");
+                _mapping.AddItem("Amount", "NAMOUNT");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PAIDDETAILS", _parameter);
+                _response.Data = _data.GetList<Models.PaidDetailsDms>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -1196,6 +1246,54 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_POST_MAINTENANCE_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+         public async Task<Response<Models.Result>> Post_Actions_Dms(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+
+                return await _Post_Actions_Dms(_list, userId);
+
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Post_Actions_Dms(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_DMS_ACTIONS", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
