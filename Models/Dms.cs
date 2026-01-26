@@ -31,6 +31,16 @@ namespace Models
     }
 
 
+    public class PaidDetailsDms
+    {
+        [SwaggerIgnore] public String? DmsId { get; set; }
+        [SwaggerIgnore] public String? Date { get; set; }
+        [SwaggerIgnore] public Decimal? Amount { get; set; }
+
+
+    }
+
+
 
 
 }
