@@ -1079,8 +1079,16 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 1).Value = "ID";
                 worksheet.Cell(1, 2).Value = "SRG";
                 worksheet.Cell(1, 3).Value = "DMS";
-                worksheet.Cell(1, 4).Value = "MONTO BASE";
-                worksheet.Cell(1, 5).Value = "MONTO PAGADO";
+                worksheet.Cell(1, 4).Value = "CODIGO ELEMENTO";
+                worksheet.Cell(1, 5).Value = "DESCRIPCION ELEMENTO";
+                worksheet.Cell(1, 6).Value = "FECHA DMS";
+                worksheet.Cell(1, 7).Value = "PRE-APROBATORIO";
+                worksheet.Cell(1, 8).Value = "FECHA PRE-APROBATORIO";
+                worksheet.Cell(1, 9).Value = "MONTO BASE";
+                worksheet.Cell(1, 10).Value = "MONTO PAGADO";
+                worksheet.Cell(1, 11).Value = "FECHA APROBACION FINAL";
+                worksheet.Cell(1, 12).Value = "ESTATUS";
+
 
 
                 // 5. Estilo para los encabezados
@@ -1088,7 +1096,7 @@ namespace WebApi.Controllers
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
                 var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
-                worksheet.Range("A1:Y1").SetAutoFilter();
+                worksheet.Range("A1:L1").SetAutoFilter();
                 // 6. Llenar los datos
                 for (int i = 0; i < _dms.Count; i++)
                 {
@@ -1096,9 +1104,15 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 1).Value = _dm.Id;
                     worksheet.Cell(i + 2, 2).Value = _dm.Srg;
                     worksheet.Cell(i + 2, 3).Value = _dm.CodDms;
-                    worksheet.Cell(i + 2, 4).Value = _dm.BaseAmount;
-                    worksheet.Cell(i + 2, 5).Value = _dm.PaidAmount;
-
+                    worksheet.Cell(i + 2, 4).Value = _dm.CodItem;
+                    worksheet.Cell(i + 2, 5).Value = _dm.Description;
+                    worksheet.Cell(i + 2, 6).Value = _dm.DmsDate;
+                    worksheet.Cell(i + 2, 7).Value = _dm.PreApproval;
+                    worksheet.Cell(i + 2, 8).Value = _dm.PreApprovalDate;
+                    worksheet.Cell(i + 2, 9).Value = _dm.BaseAmount;
+                    worksheet.Cell(i + 2, 10).Value = _dm.PaidAmount;
+                    worksheet.Cell(i + 2, 11).Value = _dm.finalApprovalDate;
+                    worksheet.Cell(i + 2, 12).Value = _dm.Estatus;
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
                 worksheet.Columns().AdjustToContents();
