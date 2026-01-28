@@ -8,7 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
 {
-    
+
+
     public class Dms: Record
     {
         [SwaggerIgnore] public String? Srg { get; set; }
@@ -26,6 +27,7 @@ namespace Models
         [SwaggerIgnore] public String? Estatus { get; set; }
         [SwaggerIgnore] public int? EstatusId { get; set; }
         [SwaggerIgnore] public Boolean? Completed { get; set; }
+        [SwaggerIgnore] public List<PaidDetailsDms>? PaidDetailsDms { get; set; }
 
 
     }
