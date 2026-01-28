@@ -277,7 +277,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response<List<Models.PaidDetailsDms>>> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int dmsId)
+        public async Task<Models.Response<List<Models.PaidDetailsDms>>> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int? dmsId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);

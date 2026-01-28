@@ -1094,21 +1094,33 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetDms")]
-        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId,  String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
         {
-
             try
             {
+                // 1. Obtenemos la lista principal de DMS
+                var response = await _dService.GetDms(userId, supplierId, filter, row, fromDate, upToDate);
 
-                var _response = await _dService.GetDms( userId, supplierId, filter, row, fromDate, upToDate);
-                return StatusCode(_response.Status, _response);
+                // 2. Si la respuesta es exitosa y hay datos, anidamos los detalles
+                if (response.Status == StatusCodes.Status200OK && response.Data != null)
+                {
+                    foreach (var item in response.Data)
+                    {
+                        // Llamamos directamente al servicio de detalles usando el ID de cada registro
+                        // Usamos 'row' si es necesario, o un valor por defecto
+                        var paidResponse = await _dService.GetPaidDetails(userId, supplierId, row ?? 0, item.Id);
 
+                        // Asignamos el resultado a la propiedad del modelo
+                        item.PaidDetailsDms = paidResponse.Data;
+                    }
+                }
+
+                return StatusCode(response.Status, response);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
-
         }
 
         [HttpGet("GetPaidDetails")]
