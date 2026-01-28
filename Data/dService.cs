@@ -245,7 +245,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Srg", "SRG");
                 _mapping.AddItem("BaseAmount", "NBASEAMOUNT");
-                _mapping.AddItem("CodDms", "VCODITEM");
+                _mapping.AddItem("CodDms", "VDMS");
                 _mapping.AddItem("DmsDate", "DDATEDMS");
                 _mapping.AddItem("CodItem", "VCODITEM");
                 _mapping.AddItem("Description", "VDESCRIPTION");
@@ -277,7 +277,7 @@ namespace Data
         }
 
 
-        public async Task<Models.Response<List<Models.PaidDetailsDms>>> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int dmsId)
+        public async Task<Models.Response<List<Models.PaidDetailsDms>>> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int? dmsId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
