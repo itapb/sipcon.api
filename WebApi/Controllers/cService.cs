@@ -892,14 +892,102 @@ namespace WebApi.Controllers
                                         row.ConstantColumn(100).AlignRight().Text($"{service.InvoiceAmount:N2}").Bold();
                                     });
                                 });
+
+
+
                             }
 
 
                         });
                     });
                 });
+
+                container.Page(page =>
+                {
+                    page.Margin(30);
+                    page.Size(PageSizes.Letter);
+
+                    page.Content().Column(col =>
+                    {
+                        // Iteramos sobre las partes del servicio
+                        var partsList = ((IEnumerable<dynamic>)serviceDetailsList).Where(x => x.Type == "P").ToList();
+
+                        foreach (var part in partsList)
+                        {
+                            col.Item().PaddingBottom(15).Element(cardContainer =>
+                            {
+                                DrawSubstitutionCard(cardContainer, service, part);
+                            });
+
+                            // Línea divisoria sólida simple (sin Dash ni atributos extras)
+                            col.Item().PaddingVertical(5).LineHorizontal(0.5f);
+                        }
+                    });
+
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Página ");
+                        x.CurrentPageNumber();
+                    });
+                });
+
             });
             return document.GeneratePdf();
+        }
+
+
+        void DrawSubstitutionCard(IContainer container, dynamic service, dynamic part)
+        {
+            container.Table(table =>
+            {
+                table.ColumnsDefinition(cols =>
+                {
+                    cols.RelativeColumn(2);
+                    cols.RelativeColumn(2);
+                    cols.RelativeColumn(2);
+                    cols.RelativeColumn(2);
+                });
+
+                // Encabezado (Basado en el documento escaneado)
+                table.Cell().ColumnSpan(4).PaddingBottom(5).Row(row =>
+                {
+                    row.RelativeItem().Text("CHANGAN AUTO").Bold().FontSize(14);
+                    row.RelativeItem().AlignRight().Text("Tarjeta de Sustitución de parte").FontSize(12).Italic();
+                });
+
+                // Fila 1: Propietario (Corrección CS1929: ColumnSpan antes que Border)
+                table.Cell().Border(1).Padding(2).Text("Nombre del Propietario").FontSize(9);
+                table.Cell().ColumnSpan(3).Border(1).Padding(2).Text($"{(string)service.CustomerName} {(string)service.CustomerLastName}").Bold().FontSize(10);
+
+                // Fila 2: Reclamo SRG
+                table.Cell().Border(1).Padding(2).Text("Nombre de Reclamo SRG").FontSize(9);
+                table.Cell().ColumnSpan(3).Border(1).Padding(2).Text($"{(string)service.SrgNumber}").FontSize(10);
+
+                // Fila 3: Modelo y Kilometraje
+                table.Cell().Border(1).Padding(2).Text("Modelo del Vehiculo").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{(string)service.ModelName}").FontSize(10);
+                table.Cell().Border(1).Padding(2).Text("Kilometraje").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{service.Km}").FontSize(10);
+
+                // Fila 4: Serial y Fecha Venta
+                table.Cell().Border(1).Padding(2).Text("N. Serial").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{(string)service.Vin}").FontSize(8);
+                table.Cell().Border(1).Padding(2).Text("Fecha de Venta").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{service.InvoiceDate:yyyy-MM-dd}").FontSize(10);
+
+                // Fila 5: Motor y Fecha Reparación
+                table.Cell().Border(1).Padding(2).Text("Número de Motor").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{(string)service.EngineSerial}").FontSize(10);
+                table.Cell().Border(1).Padding(2).Text("Fecha de Reparación").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{service.ServiceDate:yyyy-MM-dd}").FontSize(10);
+
+                // Fila 6: Parte Sustituida (Datos del documento)
+                table.Cell().Border(1).Padding(2).Background(Colors.Grey.Lighten4).Text("Nombre Parte Sustituida").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{(string)part.ItemDescription}").FontSize(8).Bold();
+
+                table.Cell().Border(1).Padding(2).Background(Colors.Grey.Lighten4).Text("Numero Parte Sustituida").FontSize(9);
+                table.Cell().Border(1).Padding(2).Text($"{(string)part.Reference}").FontSize(9).Bold();
+            });
         }
 
 
