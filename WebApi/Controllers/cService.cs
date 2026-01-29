@@ -905,7 +905,7 @@ namespace WebApi.Controllers
                   container.Page(page =>
                     {
                         page.Margin(30);
-                        page.Size(PageSizes.Letter);
+                        page.Size(PageSizes.Ledger.Landscape());
 
                         page.Content().Column(col =>
                         {
@@ -923,13 +923,10 @@ namespace WebApi.Controllers
                                 // 3. Repetir la tarjeta N veces según la cantidad
                                 for (decimal i = 0; i < cantidad; i++)
                                 {
-                                    col.Item().PaddingBottom(15).Element(cardContainer =>
+                                    col.Item().PaddingBottom(15).ShowEntire().Element(cardContainer =>
                                     {
                                         DrawSubstitutionCard(cardContainer, service, part, brandImagePath);
                                     });
-
-                                    // Línea divisoria sólida simple entre tarjetas
-                                    col.Item().PaddingVertical(5).LineHorizontal(0.5f);
                                 }
                             }
                         });
@@ -959,10 +956,11 @@ namespace WebApi.Controllers
                 });
 
                 // Encabezado (Basado en el documento escaneado)
-                table.Cell().ColumnSpan(4).PaddingBottom(5).Row(row =>
+                table.Cell().ColumnSpan(4).Border(1).Padding(4).Row(row =>
                 {
-                    row.RelativeItem().Height(36).Image(brandImagePath);
-                    row.RelativeItem().AlignRight().Text("TARJETA DE SUSTITUCION DE PARTE").FontSize(12).Italic();
+                    row.RelativeItem().Height(30).Image(brandImagePath);
+                    row.RelativeItem().AlignRight().AlignMiddle()
+                       .Text("TARJETA DE SUSTITUCION DE PARTE").FontSize(11).Bold().Italic();
                 });
 
                 // Fila 1: Propietario (Corrección CS1929: ColumnSpan antes que Border)
