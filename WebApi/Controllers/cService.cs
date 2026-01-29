@@ -917,11 +917,11 @@ namespace WebApi.Controllers
                             foreach (var part in partsList)
                             {
                                 // 2. Extraer la cantidad y asegurar que sea un entero
-                                int cantidad = 0;
-                                int.TryParse(part.Quantity?.ToString(), out cantidad);
+                                decimal cantidad = 0;
+                                decimal.TryParse(part.Quantity?.ToString(), out cantidad);
 
                                 // 3. Repetir la tarjeta N veces según la cantidad
-                                for (int i = 0; i < cantidad; i++)
+                                for (decimal i = 0; i < cantidad; i++)
                                 {
                                     col.Item().PaddingBottom(15).Element(cardContainer =>
                                     {
@@ -936,7 +936,7 @@ namespace WebApi.Controllers
 
                         page.Footer().AlignCenter().Text(x =>
                         {
-                            x.Span("Página ");
+                            x.Span("Pagina ");
                             x.CurrentPageNumber();
                         });
                     });
@@ -961,7 +961,7 @@ namespace WebApi.Controllers
                 // Encabezado (Basado en el documento escaneado)
                 table.Cell().ColumnSpan(4).PaddingBottom(5).Row(row =>
                 {
-                    //row.RelativeItem().Height(8).Image(brandImagePath);
+                    row.RelativeItem().Height(36).Image(brandImagePath);
                     row.RelativeItem().AlignRight().Text("TARJETA DE SUSTITUCION DE PARTE").FontSize(12).Italic();
                 });
 
