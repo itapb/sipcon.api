@@ -902,41 +902,48 @@ namespace WebApi.Controllers
                     });
                 });
 
-                container.Page(page =>
-                {
-                    page.Margin(30);
-                    page.Size(PageSizes.Letter);
-
-                    page.Content().Column(col =>
+                  container.Page(page =>
                     {
-                        // Iteramos sobre las partes del servicio
-                        var partsList = ((IEnumerable<dynamic>)serviceDetailsList).Where(x => x.Type == "P").ToList();
+                        page.Margin(30);
+                        page.Size(PageSizes.Ledger.Landscape());
 
-                        foreach (var part in partsList)
+                        page.Content().Column(col =>
                         {
-                            col.Item().PaddingBottom(15).Element(cardContainer =>
+                            // 1. Filtrar solo partes (Tipo 'P')
+                            var partsList = ((IEnumerable<dynamic>)serviceDetailsList)
+                                            .Where(x => x.Type == "P")
+                                            .ToList();
+
+                            foreach (var part in partsList)
                             {
-                                DrawSubstitutionCard(cardContainer, service, part);
-                            });
+                                // 2. Extraer la cantidad y asegurar que sea un entero
+                                decimal cantidad = 0;
+                                decimal.TryParse(part.Quantity?.ToString(), out cantidad);
 
-                            // Línea divisoria sólida simple (sin Dash ni atributos extras)
-                            col.Item().PaddingVertical(5).LineHorizontal(0.5f);
-                        }
-                    });
+                                // 3. Repetir la tarjeta N veces según la cantidad
+                                for (decimal i = 0; i < cantidad; i++)
+                                {
+                                    col.Item().PaddingBottom(15).ShowEntire().Element(cardContainer =>
+                                    {
+                                        DrawSubstitutionCard(cardContainer, service, part, brandImagePath);
+                                    });
+                                }
+                            }
+                        });
 
-                    page.Footer().AlignCenter().Text(x =>
-                    {
-                        x.Span("Página ");
-                        x.CurrentPageNumber();
+                        page.Footer().AlignCenter().Text(x =>
+                        {
+                            x.Span("Pagina ");
+                            x.CurrentPageNumber();
+                        });
                     });
-                });
 
             });
             return document.GeneratePdf();
         }
 
 
-        void DrawSubstitutionCard(IContainer container, dynamic service, dynamic part)
+        void DrawSubstitutionCard(IContainer container, dynamic service, dynamic part, string brandImagePath)
         {
             container.Table(table =>
             {
@@ -949,10 +956,11 @@ namespace WebApi.Controllers
                 });
 
                 // Encabezado (Basado en el documento escaneado)
-                table.Cell().ColumnSpan(4).PaddingBottom(5).Row(row =>
+                table.Cell().ColumnSpan(4).Border(1).Padding(4).Row(row =>
                 {
-                    row.RelativeItem().Text("CHANGAN AUTO").Bold().FontSize(14);
-                    row.RelativeItem().AlignRight().Text("Tarjeta de Sustitución de parte").FontSize(12).Italic();
+                    row.RelativeItem().Height(30).Image(brandImagePath);
+                    row.RelativeItem().AlignRight().AlignMiddle()
+                       .Text("TARJETA DE SUSTITUCION DE PARTE").FontSize(11).Bold().Italic();
                 });
 
                 // Fila 1: Propietario (Corrección CS1929: ColumnSpan antes que Border)

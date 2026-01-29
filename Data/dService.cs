@@ -89,6 +89,7 @@ namespace Data
                 _mapping.AddItem("NumberPolicy", "VNUMBERPOLICY");
                 _mapping.AddItem("VehicleId", "IDVEHICLE");
                 _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("Km", "IKM");
                 _mapping.AddItem("CustomerID", "IDCUSTOMER");
