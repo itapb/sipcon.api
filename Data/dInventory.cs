@@ -596,7 +596,114 @@ namespace Data
             }
             return _response;
         }
+        //---------------------------------------------------------------------------------------------------
 
+        public async Task<Response<List<MovementDetails>>> GetMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getMovementDetailsTransfer(userId, supplierId, rowfrom, filter, pending);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<List<MovementDetails>>> _getMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@VTYPE", "T");
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@BPENDING", pending);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("MovementId", "IDMOVEMENT");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("PartInnerCode", "VCODEPART");
+                _mapping.AddItem("PartDescription", "VPART");
+                _mapping.AddItem("LocationName", "VLOCATION");
+                _mapping.AddItem("DestinationName", "VDESTINATION");
+                _mapping.AddItem("RequiredQty", "IREQUIRED");
+                _mapping.AddItem("RealQty", "IREAL");
+                _mapping.AddItem("TypeName", "VMOVEMENTTYPEDETAIL");
+                _mapping.AddItem("Processed", "BPROCESSED");
+                _mapping.AddItem("UserName", "VLOGIN");
+                _mapping.AddItem("Stock", "ISTOCK");
+                _mapping.AddItem("GeneratedDate", "DGENERATED");
+                _mapping.AddItem("StatusName", "VDISPLAYESTATUS");
+
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_TRANSFERMOVEMENTDETAILS", _parameter);
+                _response.Data = _data.GetList<Models.MovementDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+        public async Task<Response<Result>> PostMovementDetailsTransferActions(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postMovementDetailsTransferActions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _postMovementDetailsTransferActions(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_MOVEMENTDETAIL_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+        //---------------------------------------------------------------------------------------------------
         private async Task<Response<Models.Location>> _getValidLocation(Int32 movementId, string scannedText)
         {
             Response<Models.Location> _response = new Response<Models.Location>();

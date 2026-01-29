@@ -600,6 +600,37 @@ namespace WebApi.Controllers
         }
 
 
+
+        //--------------------------------------------------------------------------------------------------
+        [HttpPost("/api/Movements/PostMovementDetailsTransferActions")]
+        public async Task<IActionResult> PostMovementDetailsTransferActions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostMovementDetailsTransferActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+        [HttpGet("/api/Movements/GetMovementDetailsTransfer")]
+        public async Task<IActionResult> GetMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        {
+            try
+            {
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsTransfer(userId, supplierId, rowfrom, filter, pending);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        //--------------------------------------------------------------------------------------------------
         #endregion
 
 
@@ -1947,7 +1978,12 @@ namespace WebApi.Controllers
                 ClaimPart _new = new ClaimPart();
                 _new.Id = 0;
                 _new.DealerId = dealerId; 
-                _new.UserId = userId;  
+                _new.UserId = userId;
+
+                if (dealerId == 0)
+                {
+                    throw new Exception("Concesionario Invalido");
+                }
 
                 List<ClaimPart> _list = new List<ClaimPart>();
                 _list.Add(_new);
@@ -1968,7 +2004,7 @@ namespace WebApi.Controllers
                     Result _resul = new Result();
                     _resul = (Result)(_resp.Data);
 
-                    var _get = await _dInventory.GetClaim(_resul.LastId, userId);
+                    var _get = await _dInventory.GetClaim(userId,_resul.LastId );
                     _new = (ClaimPart)(_get.Data);
 
 
