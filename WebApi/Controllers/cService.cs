@@ -616,7 +616,7 @@ namespace WebApi.Controllers
 
                                 row.RelativeItem()
                                     .PaddingLeft(80)
-                                    .Width(150)
+                                    .Width(200)
                                     .Image(supplierImagePath)
                                     .FitArea(); // Imagen pegada a la esquina superior derecha
                             });
@@ -1021,18 +1021,25 @@ namespace WebApi.Controllers
         {
             container.Column(col =>
             {
-                // --- BLOQUE 1: ENCABEZADO (Logo Izquierda, Título Centro, Logo Derecha) ---
-                col.Item().PaddingBottom(5).Row(row =>
+
+                col.Item().PaddingBottom(2).Row(row =>
                 {
-                    // Imagen Izquierda: Forzamos el alto, el ancho se ajustará solo proporcionalmente
-                    row.AutoItem().Height(35).AlignLeft().AlignMiddle().Image(brandImagePath);
+                    row.RelativeItem()
+                        .Width(150)
+                        .Image(brandImagePath)
+                        .FitArea();  // Imagen pegada a la esquina superior izquierda
 
-                    // Título Central: Usamos RelativeItem para que ocupe el espacio restante
-                    row.RelativeItem().AlignMiddle()
-                       .Text("REPORTE DE FALLA (AP-03)").Bold().FontSize(14).AlignCenter();
+                    row.RelativeItem()
+                        .Text("REPORTE DE FALLA (AP-03)")
+                        .Bold()
+                        .FontSize(15)
+                        .AlignCenter();
 
-                    // Imagen Derecha: Forzamos el alto para mantener simetría
-                    row.AutoItem().Height(35).AlignRight().AlignMiddle().Image(supplierImagePath);
+                    row.RelativeItem()
+                        .PaddingLeft(80)
+                        .Width(200)
+                        .Image(supplierImagePath)
+                        .FitArea(); // Imagen pegada a la esquina superior derecha
                 });
 
                 // --- BLOQUE 2: DATOS GENERALES (4 Columnas, Sin Bordes, Título al lado de Valor) ---
@@ -1058,38 +1065,62 @@ namespace WebApi.Controllers
                     }
 
                     // Fila 1
-                    AddDataCell("Fecha inicio", $"{service.StartDate:yyyy-MM-dd}");
-                    AddDataCell("MDV", $"{(string)service.EngineSerial}");
-                    AddDataCell("Fecha aprobación", $"{service.StartDate:yyyy-MM-dd}");
-                    AddDataCell("SRG", $"{(string)service.SrgNumber}", true);
-
-                    // Fila 2
                     AddDataCell("VIN", $"{(string)service.Vin}", true);
                     AddDataCell("Modelo", $"{(string)service.ModelName}");
                     AddDataCell("Fecha Venta", $"{service.InvoiceDate:yyyy-MM-dd}");
-                    AddDataCell("Placa", $"{(string)service.EngineSerial}");
+                    AddDataCell("Fecha Inicio Reparacion", $"{service.StartDate:yyyy-MM-dd}");
+
+
+                    // Fila 2
+                    AddDataCell("Placa", $"{(string)service.Plate}");
+                    AddDataCell("Póliza", $"{(string)service.NumberPolicy}");
+                    AddDataCell("Concesionario", $"{(string)service.DealerServiceName}");
+                    AddDataCell("Fecha aprobación Srg", $"{service.EndDate:yyyy-MM-dd}");
+
 
                     // Fila 3
-                    AddDataCell("Póliza", $"{(string)service.EngineSerial}");
-                    AddDataCell("Concesionario", "C.A");
                     AddDataCell("Serial Motor", $"{(string)service.EngineSerial}");
-                    AddDataCell("Serial Trans.", "XXXXXX");
+                    AddDataCell("Kilometraje", $"{service.Km}");
+                    AddDataCell("Cod Concesionario", $"{(string)service.DealerServiceCod}", true);
+                    AddDataCell("Codigo Srg", $"{(string)service.SrgNumber}");
+
 
                     // Fila 4
-                    table.Cell().ColumnSpan(2).PaddingVertical(1).Row(r =>
-                    {
-                        r.AutoItem().Text("Cliente: ").FontSize(7).SemiBold();
-                        r.RelativeItem().Text($"{(string)service.CustomerName}").FontSize(7);
-                    });
-                    AddDataCell("Cod. Conc.", "CHIM001");
-                    AddDataCell("Kilometraje", $"{service.Km:N0}");
+                    AddDataCell("Nombre de Cliente", $"{(string)service.CustomerName}", true);
+                    AddDataCell("Telefonos", $"{(string)service.CustomerPhone}");
+                    
                 });
 
-                // --- BLOQUE 3: DIAGNÓSTICO (Sección Técnica) ---
-                col.Item().PaddingTop(5).Border(1).Padding(5).Column(c =>
+                col.Item().PaddingTop(5).Border(1).Column(c =>
                 {
-                    c.Item().Text("Sección Técnica -Diagnóstico-").FontSize(8).SemiBold().Underline();
-                    c.Item().PaddingTop(2).Text($"{(string)service.TechnicalSolution}").FontSize(8);
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Reporte de Cliente").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.CustomerReport}").FontSize(8);
+                });
+
+                col.Item().Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Reporte de Condiciones y Posible(s) Causa(s)").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.DealerReport}").FontSize(8);
+                });
+
+                col.Item().Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Diagnóstico Concesionario, Resultados de pruebas y Equipos Utilizados").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.TechnicalSolution}").FontSize(8);
+                });
+
+                col.Item().Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Observacion de Planta").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.SupplierReport}").FontSize(8);
                 });
 
                 // --- BLOQUE 4: TABLA DE REPUESTOS ---
@@ -1097,26 +1128,31 @@ namespace WebApi.Controllers
                 {
                     table.ColumnsDefinition(cols =>
                     {
-                        cols.ConstantColumn(25); // Item
-                        cols.RelativeColumn(2);  // Nro Parte
-                        cols.RelativeColumn(4);  // Descripción
-                        cols.ConstantColumn(40); // Cantidad
-                        cols.RelativeColumn(1.5f); // Precio
-                        cols.RelativeColumn(1.5f); // Total
+                        cols.ConstantColumn(35);    // Aumentado para "ITEM"
+                        cols.RelativeColumn(2.5f);  // Aumentado para "NRO. PARTE"
+                        cols.RelativeColumn(5);     // Aumentado para "DESCRIPCIÓN DE LA PARTE"
+                        cols.ConstantColumn(60);    // Aumentado para "CANTIDAD"
+                        cols.RelativeColumn(2);     // Aumentado para "PRECIO"
+                        cols.RelativeColumn(2);     // Aumentado para "TOTAL"
                     });
 
                     table.Header(header =>
                     {
                         header.Cell().Element(HStyle).Text("ITEM");
                         header.Cell().Element(HStyle).Text("NRO. PARTE");
-                        header.Cell().Element(HStyle).Text("DESCRIPCIÓN");
-                        header.Cell().Element(HStyle).Text("CANT");
+                        header.Cell().Element(HStyle).Text("DESCRIPCIÓN DE LA PARTE");
+                        header.Cell().Element(HStyle).Text("CANTIDAD");
                         header.Cell().Element(HStyle).Text("PRECIO");
                         header.Cell().Element(HStyle).Text("TOTAL");
 
                         static IContainer HStyle(IContainer c) =>
-                            c.Border(1).Background(Colors.Grey.Lighten3).AlignCenter()
-                             .PaddingVertical(2).DefaultTextStyle(t => t.Bold().FontSize(8));
+                            c.Border(1)
+                             .Background(Colors.Grey.Lighten3)
+                             .AlignCenter()
+                             .AlignMiddle() // Centrado vertical para que se vea mejor
+                             .PaddingHorizontal(2) // Evita que el texto toque los bordes laterales
+                             .PaddingVertical(4)   // Un poco más de aire arriba y abajo
+                             .DefaultTextStyle(t => t.Bold().FontSize(9)); // Bajamos a 9 o 10 si el título es muy largo
                     });
 
                     int counter = 1;
@@ -1129,7 +1165,8 @@ namespace WebApi.Controllers
                         table.Cell().Element(CStyle).AlignRight().Text($"{item.UnitPrice:N2}");
                         table.Cell().Element(CStyle).AlignRight().Text($"{item.Price:N2}");
 
-                        static IContainer CStyle(IContainer c) => c.Border(1).Padding(2);
+                        static IContainer CStyle(IContainer c) =>
+                            c.Border(1).Padding(2).DefaultTextStyle(t => t.FontSize(8));
                     }
                 });
 
@@ -1137,7 +1174,7 @@ namespace WebApi.Controllers
                 col.Item().AlignRight().PaddingTop(5).Text(t =>
                 {
                     t.Span("SUMATORIA TOTAL: ").SemiBold();
-                    t.Span($"{service.InvoiceAmount:N2}").Bold().FontSize(10);
+                    t.Span($"{service.InvoiceAmount:N2}").Bold().FontSize(12);
                 });
             });
         }
