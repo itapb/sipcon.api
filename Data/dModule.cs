@@ -64,7 +64,52 @@ namespace Data
 
         }
 
-   
+
+
+        public async Task<List<Models.ActionModule>> GetActionByModule(string moduleName, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetActionByModule(moduleName, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<List<Models.ActionModule>> _GetActionByModule(string? moduleNme, Int32 userId)
+        {
+            List<Models.ActionModule> _response = new List<Models.ActionModule>();
+
+            try
+            {
+
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VMODULE", moduleNme);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("ActionId", "ID");
+                _mapping.AddItem("ActionName", "VDISPLAYESTATUS");
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response = await _data.ExecuteReaderAsync<Models.ActionModule>("USP_GET_ACTIONDISPLAYBYMODULE", _mapping, _parameter);
+
+            }
+            catch (Exception ex)
+            {
+                Util.Log.Error(ex);
+                throw;
+            }
+
+            return _response;
+
+        }
+
+
 
     }
 }
