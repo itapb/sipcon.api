@@ -38,7 +38,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(string? filter, int rowFrom, int userId, int serviceTypeId, int dealerId,int? supplierId)
+        public async Task<IActionResult> GetAll(string? filter, int rowFrom, int userId, int serviceTypeId, int dealerId,int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
@@ -46,17 +46,17 @@ namespace WebApi.Controllers
                 {
                     case 1:
                         Models.Response<List<Models.ServiceMaintenance>> maintenanceResponse =
-                            await _dService.GetAll<Models.ServiceMaintenance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
+                            await _dService.GetAll<Models.ServiceMaintenance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         return StatusCode(maintenanceResponse.Status, maintenanceResponse);
 
                     case 2:
                         Models.Response<List<Models.ServiceAssistance>> assistanceResponse =
-                            await _dService.GetAll<Models.ServiceAssistance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
+                            await _dService.GetAll<Models.ServiceAssistance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         return StatusCode(assistanceResponse.Status, assistanceResponse);
 
                     case 3:
                         Models.Response<List<Models.ServiceFail>> failResponse =
-                            await _dService.GetAll<Models.ServiceFail>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
+                            await _dService.GetAll<Models.ServiceFail>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         return StatusCode(failResponse.Status, failResponse);
 
                     default:
@@ -396,7 +396,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId, int supplierId)
+        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId, int supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
@@ -405,21 +405,21 @@ namespace WebApi.Controllers
                 switch (serviceTypeId)
                 {
                     case 1:
-                        var maintenanceResponse = await _dService.GetAll<ServiceMaintenance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
+                        var maintenanceResponse = await _dService.GetAll<ServiceMaintenance>(filter, null, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         if (maintenanceResponse.Status != 200 || maintenanceResponse.Data == null)
                             return StatusCode(maintenanceResponse.Status, maintenanceResponse.Message);
                         rawData = maintenanceResponse.Data;
                         break;
 
                     case 2:
-                        var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
+                        var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         if (assistanceResponse.Status != 200 || assistanceResponse.Data == null)
                             return StatusCode(assistanceResponse.Status, assistanceResponse.Message);
                         rawData = assistanceResponse.Data;
                         break;
 
                     case 3:
-                        var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId, supplierId);
+                        var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         if (failResponse.Status != 200 || failResponse.Data == null)
                             return StatusCode(failResponse.Status, failResponse.Message);
                         rawData = failResponse.Data;
@@ -1283,12 +1283,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetDms")]
-        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
                 // 1. Obtenemos la lista principal de DMS
-                var response = await _dService.GetDms(userId, supplierId, filter, row, fromDate, upToDate);
+                var response = await _dService.GetDms(userId, supplierId, filter, row, fromDate, upToDate, estatusId);
 
                 // 2. Si la respuesta es exitosa y hay datos, anidamos los detalles
                 if (response.Status == StatusCodes.Status200OK && response.Data != null)
@@ -1331,13 +1331,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetExportDms")]
-        public async Task<IActionResult> GetExportDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<IActionResult> GetExportDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
 
-                var response = await _dService.GetDms(userId, supplierId, filter, null, fromDate, upToDate);
+                var response = await _dService.GetDms(userId, supplierId, filter, null, fromDate, upToDate,estatusId);
                 List<Dms> _dms = response.Data;
                 MemoryStream _excel = ConvertToExcel(_dms);
                 string _fileName = "Dms.xlsx";

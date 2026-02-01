@@ -34,12 +34,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(string? filter, Int32 rowFrom, Int32 userId,Int32? supplierId,Int32? dealerId)
+        public async Task<IActionResult> GetAll(string? filter, Int32 rowFrom, Int32 userId,Int32? supplierId,Int32? dealerId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
-                var _response = await _dPolicy.GetAll(filter, rowFrom, userId, supplierId,dealerId);
+                var _response = await _dPolicy.GetAll(filter, rowFrom, userId, supplierId, dealerId,fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -164,13 +164,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(string? filter, Int32 userId,Int32? supplierId, Int32? dealerId)
+        public async Task<IActionResult> GetExport(string? filter, Int32 userId,Int32? supplierId, Int32? dealerId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
 
-                List<Policy> _policies = await _dPolicy.GetExport(filter, userId, supplierId, dealerId);
+                List<Policy> _policies = await _dPolicy.GetExport(filter, userId, supplierId, dealerId, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcel(_policies);
                 string _fileName = "Polizas.xlsx";
 
