@@ -657,7 +657,7 @@ namespace WebApi.Controllers
 
                             // Fila 1
                             AddTitleRow("Placa", "N° Póliza", "Fecha Venta", "Cliente", "RIF", "Nro");
-                            AddValueRow(service.Plate, service.NumberPolicy, $"{service.InvoiceDate:yyyy-MM-dd}", $"{service.CustomerName} {service.CustomerLastName}", service.Vat, service.SrgNumber);
+                            AddValueRow(service.Plate, service.NumberPolicy, $"{service.SaleDate:yyyy-MM-dd}", $"{service.CustomerName} {service.CustomerLastName}", service.Vat, service.SrgNumber);
 
                             // Fila 2
                             AddTitleRow("Modelo Vehiculo", "Año", "Fecha Creacion", "Kilometraje", "Direccion", "Autoriza");
@@ -998,7 +998,7 @@ namespace WebApi.Controllers
                 table.Cell().Border(1).Padding(2).Text("N. Serial").FontSize(9);
                 table.Cell().Border(1).Padding(2).Text($"{(string)service.Vin}").FontSize(8);
                 table.Cell().Border(1).Padding(2).Text("Fecha de Venta").FontSize(9);
-                table.Cell().Border(1).Padding(2).Text($"{service.InvoiceDate:yyyy-MM-dd}").FontSize(10);
+                table.Cell().Border(1).Padding(2).Text($"{service.SaleDate:yyyy-MM-dd}").FontSize(10);
 
                 // Fila 5: Motor y Fecha Reparación
                 table.Cell().Border(1).Padding(2).Text("Número de Motor").FontSize(9);
