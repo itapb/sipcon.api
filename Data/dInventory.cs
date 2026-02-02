@@ -1916,12 +1916,12 @@ namespace Data
         }
 
         /*-----------------------------------------------------------------------------------------------------------------------*/
-        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter)
+        public async Task<Response<List<Models.Guide>>> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
+                return await _GetAllGuides(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, estatusId);
             }
             finally
             {
@@ -1991,7 +1991,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter = "", int? guideId = null)
+        private async Task<Response<List<Models.Guide>>> _GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, int? guideId = null)
         {
             Response<List<Models.Guide>> _response = new Response<List<Models.Guide>>();
             try
@@ -2003,6 +2003,10 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@IDGUIDE", guideId); //guideId es null
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");

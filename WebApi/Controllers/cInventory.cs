@@ -981,11 +981,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Guide/GetAllGuides")]
-        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, int rowfrom, string? filter)
+        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, int rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
+                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

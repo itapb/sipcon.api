@@ -32,12 +32,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
-                var _response = await _dVehicle.GetAll(userId, supplierId, dealerId,rowFrom, filter);
+                var _response = await _dVehicle.GetAll(userId, supplierId, dealerId,rowFrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -270,13 +270,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(Int32 userId, Int32? supplierId, Int32? dealerId, string? filter)
+        public async Task<IActionResult> GetExport(Int32 userId, Int32? supplierId, Int32? dealerId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
 
-                List<Vehicle> _vehicles = await _dVehicle.GetExport(userId,  supplierId,  dealerId, filter);
+                List<Vehicle> _vehicles = await _dVehicle.GetExport(userId,  supplierId,  dealerId, filter, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcel(_vehicles);
                 string _fileName = "Vehiculos.xlsx";
 

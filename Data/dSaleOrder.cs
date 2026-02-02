@@ -16,37 +16,24 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<SaleOrder>>> GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter)
+        public async Task<Response<List<SaleOrder>>> GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId, dealerId,  rowfrom, filter, null);
+                return await _GetAll(userId, supplierId, dealerId,  rowfrom, filter, fromDate, upToDate, estatusId,null);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId)
+        public async Task<List<SaleOrder>> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<SaleOrder>)(await _GetAll(userId, supplierId, dealerId, null, null)).Data;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
-        public async Task<List<SaleOrderResume>> GetExportResume(Int32 userId, Int32 supplierId, Int32 dealerId)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return (List<SaleOrderResume>)(await _getExportResume(userId, supplierId, dealerId)).Data;
+                return (List<SaleOrder>)(await _GetAll(userId, supplierId, dealerId,null, filter, fromDate, upToDate, estatusId,null)).Data;
             }
             finally
             {
@@ -54,9 +41,22 @@ namespace Data
             }
         }
 
+        public async Task<List<SaleOrderResume>> GetExportResume(Int32 userId, Int32 supplierId, Int32 dealerId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<SaleOrderResume>)(await _getExportResume(userId, supplierId, dealerId, fromDate, upToDate, estatusId)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
 
-        private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, Int32? saleOrderId = null)
+
+        private async Task<Response<List<SaleOrder>>> _GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? saleOrderId = null)
         {
             Response<List<SaleOrder>> _response =  new Response<List<SaleOrder>>();
             try
@@ -68,10 +68,13 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@ID", saleOrderId);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
 
 
 
-                
+
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("DealerId", "IDDEALER");
@@ -108,7 +111,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<SaleOrderResume>>> _getExportResume(Int32? userId, Int32? supplierId, Int32? dealerId)
+        private async Task<Response<List<SaleOrderResume>>> _getExportResume(Int32? userId, Int32? supplierId, Int32? dealerId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             Response<List<SaleOrderResume>> _response = new Response<List<SaleOrderResume>>();
             try
@@ -117,7 +120,11 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-        
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
+
+
 
 
                 Mapping _mapping = new Mapping();
