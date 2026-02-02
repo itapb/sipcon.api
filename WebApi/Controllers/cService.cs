@@ -38,7 +38,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(string? filter, int rowFrom, int userId, int serviceTypeId, int dealerId,int? supplierId)
+        public async Task<IActionResult> GetAll(string? filter, int rowFrom, int userId, int serviceTypeId, int dealerId,int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
@@ -46,17 +46,17 @@ namespace WebApi.Controllers
                 {
                     case 1:
                         Models.Response<List<Models.ServiceMaintenance>> maintenanceResponse =
-                            await _dService.GetAll<Models.ServiceMaintenance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
+                            await _dService.GetAll<Models.ServiceMaintenance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         return StatusCode(maintenanceResponse.Status, maintenanceResponse);
 
                     case 2:
                         Models.Response<List<Models.ServiceAssistance>> assistanceResponse =
-                            await _dService.GetAll<Models.ServiceAssistance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
+                            await _dService.GetAll<Models.ServiceAssistance>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         return StatusCode(assistanceResponse.Status, assistanceResponse);
 
                     case 3:
                         Models.Response<List<Models.ServiceFail>> failResponse =
-                            await _dService.GetAll<Models.ServiceFail>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId);
+                            await _dService.GetAll<Models.ServiceFail>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         return StatusCode(failResponse.Status, failResponse);
 
                     default:
@@ -396,7 +396,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId, int supplierId)
+        public async Task<IActionResult> GetExport(string? filter, int serviceTypeId, int userId, int dealerId, int supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
@@ -405,21 +405,21 @@ namespace WebApi.Controllers
                 switch (serviceTypeId)
                 {
                     case 1:
-                        var maintenanceResponse = await _dService.GetAll<ServiceMaintenance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
+                        var maintenanceResponse = await _dService.GetAll<ServiceMaintenance>(filter, null, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         if (maintenanceResponse.Status != 200 || maintenanceResponse.Data == null)
                             return StatusCode(maintenanceResponse.Status, maintenanceResponse.Message);
                         rawData = maintenanceResponse.Data;
                         break;
 
                     case 2:
-                        var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId, supplierId);
+                        var assistanceResponse = await _dService.GetAll<ServiceAssistance>(filter, null, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         if (assistanceResponse.Status != 200 || assistanceResponse.Data == null)
                             return StatusCode(assistanceResponse.Status, assistanceResponse.Message);
                         rawData = assistanceResponse.Data;
                         break;
 
                     case 3:
-                        var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId, supplierId);
+                        var failResponse = await _dService.GetAll<ServiceFail>(filter, null, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId);
                         if (failResponse.Status != 200 || failResponse.Data == null)
                             return StatusCode(failResponse.Status, failResponse.Message);
                         rawData = failResponse.Data;
@@ -616,7 +616,7 @@ namespace WebApi.Controllers
 
                                 row.RelativeItem()
                                     .PaddingLeft(80)
-                                    .Width(150)
+                                    .Width(200)
                                     .Image(supplierImagePath)
                                     .FitArea(); // Imagen pegada a la esquina superior derecha
                             });
@@ -930,13 +930,30 @@ namespace WebApi.Controllers
                                 }
                             }
                         });
-
                         page.Footer().AlignCenter().Text(x =>
                         {
                             x.Span("Pagina ");
                             x.CurrentPageNumber();
                         });
                     });
+
+                container.Page(page =>
+                {
+                    page.Margin(50);
+                    page.Size(PageSizes.Ledger.Landscape());
+
+                    page.Content().Element(container =>
+                    {
+                        // Llamada a la función externa pasando los objetos necesarios
+                        GenerateFailureReport(container, service, serviceDetailsList, brandImagePath, supplierImagePath);
+                    });
+
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Página ");
+                        x.CurrentPageNumber();
+                    });
+                });
 
             });
             return document.GeneratePdf();
@@ -995,6 +1012,170 @@ namespace WebApi.Controllers
 
                 table.Cell().Border(1).Padding(2).Background(Colors.Grey.Lighten4).Text("Numero Parte Sustituida").FontSize(9);
                 table.Cell().Border(1).Padding(2).Text($"{(string)part.Reference}").FontSize(9).Bold();
+            });
+        }
+
+
+
+        void GenerateFailureReport(IContainer container, dynamic service, IEnumerable<dynamic> details, string brandImagePath, string supplierImagePath)
+        {
+            container.Column(col =>
+            {
+
+                col.Item().PaddingBottom(2).Row(row =>
+                {
+                    row.RelativeItem()
+                        .Width(150)
+                        .Image(brandImagePath)
+                        .FitArea();  // Imagen pegada a la esquina superior izquierda
+
+                    row.RelativeItem()
+                        .Text("REPORTE DE FALLA (AP-03)")
+                        .Bold()
+                        .FontSize(15)
+                        .AlignCenter();
+
+                    row.RelativeItem()
+                        .PaddingLeft(80)
+                        .Width(200)
+                        .Image(supplierImagePath)
+                        .FitArea(); // Imagen pegada a la esquina superior derecha
+                });
+
+                // --- BLOQUE 2: DATOS GENERALES (4 Columnas, Sin Bordes, Título al lado de Valor) ---
+                col.Item().Table(table =>
+                {
+                    table.ColumnsDefinition(cols =>
+                    {
+                        cols.RelativeColumn();
+                        cols.RelativeColumn();
+                        cols.RelativeColumn();
+                        cols.RelativeColumn();
+                    });
+
+                    // Función local corregida para inyectar celdas en la tabla externa
+                    void AddDataCell(string label, string value, bool isBold = false)
+                    {
+                        table.Cell().PaddingVertical(1).Row(r =>
+                        {
+                            r.AutoItem().Text($"{label}: ").FontSize(12).SemiBold();
+                            var text = r.RelativeItem().Text(value ?? "").FontSize(12);
+                            if (isBold) text.Bold();
+                        });
+                    }
+
+                    // Fila 1
+                    AddDataCell("VIN", $"{(string)service.Vin}", true);
+                    AddDataCell("Modelo", $"{(string)service.ModelName}");
+                    AddDataCell("Fecha Venta", $"{service.InvoiceDate:yyyy-MM-dd}");
+                    AddDataCell("Fecha Inicio Reparacion", $"{service.StartDate:yyyy-MM-dd}");
+
+
+                    // Fila 2
+                    AddDataCell("Placa", $"{(string)service.Plate}");
+                    AddDataCell("Póliza", $"{(string)service.NumberPolicy}");
+                    AddDataCell("Concesionario", $"{(string)service.DealerServiceName}");
+                    AddDataCell("Fecha aprobación Srg", $"{service.EndDate:yyyy-MM-dd}");
+
+
+                    // Fila 3
+                    AddDataCell("Serial Motor", $"{(string)service.EngineSerial}");
+                    AddDataCell("Kilometraje", $"{service.Km}");
+                    AddDataCell("Cod Concesionario", $"{(string)service.DealerServiceCod}", true);
+                    AddDataCell("Codigo Srg", $"{(string)service.SrgNumber}");
+
+
+                    // Fila 4
+                    AddDataCell("Nombre de Cliente", $"{(string)service.CustomerName}", true);
+                    AddDataCell("Telefonos", $"{(string)service.CustomerPhone}");
+                    
+                });
+
+                col.Item().PaddingTop(5).Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Reporte de Cliente").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.CustomerReport}").FontSize(8);
+                });
+
+                col.Item().Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Reporte de Condiciones y Posible(s) Causa(s)").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.DealerReport}").FontSize(8);
+                });
+
+                col.Item().Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Diagnóstico Concesionario, Resultados de pruebas y Equipos Utilizados").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.TechnicalSolution}").FontSize(8);
+                });
+
+                col.Item().Border(1).Column(c =>
+                {
+                    c.Item().Background(Colors.Grey.Lighten4).PaddingHorizontal(5).PaddingVertical(2)
+                        .Text("Observacion de Planta").FontSize(10).SemiBold();
+                    c.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    c.Item().Padding(5).Text($"{(string)service.SupplierReport}").FontSize(8);
+                });
+
+                // --- BLOQUE 4: TABLA DE REPUESTOS ---
+                col.Item().PaddingTop(10).Table(table =>
+                {
+                    table.ColumnsDefinition(cols =>
+                    {
+                        cols.ConstantColumn(35);    // Aumentado para "ITEM"
+                        cols.RelativeColumn(2.5f);  // Aumentado para "NRO. PARTE"
+                        cols.RelativeColumn(5);     // Aumentado para "DESCRIPCIÓN DE LA PARTE"
+                        cols.ConstantColumn(60);    // Aumentado para "CANTIDAD"
+                        cols.RelativeColumn(2);     // Aumentado para "PRECIO"
+                        cols.RelativeColumn(2);     // Aumentado para "TOTAL"
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Element(HStyle).Text("ITEM");
+                        header.Cell().Element(HStyle).Text("NRO. PARTE");
+                        header.Cell().Element(HStyle).Text("DESCRIPCIÓN DE LA PARTE");
+                        header.Cell().Element(HStyle).Text("CANTIDAD");
+                        header.Cell().Element(HStyle).Text("PRECIO");
+                        header.Cell().Element(HStyle).Text("TOTAL");
+
+                        static IContainer HStyle(IContainer c) =>
+                            c.Border(1)
+                             .Background(Colors.Grey.Lighten3)
+                             .AlignCenter()
+                             .AlignMiddle() // Centrado vertical para que se vea mejor
+                             .PaddingHorizontal(2) // Evita que el texto toque los bordes laterales
+                             .PaddingVertical(4)   // Un poco más de aire arriba y abajo
+                             .DefaultTextStyle(t => t.Bold().FontSize(9)); // Bajamos a 9 o 10 si el título es muy largo
+                    });
+
+                    int counter = 1;
+                    foreach (var item in details)
+                    {
+                        table.Cell().Element(CStyle).AlignCenter().Text($"{counter++}");
+                        table.Cell().Element(CStyle).Text($"{(string)item.Reference}");
+                        table.Cell().Element(CStyle).Text($"{(string)item.ItemDescription}");
+                        table.Cell().Element(CStyle).AlignCenter().Text($"{item.Quantity:N2}");
+                        table.Cell().Element(CStyle).AlignRight().Text($"{item.UnitPrice:N2}");
+                        table.Cell().Element(CStyle).AlignRight().Text($"{item.Price:N2}");
+
+                        static IContainer CStyle(IContainer c) =>
+                            c.Border(1).Padding(2).DefaultTextStyle(t => t.FontSize(8));
+                    }
+                });
+
+                // --- BLOQUE 5: SUMATORIA TOTAL ---
+                col.Item().AlignRight().PaddingTop(5).Text(t =>
+                {
+                    t.Span("SUMATORIA TOTAL: ").SemiBold();
+                    t.Span($"{service.InvoiceAmount:N2}").Bold().FontSize(12);
+                });
             });
         }
 
@@ -1102,12 +1283,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetDms")]
-        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
                 // 1. Obtenemos la lista principal de DMS
-                var response = await _dService.GetDms(userId, supplierId, filter, row, fromDate, upToDate);
+                var response = await _dService.GetDms(userId, supplierId, filter, row, fromDate, upToDate, estatusId);
 
                 // 2. Si la respuesta es exitosa y hay datos, anidamos los detalles
                 if (response.Status == StatusCodes.Status200OK && response.Data != null)
@@ -1150,13 +1331,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetExportDms")]
-        public async Task<IActionResult> GetExportDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<IActionResult> GetExportDms(Int32? userId, Int32? supplierId, String? filter, int row, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
 
-                var response = await _dService.GetDms(userId, supplierId, filter, null, fromDate, upToDate);
+                var response = await _dService.GetDms(userId, supplierId, filter, null, fromDate, upToDate,estatusId);
                 List<Dms> _dms = response.Data;
                 MemoryStream _excel = ConvertToExcel(_dms);
                 string _fileName = "Dms.xlsx";

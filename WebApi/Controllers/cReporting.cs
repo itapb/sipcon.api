@@ -41,11 +41,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetReports")]
-        public async Task<IActionResult> GetAllJson( string? filter, int? rowFrom, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, int reportingId)
+        public async Task<IActionResult> GetAllJson( string? filter, int? rowFrom, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, int reportingId, int? estatusId)
         {
             try
             {
-                var response = await _dReporting.GetAllJson(filter, rowFrom, userId, supplierId, dealerId, fromDate, upToDate, reportingId);
+                var response = await _dReporting.GetAllJson(filter, rowFrom, userId, supplierId, dealerId, fromDate, upToDate, reportingId,estatusId);
 
                 return StatusCode(StatusCodes.Status200OK, response);
             }
@@ -127,14 +127,14 @@ namespace WebApi.Controllers
 
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(string? filter, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, int reportingId)
+        public async Task<IActionResult> GetExport(string? filter, int userId, int? supplierId, int? dealerId, DateTime? fromDate, DateTime? upToDate, int reportingId, int? estatusId)
 
         {
 
             try
             {
 
-                var response = await _dReporting.GetAllJson(filter, null, userId, supplierId, dealerId, fromDate, upToDate, reportingId);
+                var response = await _dReporting.GetAllJson(filter, null, userId, supplierId, dealerId, fromDate, upToDate, reportingId,estatusId);
 
                 // Convertir la respuesta a una lista dinámica
                 List<Dictionary<string, object>> genericList = response.Data;

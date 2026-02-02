@@ -35,5 +35,22 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetActionByModule")]
+        public async Task<IActionResult> GetActionByModule(string moduleName, Int32 userId)
+        {
+
+            try
+            {
+                List<Models.ActionModule> _modules = await _dModule.GetActionByModule(moduleName, userId);
+                return StatusCode(StatusCodes.Status200OK, _modules);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+
+        }
+
     }
 }

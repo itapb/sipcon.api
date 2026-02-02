@@ -28,12 +28,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Models.Response<List<T>>> GetAll<T>(string? filter, int? rowFrom, int userId, int serviceTypeId, int dealerId, int? supplierId,  int? serviceId = null)
+        public async Task<Models.Response<List<T>>> GetAll<T>(string? filter, int? rowFrom, int userId, int serviceTypeId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId, int? serviceId = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll<T>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, serviceId);
+                return await _GetAll<T>(filter, rowFrom, userId, serviceTypeId, dealerId, supplierId, fromDate, upToDate, estatusId, serviceId);
             }
             finally
             {
@@ -44,7 +44,7 @@ namespace Data
 
 
 
-        private async Task<Models.Response<List<T>>> _GetAll<T>(string? filter,int? rowFrom,int userId,int serviceTypeId, int dealerId, int? supplierId, int? serviceId = null)
+        private async Task<Models.Response<List<T>>> _GetAll<T>(string? filter,int? rowFrom,int userId,int serviceTypeId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId,int? serviceId = null)
         {
             var _response = new Response<List<T>>();
 
@@ -59,6 +59,9 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSERVICETYPE", serviceTypeId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
 
 
                 // Mapeo por tipo
@@ -210,13 +213,13 @@ namespace Data
         }
 
 
-        public async Task<Models.Response<List<Models.Dms>>> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
+        public async Task<Models.Response<List<Models.Dms>>> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate,int? estatusId)
 
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetDms( userId, supplierId, filter, row, fromDate, upToDate);
+                return await _GetDms( userId, supplierId, filter, row, fromDate, upToDate, estatusId);
             }
             finally
             {
@@ -226,7 +229,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Models.Dms>>> _GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate)
+        private async Task<Response<List<Models.Dms>>> _GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             Response<List<Models.Dms>> _response = new Response<List<Models.Dms>>();
@@ -240,7 +243,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", row);
                 _parameter.AddSqlParameter("@DFROMDATE", fromDate);
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
-
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -837,9 +840,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll<T>( filter: null,null,userId, serviceTypeId,dealerId, null,
-                    serviceId: serviceId
-                );
+                return await _GetAll<T>( filter: null,null,userId, serviceTypeId,dealerId, null, null,null,null,serviceId: serviceId);
             }
             finally
             {
