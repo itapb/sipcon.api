@@ -184,11 +184,11 @@ namespace WebApi.Controllers
 
         }
         [HttpGet("/api/Movements/RelocationExport")]
-        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId);
+                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelMovements(_response);
                 string _fileName = "Traslado.xlsx";
 
@@ -378,11 +378,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/GetMovementDetailsPicking")]
-        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

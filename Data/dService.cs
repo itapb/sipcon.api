@@ -127,6 +127,7 @@ namespace Data
                 _mapping.AddItem("StartDate", "DSTARTDATE");
                 _mapping.AddItem("Assesment", "IQUANTITY");
                 _mapping.AddItem("EndDate", "DENDDATE");
+                _mapping.AddItem("SaleDate", "DSALEDATE");
 
 
                 // Ejecución del SP
