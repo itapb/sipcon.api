@@ -254,12 +254,12 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export relocation   ---------------------------------------------------------------*/
 
-        public async Task<List<Movement>> GetExportMovementsRelocation(Int32 userId, Int32 supplierId)
+        public async Task<List<Movement>> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Movement>)(await _getMovements(userId, supplierId, "T", null,null,null,null,null, null)).Data;
+                return (List<Movement>)(await _getMovements(userId, supplierId, "T", null,null, fromDate, upToDate, estatusId, null)).Data;
             }
             finally
             {
@@ -320,12 +320,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<MovementDetails>>> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        public async Task<Response<List<MovementDetails>>> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending);
+                return await _getMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
             }
             finally
             {
@@ -434,7 +434,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<MovementDetails>>> _getMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        private async Task<Response<List<MovementDetails>>> _getMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
             try
@@ -446,6 +446,9 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@BPENDING", pending);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
