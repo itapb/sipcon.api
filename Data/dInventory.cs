@@ -3695,7 +3695,7 @@ namespace Data
         }
 
        //------------------------------------------------------------------POST ACTIONS DETAILS-------------------------------------------------------------------------
-        public async Task<Response<Models.Result>> Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
+        public async Task<Response<Models.Result>> Post_ActionsDetails(List<Models.ActionClaim> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -3710,7 +3710,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Models.Result>> _Post_ActionsDetails(List<Models.Action> _list, Int32 userId)
+        private async Task<Response<Models.Result>> _Post_ActionsDetails(List<Models.ActionClaim> _list, Int32 userId)
         {
             Response<Models.Result> _response = new Response<Models.Result>();
             try
