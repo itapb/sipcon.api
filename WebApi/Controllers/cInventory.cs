@@ -2,6 +2,7 @@
 using ClosedXML.Graphics;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
+
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -148,11 +149,11 @@ namespace WebApi.Controllers
         #region "Movements"
 
         [HttpGet("/api/Movements/GetMovements")]
-        public async Task<IActionResult> GetMovements(Int32 userId, Int32 supplierId, string typeId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetMovements(Int32 userId, Int32 supplierId, string typeId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<Movement>> _response = await _dInventory.GetMovements(userId, supplierId, typeId, rowfrom, filter);
+                Models.Response<List<Movement>> _response = await _dInventory.GetMovements(userId, supplierId, typeId, rowfrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -183,11 +184,11 @@ namespace WebApi.Controllers
 
         }
         [HttpGet("/api/Movements/RelocationExport")]
-        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId);
+                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelMovements(_response);
                 string _fileName = "Traslado.xlsx";
 
@@ -377,11 +378,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/GetMovementDetailsPicking")]
-        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -980,11 +981,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Guide/GetAllGuides")]
-        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, int rowfrom, string? filter)
+        public async Task<IActionResult> GetAllGuides(Int32 userId, Int32 supplierId, Int32 dealerId, int rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter);
+                var _response = await _dInventory.GetAllGuides(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1382,11 +1383,11 @@ namespace WebApi.Controllers
         //#### GET ALL
 
         [HttpGet("/api/Adjustment/GetAdjustments")]
-        public async Task<IActionResult> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter)
+        public async Task<IActionResult> GetAdjustments(Int32 userId, Int32 supplierId, Int32 rowFrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                var _response = await _dInventory.GetAdjustments(userId, supplierId, rowFrom, filter);
+                var _response = await _dInventory.GetAdjustments(userId, supplierId, rowFrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

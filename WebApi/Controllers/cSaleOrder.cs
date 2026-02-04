@@ -44,12 +44,12 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId,Int32? dealerId, Int32 rowfrom, string? filter)
+        public async Task<IActionResult> GetAll(Int32 userId, Int32? supplierId,Int32? dealerId, Int32 rowfrom, string? filter,DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
 
             try
             {
-                var _response = await _dSaleOrder.GetAll(userId, supplierId,dealerId, rowfrom, filter);
+                var _response = await _dSaleOrder.GetAll(userId, supplierId,dealerId, rowfrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -445,11 +445,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("ExportExcelsaleOrder")]
-        public async Task<IActionResult> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId)
+        public async Task<IActionResult> GetExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<SaleOrder> _response = await _dSaleOrder.GetExport(userId, supplierId, dealerId);
+                List<SaleOrder> _response = await _dSaleOrder.GetExport(userId, supplierId, dealerId, filter, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcel(_response);
                 string _fileName = "Pedidos.xlsx";
 
@@ -467,11 +467,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetExportResume")]
-        public async Task<IActionResult> GetExportResume(Int32 userId, Int32 supplierId, Int32 dealerId)
+        public async Task<IActionResult> GetExportResume(Int32 userId, Int32 supplierId, Int32 dealerId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<SaleOrderResume> _response = await _dSaleOrder.GetExportResume(userId, supplierId, dealerId);
+                List<SaleOrderResume> _response = await _dSaleOrder.GetExportResume(userId, supplierId, dealerId, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelExportResume(_response);
                 string _fileName = "Pedidos.xlsx";
 

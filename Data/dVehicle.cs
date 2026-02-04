@@ -16,12 +16,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Vehicle>>> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter)
+        public async Task<Response<List<Models.Vehicle>>> GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32 rowFrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId, dealerId, rowFrom, filter, 0 );
+                return await _GetAll(userId, supplierId, dealerId, rowFrom, filter, fromDate, upToDate, estatusId, 0 );
             }
             finally
             {
@@ -29,7 +29,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Vehicle>>> _GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter,Int32 vehicleId = 0)
+        private async Task<Response<List<Models.Vehicle>>> _GetAll(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32 vehicleId = 0)
         {
 
             Response<List<Models.Vehicle>> _response = new Response<List<Models.Vehicle>>();
@@ -44,6 +44,10 @@ namespace Data
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@ID", vehicleId);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -379,12 +383,12 @@ namespace Data
 
 
 
-        public async Task<List<Vehicle>> GetExport(Int32 userId, Int32? supplierId, Int32? dealerId, string? _filter)
+        public async Task<List<Vehicle>> GetExport(Int32 userId, Int32? supplierId, Int32? dealerId, string? _filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Vehicle>)(await _GetAll(userId,supplierId, dealerId,null, _filter, 0)).Data ;
+                return (List<Vehicle>)(await _GetAll(userId,supplierId, dealerId,null, _filter, fromDate, upToDate, estatusId, 0)).Data ;
             }
             finally
             {
