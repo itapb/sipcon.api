@@ -42,6 +42,12 @@ namespace Models
         public DateTime? DCreated { get; set; }
         [SwaggerIgnore]
         public DateTime? DUpdated { get; set; }
+        [SwaggerIgnore]
+        public string? PartName { get; set; }
+        [SwaggerIgnore]
+        public string? PartInnerCode { get; set; }
+        [SwaggerIgnore]
+        public string? ReasonDescription { get; set; }
 
     }
 

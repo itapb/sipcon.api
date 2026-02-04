@@ -3459,7 +3459,13 @@ namespace Data
                 _mapping.AddItem("Guide", "VGUIDE");
                 _mapping.AddItem("DCreated", "DCREATED");
                 _mapping.AddItem("DUpdated", "DUPDATED");
-                _mapping.AddItem("StatusId", "IDSTATUS");  
+                _mapping.AddItem("StatusId", "IDSTATUS");
+
+                //CAMPOS DE DETALLES
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("PartInnerCode", "VINNERCODE");
+                _mapping.AddItem("ReasonDescription", "VDESCRIPTION"); 
+
                 // Supplier
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
