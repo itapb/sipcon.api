@@ -240,12 +240,12 @@ namespace Data
 
         /*-------------------------------------------------------------- Get Export Reception   ---------------------------------------------------------------*/
 
-        public async Task<List<Movement>> GetExportMovementsReception(Int32 userId, Int32 supplierId)
+        public async Task<List<Movement>> GetExportMovementsReception(Int32 userId, Int32 supplierId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Movement>)(await _getMovements(userId, supplierId, "R", null, null,null,null,null)).Data;
+                return (List<Movement>)(await _getMovements(userId, supplierId, "R", null, filter, fromDate, upToDate, estatusId, null)).Data;
             }
             finally
             {
@@ -254,12 +254,12 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export relocation   ---------------------------------------------------------------*/
 
-        public async Task<List<Movement>> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<List<Movement>> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Movement>)(await _getMovements(userId, supplierId, "T", null,null, fromDate, upToDate, estatusId, null)).Data;
+                return (List<Movement>)(await _getMovements(userId, supplierId, "T", null, filter, fromDate, upToDate, estatusId, null)).Data;
             }
             finally
             {

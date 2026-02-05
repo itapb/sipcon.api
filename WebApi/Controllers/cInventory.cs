@@ -163,11 +163,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/ReceptionExport")]
-        public async Task<IActionResult> GetExportMovementsReception(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExportMovementsReception(Int32 userId, Int32 supplierId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<Movement> _response = await _dInventory.GetExportMovementsReception(userId, supplierId);
+                List<Movement> _response = await _dInventory.GetExportMovementsReception(userId, supplierId, filter, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelMovements(_response);
                 string _fileName = "Recepcion.xlsx";
 
@@ -184,11 +184,11 @@ namespace WebApi.Controllers
 
         }
         [HttpGet("/api/Movements/RelocationExport")]
-        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId, fromDate, upToDate, estatusId);
+                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId, filter, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelMovements(_response);
                 string _fileName = "Traslado.xlsx";
 
