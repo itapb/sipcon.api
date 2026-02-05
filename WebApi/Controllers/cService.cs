@@ -727,14 +727,14 @@ namespace WebApi.Controllers
                             table.Cell()
                                 .Border(1)
                                 .Padding(1.5f)
-                                .Text(service.DealerSaleName)
+                                .Text(service.DealerServiceName)
                                 .FontSize(10)
                                 ; // Une 3 columnas para el valor de Concesionario
 
                             table.Cell()
                                 .Border(1)
                                 .Padding(1.5f)
-                                .Text(service.DealerSaleCod)
+                                .Text(service.DealerServiceCod)
                                 .FontSize(10);
 
                             table.Cell()
