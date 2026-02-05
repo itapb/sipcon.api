@@ -372,6 +372,7 @@ IF UPDATE (BSINC)
           
   END         
         
+  
 IF UPDATE (BPRIORITIZE)              
   BEGIN                 
    SELECT @IDACTION=ID FROM DBO.ACTION WITH (NOLOCK) WHERE VNAME='PRIORITIZE'            

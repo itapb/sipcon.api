@@ -1,0 +1,1 @@
+alter table GUIDEDETAILS alter column VINNERCODE varchar(25) not null

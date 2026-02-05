@@ -1,12 +1,13 @@
-USE [OASIS]
+USE SODA
 GO
 
-/****** Object:  View [dbo].[V_SALEORDERVSBACKORDER]    Script Date: 1/8/2026 3:43:16 PM ******/
+/****** Object:  View [dbo].[V_SALEORDERVSBACKORDER]    Script Date: 2/2/2026 10:56:26 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 CREATE VIEW [dbo].[V_SALEORDERVSBACKORDER]
 AS

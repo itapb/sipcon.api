@@ -1,7 +1,7 @@
-USE [SODA]
+USE OASIS
 GO
 
-/****** Object:  View [dbo].[V_POLICY]    Script Date: 30/12/2025 9:56:31 ******/
+/****** Object:  View [dbo].[V_POLICY]    Script Date: 2/2/2026 11:03:54 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,7 +10,8 @@ GO
 
 
 
-ALTER VIEW [dbo].[V_POLICY]
+
+CREATE VIEW [dbo].[V_POLICY]
 AS
 
 	SELECT 
