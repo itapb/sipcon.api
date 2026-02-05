@@ -122,13 +122,13 @@ namespace Data
                             continue; // no se agrega al diccionario
                         }
 
-                        if (col.ColumnName.Equals("IDSUPPLIER", StringComparison.OrdinalIgnoreCase) || col.ColumnName.Equals("IDDEALER", StringComparison.OrdinalIgnoreCase))
+                        if (col.ColumnName.Equals("IDSUPPLIER", StringComparison.OrdinalIgnoreCase) || col.ColumnName.Equals("IDDEALER", StringComparison.OrdinalIgnoreCase)|| col.ColumnName.Equals("IESTATUS", StringComparison.OrdinalIgnoreCase))
                         {
                             continue;
                         }
 
 
-                            dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
+                        dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
                     }
                     rows.Add(dict);
                 }
