@@ -619,11 +619,11 @@ namespace WebApi.Controllers
 
         }
         [HttpGet("/api/Movements/GetMovementDetailsTransfer")]
-        public async Task<IActionResult> GetMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        public async Task<IActionResult> GetMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsTransfer(userId, supplierId, rowfrom, filter, pending);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsTransfer(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
