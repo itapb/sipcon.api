@@ -320,12 +320,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<MovementDetails>>> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<Response<List<MovementDetails>>> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
+                return await _getMovementDetailsPicking(userId, supplierId, dealerId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
             }
             finally
             {
@@ -434,7 +434,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<MovementDetails>>> _getMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        private async Task<Response<List<MovementDetails>>> _getMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             Response<List<MovementDetails>> _response = new Response<List<MovementDetails>>();
             try
@@ -449,6 +449,7 @@ namespace Data
                 _parameter.AddSqlParameter("@DFROMDATE", fromDate);
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
                 _parameter.AddSqlParameter("@IESTATUS", estatusId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -3422,12 +3423,12 @@ namespace Data
         }
 
         /*--------------------------------------------------------------GetAll---------------------------------------------------------------*/
-        public async Task<Response<List<Models.ClaimPart>>> GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, int? claimId = null)
+        public async Task<Response<List<Models.ClaimPart>>> GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, DateTime? fromDate, DateTime? upToDate, int? estatusId, string? filter, int? claimId = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllClaims( userId, supplierId, dealerId, rowFrom, filter, claimId);
+                return await _GetAllClaims(userId, supplierId, dealerId, rowFrom, fromDate, upToDate, estatusId, filter, claimId);
             }
             finally
             {
@@ -3435,7 +3436,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.ClaimPart>>> _GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, int? claimId = null)
+        private async Task<Response<List<Models.ClaimPart>>> _GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, DateTime? fromDate, DateTime? upToDate, int? estatusId, string? filter, int? claimId = null)
         {  
             Response<List<Models.ClaimPart>> _response = new Response<List<Models.ClaimPart>>();
 
@@ -3446,6 +3447,9 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@ID", claimId);
 

@@ -378,11 +378,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/GetMovementDetailsPicking")]
-        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsPicking(userId, supplierId, dealerId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1865,11 +1865,11 @@ namespace WebApi.Controllers
         #region "CLAIM"
 
         [HttpGet("/api/Claim/GetAllClaims")]
-        public async Task<IActionResult> GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, int? claimId = null)
+        public async Task<IActionResult> GetAllClaims(int userId, int? supplierId, int? dealerId, int? rowFrom, DateTime? fromDate, DateTime? upToDate, int? estatusId, string? filter, int? claimId = null)
         {
             try
             {
-                var _response = await _dInventory.GetAllClaims(userId, supplierId, dealerId, rowFrom, filter, claimId);
+                var _response = await _dInventory.GetAllClaims(userId, supplierId, dealerId, rowFrom, fromDate, upToDate, estatusId, filter, claimId);
     
                 return StatusCode(_response.Status, _response);
             }
