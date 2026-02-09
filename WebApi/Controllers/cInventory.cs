@@ -2,7 +2,6 @@
 using ClosedXML.Graphics;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
-
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -15,8 +14,6 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Configuration.Provider;
 using System.IO.Packaging;
 using System.Linq;
@@ -30,6 +27,8 @@ using System.Threading;
 using Colors = QuestPDF.Helpers.Colors;
 
 
+
+
 namespace WebApi.Controllers
 {
 
@@ -41,10 +40,13 @@ namespace WebApi.Controllers
 
         private readonly dInventory _dInventory;
         private readonly dContact _dContact;
-        public cInventory(dInventory dInventory, dContact dContact)
+        private readonly dAttachment _dAttachment;
+        public cInventory(dInventory dInventory, dContact dContact, dAttachment dAttachment)
         {
             _dInventory = dInventory;
             _dContact = dContact;
+            _dAttachment = dAttachment;
+
         }
 
 
@@ -163,11 +165,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Movements/ReceptionExport")]
-        public async Task<IActionResult> GetExportMovementsReception(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExportMovementsReception(Int32 userId, Int32 supplierId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<Movement> _response = await _dInventory.GetExportMovementsReception(userId, supplierId);
+                List<Movement> _response = await _dInventory.GetExportMovementsReception(userId, supplierId, filter, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelMovements(_response);
                 string _fileName = "Recepcion.xlsx";
 
@@ -184,11 +186,11 @@ namespace WebApi.Controllers
 
         }
         [HttpGet("/api/Movements/RelocationExport")]
-        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<IActionResult> GetExportMovementsRelocation(Int32 userId, Int32 supplierId, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId, fromDate, upToDate, estatusId);
+                List<Movement> _response = await _dInventory.GetExportMovementsRelocation(userId, supplierId, filter, fromDate, upToDate, estatusId);
                 MemoryStream _excel = ConvertToExcelMovements(_response);
                 string _fileName = "Traslado.xlsx";
 
@@ -619,11 +621,11 @@ namespace WebApi.Controllers
 
         }
         [HttpGet("/api/Movements/GetMovementDetailsTransfer")]
-        public async Task<IActionResult> GetMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending)
+        public async Task<IActionResult> GetMovementDetailsTransfer(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsTransfer(userId, supplierId, rowfrom, filter, pending);
+                Models.Response<List<MovementDetails>> _response = await _dInventory.GetMovementDetailsTransfer(userId, supplierId, rowfrom, filter, pending, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1020,6 +1022,207 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        private async Task<string> GetFirstAttachmentFilePath(string moduleName, int? recordId)
+        {
+            var _response = await _dAttachment.GetAll(moduleName, recordId);
+            if (_response?.Data == null) return null;
+
+            var attachment = ((List<Models.Attachment>)_response.Data).FirstOrDefault();
+            if (attachment == null || string.IsNullOrEmpty(attachment.FileName)) return null;
+
+            string attachmentUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
+            var _modules = moduleName;
+
+            return Path.Combine(attachmentUrl, _modules, attachment.RecordId.ToString(), attachment.FileName);
+        }
+
+       
+        
+        [Obsolete]
+        private async Task<byte[]> GeneratePdfReport(Models.Guide guide, int guideId, int userId)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var response = _dInventory.GetGuideDetails(guideId).GetAwaiter().GetResult();
+            var guideDetailsList = new List<GuideDetails>();
+
+            guideDetailsList = response.Data.ToList();
+
+
+            int? supplierId = guide.SupplierId;
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", supplierId);
+
+            var document = QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(50);
+                    page.Size(PageSizes.Ledger.Portrait());
+
+                    page.Header().Element(header =>
+                    {
+                        header.Column(col =>
+                        {
+                            col.Item().Row(row =>
+                            {
+                                // LOGO (izquierda)
+                                row.ConstantItem(110).Image(supplierImagePath, ImageScaling.FitWidth);
+
+                                // TÍTULO (centro)
+
+                                row.RelativeItem()
+                                   .AlignCenter()
+                                   .Text($"GUIA DE DESPACHO")
+                                   .FontSize(20)
+                                   .Bold();
+
+
+                                // ID y fecha (derecha)
+                                row.ConstantItem(150).Column(right =>
+                                {
+                                    right.Item().AlignRight().Text($"NUMERO DE GUIA: {guideId}");
+                                    right.Item().AlignRight().Text($"FECHA: {guide.CreatedDate:dd/MM/yyyy}");
+                                });
+                            });
+
+                            // BLOQUE DE INFORMACIÓN debajo del título
+                            col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
+                            {
+
+                                info.Item().Row(r =>
+                                {
+                                    r.ConstantItem(120).Text("PROVEEDOR:").Bold();
+                                    r.RelativeItem().Text(guide?.SupplierName ?? "N/A").WrapAnywhere();
+                                });
+
+                                info.Item().Row(r =>
+                                {
+                                    r.ConstantItem(120).Text("CLIENTE:").Bold();
+                                    r.RelativeItem().Text(guide?.CustomerName?? "N/A").WrapAnywhere();
+                                });
+
+                                info.Item().Row(r =>
+                                {
+                                    r.ConstantItem(120).Text("PROVEEDOR DE ENVIO:").Bold();
+                                    r.RelativeItem().Text($"{guide?.ProviderName ?? "N/A"}").WrapAnywhere();
+
+                                });
+
+
+                            });
+                        });
+                    });
+
+                    page.Content().Column(column =>
+                    {
+                        column.Item().LineHorizontal(1);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1); // Código
+                                columns.RelativeColumn(3); // Descripción
+                                columns.RelativeColumn(1); // Cantidad
+                                columns.RelativeColumn(1); // PRECIOUNITARIO
+                                columns.RelativeColumn(1); // SUBTOTAL
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("CODIGO");
+                                header.Cell().Element(CellStyle).Text("DESCRIPCION");
+                                header.Cell().Element(CellStyle).Text("CANTIDAD");
+                                header.Cell().Element(CellStyle).Text("NRO BULTO");
+                                header.Cell().Element(CellStyle).Text("NRO PEDIDO");
+
+                                IContainer CellStyle(IContainer container) =>
+                                    container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE").AlignCenter(); ;
+                            });
+
+                            int totalunidades = 0;
+                            int totalBultos = 0;
+                            foreach (var detail in guideDetailsList)
+                            {
+                                table.Cell().Element(CellStyle).Text(detail.PartInnercode);
+                                table.Cell().Element(CellStyle).Text(detail.PartDescription);
+                                table.Cell().Element(CellStyle).Text(detail.Quantity.ToString());
+                                table.Cell().Element(CellStyle).Text($"{detail.PackageCode.ToString()}");
+                                table.Cell().Element(CellStyle).Text($"{detail.SaleOrderId.ToString()}");
+                                IContainer CellStyle(IContainer container) => container.Padding(5).AlignCenter();
+                                totalunidades += (int)detail.Quantity;
+                                totalBultos = (int)detail.PackageNumber;
+                            }
+
+                            table.Footer(footer =>
+                            {
+
+                                footer.Cell().ColumnSpan(5).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        TOTAL DE BULTOS: {totalBultos.ToString()}");
+
+
+                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
+                            });
+                            column.Item().LineHorizontal(1);
+                        });
+
+                        column.Item().PaddingTop(25).Text("Observaciones: ______________________________________________________________________________________________________________");
+                        column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
+                    });
+
+
+                });
+            });
+
+            return document.GeneratePdf();
+        }
+
+        [HttpGet("ExportPdfGuide")]
+        public async Task<IActionResult> ExportSaleOrder(int guideId, int userId)
+        {
+            try
+            {
+                Models.Response<Models.Guide> response = await _dInventory.GetOneGuide(guideId);
+
+                // 2. Validar que la respuesta es exitosa y contiene datos
+                if (response.Status != StatusCodes.Status200OK || response.Data == null)
+                {
+                    response.SetError(new Exception("DATOS DE PEDIDO NO ENCONTRADOS"));
+                    return StatusCode(response.Status, response);
+                }
+
+                // 3. Convertir los datos correctamente
+                Guide guide;
+
+                if (response.Data is Guide guideSingle)
+                {
+                    // Asignar directamente el modelo
+                    guide = guideSingle;
+                }
+                else
+                {
+                    // Si no reconocemos el formato
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        "Formato de datos de Servicio no reconocido");
+                }
+
+                // 4. Validar que tenemos datos
+                if (guide == null)
+                {
+                    return NotFound("No se encontraron datos válidos de servicio");
+                }
+
+                // 5. Generar el PDF
+                byte[] pdfBytes = await GeneratePdfReport(guide, guideId, userId);
+                string fileName = $"Guia_Num{guideId.ToString() ?? "reporte"}.pdf";
+
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
