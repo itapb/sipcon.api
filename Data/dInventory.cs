@@ -3534,10 +3534,12 @@ namespace Data
                 _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("ReasonId", "IDREASON");
 
+                //mapeo para la aprobacion del item
                 _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("ReplacementPartId", "IDREPLACEMENT_PART");
-                _mapping.AddItem("IApproved", "IAPPROVEDQUANTITY");
-                 
+                _mapping.AddItem("IApproved", "IAPPROVEDQUANTITY"); 
+                _mapping.AddItem("ITransaction", "ITRANSACTIONQUANTITY");
+
 
                 // Mapeo de información de partes
                 _mapping.AddItem("PartName", "VPART");
