@@ -1180,7 +1180,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("ExportPdfGuide")]
-        public async Task<IActionResult> ExportSaleOrder(int guideId, int userId)
+        public async Task<IActionResult> ExportPdfGuide(int guideId, int userId)
         {
             try
             {

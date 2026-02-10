@@ -14,8 +14,8 @@ FROM
             ROUTINE_SCHEMA, 
             ROUTINE_NAME,
             ROUTINE_DEFINITION,
-            OASIS.dbo.NormalizeCode(ROUTINE_DEFINITION) AS definition_cleaned -- Llamamos a la función de normalización
-        FROM OASIS.INFORMATION_SCHEMA.ROUTINES
+            SODA.dbo.NormalizeCode(ROUTINE_DEFINITION) AS definition_cleaned -- Llamamos a la función de normalización
+        FROM SODA.INFORMATION_SCHEMA.ROUTINES
         WHERE ROUTINE_TYPE = 'PROCEDURE'
     ) AS S
 FULL OUTER JOIN 
@@ -24,8 +24,8 @@ FULL OUTER JOIN
             ROUTINE_SCHEMA, 
             ROUTINE_NAME,
             ROUTINE_DEFINITION,
-            ZEPPELIN.dbo.NormalizeCode(ROUTINE_DEFINITION) AS definition_cleaned -- Llamamos a la función de normalización
-        FROM ZEPPELIN.INFORMATION_SCHEMA.ROUTINES
+            OASIS.dbo.NormalizeCode(ROUTINE_DEFINITION) AS definition_cleaned -- Llamamos a la función de normalización
+        FROM OASIS.INFORMATION_SCHEMA.ROUTINES
         WHERE ROUTINE_TYPE = 'PROCEDURE'
     ) AS T
     ON S.ROUTINE_NAME = T.ROUTINE_NAME AND S.ROUTINE_SCHEMA = T.ROUTINE_SCHEMA
