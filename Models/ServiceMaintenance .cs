@@ -33,6 +33,8 @@ namespace Models
         [SwaggerIgnore] public String? DealerServiceState { get; set; }
         [SwaggerIgnore] public String? SrgNumber { get; set; }
 
+        [SwaggerIgnore] public DateTime? DateCreated { get; set; }
+
 
         //Datos de Vehiculo
         [SwaggerIgnore] public String? DealerSaleId { get; set; }
