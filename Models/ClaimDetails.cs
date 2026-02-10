@@ -57,7 +57,10 @@ namespace Models
         public decimal? RemplacemetPrice { get; set; }
 
         [SwaggerIgnore]
-        public string? ReasonDescription { get; set; } 
+        public string? ReasonDescription { get; set; }
+
+        [SwaggerIgnore]
+        public int? ITransaction { get; set; }
 
     }
 
