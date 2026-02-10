@@ -26,6 +26,7 @@ namespace Models
         [SwaggerIgnore] public String? LicenseDescription { get; set; }
         [SwaggerIgnore] public Int32? LicenseTypeId { get; set; }
         [SwaggerIgnore] public String? LicenseType { get; set; }
+        [SwaggerIgnore] public DateTime? DateCreated { get; set; }
 
 
 
