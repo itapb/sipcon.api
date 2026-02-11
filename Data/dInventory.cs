@@ -3060,7 +3060,9 @@ namespace Data
                 _mapping.AddItem("Price", "NPRICE");
                 _mapping.AddItem("Mark", "BMARK");
                 _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
-                
+
+                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+
 
 
 
