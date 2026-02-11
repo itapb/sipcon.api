@@ -2263,13 +2263,13 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/Claim/PostActionsClaimDetails")]
-        public async Task<IActionResult> Post_ActionsDetails(List<Models.ActionClaim> ActionClaim, Int32 userId)
+        public async Task<IActionResult> Post_ActionsDetails(List<Models.ActionClaim> _list, Int32 userId)
         {
 
             try
             {
 
-                var _response = await _dInventory.Post_ActionsDetails(ActionClaim, userId);
+                var _response = await _dInventory.Post_ActionsDetails(_list, userId);
                 return StatusCode(_response.Status, _response);
 
             }
