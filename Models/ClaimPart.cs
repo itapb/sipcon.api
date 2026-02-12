@@ -48,6 +48,9 @@ namespace Models
         public string? PartInnerCode { get; set; }
         [SwaggerIgnore]
         public string? ReasonDescription { get; set; }
+        [SwaggerIgnore]
+        public int? Quantity { get; set; }
+         
 
     }
 
