@@ -3472,7 +3472,8 @@ namespace Data
 
                 //CAMPOS DE DETALLES
                 _mapping.AddItem("PartName", "VPART");
-                _mapping.AddItem("PartInnerCode", "VINNERCODE");
+                _mapping.AddItem("PartInnerCode", "VINNERCODE");  
+                _mapping.AddItem("Quantity", "IQUANTITY");
                 _mapping.AddItem("ReasonDescription", "VDESCRIPTION"); 
 
                 // Supplier
