@@ -301,6 +301,7 @@ namespace Data
                 _mapping.AddItem("FromDate", "DFROMDATE");
                 _mapping.AddItem("UpToDate", "DUPTODATE");
                 _mapping.AddItem("Valid", "VVALID");
+                _mapping.AddItem("ServiceId", "IDMAINTENANCE");
 
                 var _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_POLICYDETAILS", _parameter);
@@ -364,6 +365,7 @@ namespace Data
                 _mapping.AddItem("FromDate", "DFROMDATE");
                 _mapping.AddItem("UpToDate", "DUPTODATE");
                 _mapping.AddItem("Valid", "VVALID");
+                _mapping.AddItem("ServiceId", "IDMAINTENANCE");
 
                 var _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GETLOG_POLICYDETAILS", _parameter);
