@@ -11,9 +11,9 @@ namespace Models
     // test models
     public class ActionClaim: Action
     {
-        public int ApproveQuantity { get; set; }
+        public int? ApproveQuantity { get; set; }
 
-        public int TransactionQuantity { get; set; } 
+        public int? TransactionQuantity { get; set; } 
 
     }
 }
