@@ -54,6 +54,8 @@ namespace Models
         [SwaggerIgnore] public int? Topkm { get; set; }
         [SwaggerIgnore] public int? TopMonths { get; set; }
         [SwaggerIgnore] public int? TopYear { get; set; }
+        [SwaggerIgnore] public DateTime? Birthday { get; set; } = DateTime.Now;
+        [SwaggerIgnore] public String? Male { get; set; }
 
 
     }

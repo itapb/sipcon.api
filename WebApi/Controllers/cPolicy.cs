@@ -88,26 +88,28 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 12).Value = "CORREO";
                 worksheet.Cell(1, 13).Value = "NUMERO TELEFONICO";
                 worksheet.Cell(1, 14).Value = "CIUDAD CLIENTE";
-                worksheet.Cell(1, 15).Value = "FECHA ACTIVACION";
-                worksheet.Cell(1, 16).Value = "FECHA CREACION POLIZA";
-                worksheet.Cell(1, 17).Value = "COD CONCESIONARIO";
-                worksheet.Cell(1, 18).Value = "CONCECIONARIO";
-                worksheet.Cell(1, 19).Value = "CIUDAD CONCESIONARIO";
-                worksheet.Cell(1, 20).Value = "PLANTA";
-                worksheet.Cell(1, 21).Value = "NUM FACTURA";
-                worksheet.Cell(1, 22).Value = "MONTO FACTURA";
-                worksheet.Cell(1, 23).Value = "FEC FACTURA";
-                worksheet.Cell(1, 24).Value = "ESTATUS";
-                worksheet.Cell(1, 25).Value = "VENDEDOR";
+                worksheet.Cell(1, 15).Value = "FECHA NACIMIENTO";
+                worksheet.Cell(1, 16).Value = "SEXO";
+                worksheet.Cell(1, 17).Value = "FECHA ACTIVACION";
+                worksheet.Cell(1, 18).Value = "FECHA CREACION POLIZA";
+                worksheet.Cell(1, 19).Value = "COD CONCESIONARIO";
+                worksheet.Cell(1, 20).Value = "CONCECIONARIO";
+                worksheet.Cell(1, 21).Value = "CIUDAD CONCESIONARIO";
+                worksheet.Cell(1, 22).Value = "PLANTA";
+                worksheet.Cell(1, 23).Value = "NUM FACTURA";
+                worksheet.Cell(1, 24).Value = "MONTO FACTURA";
+                worksheet.Cell(1, 25).Value = "FEC FACTURA";
+                worksheet.Cell(1, 26).Value = "ESTATUS";
+                worksheet.Cell(1, 27).Value = "VENDEDOR";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:Y1");
+                var headerRange = worksheet.Range("A1:AA1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
                 var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
-                worksheet.Range("A1:Y1").SetAutoFilter();
+                worksheet.Range("A1:AA1").SetAutoFilter();
                 // 6. Llenar los datos
                 for (int i = 0; i < _policies.Count; i++)
                 {
@@ -126,21 +128,24 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 12).Value = _policy.Email;
                     worksheet.Cell(i + 2, 13).Value = _policy.Phone;
                     worksheet.Cell(i + 2, 14).Value = _policy.CustomerCity;
-                    worksheet.Cell(i + 2, 15).Value = _policy.ActivationDate;
-                    worksheet.Cell(i + 2, 15).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
-                    worksheet.Cell(i + 2, 16).Value = _policy.DateCreated;
-                    worksheet.Cell(i + 2, 16).Style.DateFormat.Format = "dd/MM/yyyy";
-                    worksheet.Cell(i + 2, 17).Value = _policy.DealerCod;
-                    worksheet.Cell(i + 2, 18).Value = _policy.DealerName;
-                    worksheet.Cell(i + 2, 19).Value = _policy.DealerCity;
-                    worksheet.Cell(i + 2, 20).Value = _policy.SupplierCod;
-                    worksheet.Cell(i + 2, 21).Value = _policy.InvoiceNumber;
-                    worksheet.Cell(i + 2, 22).Value = _policy.InvoiceAmount;
-                    worksheet.Cell(i + 2, 23).Value = _policy.InvoiceDate;
-                    worksheet.Cell(i + 2, 23).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
-                    worksheet.Cell(i + 2, 24).Value = _policy.EstatusName;
-                    worksheet.Cell(i + 2, 24).Style.Fill.BackgroundColor = colorMap.TryGetValue(_policy.EstatusName, out var color) ? color : XLColor.Yellow;
-                    worksheet.Cell(i + 2, 25).Value = _policy.Seller;
+                    worksheet.Cell(i + 2, 15).Value = _policy.Birthday;
+                    worksheet.Cell(i + 2, 15).Style.DateFormat.Format = "dd/MM/yyyy";
+                    worksheet.Cell(i + 2, 16).Value = _policy.Male;
+                    worksheet.Cell(i + 2, 17).Value = _policy.ActivationDate;
+                    worksheet.Cell(i + 2, 17).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
+                    worksheet.Cell(i + 2, 18).Value = _policy.DateCreated;
+                    worksheet.Cell(i + 2, 18).Style.DateFormat.Format = "dd/MM/yyyy";
+                    worksheet.Cell(i + 2, 19).Value = _policy.DealerCod;
+                    worksheet.Cell(i + 2, 20).Value = _policy.DealerName;
+                    worksheet.Cell(i + 2, 21).Value = _policy.DealerCity;
+                    worksheet.Cell(i + 2, 22).Value = _policy.SupplierCod;
+                    worksheet.Cell(i + 2, 23).Value = _policy.InvoiceNumber;
+                    worksheet.Cell(i + 2, 24).Value = _policy.InvoiceAmount;
+                    worksheet.Cell(i + 2, 25).Value = _policy.InvoiceDate;
+                    worksheet.Cell(i + 2, 25).Style.DateFormat.Format = "dd/MM/yyyy"; // Formato fecha
+                    worksheet.Cell(i + 2, 26).Value = _policy.EstatusName;
+                    worksheet.Cell(i + 2, 26).Style.Fill.BackgroundColor = colorMap.TryGetValue(_policy.EstatusName, out var color) ? color : XLColor.Yellow;
+                    worksheet.Cell(i + 2, 27).Value = _policy.Seller;
 
 
 

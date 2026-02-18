@@ -50,7 +50,8 @@ namespace Models
         public string? ReasonDescription { get; set; }
         [SwaggerIgnore]
         public int? Quantity { get; set; }
-         
+        [SwaggerIgnore]
+        public bool? Credit { get; set; }
 
     }
 
