@@ -3474,7 +3474,8 @@ namespace Data
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("PartInnerCode", "VINNERCODE");  
                 _mapping.AddItem("Quantity", "IQUANTITY");
-                _mapping.AddItem("ReasonDescription", "VDESCRIPTION"); 
+                _mapping.AddItem("ReasonDescription", "VDESCRIPTION");
+                _mapping.AddItem("Credit", "BCREDIT");
 
                 // Supplier
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
