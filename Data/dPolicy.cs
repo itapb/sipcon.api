@@ -85,8 +85,10 @@ namespace Data
                 _mapping.AddItem("DealerCity", "VCITYDEALER");
                 _mapping.AddItem("DateCreated", "DCREATED");
                 _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("Birthday", "DBIRTHDATE");
+                _mapping.AddItem("Male", "VMALE");
 
-
+                
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_POLICIES", _parameter);
