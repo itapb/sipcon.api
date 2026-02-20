@@ -175,7 +175,6 @@ namespace Data
                 _mapping.AddItem("TopYear", "ITOPYEARS");
                 _mapping.AddItem("Km", "IKM");
                 _mapping.AddItem("Months", "IMONTHS");
-                _mapping.AddItem("TopYear", "ITOPYEARS");
                 _mapping.AddItem("Total", "TOTAL");
 
       
