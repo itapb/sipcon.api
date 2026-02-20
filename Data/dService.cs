@@ -264,6 +264,7 @@ namespace Data
                 _mapping.AddItem("Estatus", "VESTATUS");
                 _mapping.AddItem("Completed", "BCOMPLETED");
                 _mapping.AddItem("Created", "DCREATED");
+                _mapping.AddItem("Type", "CTYPE");
 
 
 

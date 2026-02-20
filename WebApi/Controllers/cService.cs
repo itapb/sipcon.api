@@ -1373,23 +1373,29 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 6).Value = "FECHA DMS";
                 worksheet.Cell(1, 7).Value = "PRE-APROBATORIO";
                 worksheet.Cell(1, 8).Value = "FECHA PRE-APROBATORIO";
-                worksheet.Cell(1, 9).Value = "MONTO BASE";
-                worksheet.Cell(1, 10).Value = "MONTO PAGADO";
-                worksheet.Cell(1, 11).Value = "FECHA APROBACION FINAL";
-                worksheet.Cell(1, 12).Value = "ESTATUS";
+                worksheet.Cell(1, 9).Value = "MONTO SRG REPUESTOS";
+                worksheet.Cell(1, 10).Value = "MONTO SRG MO";
+                worksheet.Cell(1, 11).Value = "MONTO DMS RESPUESTOS";
+                worksheet.Cell(1, 12).Value = "MONTO DMS MO";
+                worksheet.Cell(1, 13).Value = "FECHA APROBACION FINAL";
+                worksheet.Cell(1, 114).Value = "ESTATUS";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:Y1");
+                var headerRange = worksheet.Range("A1:N1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
                 var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
-                worksheet.Range("A1:L1").SetAutoFilter();
+                worksheet.Range("A1:N1").SetAutoFilter();
                 // 6. Llenar los datos
                 for (int i = 0; i < _dms.Count; i++)
                 {
+                    
                     var _dm = _dms[i];
+                    int columna = (_dm.Type == "P") ? 9 : 10;
+                    int columna2 = (_dm.Type == "P") ? 11 : 12;
+
                     worksheet.Cell(i + 2, 1).Value = _dm.Id;
                     worksheet.Cell(i + 2, 2).Value = _dm.Srg;
                     worksheet.Cell(i + 2, 3).Value = _dm.CodDms;
@@ -1398,10 +1404,10 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 6).Value = _dm.DmsDate;
                     worksheet.Cell(i + 2, 7).Value = _dm.PreApproval;
                     worksheet.Cell(i + 2, 8).Value = _dm.PreApprovalDate;
-                    worksheet.Cell(i + 2, 9).Value = _dm.BaseAmount;
-                    worksheet.Cell(i + 2, 10).Value = _dm.PaidAmount;
-                    worksheet.Cell(i + 2, 11).Value = _dm.finalApprovalDate;
-                    worksheet.Cell(i + 2, 12).Value = _dm.Estatus;
+                    worksheet.Cell(i + 2, columna).Value = _dm.BaseAmount;
+                    worksheet.Cell(i + 2, columna2).Value = _dm.PaidAmount;
+                    worksheet.Cell(i + 2, 13).Value = _dm.finalApprovalDate;
+                    worksheet.Cell(i + 2, 14).Value = _dm.Estatus;
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
                 worksheet.Columns().AdjustToContents();
@@ -1817,42 +1823,58 @@ namespace WebApi.Controllers
                             }
                             else if (type == 2 && SupplierId == 4076)
                             {
-                                var dmsObj = new Dms
+                                var dmsObj1 = new Dms
                                 {
                                     Id = 0,
                                     SupplierId = SupplierId,
                                     RowReference = rowRef,
                                     CodDms = row.Cell(1).GetValue<string>(),
-                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(9).GetString()) ? 0 : row.Cell(9).GetValue<decimal>()
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<decimal>(),
+                                    Type = "P"
+
                                 };
-                                dms.Add(dmsObj);
+                                dms.Add(dmsObj1);
+
+                                var dmsObj2 = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    CodDms = row.Cell(1).GetValue<string>(),
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(6).GetString()) ? 0 : row.Cell(6).GetValue<decimal>(),
+                                    Type = "L"
+                                };
+                                dms.Add(dmsObj2);
                             }
+
                             else if (type == 3 && SupplierId == 4069)
                             {
                                 // Primer objeto con PaidAmount de columna 3
-                                var dmsObj1 = new Dms
+                                var dmsObj3 = new Dms
                                 {
                                     Id = 0,
                                     SupplierId = SupplierId,
                                     RowReference = rowRef,
                                     PreApproval = row.Cell(1).GetValue<string>(),
                                     CodItem = row.Cell(3).GetValue<string>(),
-                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<decimal>()
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<decimal>(),
+                                    Type = "P"
                                 };
-                                dms.Add(dmsObj1);
+                                dms.Add(dmsObj3);
 
                                 // Segundo objeto con PaidAmount de columna 7
-                                var dmsObj2 = new Dms
+                                var dmsObj4 = new Dms
                                 {
                                     Id = 0,
                                     SupplierId = SupplierId,
                                     RowReference = rowRef,
                                     PreApproval = row.Cell(1).GetValue<string>(),
                                     CodItem = row.Cell(5).GetValue<string>(),
-                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<decimal>()
-                                
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<decimal>(),
+                                    Type = "L"
+
                                 };
-                                dms.Add(dmsObj2);
+                                dms.Add(dmsObj4);
                             }
                             else
                             {
