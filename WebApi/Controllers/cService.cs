@@ -1817,16 +1817,30 @@ namespace WebApi.Controllers
                             }
                             else if (type == 2 && SupplierId == 4076)
                             {
-                                var dmsObj = new Dms
+                                var dmsObj1 = new Dms
                                 {
                                     Id = 0,
                                     SupplierId = SupplierId,
                                     RowReference = rowRef,
                                     CodDms = row.Cell(1).GetValue<string>(),
-                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(9).GetString()) ? 0 : row.Cell(9).GetValue<decimal>()
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? 0 : row.Cell(5).GetValue<decimal>(),
+                                    Type = "P"
+
                                 };
-                                dms.Add(dmsObj);
+                                dms.Add(dmsObj1);
+
+                                var dmsObj2 = new Dms
+                                {
+                                    Id = 0,
+                                    SupplierId = SupplierId,
+                                    RowReference = rowRef,
+                                    CodDms = row.Cell(1).GetValue<string>(),
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(6).GetString()) ? 0 : row.Cell(6).GetValue<decimal>(),
+                                    Type = "L"
+                                };
+                                dms.Add(dmsObj2);
                             }
+
                             else if (type == 3 && SupplierId == 4069)
                             {
                                 // Primer objeto con PaidAmount de columna 3
@@ -1837,7 +1851,8 @@ namespace WebApi.Controllers
                                     RowReference = rowRef,
                                     PreApproval = row.Cell(1).GetValue<string>(),
                                     CodItem = row.Cell(3).GetValue<string>(),
-                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<decimal>()
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<decimal>(),
+                                    Type = "P"
                                 };
                                 dms.Add(dmsObj1);
 
@@ -1849,8 +1864,9 @@ namespace WebApi.Controllers
                                     RowReference = rowRef,
                                     PreApproval = row.Cell(1).GetValue<string>(),
                                     CodItem = row.Cell(5).GetValue<string>(),
-                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<decimal>()
-                                
+                                    PaidAmount = string.IsNullOrWhiteSpace(row.Cell(8).GetString()) ? 0 : row.Cell(8).GetValue<decimal>(),
+                                    Type = "L"
+
                                 };
                                 dms.Add(dmsObj2);
                             }
