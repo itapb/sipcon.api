@@ -53,6 +53,8 @@ namespace Models
         [SwaggerIgnore] public DateTime? DateCreated { get; set; }
         [SwaggerIgnore] public int? Topkm { get; set; }
         [SwaggerIgnore] public int? TopMonths { get; set; }
+        [SwaggerIgnore] public int? Km { get; set; }
+        [SwaggerIgnore] public int? Months { get; set; }
         [SwaggerIgnore] public int? TopYear { get; set; }
         [SwaggerIgnore] public DateTime? Birthday { get; set; } = DateTime.Now;
         [SwaggerIgnore] public String? Male { get; set; }
