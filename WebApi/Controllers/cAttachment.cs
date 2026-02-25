@@ -184,8 +184,9 @@ namespace WebApi.Controllers
                 ".png" => "image/png",
                 ".gif" => "image/gif",
                 ".webp" => "image/webp",
-                ".pdf" => "application/pdf", // ¡Incluso podrías previsualizar PDFs!
-                _ => "application/octet-stream", // Fallback si no es imagen
+                ".pdf" => "application/pdf",
+                ".mp4" => "video/mp4",           // Soporte para video MP4
+                ".webm" => "video/webm", // Fallback si no es imagen
             };
         }
 
