@@ -125,11 +125,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Inventory/Export")]
-        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId)
+        public async Task<IActionResult> GetExportInventory(Int32 userId, Int32 supplierId, string? filter,bool? withStock = true)
         {
             try
             {
-                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId);
+                List<Inventory> _response = await _dInventory.GetExport(userId, supplierId, filter,withStock);
                 MemoryStream _excel = ConvertToExcelInventory(_response);
                 string _fileName = "Inventory.xlsx";
 

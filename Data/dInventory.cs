@@ -50,12 +50,12 @@ namespace Data
             }
         }
 
-        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId)
+        public async Task<List<Inventory>> GetExport(Int32 userId, Int32 supplierId, string? filter, bool? withStock = true)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Inventory>)(await _GetAll(userId, supplierId, null, null, null, null)).Data;
+                return (List<Inventory>)(await _GetAll(userId, supplierId, null, filter, withStock, null)).Data;
             }
             finally
             {
