@@ -18,6 +18,7 @@ namespace Models
         [SwaggerIgnore] public DateTime? FromDate { get; set; }
         [SwaggerIgnore] public DateTime? UpToDate { get; set; }
         [SwaggerIgnore] public String? Valid { get; set; }
+        [SwaggerIgnore] public Int32?  ServiceId { get; set; }
 
 
 

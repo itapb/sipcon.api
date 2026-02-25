@@ -30,6 +30,7 @@ namespace Models
         [SwaggerIgnore] public List<PaidDetailsDms>? PaidDetailsDms { get; set; }
         [SwaggerIgnore] public String? Type { get; set; }
 
+
     }
 
 

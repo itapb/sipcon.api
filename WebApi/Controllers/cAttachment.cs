@@ -103,92 +103,93 @@ namespace WebApi.Controllers
 
 
 
-        //[HttpPost("PostAttachment")]
-        //public async Task<IActionResult> Post_Attachment(IFormFile file, int userId, string moduleName, int recordId)
-        //{
-        //    var response = new Response<Models.Result>();
+        [HttpGet("GetPreview")]
+        public async Task<IActionResult> GetPreview(Int32 userId, Int32 attachmentId)
+        {
+            // Instanciamos tu modelo de respuesta
+            var response = new Models.Response<List<Models.Attachment>>();
 
-        //    try
-        //    {
-        //        // Validar archivo recibido
-        //        if (file == null || file.Length == 0)
-        //        {
-        //            response.SetError(new Exception("No se recibió ningún archivo o el archivo está vacío."));
-        //            return BadRequest(response);
-        //        }
+            try
+            {
+                var _response = await _dAttachment.GetOne(attachmentId);
 
-        //        // Validar tamaño máximo (15 MB = 15 * 1024 * 1024 bytes)
-        //        const long maxFileSize = 8 * 1024 * 1024;
-        //        if (file.Length > maxFileSize)
-        //        {
-        //            response.SetError(new Exception("El archivo excede el tamaño máximo permitido de 8 MB."));
-        //            return StatusCode(response.Status, response);
-        //        }
+                if (_response == null || _response.Data == null)
+                {
+                    response.Status = 409;
+                    response.Message = $"No se encontró el adjunto";
+                    return StatusCode(response.Status, response);
+                }
 
-        //        // Obtener la ruta base desde la configuración
-        //        string baseUrl = Util.Setting.AttachmentUrl;
-        //        if (string.IsNullOrEmpty(baseUrl))
-        //        {
-        //            response.SetError(new Exception("Ruta base de adjuntos no configurada."));
-        //            return StatusCode(response.Status, response);
-        //        }
+                Models.Attachment attachment = ((List<Models.Attachment>)_response.Data).FirstOrDefault();
 
-        //        string servicesUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+                if (attachment == null || string.IsNullOrEmpty(attachment.FileName) || attachment.ModuleId == 0)
+                {
+                    response.Status = 409;
+                    response.Message = "Datos insuficientes para reconstruir la ruta del archivo.";
+                    return StatusCode(response.Status, response);
+                }
 
-        //        // Obtener el módulo desde la base de datos
-        //        var modules = await _dModule.GetAll(moduleName, userId);
-        //        var module = modules?.FirstOrDefault(m => m.Name == moduleName);
+                string baseUrl = Util.Setting.AttachmentUrl;
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    response.Status = 500;
+                    response.Message = "Ruta base de adjuntos no configurada en el servidor.";
+                    return StatusCode(response.Status, response);
+                }
 
-        //        if (module == null)
-        //        {
-        //            response.SetError(new Exception($"No se encontró el módulo '{moduleName}' para el usuario {userId}."));
-        //            return StatusCode(response.Status, response);
-        //        }
+                // Construcción de ruta
+                string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+                var _modules = await _dAttachment.GetModule(null, userId);
+                string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
 
-        //        string modulePath = module.Name;
-        //        int moduleId = module.Id;
+                string filePath = Path.Combine(attachmentUrl, modulePath, attachment.RecordId.ToString(), attachment.FileName);
 
-        //        // Construir ruta completa
-        //        string basePath = Path.Combine(servicesUrl, modulePath);
-        //        string recordPath = Path.Combine(basePath, recordId.ToString());
+                if (!System.IO.File.Exists(filePath))
+                {
+                    response.Status = 409;
+                    response.Message = $"El archivo físico no existe";
+                    return StatusCode(response.Status, response);
+                }
 
-        //        // Crear carpetas si no existen
-        //        Directory.CreateDirectory(recordPath);
+                // Si todo está bien, procedemos con el archivo
+                string contentType = GetContentType(filePath);
 
-        //        // Ruta final del archivo
-        //        string filePath = Path.Combine(recordPath, file.FileName);
+                if (contentType == "application/octet-stream")
+                {
+                    response.Status = 409;
+                    response.Message = $"El formato del archivo no es compatible para previsualización.";
+                    return StatusCode(response.Status, response);
+                }
 
-        //        // Verificar si el archivo ya existe
-        //        if (System.IO.File.Exists(filePath))
-        //        {
-        //            response.SetError(new Exception($"El archivo '{file.FileName}' ya existe."));
-        //            return StatusCode(response.Status, response);
-        //        }
+                // IMPORTANTE: El FileStream debe abrirse con FileOptions.Asynchronous para .NET 10
+                var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 
-        //        // Guardar el archivo
-        //        using (var stream = new FileStream(filePath, FileMode.Create))
-        //        {
-        //            await file.CopyToAsync(stream);
-        //        }
+                return File(fileStream, contentType);
+            }
+            catch (Exception ex)
+            {
+                response.Status = 500;
+                response.Message = $"Error interno: {ex.Message}";
+                return StatusCode(response.Status, response);
+            }
+        }
 
-        //        // Registrar en base de datos
-        //        var attachment = new Models.Attachment
-        //        {
-        //            ModuleId = moduleId,
-        //            RecordId = recordId,
-        //            FileName = file.FileName
-        //        };
+        // Método auxiliar para detectar el tipo de imagen
+        private string GetContentType(string path)
+        {
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".pdf" => "application/pdf", // ¡Incluso podrías previsualizar PDFs!
+                _ => "application/octet-stream", // Fallback si no es imagen
+            };
+        }
 
-        //        var dbResponse = await _dAttachment.Post_Attachment(attachment, userId);
-        //        return StatusCode(dbResponse.Status, dbResponse);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response.SetError(ex);
-        //        return StatusCode(StatusCodes.Status500InternalServerError, response);
-        //    }
-        //}
-
+     
 
 
         [HttpPost("PostAttachments")]

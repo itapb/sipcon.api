@@ -13,7 +13,7 @@ namespace Models
         //Datos de Servicio
         [SwaggerIgnore] public Int32? ServiceTypeId { get; set; } = 1;
         [SwaggerIgnore] public String? ServiceTypeName { get; set; }
-        [SwaggerIgnore] public Int32? ReportTypeId { get; set; } = 1;
+        [SwaggerIgnore] public Int32? ReportTypeId { get; set; }
         [SwaggerIgnore] public String? ReportTypeName { get; set; }
         [Required] public  String? OrderNumber { get; set; }
         [Required] public DateTime? ServiceDate { get; set; }
