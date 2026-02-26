@@ -343,14 +343,17 @@ namespace WebApi.Controllers
                                    .FontSize(20)
                                    .Bold();
 
-
-                                // ID y fecha (derecha)
+                                 // ID y fecha (derecha)
                                 row.ConstantItem(130).Column(right =>
                                 {
-                                    right.Item().AlignRight().Text($"NUMERO DE PEDIDO: {saleOrderId}");
-                                    right.Item().AlignRight().Text($"Fecha: {saleOrder.Created:dd/MM/yyyy}");
+                                    right.Item().AlignRight().Text($"Num de Pedido: {saleOrderId}");
+                                    right.Item().AlignRight().Text($"Fecha: {DateTime.Parse(saleOrder.Created).ToString("dd/MM/yyyy")}");
+                                    right.Item().AlignRight().Text($"Tipo: {saleOrder.TypeName}");
+                                    right.Item().AlignRight().Text($"Vin de Referencia: ");
+                                    right.Item().AlignRight().Text($"{saleOrder.VehicleVin}");
                                 });
                             });
+
 
                             // BLOQUE DE INFORMACIÓN debajo del título
                             col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
@@ -433,7 +436,8 @@ namespace WebApi.Controllers
                             column.Item().LineHorizontal(1);
                         });
 
-                        column.Item().PaddingTop(25).Text("Observaciones: ______________________________________________________________________________________________________________");
+                        column.Item().PaddingTop(25).Text($"Observaciones: {saleOrder.Comment} ");
+                        column.Item().LineHorizontal(1);
                         column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
                     });
 
