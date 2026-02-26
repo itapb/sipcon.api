@@ -2145,8 +2145,7 @@ namespace WebApi.Controllers
             }
         }
 
-
-        [HttpGet("ExportClaim")]
+        [HttpGet("/api/Claim/ExportClaim")]
         public async Task<IActionResult> ExportSaleOrder(int claimId, int userId)
         {
             try
@@ -2236,37 +2235,70 @@ namespace WebApi.Controllers
                                 row.ConstantItem(130).Column(right =>
                                 {
                                     right.Item().AlignRight().Text($"Num de Reclamo: {claimId}");
-                                    right.Item().AlignRight().Text($"Fecha: {claim.DCreated:dd/MM/yyyy}");
-                                    right.Item().AlignRight().Text($"Num Guia: {claim.Guide}");
+                                    right.Item().AlignRight().Text($"Fecha: {claim.DCreated}");
                                     
                                 });
                             });
 
 
                             // BLOQUE DE INFORMACIÓN debajo del título
-                            col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(3).Column(info =>
+                            col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(5).Column(info =>
                             {
-
-                                info.Item().Row(r =>
+                                info.Item().Row(row =>
                                 {
-                                    r.ConstantItem(90).Text("PROVEEDOR:").Bold();
-                                    r.RelativeItem().Text(claim?.SupplierName ?? "N/A").WrapAnywhere();
+                                    // --- COLUMNA IZQUIERDA ---
+                                    row.RelativeItem().Column(leftCol =>
+                                    {
+                                        // Fila 1: Proveedor
+                                        leftCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(80).Text("PROVEEDOR:").Bold();
+                                            r.RelativeItem().Text(claim?.SupplierName ?? "N/A").WrapAnywhere();
+                                        });
+
+                                        // Fila 2: Cliente
+                                        leftCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(80).Text("CLIENTE:").Bold();
+                                            r.RelativeItem().Text(claim?.DealerName ?? "N/A").WrapAnywhere();
+                                        });
+
+                                        // Fila 3: Motivo
+                                        leftCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(80).Text("MOTIVO:").Bold();
+                                            r.RelativeItem().Text(claim?.ReasonDescription ?? "N/A").WrapAnywhere();
+                                        });
+                                    });
+
+                                    // Espacio entre columnas
+                                    row.ConstantItem(15);
+
+                                    // --- COLUMNA DERECHA ---
+                                    row.RelativeItem().Column(rightCol =>
+                                    {
+                                        // Fila 4: (Ejemplo: Fecha)
+                                        rightCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(90).Text("NUM GUIA:").Bold();
+                                            r.RelativeItem().Text(claim?.Guide ?? "N/A");
+                                        });
+
+                                        // Fila 5: (Ejemplo: Estatus)
+                                        rightCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(90).Text("NUM FACTURA").Bold();
+                                            r.RelativeItem().Text(claim?.Invoice ?? "N/A");
+                                        });
+
+                                        // Fila 6: (Ejemplo: Referencia)
+                                        rightCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(90).Text("RESPONSABLE:").Bold();
+                                            r.RelativeItem().Text(claim?.Login ?? "N/A");
+                                        });
+                                    });
                                 });
-
-                                info.Item().Row(r =>
-                                {
-                                    r.ConstantItem(90).Text("CLIENTE:").Bold();
-                                    r.RelativeItem().Text(claim?.DealerName ?? "N/A").WrapAnywhere();
-                                });
-
-                                info.Item().Row(r =>
-                                {
-                                    r.ConstantItem(90).Text("MOTIVO:").Bold();
-                                    r.RelativeItem().Text($"{claim?.ReasonDescription?? "N/A"}").WrapAnywhere();
-
-                                });
-
-
                             });
                         });
                     });
@@ -2283,7 +2315,6 @@ namespace WebApi.Controllers
                                 columns.RelativeColumn(3); // Descripción
                                 columns.RelativeColumn(1); // Cantidad
                                 columns.RelativeColumn(1); // PRECIOUNITARIO
-                                columns.RelativeColumn(1); // SUBTOTAL
                             });
 
                             table.Header(header =>
@@ -2295,7 +2326,7 @@ namespace WebApi.Controllers
                                 
 
                                 IContainer CellStyle(IContainer container) =>
-                                    container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
+                                    container.DefaultTextStyle(x => x.Bold()).Padding(4).Background("#EEE");
                             });
                             decimal total = 0.00m;
                             int totalunidades = 0;
@@ -2315,10 +2346,10 @@ namespace WebApi.Controllers
                             table.Footer(footer =>
                             {
 
-                                footer.Cell().ColumnSpan(5).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        MONTO TOTAL: {total}$");
+                                footer.Cell().ColumnSpan(4).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        MONTO TOTAL: {total}$");
 
 
-                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
+                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(4).Background("#EEE"); ;
                             });
                             column.Item().LineHorizontal(1);
                         });
