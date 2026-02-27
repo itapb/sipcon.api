@@ -2263,12 +2263,7 @@ namespace WebApi.Controllers
                                             r.RelativeItem().Text(claim?.DealerName ?? "N/A").WrapAnywhere();
                                         });
 
-                                        // Fila 3: Motivo
-                                        leftCol.Item().Row(r =>
-                                        {
-                                            r.ConstantItem(80).Text("MOTIVO:").Bold();
-                                            r.RelativeItem().Text(claim?.ReasonDescription ?? "N/A").WrapAnywhere();
-                                        });
+                                      
                                     });
 
                                     // Espacio entre columnas
@@ -2281,7 +2276,7 @@ namespace WebApi.Controllers
                                         rightCol.Item().Row(r =>
                                         {
                                             r.ConstantItem(90).Text("NUM GUIA:").Bold();
-                                            r.RelativeItem().Text(claim?.Guide ?? "N/A");
+                                            r.RelativeItem().Text(claim?.Reference ?? "N/A");
                                         });
 
                                         // Fila 5: (Ejemplo: Estatus)
@@ -2313,6 +2308,7 @@ namespace WebApi.Controllers
                             {
                                 columns.RelativeColumn(1); // Código
                                 columns.RelativeColumn(3); // Descripción
+                                columns.RelativeColumn(1); // Descripción
                                 columns.RelativeColumn(1); // Cantidad
                                 columns.RelativeColumn(1); // PRECIOUNITARIO
                             });
@@ -2321,12 +2317,13 @@ namespace WebApi.Controllers
                             {
                                 header.Cell().Element(CellStyle).Text("CODIGO");
                                 header.Cell().Element(CellStyle).Text("DESCRIPCION");
+                                header.Cell().Element(CellStyle).Text("MOTIVO");
                                 header.Cell().Element(CellStyle).Text("CANTIDAD");
                                 header.Cell().Element(CellStyle).Text("PRECIO UNITARIO");
                                 
 
                                 IContainer CellStyle(IContainer container) =>
-                                    container.DefaultTextStyle(x => x.Bold()).Padding(4).Background("#EEE");
+                                    container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
                             });
                             decimal total = 0.00m;
                             int totalunidades = 0;
@@ -2334,6 +2331,7 @@ namespace WebApi.Controllers
                             {
                                 table.Cell().Element(CellStyle).Text(detail.PartInnerCode);
                                 table.Cell().Element(CellStyle).Text(detail.PartName);
+                                table.Cell().Element(CellStyle).Text(detail.ReasonDescription);
                                 table.Cell().Element(CellStyle).Text(detail.Quantity.ToString());
                                 table.Cell().Element(CellStyle).Text($"{detail.Price.ToString()}$");
                                 
@@ -2341,15 +2339,16 @@ namespace WebApi.Controllers
                                 IContainer CellStyle(IContainer container) =>
                                     container.Padding(5);
                                 totalunidades += (int)detail.Quantity;
+                                total += (decimal)detail.Price;
                             }
 
                             table.Footer(footer =>
                             {
 
-                                footer.Cell().ColumnSpan(4).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        MONTO TOTAL: {total}$");
+                                footer.Cell().ColumnSpan(5).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        MONTO TOTAL: {total}$");
 
 
-                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(4).Background("#EEE"); ;
+                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
                             });
                             column.Item().LineHorizontal(1);
                         });

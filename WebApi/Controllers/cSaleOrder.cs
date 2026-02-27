@@ -347,7 +347,8 @@ namespace WebApi.Controllers
                                 row.ConstantItem(130).Column(right =>
                                 {
                                     right.Item().AlignRight().Text($"Num de Pedido: {saleOrderId}");
-                                    right.Item().AlignRight().Text($"Fecha: {DateTime.Parse(saleOrder.Created).ToString("dd/MM/yyyy")}");
+                                    right.Item().AlignRight().Text($"Fecha de Pedido:");
+                                    right.Item().AlignRight().Text($"{DateTime.Parse(saleOrder.Created).ToString("dd/MM/yyyy hh:mm a")}");
                                     right.Item().AlignRight().Text($"Tipo: {saleOrder.TypeName}");
                                     right.Item().AlignRight().Text($"Vin de Referencia: ");
                                     right.Item().AlignRight().Text($"{saleOrder.VehicleVin}");
