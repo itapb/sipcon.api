@@ -1312,6 +1312,24 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("GetServiceFailToGenerate")]
+        public async Task<IActionResult> GetServiceFailToGenerate(string? filter, int? rowFrom, int userId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate)
+        {
+
+            try
+            {
+
+                var _response = await _dService.GetServiceFailToGenerate(filter, rowFrom, userId, dealerId, supplierId, fromDate, upToDate);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
         [HttpGet("GetPaidDetails")]
         public async Task<IActionResult> GetPaidDetails(Int32? userId, Int32? supplierId, int row, int dmsId)
         {
