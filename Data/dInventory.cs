@@ -333,6 +333,18 @@ namespace Data
             }
         }
 
+        public async Task<Response<List<Kardex>>> GetKardex(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getKardex(userId, supplierId, rowfrom, filter,  fromDate, upToDate);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
         private async Task<Response<List<Movement>>> _getMovements(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? movementId = null)
         {
             Response<List<Movement>> _response = new Response<List<Movement>>();
@@ -384,7 +396,6 @@ namespace Data
             return _response;
         }
 
-
         private async Task<Response<Movement>> _getMovement(Int32 userId, Int32? supplierId, string? typeId, Int32? rowfrom, string? filter, Int32? movementId = null)
         {
             Response<Movement> _response = new Response<Movement>();
@@ -433,6 +444,46 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<List<Kardex>>> _getKardex(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate)
+        {
+            Response<List<Kardex>> _response = new Response<List<Kardex>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("PartCode", "VINNERCODE");
+                _mapping.AddItem("PartName", "VDESCRIPTION");
+                _mapping.AddItem("ReferenceId", "IREFERENCE");
+                _mapping.AddItem("UserName", "VUSER");
+                _mapping.AddItem("Type", "VTYPE");
+                _mapping.AddItem("Quantity", "IQTY");
+                _mapping.AddItem("QuantityOld", "IQTYOLD");
+                _mapping.AddItem("QuantityNew", "IQTYNEW");
+                _mapping.AddItem("Cost", "NCOST");
+                _mapping.AddItem("Created", "DCREATED");
+               
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_KARDEX", _parameter);
+                _response.Data = _data.GetList<Models.Kardex>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
         private async Task<Response<List<MovementDetails>>> _getMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {

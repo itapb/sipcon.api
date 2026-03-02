@@ -20,7 +20,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(userId, supplierId, rowfrom, filter, null);
+                return await _GetAll(userId, supplierId, rowfrom, filter);
             }
             finally
             {
@@ -28,7 +28,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Part>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter,Int32? partId = null)
+        private async Task<Response<List<Models.Part>>> _GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
         {
             Response<List<Models.Part>> _response = new Response<List<Models.Part>>();
             try
@@ -39,55 +39,19 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@ID", partId);
-
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Total", "TOTAL");
+                _mapping.AddItem("Id", "IDPART");
                 _mapping.AddItem("InnerCode", "VINNERCODE");
                 _mapping.AddItem("MasterCode", "VMASTERCODE");
-                _mapping.AddItem("AlterCode", "VALTERCODE");
-                _mapping.AddItem("ReplacementCode", "VREPLACEMENTCODE");
-                _mapping.AddItem("BarCode", "VBARCODE");
-                _mapping.AddItem("ModelId", "IDMODEL");
-                _mapping.AddItem("ModelName", "VMODEL");
                 _mapping.AddItem("Description", "VDESCRIPTION");
-                _mapping.AddItem("TypeId", "IDTYPE");
-                _mapping.AddItem("FamilyId", "IDFAMILY");
-                _mapping.AddItem("SubFamilyId", "IDSUBFAMILY");
                 _mapping.AddItem("Price", "NPRICE");
-                _mapping.AddItem("Cost", "NCOST");
-                _mapping.AddItem("Discount", "NDISCOUNT");
-                _mapping.AddItem("Weight", "NWEIGHT");
-                _mapping.AddItem("Size", "VSIZE");
-                _mapping.AddItem("MinSale", "IMINSALE");
-                _mapping.AddItem("Packing", "IPACKING");
-                _mapping.AddItem("Rating", "VRATING");
-                _mapping.AddItem("Sell", "BSELL");
-                _mapping.AddItem("Purchase", "BPURCHASE");
-                _mapping.AddItem("Warranty", "BWARRANTY");
-                _mapping.AddItem("License", "BLICENSE");
-                _mapping.AddItem("Original", "BORIGINAL");
-                _mapping.AddItem("Serializable", "BSERIALIZABLE");
-                _mapping.AddItem("SupplierId", "IDSUPPLIER");
-                _mapping.AddItem("BrandId", "IDBRAND");
-                _mapping.AddItem("UmId", "IDUM");
-                _mapping.AddItem("TaxId", "IDTAX");
-                _mapping.AddItem("TypeName", "VPARTTYPE");
-                _mapping.AddItem("FamilyName", "VFAMILY");
-                _mapping.AddItem("SubFamilyName", "VSUBFAMILY");
-                _mapping.AddItem("TaxName", "VTAX");
-                _mapping.AddItem("UmName", "VUM");
-                _mapping.AddItem("BrandName", "VBRAND");
-                _mapping.AddItem("SupplierReference", "VREFERENCE"); 
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("Stock", "ISTOCK");
-                _mapping.AddItem("Available", "IAVAILABLE");
-                _mapping.AddItem("AlterDescription", "VALTERDESCRIPTION2");
-                _mapping.AddItem("UseQty", "IUSE");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_PARTS", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_PARTS_ALL", _parameter);
                 _response.Data = _data.GetList<Models.Part>(_mapping, _table);
                 _response.SetGetResponse(_table);
               
@@ -103,19 +67,13 @@ namespace Data
 
 
 
-        private async Task<Response<Models.Part>> _getOne(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? partId = null)
+        private async Task<Response<Models.Part>> _getOne(Int32 userId, Int32 partId)
         {
             Response<Models.Part> _response =  new Response<Models.Part>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
-                _parameter.AddSqlParameter("@VFILTER", filter);
-                _parameter.AddSqlParameter("@ID", partId);
-                _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-
-
+                _parameter.AddSqlParameter("@IDPART", partId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -160,7 +118,7 @@ namespace Data
                 _mapping.AddItem("UseQty", "IUSE");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_PARTS", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_PARTS_ONE", _parameter);
                 _response.Data = _data.GetItem<Models.Part>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
@@ -225,7 +183,7 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getOne(userId,null,null,null, partId);
+                return await _getOne(userId,partId);
             }
             finally
             {

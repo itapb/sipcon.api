@@ -148,6 +148,24 @@ namespace WebApi.Controllers
 
         #endregion
 
+        #region "Kardex"
+
+        [HttpGet("/api/GetKardex")]
+        public async Task<IActionResult> GetKardex(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate)
+        {
+            try
+            {
+                Models.Response<List<Models.Kardex>> _response = await _dInventory.GetKardex(userId, supplierId, rowfrom, filter, fromDate, upToDate);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        #endregion
+
         #region "Movements"
 
         [HttpGet("/api/Movements/GetMovements")]
@@ -378,6 +396,8 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+
+       
 
         [HttpGet("/api/Movements/GetMovementDetailsPicking")]
         public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
@@ -635,7 +655,6 @@ namespace WebApi.Controllers
         }
         //--------------------------------------------------------------------------------------------------
         #endregion
-
 
         #region "Packing"
 

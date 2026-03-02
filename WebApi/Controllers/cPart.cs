@@ -136,7 +136,7 @@ namespace WebApi.Controllers
 
             try
             {
-                var _response = await _dPart.GetOne(userId,partId );
+                var _response = await _dPart.GetOne(userId,partId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
