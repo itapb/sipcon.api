@@ -2164,6 +2164,227 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/Claim/ExportClaim")]
+        public async Task<IActionResult> ExportSaleOrder(int claimId, int userId)
+        {
+            try
+            {
+                Models.Response<Models.ClaimPart> response = await _dInventory.GetClaim(userId, claimId);
+
+                // 2. Validar que la respuesta es exitosa y contiene datos
+                if (response.Status != StatusCodes.Status200OK || response.Data == null)
+                {
+                    response.SetError(new Exception("DATOS DE RECLAMO NO ENCONTRADOS"));
+                    return StatusCode(response.Status, response);
+                }
+
+                // 3. Convertir los datos correctamente
+                ClaimPart claim;
+
+                if (response.Data is ClaimPart claimSingle)
+                {
+                    // Asignar directamente el modelo
+                    claim = claimSingle;
+                }
+                else
+                {
+                    // Si no reconocemos el formato
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        "Formato de datos de Servicio no reconocido");
+                }
+
+                // 4. Validar que tenemos datos
+                if (claim == null)
+                {
+                    return NotFound("No se encontraron datos válidos de servicio");
+                }
+
+                // 5. Generar el PDF
+                byte[] pdfBytes = await GeneratePdfClaim(claim, claimId, userId);
+                string fileName = $"Reclamo_{claimId.ToString() ?? "reporte"}.pdf";
+
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        [Obsolete]
+        private async Task<byte[]> GeneratePdfClaim(Models.ClaimPart claim, int claimId, int userId)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var response = _dInventory.GetClaimDetails(claimId).GetAwaiter().GetResult();
+            var claimDetailsList = new List<ClaimDetails>();
+
+            claimDetailsList = response.Data.ToList();
+
+
+            int? supplierId = claim.SupplierId;
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", supplierId);
+
+            var document = QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(50);
+                    page.Size(PageSizes.Ledger.Portrait());
+
+                    page.Header().Element(header =>
+                    {
+                        header.Column(col =>
+                        {
+                            col.Item().Row(row =>
+                            {
+                                // LOGO (izquierda)
+                                row.ConstantItem(110).Image(supplierImagePath, ImageScaling.FitWidth);
+
+                                // TÍTULO (centro)
+
+                                row.RelativeItem()
+                                   .AlignCenter()
+                                   .Text($"COMPROBANTE DE RECLAMO")
+                                   .FontSize(20)
+                                   .Bold();
+
+                                // ID y fecha (derecha)
+                                row.ConstantItem(130).Column(right =>
+                                {
+                                    right.Item().AlignRight().Text($"Num de Reclamo: {claimId}");
+                                    right.Item().AlignRight().Text($"Fecha: {claim.DCreated}");
+                                    
+                                });
+                            });
+
+
+                            // BLOQUE DE INFORMACIÓN debajo del título
+                            col.Item().PaddingTop(10).PaddingBottom(5).Border(1).Padding(5).Column(info =>
+                            {
+                                info.Item().Row(row =>
+                                {
+                                    // --- COLUMNA IZQUIERDA ---
+                                    row.RelativeItem().Column(leftCol =>
+                                    {
+                                        // Fila 1: Proveedor
+                                        leftCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(80).Text("PROVEEDOR:").Bold();
+                                            r.RelativeItem().Text(claim?.SupplierName ?? "N/A").WrapAnywhere();
+                                        });
+
+                                        // Fila 2: Cliente
+                                        leftCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(80).Text("CLIENTE:").Bold();
+                                            r.RelativeItem().Text(claim?.DealerName ?? "N/A").WrapAnywhere();
+                                        });
+
+                                      
+                                    });
+
+                                    // Espacio entre columnas
+                                    row.ConstantItem(15);
+
+                                    // --- COLUMNA DERECHA ---
+                                    row.RelativeItem().Column(rightCol =>
+                                    {
+                                        // Fila 4: (Ejemplo: Fecha)
+                                        rightCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(90).Text("NUM GUIA:").Bold();
+                                            r.RelativeItem().Text(claim?.Reference ?? "N/A");
+                                        });
+
+                                        // Fila 5: (Ejemplo: Estatus)
+                                        rightCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(90).Text("NUM FACTURA").Bold();
+                                            r.RelativeItem().Text(claim?.Invoice ?? "N/A");
+                                        });
+
+                                        // Fila 6: (Ejemplo: Referencia)
+                                        rightCol.Item().Row(r =>
+                                        {
+                                            r.ConstantItem(90).Text("RESPONSABLE:").Bold();
+                                            r.RelativeItem().Text(claim?.Login ?? "N/A");
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+
+                    page.Content().Column(column =>
+                    {
+                        column.Item().LineHorizontal(1);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1); // Código
+                                columns.RelativeColumn(3); // Descripción
+                                columns.RelativeColumn(1); // Descripción
+                                columns.RelativeColumn(1); // Cantidad
+                                columns.RelativeColumn(1); // PRECIOUNITARIO
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("CODIGO");
+                                header.Cell().Element(CellStyle).Text("DESCRIPCION");
+                                header.Cell().Element(CellStyle).Text("MOTIVO");
+                                header.Cell().Element(CellStyle).Text("CANTIDAD");
+                                header.Cell().Element(CellStyle).Text("PRECIO UNITARIO");
+                                
+
+                                IContainer CellStyle(IContainer container) =>
+                                    container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE");
+                            });
+                            decimal total = 0.00m;
+                            int totalunidades = 0;
+                            foreach (var detail in claimDetailsList)
+                            {
+                                table.Cell().Element(CellStyle).Text(detail.PartInnerCode);
+                                table.Cell().Element(CellStyle).Text(detail.PartName);
+                                table.Cell().Element(CellStyle).Text(detail.ReasonDescription);
+                                table.Cell().Element(CellStyle).Text(detail.Quantity.ToString());
+                                table.Cell().Element(CellStyle).Text($"{detail.Price.ToString()}$");
+                                
+
+                                IContainer CellStyle(IContainer container) =>
+                                    container.Padding(5);
+                                totalunidades += (int)detail.Quantity;
+                                total += (decimal)detail.Price;
+                            }
+
+                            table.Footer(footer =>
+                            {
+
+                                footer.Cell().ColumnSpan(5).BorderTop(1).AlignRight().Element(CellStyle).Text($"TOTAL UNIDADES: {totalunidades}        MONTO TOTAL: {total}$");
+
+
+                                IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.Bold()).Padding(5).Background("#EEE"); ;
+                            });
+                            column.Item().LineHorizontal(1);
+                        });
+
+                        column.Item().PaddingTop(25).Text($"Observaciones: {claim.Comment} ");
+                        column.Item().LineHorizontal(1);
+                        column.Item().PaddingTop(25).AlignCenter().Text("DOCUMENTO NO FISCAL");
+                    });
+
+
+                });
+            });
+
+            return document.GeneratePdf();
+        }
+
+
         [HttpPost("/api/Claim/PostClaim")]
         public async Task<IActionResult> PostClaim(List<Models.ClaimPart> claims, Int32 userId)
         {
