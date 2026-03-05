@@ -453,6 +453,60 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("GetServiceFailClosed")]
+        public async Task<IActionResult> GetServiceFailClosed(string? filter, int rowFrom, int userId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+
+            try
+            {
+                var _response = await _dService.GetServiceFailClosed(filter, rowFrom, userId, dealerId, supplierId, fromDate, upToDate, estatusId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpGet("GetExportFailClosed")]
+        public async Task<IActionResult> GetExportFailClosed(string? filter, int serviceTypeId, int userId, int dealerId, int supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            try
+            {
+                // 1. Obtenemos los datos con el tipo correcto (ServiceFail)
+                var failResponse = await _dService.GetServiceFailClosed(filter, null, userId, dealerId, supplierId, fromDate, upToDate, estatusId);
+
+                if (failResponse == null || !failResponse.Data.Any())
+                {
+                    return NotFound("No se encontraron datos para exportar.");
+                }
+
+                // 2. Mapeamos directamente desde failResponse. 
+                // Asegúrate de que ConvertToService acepte un objeto de tipo ServiceFail.
+                var dataList = failResponse.Data.Select(ConvertToService).Where(a => a.EstatusName == "GENERADO" || a.EstatusName == "PROCESADO").ToList();
+
+                // 3. Generamos el Excel
+                MemoryStream _excel = ConvertToExcel(dataList, serviceTypeId, dealerId, supplierId);
+
+                // Es vital asegurarse de que el puntero del stream esté al inicio
+                _excel.Position = 0;
+
+                string _fileName = $"Reporte_{DateTime.Now:yyyyMMdd}.xlsx";
+
+                return File(
+                    _excel,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    _fileName);
+            }
+            catch (Exception ex)
+            {
+                // Loggear ex aquí (importante para debugging)
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error al generar el archivo Excel.");
+            }
+        }
 
 
         //Método auxiliar para convertir cualquier servicio específico en Service
