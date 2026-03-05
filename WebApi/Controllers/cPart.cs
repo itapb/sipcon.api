@@ -429,6 +429,19 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("PostDemand")]
+        public async Task<IActionResult> PostDemand(Demand demand, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dPart.Post_Demand(demand, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions,Int32 userId)
@@ -445,6 +458,8 @@ namespace WebApi.Controllers
             }
 
         }
+
+
 
 
 
