@@ -200,6 +200,23 @@ namespace WebApi.Controllers
 
         }
 
+         
+        [HttpGet("GetDemandReason")]
+        public async Task<IActionResult> GetDemandReasons()
+        {
+
+            try
+            {
+                var _response = await _dPart.GetDemandReasons();
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+
+        }
 
         private MemoryStream ConvertToExcel(List<Models.Part> _parts)
         {
