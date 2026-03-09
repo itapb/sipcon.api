@@ -164,6 +164,102 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/ExportKardex")]
+        public async Task<IActionResult> ExportKardex(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate)
+        {
+            try
+            {
+                var _response = await _dInventory.GetKardex(userId, supplierId, rowfrom, filter, fromDate, upToDate);
+                if (_response == null || !_response.Data.Any())
+                {
+                    return NotFound("No se encontraron datos para exportar.");
+                }
+                List<Kardex> dataList = _response.Data.ToList();
+                MemoryStream _excel = ConvertToExcelKardex(dataList);
+
+                _excel.Position = 0;
+
+                string _fileName = $"Reporte_{DateTime.Now:yyyyMMdd}.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+
+        private MemoryStream ConvertToExcelKardex(List<Models.Kardex> _datalist)
+        {
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("KARDEX");
+
+                worksheet.Cell(1, 1).Value = "CODIGO";
+                worksheet.Cell(1, 2).Value = "DESCRIPCION";
+                worksheet.Cell(1, 3).Value = "FECHA/HORA";
+                worksheet.Cell(1, 4).Value = "TIPO";
+                worksheet.Cell(1, 5).Value = "REFERENCIA";
+                worksheet.Cell(1, 6).Value = "STOCK INICIAL";
+                worksheet.Cell(1, 7).Value = "OPERACION";
+                worksheet.Cell(1, 8).Value = "STOCK FINAL";
+                worksheet.Cell(1, 9).Value = "COSTO TOTAL";
+                worksheet.Cell(1, 10).Value = "RESPONSABLE";
+
+                var headerRange = worksheet.Range("A1:J1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:J1").SetAutoFilter();
+                for (int i = 0; i < _datalist.Count; i++)
+                {
+
+                    var _kardex = _datalist[i];
+                    worksheet.Cell(i + 2, 1).Value = _kardex.PartCode;
+                    worksheet.Cell(i + 2, 2).Value = _kardex.PartName;
+                    worksheet.Cell(i + 2, 3).Value = _kardex.Created;
+                    worksheet.Cell(i + 2, 3).Style.DateFormat.Format = "dd/MM/yyyy";
+                    string descripcion = _kardex.Type switch
+                    {
+                        "D" => "DESPACHO",
+                        "E" => " AJUS. ENTRADA",
+                        "S" => "AJUS. SALIDA",
+                        "R" => "RECEPCION",
+                        _ => "Desconocido" // Valor por defecto si no coincide ninguno
+                    };
+                    worksheet.Cell(i + 2, 4).Value = descripcion;
+                    worksheet.Cell(i + 2, 5).Value = _kardex.ReferenceId;
+                    worksheet.Cell(i + 2, 6).Value = _kardex.QuantityOld;
+                    decimal factor = (_kardex.Type == "S" || _kardex.Type == "D") ? -1 : 1;
+                    worksheet.Cell(i + 2, 7).Value = _kardex.Quantity * factor;
+                    worksheet.Cell(i + 2, 8).Value = _kardex.QuantityNew;
+                    worksheet.Cell(i + 2, 9).Value = _kardex.Cost * factor;
+                    worksheet.Cell(i + 2, 10).Value = _kardex.UserName;
+
+
+                }
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+
+        }
+
         #endregion
 
         #region "Movements"
