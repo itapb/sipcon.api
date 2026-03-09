@@ -26,5 +26,8 @@ namespace Models
 
         [SwaggerIgnore]
         public String? RowReference { get; set; }
+
+        [Required]
+        public bool IsCrossDocking { get; set; }
     }
 }
