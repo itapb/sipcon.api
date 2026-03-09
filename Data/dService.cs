@@ -261,6 +261,116 @@ namespace Data
 
 
 
+        public async Task<Models.Response<List<Models.ServiceFail>>> GetServiceFailClosed(string? filter, int? rowFrom, int userId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetServiceFailClosed(filter, rowFrom, userId, dealerId, supplierId, fromDate, upToDate,estatusId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+
+        private async Task<Models.Response<List<Models.ServiceFail>>> _GetServiceFailClosed(string? filter, int? rowFrom, int userId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            var _response = new Response<List<Models.ServiceFail>>();
+
+            try
+            {
+                // Parámetros SQL
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
+
+                // Mapeo por tipo
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("ServiceTypeId", "IDSERVICETYPE");
+                _mapping.AddItem("ServiceTypeName", "VSERVICETYPE");
+                _mapping.AddItem("OrderNumber", "VSERVICENUMBER");
+                _mapping.AddItem("ServiceDate", "DMAINTENANCEDATE");
+                _mapping.AddItem("ReportTypeId", "IDREPORTTYPE");
+                _mapping.AddItem("Paralyzed", "BPARALYZED");
+                _mapping.AddItem("CustomerReport", "VREPORTCUSTOMER");
+                _mapping.AddItem("DealerReport", "VTECHNICALREPORT");
+                _mapping.AddItem("TechnicalSolution", "VTECHNICALSOLUTION");
+                _mapping.AddItem("SupplierReport", "VSUPPLIERDECISION");
+                _mapping.AddItem("ReportTypeName", "VREPORTTYPE");
+                _mapping.AddItem("DealerId", "IDDEALERSERVICE");
+                _mapping.AddItem("DealerServiceName", "VDEALERSERVICE");
+                _mapping.AddItem("DealerAddress", "VDEALERADDRESS");
+                _mapping.AddItem("DealerServiceCity", "VNAMECITY");
+                _mapping.AddItem("DealerServiceState", "VNAMESTATE");
+                _mapping.AddItem("DealerServiceCod", "VDEALERCOD");
+                _mapping.AddItem("AuthorizedUserName", "VAUTHORIZEDUSERNAME");
+                _mapping.AddItem("SrgNumber", "VSRGNUMBER");
+                _mapping.AddItem("DealerSaleId", "IDDEALERSALE");
+                _mapping.AddItem("DealerSaleName", "VDEALERSALE");
+                _mapping.AddItem("DealerSaleCod", "VDEALERSALECOD");
+                _mapping.AddItem("NumberPolicy", "VNUMBERPOLICY");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Km", "IKM");
+                _mapping.AddItem("CustomerID", "IDCUSTOMER");
+                _mapping.AddItem("Vat", "VVAT");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODELNAME");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMERNAME");
+                _mapping.AddItem("CustomerLastName", "VCUSTOMERLASTNAME");
+                _mapping.AddItem("CustomerPhone", "VPHONE1");
+                _mapping.AddItem("InvoiceDate", "DINVOICEDATE");
+                _mapping.AddItem("InvoiceNumber", "VINVOICENUMBER");
+                _mapping.AddItem("InvoiceAmount", "NINVOICEAMOUNT");
+                _mapping.AddItem("TaxBase", "NTAXBASE");
+                _mapping.AddItem("Tax", "TAX");
+                _mapping.AddItem("AuthotizationDate", "DAUTHORIZATIONDATE");
+                _mapping.AddItem("Exempt", "NEXEMPT");
+                _mapping.AddItem("EstatusId", "IESTATUS");
+                _mapping.AddItem("EstatusName", "VESTATUSNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("LicenseId", "IDLICENSE");
+                _mapping.AddItem("LicenseDescription", "VDESCRIPTIONLICENSE");
+                _mapping.AddItem("LicenseTypeId", "IDLICENSETYPE");
+                _mapping.AddItem("LicenseType", "VLICENSETYPE");
+                _mapping.AddItem("StartDate", "DSTARTDATE");
+                _mapping.AddItem("EndDate", "DENDDATE");
+                _mapping.AddItem("SaleDate", "DSALEDATE");
+                _mapping.AddItem("DateCreated", "DCREATED");
+
+
+                // Ejecución del SP
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_MAINTENANCES_CLOSED", _parameter);
+
+                // Conversión dinámica
+                _response.Data = _data.GetList<Models.ServiceFail>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
 
 
 
