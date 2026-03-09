@@ -71,11 +71,12 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 3).Value = "TAMAÑO";
                 worksheet.Cell(1, 4).Value = "ALMACEN";
                 worksheet.Cell(1, 5).Value = "ACTIVO";
+                worksheet.Cell(1, 6).Value = "CROSS DOCKING";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:E1");
+                var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
@@ -88,6 +89,7 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 3).Value = _contacto.Size;
                     worksheet.Cell(i + 2, 4).Value = _contacto.WarehouseName;
                     worksheet.Cell(i + 2, 5).Value = _contacto.IsActive == true ? "SI" : "NO" ;
+                    worksheet.Cell(i + 2, 6).Value = _contacto.IsCrossDocking ? "SI" : "NO";
 
                 }
 
@@ -143,7 +145,7 @@ namespace WebApi.Controllers
             var id = 0;
             var warehouseName = "";
             var response = new Models.Response<Models.Result>();
-            _warehouses = await _dWarehouse.GetExport(userId, supplierId,null);
+            _warehouses = await _dWarehouse.GetExport(userId, supplierId, null);
 
             using (var stream = new MemoryStream())
             {
@@ -158,8 +160,8 @@ namespace WebApi.Controllers
                     {
                         id = 0;
                         warehouseName = row.Cell(4).GetValue<string>();
-                        int fila = row.RowNumber(); // Ej: 2
-                        string rowRef = $"{fila}"; // Ej: "A2"
+                        int fila = row.RowNumber();
+                        string rowRef = $"{fila}";
 
                         if (_warehouses.Exists(x => x.Name.ToUpper() == warehouseName.ToUpper()))
                         {
@@ -181,12 +183,18 @@ namespace WebApi.Controllers
                                     "NO" => false,
                                     _ => throw new Exception($"Valor inválido en ACTIVO. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
                                 },
+                                IsCrossDocking = row.Cell(6).GetValue<string>().ToUpper() switch 
+                                {
+                                    "SI" => true,
+                                    "NO" => false,
+                                    _ => throw new Exception($"Valor inválido en CROSS DOCKING. Se esperaba 'SI' o 'NO'. FILA-{rowRef}")
+                                },
                                 RowReference = rowRef
 
                             });
                         }
-                        catch(Exception ex)
-                         {
+                        catch (Exception ex)
+                        {
                             response.SetError(ex);
                         }
                     }

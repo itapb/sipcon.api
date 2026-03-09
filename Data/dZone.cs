@@ -48,6 +48,7 @@ namespace Data
                 _mapping.AddItem("WarehouseName", "VWAREHOUSE");
                 _mapping.AddItem("Size", "VSIZE");
                 _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("IsCrossDocking", "BCROSSDOCKING");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ZONES", _parameter);
@@ -86,6 +87,7 @@ namespace Data
                 _mapping.AddItem("WarehouseName", "VWAREHOUSE");
                 _mapping.AddItem("Size", "VSIZE");
                 _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("IsCrossDocking", "BCROSSDOCKING");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ZONES", _parameter);
