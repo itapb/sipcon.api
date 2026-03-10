@@ -58,6 +58,9 @@ namespace Models
         [SwaggerIgnore]
         public decimal? Price { get; set; }
 
+        [SwaggerIgnore]
+        public string? Status { get; set; }
+
 
     }
 

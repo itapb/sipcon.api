@@ -22,6 +22,7 @@ namespace Models
         [Required]
         public int? UserId { get; set; }
 
+        public int? ClaimNum { get; set; }
         public string? Reference { get; set; }  
         public string? Note { get; set; } 
         public string? Comment { get; set; } 
