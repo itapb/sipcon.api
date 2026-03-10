@@ -1379,11 +1379,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/BackOrder/GetAll")]
-        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32? dealerId, Int32? rowFrom, string? filter, DateTime? startdate, DateTime? enddate, bool stockOnly = false)
+        public async Task<IActionResult> GetBackOrders(Int32 userId, Int32 supplierId, Int32? dealerId, Int32? rowFrom, string? filter, DateTime? startdate, DateTime? enddate,int? estatusId, string tab, bool stockOnly = false)
         {
             try
             {
-                var _response = await _dInventory.GetBackOrders(userId, supplierId, dealerId, rowFrom, filter, startdate, enddate, stockOnly);
+                var _response = await _dInventory.GetBackOrders(userId, supplierId, dealerId, rowFrom, filter, startdate, enddate,estatusId, tab, stockOnly);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -1409,7 +1409,21 @@ namespace WebApi.Controllers
             }
 
         }
+        [HttpPost("/api/BackOrder/PostDarrival")]
+        public async Task<IActionResult> PostBackorder_Darrival(List<Models.Darrival> _list, Int32 userId)
+        {
 
+            try
+            {
+                var _response = await _dInventory.PostBackorder_Darrival(_list, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
         [HttpPost("/api/BackOrder/PostBackOrder")]
         public async Task<IActionResult> PostBackorder(Models.BackOrder backOrder, Int32 userId)
@@ -1451,15 +1465,16 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 11).Value = "ACTIVA";
                 worksheet.Cell(1, 12).Value = "PRECIO";
                 worksheet.Cell(1, 13).Value = "COSTO";
+                worksheet.Cell(1, 14).Value = "ESTATUS";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:J1");
+                var headerRange = worksheet.Range("A1:N1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
-                worksheet.Range("A1:J1").SetAutoFilter();
+                worksheet.Range("A1:N1").SetAutoFilter();
                 // 6. Llenar los datos
                 for (int i = 0; i < _backOrders.Count; i++)
                 {
@@ -1476,8 +1491,8 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 10).Value = _backOrder.SupplierRef;
                     worksheet.Cell(i + 2, 11).Value = _backOrder.IsActive != false ? "SI" : "NO";
                     worksheet.Cell(i + 2, 12).Value = _backOrder.Price;
-                    worksheet.Cell(i + 2, 13).Value = _backOrder.Cost;
-
+                    worksheet.Cell(i + 2, 13).Value = _backOrder.Cost; 
+                    worksheet.Cell(i + 2, 14).Value = _backOrder.Status;
 
                 }
                 // 7. Ajustar el ancho de las columnas al contenido 
@@ -1498,12 +1513,12 @@ namespace WebApi.Controllers
 
         }
 
-        [HttpGet("/api/BackOrder/Export")]
-        public async Task<IActionResult> GetExportBackOrder(Int32 userId, Int32 supplierId, Int32 dealerId)
+        [HttpGet("/api/BackOrder/Export")] 
+        public async Task<IActionResult> GetExportBackOrder(Int32 userId, Int32 supplierId, Int32 dealerId, DateTime? startdate, DateTime? enddate, int? estatusId, string tab)
         {
             try
             {
-                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId, dealerId);
+                List<BackOrder> _response = await _dInventory.GetExportBackOrders(userId, supplierId, dealerId, startdate, enddate, estatusId, tab);
                 MemoryStream _excel = ConvertToExcel(_response);
                 string _fileName = "BackOrder.xlsx";
 

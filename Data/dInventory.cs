@@ -2240,14 +2240,14 @@ namespace Data
 
         #region "BACKORDEN"
 
-        /*--------------------------------------------------------------GET IMPORT-------------------------------------------------------------*/
+        /*--------------------------------------------------------------GET EXPORT-------------------------------------------------------------*/
 
-        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int dealerId)
+        public async Task<List<BackOrder>> GetExportBackOrders(int userId, int supplierId, int dealerId, DateTime? startdate, DateTime? enddate, int? estatusId, string tab)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, dealerId, null, null, null, null)).Data;
+                return (List<BackOrder>)(await _GetBackOrders(userId, supplierId, dealerId, null, null, startdate, enddate, estatusId, tab)).Data;
             }
             finally
             {
@@ -2257,12 +2257,12 @@ namespace Data
 
         /*--------------------------------------------------------------GET ALL-------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, bool stockOnly = false)
+        public async Task<Response<List<Models.BackOrder>>> GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? estatusId, string tab, bool stockOnly = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetBackOrders(userId, supplierId, dealerId, rowfrom, filter, startdate, enddate, stockOnly);
+                return await _GetBackOrders(userId, supplierId, dealerId, rowfrom, filter, startdate, enddate, estatusId,tab, stockOnly);
             }
             finally
             {
@@ -2270,7 +2270,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, bool stockOnly =false)
+        private async Task<Response<List<BackOrder>>> _GetBackOrders(int userId, int supplierId, int? dealerId, int? rowfrom, string? filter, DateTime? startdate, DateTime? enddate, int? estatusId, string tab, bool stockOnly =false)
         {
             Response<List<BackOrder>> _response = new Response<List<BackOrder>>();
             try
@@ -2283,6 +2283,8 @@ namespace Data
                 _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@STARTDATE", startdate);
                 _parameter.AddSqlParameter("@ENDDATE", enddate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
+                _parameter.AddSqlParameter("@VTAB", tab);
                 _parameter.AddSqlParameter("@BSTOCKONLY", stockOnly);
                 
 
@@ -2305,6 +2307,7 @@ namespace Data
                 _mapping.AddItem("Stock", "ISTOCK");
                 _mapping.AddItem("Cost", "NCOST");
                 _mapping.AddItem("Price", "NPRICE");
+                _mapping.AddItem("Status", "VDISPLAYESTATUS");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -2465,11 +2468,56 @@ namespace Data
 
             return _response;
         }
+        //---------------------DARRIVAL
+        public async Task<Response<Result>> PostBackorder_Darrival(List<Models.Darrival> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostBackorder_Darrival(_list, userId);
+
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<Result>> _PostBackorder_Darrival(List<Models.Darrival> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_DARRIVAL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
 
 
 
 
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
 
+            return _response;
+        }
+       
         #endregion
 
 
@@ -3441,6 +3489,7 @@ namespace Data
 
                 var _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("ClaimNum", "IDCLAIM");
                 _mapping.AddItem("Reference", "VREFERENCE");
                 _mapping.AddItem("Note", "VNOTE");
                 _mapping.AddItem("Comment", "VCOMMENT");
