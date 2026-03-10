@@ -503,9 +503,43 @@ namespace Data
                 _semaphore.Release();
             }
         }
+        //------------------------DEMAND REASON-----------------------------------
+        public async Task<Response<List<Models.Reason>>> GetDemandReasons()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetDemandReasons();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Reason>>> _GetDemandReasons()
+        {
+            Response<List<Models.Reason>> _response = new Response<List<Models.Reason>>();
+            try
+            {
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Description", "DESC");
+
+                var _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DEMAND_REASONS");
+                _response.Data = _data.GetList<Models.Reason>(_mapping, _table);
+                _response.SetGetResponse(_table);
 
 
-
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+        //-----------------------------------------------------------
         public async Task<Response<Result>> Import_Parts(List<Models.Part> _list, List<Models.RelatedModel> _models, Int32 userId, bool bFull = true)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -519,6 +553,7 @@ namespace Data
             }
         }
 
+   
         public async Task<Response<Result>> Post_Parts(List<Models.Part> _list, List<Models.RelatedModel> _models, Int32 userId, bool bFull = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -597,6 +632,46 @@ namespace Data
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        public async Task<Response<Result>> Post_Demand(Models.Demand demand, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Demand(demand, userId);
+            }
+            finally 
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _Post_Demand(Models.Demand demand, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(demand);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_DEMAND", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
             }
             catch (Exception ex)
             {
