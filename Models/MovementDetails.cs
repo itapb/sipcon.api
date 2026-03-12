@@ -131,5 +131,12 @@ namespace Models
 
         [SwaggerIgnore]
         public string StatusName { get; set; } = string.Empty;
+
+
+        [SwaggerIgnore]
+        public int? CrossDockingQty { get; set; }
+
+        [SwaggerIgnore]
+        public int? CrossDockingLocationId { get; set; }
     }
 }

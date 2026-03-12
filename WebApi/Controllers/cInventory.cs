@@ -396,8 +396,25 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+        //--------------------------------------------------GET CROSSDOCKING------------------------------------------------------
+        [HttpGet("/api/Location/GetCrossDockingSuggested")]
+        public async Task<IActionResult> GetCrossDockingSuggested(
+          Int32 userId,
+          Int32? supplierId = null,
+          Int32? rowfrom = null,
+          string? filter = null)
 
-       
+        {
+            try
+            {
+                Models.Response<List<CrossDockingSuggested>> _response = await _dInventory.GetCrossDockingSuggested(userId, supplierId, rowfrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
         [HttpGet("/api/Movements/GetMovementDetailsPicking")]
         public async Task<IActionResult> GetMovementDetailsPicking(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, bool? pending, DateTime? fromDate, DateTime? upToDate, int? estatusId)
@@ -548,9 +565,13 @@ namespace WebApi.Controllers
                                 RequiredQty = string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ? 0 : row.Cell(3).GetValue<int>(),
                                 LocationName = row.Cell(4).GetValue<string>(),
                                 DestinationName = row.Cell(5).GetValue<string>(),
-                                MovementId = movementId,
-                                RowReference = rowRef,
                                 Cost = row.Cell(6).GetValue<decimal>(),
+                                CrossDockingQty = string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ? 0 : row.Cell(7).GetValue<int>(),
+                                CrossDockingName = row.Cell(8).GetValue<string?>(),
+                                
+                                MovementId = movementId,
+                                RowReference = rowRef
+                                
                             });
                         }
                         catch (Exception ex)
