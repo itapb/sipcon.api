@@ -237,10 +237,9 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 4).Value = descripcion;
                     worksheet.Cell(i + 2, 5).Value = _kardex.ReferenceId;
                     worksheet.Cell(i + 2, 6).Value = _kardex.QuantityOld;
-                    decimal factor = (_kardex.Type == "S" || _kardex.Type == "D") ? -1 : 1;
-                    worksheet.Cell(i + 2, 7).Value = _kardex.Quantity * factor;
+                    worksheet.Cell(i + 2, 7).Value = _kardex.Quantity ;
                     worksheet.Cell(i + 2, 8).Value = _kardex.QuantityNew;
-                    worksheet.Cell(i + 2, 9).Value = _kardex.Cost * factor;
+                    worksheet.Cell(i + 2, 9).Value = _kardex.Cost ;
                     worksheet.Cell(i + 2, 10).Value = _kardex.UserName;
 
 
