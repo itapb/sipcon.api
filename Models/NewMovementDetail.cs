@@ -56,5 +56,14 @@ namespace Models
         [SwaggerIgnore]
         public decimal? Cost { get; set; }
 
+        [SwaggerIgnore]
+        public int? CrossDockingQty { get; set; }
+
+        [SwaggerIgnore]
+        public int? CrossDockingLocationId { get; set; }
+
+        [SwaggerIgnore]
+        public string? CrossDockingName { get; set; }
+
     }
 }

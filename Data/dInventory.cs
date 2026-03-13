@@ -719,7 +719,48 @@ namespace Data
             }
             return _response;
         }
+        //-------------------------------------------------------cross docking suggested------------------------------------------------------------------------------------
+        public async Task<Response<List<CrossDockingSuggested>>> GetCrossDockingSuggested(Int32 userId, Int32? supplierId, string? filter, Int32? rowfrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getCrossDockingSuggested(userId, supplierId, filter, rowfrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
+        private async Task<Response<List<CrossDockingSuggested>>> _getCrossDockingSuggested(Int32 userId, Int32? supplierId, string? filter, Int32? rowfrom)
+        {
+            Response<List<CrossDockingSuggested>> _response = new Response<List<CrossDockingSuggested>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("PartCode", "PartCode");
+                _mapping.AddItem("PartDescription", "PartDescription");
+                _mapping.AddItem("RequestedQuantity", "RequestedQuantity");
+                _mapping.AddItem("Total", "TOTAL");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_CROSSDOCKING_SUGGESTED", _parameter);
+                _response.Data = _data.GetList<Models.CrossDockingSuggested>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
         public async Task<Response<Result>> PostMovementDetailsTransferActions(List<Models.Action> _list, Int32 userId)
         {

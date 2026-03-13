@@ -62,6 +62,20 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetReceptionCrossDocking")]
+        public async Task<IActionResult> GetReceptionCrossDocking(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
+        {
+            try
+            {
+                var _response = await _dLocation.GetReceptionCrossDockingLocations(userId, supplierId, rowfrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
 
         private MemoryStream ConvertToExcel(List<Models.Location> _locations)
         {
