@@ -398,16 +398,11 @@ namespace WebApi.Controllers
         }
         //--------------------------------------------------GET CROSSDOCKING------------------------------------------------------
         [HttpGet("/api/Location/GetCrossDockingSuggested")]
-        public async Task<IActionResult> GetCrossDockingSuggested(
-          Int32 userId,
-          Int32? supplierId = null,
-          Int32? rowfrom = null,
-          string? filter = null)
-
+        public async Task<IActionResult> GetCrossDockingSuggested(Int32 userId,  Int32? supplierId,string? filter,Int32? rowfrom = null)
         {
             try
             {
-                Models.Response<List<CrossDockingSuggested>> _response = await _dInventory.GetCrossDockingSuggested(userId, supplierId, rowfrom, filter);
+                Models.Response<List<CrossDockingSuggested>> _response = await _dInventory.GetCrossDockingSuggested(userId, supplierId, filter, rowfrom);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

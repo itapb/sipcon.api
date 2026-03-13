@@ -720,12 +720,12 @@ namespace Data
             return _response;
         }
         //-------------------------------------------------------cross docking suggested------------------------------------------------------------------------------------
-        public async Task<Response<List<CrossDockingSuggested>>> GetCrossDockingSuggested(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
+        public async Task<Response<List<CrossDockingSuggested>>> GetCrossDockingSuggested(Int32 userId, Int32? supplierId, string? filter, Int32? rowfrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getCrossDockingSuggested(userId, supplierId, rowfrom, filter);
+                return await _getCrossDockingSuggested(userId, supplierId, filter, rowfrom);
             }
             finally
             {
@@ -733,7 +733,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<CrossDockingSuggested>>> _getCrossDockingSuggested(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
+        private async Task<Response<List<CrossDockingSuggested>>> _getCrossDockingSuggested(Int32 userId, Int32? supplierId, string? filter, Int32? rowfrom)
         {
             Response<List<CrossDockingSuggested>> _response = new Response<List<CrossDockingSuggested>>();
             try
