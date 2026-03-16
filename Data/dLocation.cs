@@ -105,6 +105,66 @@ namespace Data
             return _response;
         }
 
+        public async Task<Response<List<Location>>> GetReceptionCrossDockingLocations(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetReceptionCrossDockingLocations(userId, supplierId, rowfrom, filter);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Location>>> _GetReceptionCrossDockingLocations(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? locationId = null)
+        {
+            Response<List<Models.Location>> _response = new Response<List<Models.Location>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", locationId);
+                
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("ZoneId", "IDZONE");
+                _mapping.AddItem("ZoneName", "VZONE");
+                _mapping.AddItem("TypeId", "VTYPE");
+                _mapping.AddItem("TypeName", "VTYPENAME");
+                _mapping.AddItem("WarehouseId", "IDWAREHOUSE");
+                _mapping.AddItem("WarehouseName", "VWAREHOUSE");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("IsEditable", "BEDITABLE");
+                _mapping.AddItem("Mapping", "IMAPPING");
+                _mapping.AddItem("Created", "DCREATED");
+                _mapping.AddItem("Updated", "DUPDATED");
+                _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
+                _mapping.AddItem("IsFullActive", "BFULLACTIVE");
+               
+                Util.Data _data = Util.Data.GetInstance();
+               
+                DataTable _table = await _data.GetDataTable("USP_GET_LOCATIONS_RECEPTION_CROSSDOCKING", _parameter);
+               
+                _response.Data = _data.GetList<Models.Location>(_mapping, _table);
+                
+                _response.SetGetResponse(_table);
+               
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message);
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
         //have to refactor get one into its own private method
         public async Task<Response<Models.Location>> GetOne(Int32 locationId, Int32 userId)
