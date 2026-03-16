@@ -226,15 +226,7 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 2).Value = _kardex.PartName;
                     worksheet.Cell(i + 2, 3).Value = _kardex.Created;
                     worksheet.Cell(i + 2, 3).Style.DateFormat.Format = "dd/MM/yyyy";
-                    string descripcion = _kardex.Type switch
-                    {
-                        "D" => "DESPACHO",
-                        "E" => " AJUS. ENTRADA",
-                        "S" => "AJUS. SALIDA",
-                        "R" => "RECEPCION",
-                        _ => "Desconocido" // Valor por defecto si no coincide ninguno
-                    };
-                    worksheet.Cell(i + 2, 4).Value = descripcion;
+                    worksheet.Cell(i + 2, 4).Value = _kardex.Type;
                     worksheet.Cell(i + 2, 5).Value = _kardex.ReferenceId;
                     worksheet.Cell(i + 2, 6).Value = _kardex.QuantityOld;
                     worksheet.Cell(i + 2, 7).Value = _kardex.Quantity ;
