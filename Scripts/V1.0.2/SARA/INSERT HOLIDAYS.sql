@@ -1,0 +1,19 @@
+ 
+INSERT INTO [dbo].[HOLIDAYS] ([IMONTH], [IDAY], [VDESCRIPTION]) VALUES
+    (1,  1,  'AÑO NUEVO'),
+    (2,  16, 'CARNAVAL'),
+    (2,  17, 'CARNAVAL'),
+    (4,  2,  'JUEVES SANTO'),
+    (4,  3,  'VIERNES SANTO'),
+    (4,  19, 'DECLARACION DE LA INDEPENDENCIA'),
+    (5,  1,  'DIA DEL TRABAJADOR'),
+    (6,  24, 'BATALLA DE CARABOBO'),
+    (7,  5,  'DIA DE LA INDEPENDENCIA'),
+    (7,  24, 'NATALICIO DE SIMON BOLIVAR'),
+    (10, 12, 'DIA DE LA RESISTENCIA INDIGENA'),
+    (12, 24, 'NOCHEBUENA'),
+    (12, 25, 'NAVIDAD'),
+    (12, 31, 'FIN DE AÑO'),
+    (1,  14, 'DIA DE LA DIVINA PASTORA'),         
+    (5,  28, 'NATALICIO DE JACINTO LARA'),         
+    (9,  14, 'DIA DE BARQUISIMETO');                 
