@@ -1,0 +1,6 @@
+DROP INDEX [IND_PART_02] ON [dbo].[PART]
+GO
+DROP INDEX [IND_PART_03] ON [dbo].[PART]
+GO
+
+
