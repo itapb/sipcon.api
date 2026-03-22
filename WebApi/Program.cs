@@ -109,6 +109,7 @@ builder.Services.AddAuthentication(options =>
 
 // 4. Servicios personalizados
 builder.Services.AddSingleton<dColor>();
+builder.Services.AddSingleton<dArea>();
 builder.Services.AddSingleton<dBrand>();
 builder.Services.AddSingleton<dContact>();
 builder.Services.AddSingleton<dModel>();
