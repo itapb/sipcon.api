@@ -60,7 +60,7 @@ namespace Data
       try
       {
         Mapping _mapping = new Mapping();
-        _mapping.AddItem("Id", "ID");
+        _mapping.AddItem("Id", "IDAREA");
         _mapping.AddItem("Name", "VNAME");
         _mapping.AddItem("IsActive", "BACTIVE");
 
@@ -86,7 +86,7 @@ namespace Data
         _parameter.AddSqlParameter("@ID", AreaId);
 
         Mapping _mapping = new Mapping();
-        _mapping.AddItem("Id", "ID");
+        _mapping.AddItem("Id", "IDAREA");
         _mapping.AddItem("Name", "VNAME");
         _mapping.AddItem("IsActive", "BACTIVE");
 
