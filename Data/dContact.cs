@@ -445,7 +445,7 @@ namespace Data
                 Util.Log.Error(ex);
                 throw;
             }
-            return _list;
+            return _list;   
         }
 
 
@@ -653,7 +653,10 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
-                _mapping.AddItem("State", "VSTATE");
+                _mapping.AddItem("MunicipalityId", "MUNICIPALITY_ID");
+                _mapping.AddItem("MunicipalityName", "MUNICIPALITY_NAME");
+                _mapping.AddItem("StateId", "STATE_ID");
+                _mapping.AddItem("StateName", "STATE_NAME");
 
                 Util.Data _data = Util.Data.GetInstance();
                 _list = await _data.ExecuteReaderAsync<Models.City>("USP_GET_CITYS", _mapping);
