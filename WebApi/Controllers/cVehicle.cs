@@ -413,6 +413,73 @@ namespace WebApi.Controllers
             }
         }
 
+
+        private async Task<List<Vehicle>> ReadExcelToPLates(IFormFile file, Int32 userId, Int32 supplierId)
+        {
+            var vehicles = new List<Vehicle>();
+            var _contacts = await GetContactsAsync();
+            var response = new Models.Response<Models.Result>();
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+                    foreach (var row in rows)
+                    {
+
+                        int fila = row.RowNumber(); // Ej: 2
+                        string rowRef = $"{fila}"; // Ej: "A2"
+                        try
+                        {
+                            vehicles.Add(new Vehicle
+                            {
+                                Vin = row.Cell(1).GetValue<string>(),
+                                Plate = row.Cell(2).GetString(),
+                                SupplierId = supplierId,
+                                RowReference = rowRef
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            response.SetError(ex);
+                        }
+                    }
+                }
+            }
+            return vehicles;
+        }
+
+
+        [HttpPost("ImportPlate")]
+        public async Task<IActionResult> ImportPlate(IFormFile file, Int32 userId, Int32 supplierId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
+
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+            try
+            {
+                // Leer el archivo Excel y convertirlo a List<PolicyType>
+                List<Vehicle> vehicles = await ReadExcelToPLates(file, userId, supplierId);
+
+                // Llamar al método existente de tu capa de servicio
+                var response = await _dVehicle.ImportPlate(vehicles, userId);
+
+                return StatusCode(response.Processed ?
+                    StatusCodes.Status200OK : StatusCodes.Status409Conflict,
+                    response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
         [HttpPost("PostActions")]
         public async Task<IActionResult> Post_Actions(List<Models.Action> actions, Int32 userId)
         {
