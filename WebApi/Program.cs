@@ -111,6 +111,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddSingleton<dColor>();
 builder.Services.AddSingleton<dFeatureType>();
 builder.Services.AddSingleton<dFeature>();
+builder.Services.AddSingleton<dInspection>();
 builder.Services.AddSingleton<dArea>();
 builder.Services.AddSingleton<dFase>();
 builder.Services.AddSingleton<dBrand>();
