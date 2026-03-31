@@ -61,6 +61,7 @@ namespace Data
                 _mapping.AddItem("Description", "VDESCRIPTION");
                 _mapping.AddItem("VehicleId", "IDVEHICLE");
                 _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("CertificateNumber", "ICERTIFICATENUMBER");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("ModelName", "MODELNAME");
@@ -143,6 +144,7 @@ namespace Data
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("CertificateNumber", "ICERTIFICATENUMBER");
                 _mapping.AddItem("ModelName", "MODELNAME");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("Vat", "VVAT");
