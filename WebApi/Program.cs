@@ -134,6 +134,7 @@ builder.Services.AddSingleton<dAssessment>();
 builder.Services.AddSingleton<RefreshTokenStore>();
 builder.Services.AddSingleton<dTemplate>();
 builder.Services.AddSingleton<dReporting>();
+builder.Services.AddSingleton<dPayment>();
 // 5. crear app
 var app = builder.Build();
 
