@@ -61,6 +61,8 @@ namespace Models
         [SwaggerIgnore] public String? Observation { get; set; }
         [SwaggerIgnore] public DateTime? UnlockDate { get; set; }
 
+        [Required] public Int32? CertificateNumber { get; set; }
+
 
     }
 }
