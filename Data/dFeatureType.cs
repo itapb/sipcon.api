@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Models;
+﻿using Models;
 using System.Data;
 using Util;
 
@@ -16,12 +15,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.FeatureType>>> GetAll()
+        public async Task<Response<List<Models.FeatureType>>> GetAll(Int32? DealerId, Int32? SupplierId, Int32? AreaId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll();
+                return await _GetAll(DealerId, SupplierId, AreaId);
             }
             finally
             {
@@ -55,20 +54,27 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.FeatureType>>> _GetAll()
+        private async Task<Response<List<Models.FeatureType>>> _GetAll(Int32? DealerId, Int32? SupplierId, Int32? AreaId)
         {
             Response<List<Models.FeatureType>> _response = new Response<List<Models.FeatureType>>();
             try
             {
-                Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "IDFEATURETYPE");
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDDEALER", DealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", SupplierId);
+                _parameter.AddSqlParameter("@IDAREA", AreaId);
+
+                Mapping _mapping = new Mapping(); 
+                _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
-                _mapping.AddItem("IdFase", "IDFASE");
-                _mapping.AddItem("NameFase", "FASE_NAME");
-                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("FaseId", "IDFASE");
+                _mapping.AddItem("FaseName", "FASE");
+                _mapping.AddItem("DealerName", "DEALER");
+                _mapping.AddItem("SupplierName", "SUPPLIER");
+                _mapping.AddItem("Brand", "VBRAND");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_FEATURE_TYPES");
+                DataTable _table = await _data.GetDataTable("USP_GET_FEATURE_TYPES", _parameter);
                 _response.Data = _data.GetList<Models.FeatureType>(_mapping, _table);
                 _response.SetGetResponse(_table);
             }
@@ -89,11 +95,13 @@ namespace Data
                 _parameter.AddSqlParameter("@ID", FeatureTypeId);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "IDFEATURETYPE");
+                _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
-                _mapping.AddItem("IdFase", "IDFASE");
-                _mapping.AddItem("NameFase", "FASE_NAME");
-                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("FaseId", "IDFASE");
+                _mapping.AddItem("FaseName", "FASE");
+                _mapping.AddItem("DealerName", "DEALER");
+                _mapping.AddItem("SupplierName", "SUPPLIER");
+                _mapping.AddItem("Brand", "VBRAND");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_FEATURE_TYPE_BY_ID", _parameter);
