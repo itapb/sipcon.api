@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Models;
+﻿using Models;
 using System.Data;
 using Util;
 
@@ -7,7 +6,6 @@ namespace Data
 {
   public class dFase
   {
-    // test data
     private readonly SemaphoreSlim _semaphore;
 
     public dFase() {
@@ -15,12 +13,12 @@ namespace Data
       _semaphore = new SemaphoreSlim(100, 150);
     }
 
-    public async Task<Response<List<Models.Fase>>> GetAll()
+    public async Task<Response<List<Models.Fase>>> GetAll(Int32? AreaId, Int32? SupplierId, Int32? DealerId)
     {
       await _semaphore.WaitAsync(Util.Setting.TimeOut);
       try
       {
-        return await _GetAll();
+        return await _GetAll(AreaId, SupplierId, DealerId);
       }
       finally
       {
@@ -54,22 +52,30 @@ namespace Data
       }
     }
 
-    private async Task<Response<List<Models.Fase>>> _GetAll()
+    private async Task<Response<List<Models.Fase>>> _GetAll(Int32? AreaId, Int32? SupplierId, Int32? DealerId)
     {
       Response<List<Models.Fase>> _response = new Response<List<Models.Fase>>();
 
       try
       {
+
+        Util.Parameter _parameter = new Util.Parameter();
+        _parameter.AddSqlParameter("@IDAREA", AreaId);
+        _parameter.AddSqlParameter("@IDSUPPLIER", SupplierId);
+        _parameter.AddSqlParameter("@IDDEALER", DealerId);
+
         Mapping _mapping = new Mapping();
-        _mapping.AddItem("Id", "IDFASE");
+        _mapping.AddItem("Id", "ID");
         _mapping.AddItem("Name", "VNAME");
-        _mapping.AddItem("IsActive", "BACTIVE");
         _mapping.AddItem("OrderBy", "IORDERBY");
-        _mapping.AddItem("IdArea", "IDAREA");
-        _mapping.AddItem("NameArea", "AREA_NAME");
+        _mapping.AddItem("AreaId", "IDAREA");
+        _mapping.AddItem("AreaName", "AREA");
+        _mapping.AddItem("DealerName", "DEALER");
+        _mapping.AddItem("SupplierName", "SUPPLIER");
+        _mapping.AddItem("Brand", "VBRAND");
 
         Util.Data _data = Util.Data.GetInstance();
-        DataTable _table = await _data.GetDataTable("USP_GET_FASES");
+        DataTable _table = await _data.GetDataTable("USP_GET_FASES", _parameter);
         _response.Data = _data.GetList<Models.Fase>(_mapping, _table);
         _response.SetGetResponse(_table);
       }
@@ -87,15 +93,17 @@ namespace Data
       try
       {
         Util.Parameter _parameter = new Util.Parameter();
-        _parameter.AddSqlParameter("@IDFASE", FaseId);
+        _parameter.AddSqlParameter("@ID", FaseId);
 
         Mapping _mapping = new Mapping();
-        _mapping.AddItem("Id", "IDFASE");
+        _mapping.AddItem("Id", "ID");
         _mapping.AddItem("Name", "VNAME");
-        _mapping.AddItem("IsActive", "BACTIVE");
         _mapping.AddItem("OrderBy", "IORDERBY");
-        _mapping.AddItem("IdArea", "IDAREA");
-        _mapping.AddItem("NameArea", "AREA_NAME");
+        _mapping.AddItem("AreaId", "IDAREA");
+        _mapping.AddItem("AreaName", "AREA");
+        _mapping.AddItem("DealerName", "DEALER");
+        _mapping.AddItem("SupplierName", "SUPPLIER");
+        _mapping.AddItem("Brand", "VBRAND");
 
 
         Util.Data _data = Util.Data.GetInstance();
@@ -110,7 +118,6 @@ namespace Data
 
       return _response;
     }
-
 
     private async Task<Result> _Post_Fases(List<Fase> _list)
     {

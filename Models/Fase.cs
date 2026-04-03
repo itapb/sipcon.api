@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
@@ -12,7 +7,10 @@ namespace Models
     {
         [Required] public String? Name { get; set; }
         [Required] public int? OrderBy { get; set; }
-        [Required] public int? IdArea { get; set; }
-        [SwaggerIgnore] public String? NameArea { get; set; }
+        [Required] public int? AreaId { get; set; }
+        [SwaggerIgnore] public String? AreaName { get; set; }
+        [SwaggerIgnore] public String? DealerName { get; set; }
+        [SwaggerIgnore] public String? SupplierName { get; set; }
+        [SwaggerIgnore] public String? Brand { get; set; }
   }
 }

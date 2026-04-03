@@ -1,19 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Data;
-using Models;
 using Microsoft.AspNetCore.Authorization;
-
 
 namespace WebApi.Controllers
 {
-
     [Route("api/Fase")]
     [ApiController]
     [Authorize]
     public class cFase : ControllerBase
     {
-
         private readonly dFase _dFase;
 
         public cFase(dFase dFase)
@@ -22,12 +17,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(Int32? AreaId = null, Int32? SupplierId = null, Int32? DealerId = null)
         {
-
             try
             {
-                var _response = await _dFase.GetAll();
+                var _response = await _dFase.GetAll(AreaId, SupplierId, DealerId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
