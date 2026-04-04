@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Models;
+﻿using Models;
 using System.Data;
 using Util;
 
@@ -15,12 +14,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Inspection>>> GetAll()
+        public async Task<Response<List<Models.Inspection>>> GetAll(Int32? AreaId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll();
+                return await _GetAll(AreaId);
             }
             finally
             {
@@ -54,26 +53,27 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Inspection>>> _GetAll()
+        private async Task<Response<List<Models.Inspection>>> _GetAll(Int32? AreaId)
         {
             Response<List<Models.Inspection>> _response = new Response<List<Models.Inspection>>();
             try
             {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDAREA", AreaId);
+
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "IDINSPECTION");
+                _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("CreatedBy", "ICREATEDBY");
-                _mapping.AddItem("NameUser", "USER_NAME");
-                _mapping.AddItem("IdVehicle", "IDVEHICLE");
-                _mapping.AddItem("VehiclePlate", "VEHICLE_PLATE");
-                _mapping.AddItem("IdArea", "IDAREA");
-                _mapping.AddItem("NameArea", "AREA_NAME");
-                _mapping.AddItem("DateReceipt", "DDATERECEIPT");
-                _mapping.AddItem("DateInspection", "DDATEINSPECTION");
+                _mapping.AddItem("UserName", "USERNAME");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
+                _mapping.AddItem("VehiclePlate", "PLATE");
+                _mapping.AddItem("AreaId", "IDAREA");
+                _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("Created", "DCREATED");
                 _mapping.AddItem("Updated", "DUPDATED");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS");
+                DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS", _parameter);
                 _response.Data = _data.GetList<Models.Inspection>(_mapping, _table);
                 _response.SetGetResponse(_table);
             }
@@ -94,15 +94,13 @@ namespace Data
                 _parameter.AddSqlParameter("@ID", InspectionId);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "IDINSPECTION");
+                _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("CreatedBy", "ICREATEDBY");
-                _mapping.AddItem("NameUser", "USER_NAME");
-                _mapping.AddItem("IdVehicle", "IDVEHICLE");
-                _mapping.AddItem("VehiclePlate", "VEHICLE_PLATE");
-                _mapping.AddItem("IdArea", "IDAREA");
-                _mapping.AddItem("NameArea", "AREA_NAME");
-                _mapping.AddItem("DateReceipt", "DDATERECEIPT");
-                _mapping.AddItem("DateInspection", "DDATEINSPECTION");
+                _mapping.AddItem("UserName", "USERNAME");
+                _mapping.AddItem("VehicleId", "IDVEHICLE");
+                _mapping.AddItem("VehiclePlate", "PLATE");
+                _mapping.AddItem("AreaId", "IDAREA");
+                _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("Created", "DCREATED");
                 _mapping.AddItem("Updated", "DUPDATED");
 
