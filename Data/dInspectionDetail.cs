@@ -1,0 +1,165 @@
+﻿using Models;
+using System.Data;
+using Util;
+
+namespace Data
+{
+    public class dInspectionDetail
+    {
+        private readonly SemaphoreSlim _semaphore;
+
+        public dInspectionDetail()
+        {
+            Util.Setting.GetSettings(true);
+            _semaphore = new SemaphoreSlim(100, 150);
+        }
+
+        public async Task<Response<List<Models.InspectionDetail>>> GetAll(Int32? InspectionId, Int32? AreaId, Int32? FaseId, Int32? FeatureTypeId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAll(InspectionId, AreaId, FaseId, FeatureTypeId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<Models.InspectionDetail>> GetOne(Int32 DetailInspectionId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOne(DetailInspectionId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Result> Post_DetailInspections(List<InspectionDetail> _list)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_DetailInspections(_list);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.InspectionDetail>>> _GetAll(Int32? InspectionId, Int32? AreaId, Int32? FaseId, Int32? FeatureTypeId)
+        {
+            Response<List<Models.InspectionDetail>> _response = new Response<List<Models.InspectionDetail>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDINSPECTION", InspectionId);
+                _parameter.AddSqlParameter("@IDAREA", AreaId);
+                _parameter.AddSqlParameter("@IDFASE", FaseId);
+                _parameter.AddSqlParameter("@IDFEATURETYPE", FeatureTypeId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Value", "BVALUE");
+                _mapping.AddItem("Observation", "VOBSERVATION");
+                _mapping.AddItem("FileUrl", "VFILEURL");
+                _mapping.AddItem("InspectionId", "IDINSPECTION");
+                _mapping.AddItem("FeatureId", "IDFEATURE");
+                _mapping.AddItem("Feature", "VFEATURE");
+                _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
+                _mapping.AddItem("FeatureType", "VFEATURETYPE");
+                _mapping.AddItem("FaseId", "IDFASE");
+                _mapping.AddItem("Fase", "VFASE");
+                _mapping.AddItem("AreaId", "IDAREA");
+                _mapping.AddItem("Area", "VAREA");
+                _mapping.AddItem("Color", "VCOLOR");
+                _mapping.AddItem("Model", "VMODEL");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Plate", "VPLATE");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS_DETAIL", _parameter);
+                _response.Data = _data.GetList<Models.InspectionDetail>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Response<Models.InspectionDetail>> _GetOne(Int32 DetailInspectionId)
+        {
+            Response<Models.InspectionDetail> _response = new Response<Models.InspectionDetail>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@ID", DetailInspectionId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Value", "BVALUE");
+                _mapping.AddItem("Observation", "VOBSERVATION");
+                _mapping.AddItem("FileUrl", "VFILEURL");
+                _mapping.AddItem("InspectionId", "IDINSPECTION");
+                _mapping.AddItem("FeatureId", "IDFEATURE");
+                _mapping.AddItem("Feature", "VFEATURE");
+                _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
+                _mapping.AddItem("FeatureType", "VFEATURETYPE");
+                _mapping.AddItem("FaseId", "IDFASE");
+                _mapping.AddItem("Fase", "VFASE");
+                _mapping.AddItem("AreaId", "IDAREA");
+                _mapping.AddItem("Area", "VAREA");
+                _mapping.AddItem("Color", "VCOLOR");
+                _mapping.AddItem("Model", "VMODEL");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Plate", "VPLATE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_DETAIL_BY_ID", _parameter);
+                _response.Data = _data.GetItem<Models.InspectionDetail>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Result> _Post_DetailInspections(List<InspectionDetail> _list)
+        {
+            List<Result> _results = new List<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _results = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_INSPECTION_DETAIL", _mapping, _parameter);
+            }
+            catch (Exception ex)
+            {
+                Util.Log.Error(ex);
+                throw;
+            }
+
+            return _results[0];
+        }
+    }
+}

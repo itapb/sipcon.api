@@ -1,29 +1,27 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Data;
-using Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
-    [Route("api/DetailInspection")]
+    [Route("api/InspectionDetail")]
     [ApiController]
     [Authorize]
-    public class cDetailInspection : ControllerBase
+    public class cInspectionDetail : ControllerBase
     {
-        private readonly dDetailInspection _dDetailInspection;
+        private readonly dInspectionDetail _dDetailInspection;
 
-        public cDetailInspection(dDetailInspection dDetailInspection)
+        public cInspectionDetail(dInspectionDetail dDetailInspection)
         {
             _dDetailInspection = dDetailInspection;
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32? InspectionId = null)
+        public async Task<IActionResult> GetAll(Int32? InspectionId = null, Int32? AreaId = null, Int32? FaseId = null, Int32? FeatureTypeId = null)
         {
             try
             {
-                var _response = await _dDetailInspection.GetAll(InspectionId);
+                var _response = await _dDetailInspection.GetAll(InspectionId, AreaId, FaseId, FeatureTypeId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -46,8 +44,8 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("Post_DetailInspections")]
-        public async Task<IActionResult> Post_DetailInspections(List<Models.DetailInspection> _details)
+        [HttpPost("Post_InspectionsDetail")]
+        public async Task<IActionResult> Post_DetailInspections(List<Models.InspectionDetail> _details)
         {
             try
             {
