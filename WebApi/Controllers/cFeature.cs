@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Data;
-using Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
@@ -19,11 +17,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(Int32? DealerId = null, Int32? SupplierId = null, Int32? AreaId = null, Int32? FeatureTypeId = null)
         {
             try
             {
-                var _response = await _dFeature.GetAll();
+                var _response = await _dFeature.GetAll(DealerId, SupplierId, AreaId, FeatureTypeId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
