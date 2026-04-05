@@ -14,12 +14,12 @@ namespace Data
       _semaphore = new SemaphoreSlim(100, 150);
     }
 
-    public async Task<Response<List<Models.Area>>> GetAll(Int32? DealerId, Int32? SupplierId)
+    public async Task<Response<List<Models.Area>>> GetAll(Int32? DealerId, Int32? SupplierId, bool IsActive)
     {
       await _semaphore.WaitAsync(Util.Setting.TimeOut);
       try
       {
-        return await _GetAll(DealerId, SupplierId);
+        return await _GetAll(DealerId, SupplierId, IsActive);
       }
       finally
       {
@@ -27,12 +27,12 @@ namespace Data
       }
     }
 
-    public async Task<Result> Post_Areas(List<Area> _list)
+    public async Task<Result> Post_Areas(List<Area> _list, Int32 userId)
     {
       await _semaphore.WaitAsync(Util.Setting.TimeOut);
       try
       {
-        return await _Post_Areas(_list);
+        return await _Post_Areas(_list, userId);
       }
       finally
       {
@@ -53,7 +53,7 @@ namespace Data
       }
     }
 
-    private async Task<Response<List<Models.Area>>> _GetAll(Int32? DealerId, Int32? SupplierId)
+    private async Task<Response<List<Models.Area>>> _GetAll(Int32? DealerId, Int32? SupplierId, Boolean IsActive)
     {
       Response<List<Models.Area>> _response = new Response<List<Models.Area>>();
       try
@@ -61,14 +61,17 @@ namespace Data
         Util.Parameter _parameter = new Util.Parameter();
         _parameter.AddSqlParameter("@IDDEALER", DealerId);
         _parameter.AddSqlParameter("@IDSUPPLIER", SupplierId);
+        _parameter.AddSqlParameter("@BACTIVE", IsActive);
 
         Mapping _mapping = new Mapping();
         _mapping.AddItem("Id", "ID");
+        _mapping.AddItem("IsActive", "BACTIVE");
         _mapping.AddItem("Name", "VNAME");
         _mapping.AddItem("DealerId", "IDDEALER");
-        _mapping.AddItem("DealerName", "DEALER");
-        _mapping.AddItem("SupplierName", "SUPPLIER");
-        _mapping.AddItem("Brand", "VBRAND");
+        _mapping.AddItem("Dealer", "DEALER");
+        _mapping.AddItem("SupplierId", "IDSUPPLIER");
+        _mapping.AddItem("Supplier", "SUPPLIER");
+        _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
 
         Util.Data _data = Util.Data.GetInstance();
         DataTable _table = await _data.GetDataTable("USP_GET_AREAS", _parameter);
@@ -92,11 +95,13 @@ namespace Data
 
         Mapping _mapping = new Mapping();
         _mapping.AddItem("Id", "ID");
+        _mapping.AddItem("isActive", "BACTIVE");
         _mapping.AddItem("Name", "VNAME");
         _mapping.AddItem("DealerId", "IDDEALER");
-        _mapping.AddItem("DealerName", "DEALER");
-        _mapping.AddItem("SupplierName", "SUPPLIER");
-        _mapping.AddItem("Brand", "VBRAND");
+        _mapping.AddItem("Dealer", "DEALER");
+        _mapping.AddItem("SupplierId", "IDSUPPLIER");
+        _mapping.AddItem("Supplier", "SUPPLIER");
+        _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
 
                 Util.Data _data = Util.Data.GetInstance();
         DataTable _table = await _data.GetDataTable("USP_GET_AREA_BY_ID", _parameter);
@@ -110,7 +115,7 @@ namespace Data
 
       return _response;
     }
-    private async Task<Result> _Post_Areas(List<Area> _list)
+    private async Task<Result> _Post_Areas(List<Area> _list, Int32 userId)
     {
       List<Result> _results = new List<Result>();
       try
@@ -119,6 +124,7 @@ namespace Data
 
         Util.Parameter _parameter = new Util.Parameter();
         _parameter.AddSqlParameter("@DATA", _jsonstring);
+        _parameter.AddSqlParameter("@IDUSER", userId);
 
         Mapping _mapping = new Mapping();
         _mapping.SetDefaultPostMapping();

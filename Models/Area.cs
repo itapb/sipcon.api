@@ -7,8 +7,9 @@ namespace Models
     {
         [Required] public String? Name { get; set; }
         [Required] public Int32? DealerId { get; set; }
-        [SwaggerIgnore] public String ? DealerName { get; set; }
-        [SwaggerIgnore] public String? SupplierName { get; set; }
-        [SwaggerIgnore] public String? Brand { get; set; }
+        [SwaggerIgnore] public String? Dealer { get; set; }
+        [SwaggerIgnore] public Int32? SupplierId { get; set; }
+        [SwaggerIgnore] public String? Supplier { get; set; }
+        [SwaggerIgnore] public String? UpdatedBy { get; set; }
     }
 }
