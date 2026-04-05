@@ -70,6 +70,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("bdefault", "BDEFAULT");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
                 _mapping.AddItem("FeatureType", "FEATURETYPE");
                 _mapping.AddItem("ModelId", "IDMODEL");
@@ -109,6 +110,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("bdefault", "BDEFAULT");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
                 _mapping.AddItem("FeatureType", "FEATURETYPE");
                 _mapping.AddItem("ModelId", "IDMODEL");

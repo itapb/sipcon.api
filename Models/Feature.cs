@@ -7,6 +7,7 @@ namespace Models
     {
         [Required] public String? Name { get; set; }
         [Required] public Int32? ModelId { get; set; }
+        [SwaggerIgnore] public bool? bdefault { get; set; }
         [SwaggerIgnore] public String? Model { get; set; }
         [Required] public Int32? FeatureTypeId { get; set; }
         [SwaggerIgnore] public String? FeatureType { get; set; }
