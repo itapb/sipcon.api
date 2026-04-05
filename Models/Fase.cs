@@ -6,8 +6,8 @@ namespace Models
     public class Fase:Record
     {
         [Required] public String? Name { get; set; }
-        [Required] public int? OrderBy { get; set; }
-        [Required] public int? AreaId { get; set; }
+        [Required] public Int32? OrderBy { get; set; }
+        [Required] public Int32? AreaId { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
         [Required] public Int32? DealerId { get; set; }
         [SwaggerIgnore] public String? Dealer { get; set; }
