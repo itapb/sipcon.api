@@ -15,12 +15,12 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
 
-        public async Task<Response<List<Models.Feature>>> GetAll(Int32? DealerId, Int32? SupplierId, Int32? AreaId, Int32? FeatureTypeId)
+        public async Task<Response<List<Models.Feature>>> GetAll(Int32? DealerId, Int32? SupplierId, Int32? AreaId, Int32? FeatureTypeId, bool IsActive)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAll(DealerId, SupplierId, AreaId, FeatureTypeId);
+                return await _GetAll(DealerId, SupplierId, AreaId, FeatureTypeId, IsActive);
             }
             finally
             {
@@ -41,12 +41,12 @@ namespace Data
             }
         }
 
-        public async Task<Result> Post_Features(List<Feature> _list)
+        public async Task<Result> Post_Features(List<Feature> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Post_Features(_list);
+                return await _Post_Features(_list, userId);
             }
             finally
             {
@@ -54,7 +54,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Feature>>> _GetAll(Int32? DealerId, Int32? SupplierId, Int32? AreaId, Int32? FeatureTypeId)
+        private async Task<Response<List<Models.Feature>>> _GetAll(Int32? DealerId, Int32? SupplierId, Int32? AreaId, Int32? FeatureTypeId, bool IsActive)
         {
             Response<List<Models.Feature>> _response = new Response<List<Models.Feature>>();
             try
@@ -64,10 +64,12 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", SupplierId);
                 _parameter.AddSqlParameter("@IDAREA", AreaId);
                 _parameter.AddSqlParameter("@IDFEATURETYPE", FeatureTypeId);
+                _parameter.AddSqlParameter("@BACTIVE", IsActive);
 
                 Mapping _mapping = new Mapping(); 
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
                 _mapping.AddItem("FeatureType", "FEATURETYPE");
                 _mapping.AddItem("ModelId", "IDMODEL");
@@ -76,9 +78,11 @@ namespace Data
                 _mapping.AddItem("Fase", "FASE");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");
-                _mapping.AddItem("DealerName", "DEALER");
-                _mapping.AddItem("SupplierName", "SUPPLIER");
-                _mapping.AddItem("Brand", "VBRAND");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("Dealer", "DEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Supplier", "SUPPLIER");
+                _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_FEATURES", _parameter);
@@ -104,6 +108,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
                 _mapping.AddItem("FeatureType", "FEATURETYPE");
                 _mapping.AddItem("ModelId", "IDMODEL");
@@ -112,9 +117,11 @@ namespace Data
                 _mapping.AddItem("Fase", "FASE");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");
-                _mapping.AddItem("DealerName", "DEALER");
-                _mapping.AddItem("SupplierName", "SUPPLIER");
-                _mapping.AddItem("Brand", "VBRAND");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("Dealer", "DEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("Supplier", "SUPPLIER");
+                _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_FEATURE_BY_ID", _parameter);
@@ -129,7 +136,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Result> _Post_Features(List<Feature> _list)
+        private async Task<Result> _Post_Features(List<Feature> _list, Int32 userId)
         {
             List<Result> _results = new List<Result>();
             try
@@ -138,6 +145,7 @@ namespace Data
 
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();

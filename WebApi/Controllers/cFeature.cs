@@ -17,11 +17,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32? DealerId = null, Int32? SupplierId = null, Int32? AreaId = null, Int32? FeatureTypeId = null)
+        public async Task<IActionResult> GetAll(Int32? DealerId = null, Int32? SupplierId = null, Int32? AreaId = null, Int32? FeatureTypeId = null, bool IsActive = true)
         {
             try
             {
-                var _response = await _dFeature.GetAll(DealerId, SupplierId, AreaId, FeatureTypeId);
+                var _response = await _dFeature.GetAll(DealerId, SupplierId, AreaId, FeatureTypeId, IsActive);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -45,11 +45,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("Post_Features")]
-        public async Task<IActionResult> Post_Features(List<Models.Feature> _features)
+        public async Task<IActionResult> Post_Features(List<Models.Feature> _features, Int32 userId)
         {
             try
             {
-                var _response = await _dFeature.Post_Features(_features);
+                var _response = await _dFeature.Post_Features(_features, userId);
                 return StatusCode(StatusCodes.Status200OK, _response);
             }
             catch (Exception ex)
