@@ -17,11 +17,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(Int32? AreaId = null, Int32? SupplierId = null, Int32? DealerId = null)
+        public async Task<IActionResult> GetAll(Int32? AreaId = null, Int32? SupplierId = null, Int32? DealerId = null, bool IsActive = true)
         {
             try
             {
-                var _response = await _dFase.GetAll(AreaId, SupplierId, DealerId);
+                var _response = await _dFase.GetAll(AreaId, SupplierId, DealerId, IsActive);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -45,11 +45,11 @@ namespace WebApi.Controllers
         }
 
     [HttpPost("Post_Fases")]
-        public async Task<IActionResult> Post_Fases(List<Models.Fase> _fases)
+        public async Task<IActionResult> Post_Fases(List<Models.Fase> _fases, Int32 userId)
         {
             try
             {
-              var _response = await _dFase.Post_Fases(_fases);
+              var _response = await _dFase.Post_Fases(_fases, userId);
               return StatusCode(StatusCodes.Status200OK, _response);
             }
             catch (Exception ex)
