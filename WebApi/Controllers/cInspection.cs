@@ -57,5 +57,33 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        [HttpGet("GetAllInspectionFase")]
+        public async Task<IActionResult> GetAllInspectionFase(Int32? AreaId = null, Int32? FaseId = null, Int32? InspectionId = null, bool? IsCompleted = null)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("Post_InspectionFase")]
+        public async Task<IActionResult> Post_InspectionFase(List<Models.InspectionFase> _inspectionsFase)
+        {
+            try
+            {
+                var _response = await _dInspection.Post_InspectionFase(_inspectionsFase);
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }
