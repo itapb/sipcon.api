@@ -18,7 +18,7 @@ namespace Data
         public dSecurity() 
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<Response<List<Models.AccessGroup>>> GetAccessGroup(string? filter, Int32 rowFrom)

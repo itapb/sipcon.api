@@ -10,7 +10,7 @@ namespace Data
         public dLocation()
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<Response<List<Models.Location>>> GetAll(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter)

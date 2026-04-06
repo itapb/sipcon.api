@@ -24,16 +24,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 
-    // MUY IMPORTANTE: Cambiar el orden de los proveedores. 
-    // Usaremos un proveedor que no se base en el encabezado del navegador.
-    // Aunque no está FixedRequestCultureProvider, al configurar DefaultRequestCulture
-    // y limitar las SupportedCultures, se logra el efecto deseado.
-
-    // Opcionalmente, puedes eliminar todos los proveedores y confiar en DefaultRequestCulture
-    // options.RequestCultureProviders.Clear(); 
-
-    // Si usas un proveedor que se basa en la Query String (opcional)
-    // options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider()); 
+     
 });
 
 
@@ -48,41 +39,10 @@ builder.Services.AddCors(options =>
 // 3. Configuración de servicios
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
 
 builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
-// Swagger con seguridad Bearer
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SIPCON", Version = "v1" });
-//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//    {
-//        Name = "Authorization",
-//        Type = SecuritySchemeType.Http,
-//        Scheme = "bearer",
-//        BearerFormat = "JWT",
-//        In = ParameterLocation.Header,
-//        Description = "Ejemplo: \"Bearer eyJhbGciOiJIUzI1NiIs...\""
-//    });
-//    //c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//    //{
-//    //    {
-//    //        new OpenApiSecurityScheme
-//    //        {
-//    //            Reference = new OpenApiReference
-//    //            {
-//    //                Type = ReferenceType.SecurityScheme,
-//    //                Id = "Bearer"
-//    //            }
-//    //        },
-//    //        new string[] {}
-//    //    }
-//    //});
-//});
 
-
-//*****************************************
 
 // Autenticación JWT
 builder.Services.AddAuthentication(options =>
@@ -108,39 +68,35 @@ builder.Services.AddAuthentication(options =>
 });
 
 // 4. Servicios personalizados
-builder.Services.AddSingleton<dColor>();
-builder.Services.AddSingleton<dBrand>();
-builder.Services.AddSingleton<dContact>();
-builder.Services.AddSingleton<dModel>();
-builder.Services.AddSingleton<dVehicle>();
-builder.Services.AddSingleton<dPolicyType>();
-builder.Services.AddSingleton<dPolicy>();
-builder.Services.AddSingleton<dModule>();
-builder.Services.AddSingleton<dPart>();
-builder.Services.AddSingleton<dWarehouse>();
-builder.Services.AddSingleton<dZone>();
-builder.Services.AddSingleton<dLocation>();
-builder.Services.AddSingleton<dInventory>();
-builder.Services.AddSingleton<dService>();
-builder.Services.AddSingleton<dComment>();
-builder.Services.AddSingleton<dPayMethod>();
-builder.Services.AddSingleton<dAttachment>();
-builder.Services.AddSingleton<dSaleOrder>();
-builder.Services.AddSingleton<dLicense>();
-builder.Services.AddSingleton<dLaborTime>();
-builder.Services.AddSingleton<dPrintqueue>();
-builder.Services.AddSingleton<dSecurity>();
-builder.Services.AddSingleton<dAssessment>();
+builder.Services.AddScoped<dColor>();
+builder.Services.AddScoped<dBrand>();
+builder.Services.AddScoped<dContact>();
+builder.Services.AddScoped<dModel>();
+builder.Services.AddScoped<dVehicle>();
+builder.Services.AddScoped<dPolicyType>();
+builder.Services.AddScoped<dPolicy>();
+builder.Services.AddScoped<dModule>();
+builder.Services.AddScoped<dPart>();
+builder.Services.AddScoped<dWarehouse>();
+builder.Services.AddScoped<dZone>();
+builder.Services.AddScoped<dLocation>();
+builder.Services.AddScoped<dInventory>();
+builder.Services.AddScoped<dService>();
+builder.Services.AddScoped<dComment>();
+builder.Services.AddScoped<dPayMethod>();
+builder.Services.AddScoped<dAttachment>();
+builder.Services.AddScoped<dSaleOrder>();
+builder.Services.AddScoped<dLicense>();
+builder.Services.AddScoped<dLaborTime>();
+builder.Services.AddScoped<dPrintqueue>();
+builder.Services.AddScoped<dSecurity>();
+builder.Services.AddScoped<dAssessment>();
 builder.Services.AddSingleton<RefreshTokenStore>();
-builder.Services.AddSingleton<dTemplate>();
-builder.Services.AddSingleton<dReporting>();
-builder.Services.AddSingleton<dPayment>();
+builder.Services.AddScoped<dTemplate>();
+builder.Services.AddScoped<dReporting>();
+builder.Services.AddScoped<dPayment>();
 // 5. crear app
 var app = builder.Build();
-
-// 6. Use. ORDEN: UseSwagger,UseSwaggerUI,UseRouting,UseCors,Use,UseAuthentication,UseAuthorization,MapControllers
-//app.UseSwagger();
-//app.UseSwaggerUI();
 
 
 app.UseRouting();
@@ -165,8 +121,7 @@ app.MapScalarApiReference(options =>
     options.OpenApiRoutePattern = "/openapi/{documentName}.json";
     options.WithTitle("WebApi");
     options.WithTheme(ScalarTheme.BluePlanet);
-    //options.HideSidebar();
-    //options.Servers = [new ScalarServer("/MCAExpenseWebApi")];
+
 
 });
 //*****************

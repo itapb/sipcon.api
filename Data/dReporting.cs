@@ -20,7 +20,7 @@ namespace Data
         public dReporting() 
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
 

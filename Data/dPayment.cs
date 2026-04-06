@@ -12,7 +12,7 @@ namespace Data
         public dPayment()
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         private async Task<Response<List<Models.Currency>>> _getCurrencys()
