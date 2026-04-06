@@ -132,16 +132,19 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("DealerId", "IDDEALER");
-                _mapping.AddItem("Type", "VTYPE");
-                _mapping.AddItem("Concept", "VCONCEPT");
+                _mapping.AddItem("TypeCode", "VTYPECODE");
+                _mapping.AddItem("TypeName", "VTYPENAME");
+                _mapping.AddItem("ConceptCode", "VCONCEPTCODE");
+                _mapping.AddItem("ConceptName", "VCONCEPTNAME");
                 _mapping.AddItem("Number", "VNUMBER");
                 _mapping.AddItem("Reference", "VREFERENCE");
-                _mapping.AddItem("Date", "VDATE");
-                _mapping.AddItem("DueDate", "VDUEDATE");
+                _mapping.AddItem("DocumentDate", "VDATE");
+                _mapping.AddItem("DocumentDueDate", "VDUEDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
                 _mapping.AddItem("Balance", "NBALANCE");
                 _mapping.AddItem("Rate", "NRATE");
-                _mapping.AddItem("Status", "VSTATUS");
+                _mapping.AddItem("StatusName", "VSTATUSNAME");
+                _mapping.AddItem("StatusId", "ISTATUSID");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
