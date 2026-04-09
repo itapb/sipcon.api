@@ -80,6 +80,21 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("GetDocumentStatus")]
+        public async Task<IActionResult> GetDocumentStatus()
+        {
+            try
+            {
+                var _response = await _dPayment.GetDocumentStatus();
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         [HttpGet("GetAccountReceivables")]
         public async Task<IActionResult> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
         {
