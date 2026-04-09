@@ -17,7 +17,7 @@ namespace Data
         public dBrand() 
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<List<Models.Brand>> GetAll(int? SupplierId)

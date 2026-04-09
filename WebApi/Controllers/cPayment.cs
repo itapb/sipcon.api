@@ -94,5 +94,19 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("GetBankAccounts")]
+        public async Task<IActionResult> GetBankAccounts(Int32 supplierId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetBankAccounts(supplierId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
     }
 }

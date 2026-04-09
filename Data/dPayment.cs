@@ -1,5 +1,6 @@
-﻿using System.Data;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
 using Models;
+using System.Data;
 using Util;
 
 
@@ -11,7 +12,7 @@ namespace Data
         public dPayment()
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         private async Task<Response<List<Models.Currency>>> _getCurrencys()
@@ -131,20 +132,51 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("DealerId", "IDDEALER");
-                _mapping.AddItem("Type", "VTYPE");
-                _mapping.AddItem("Concept", "VCONCEPT");
+                _mapping.AddItem("TypeCode", "VTYPECODE");
+                _mapping.AddItem("TypeName", "VTYPENAME");
+                _mapping.AddItem("ConceptCode", "VCONCEPTCODE");
+                _mapping.AddItem("ConceptName", "VCONCEPTNAME");
                 _mapping.AddItem("Number", "VNUMBER");
                 _mapping.AddItem("Reference", "VREFERENCE");
-                _mapping.AddItem("Date", "VDATE");
-                _mapping.AddItem("DueDate", "VDUEDATE");
+                _mapping.AddItem("DocumentDate", "VDATE");
+                _mapping.AddItem("DocumentDueDate", "VDUEDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
                 _mapping.AddItem("Balance", "NBALANCE");
                 _mapping.AddItem("Rate", "NRATE");
-                _mapping.AddItem("Status", "VSTATUS");
+                _mapping.AddItem("StatusName", "VSTATUSNAME");
+                _mapping.AddItem("StatusId", "ISTATUSID");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
                 _response.Data = _data.GetList<Models.AccountReceivable>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+        private async Task<Response<List<Models.BankAccount>>> _getBankAccounts(Int32 supplierId)
+        {
+            Response<List<Models.BankAccount>> _response = new Response<List<Models.BankAccount>>();
+
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Code", "VCODE");
+                _mapping.AddItem("Account", "VACCOUNT");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_BANKACCOUNTS", _parameter);
+                _response.Data = _data.GetList<Models.BankAccount>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -215,6 +247,17 @@ namespace Data
                 _semaphore.Release();
             }
         }
-    
+        public async Task<Response<List<Models.BankAccount>>> GetBankAccounts(Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getBankAccounts(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
     }
 }

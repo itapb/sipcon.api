@@ -13,7 +13,7 @@ namespace Data
         public dSaleOrder()
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<Response<List<SaleOrder>>> GetAll(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)

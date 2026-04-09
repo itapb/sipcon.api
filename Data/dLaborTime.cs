@@ -13,7 +13,7 @@ namespace Data
         public dLaborTime() 
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<Response<List<Models.LaborTime>>> GetAll(Int32 supplierId,Int32? modelId, String? filter, Int32 irowfrom)

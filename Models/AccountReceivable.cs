@@ -9,16 +9,19 @@ namespace Models
     {
         [Required] public int? SupplierId { get; set; }
         [Required] public int? DealerId { get; set; }
-        [Required] public string? Type { get; set; }
-        [Required] public string? Concept { get; set; }
+        [Required] public string? TypeCode { get; set; }
+        [Required] public string? TypeName { get; set; }
+        [Required] public string? ConceptCode { get; set; }
+        [Required] public string? ConceptName { get; set; }
         [Required] public string? Number { get; set; }
         [Required] public string? Reference { get; set; }
-        [Required] public string? Date { get; set; }
-        [Required] public string? DueDate { get; set; }
+        [Required] public string? DocumentDate { get; set; }
+        [Required] public string? DocumentDueDate { get; set; }
         [Required] public decimal? Amount { get; set; }
         [Required] public decimal? Balance { get; set; }
         [Required] public decimal? Rate { get; set; }
-        [Required] public string? Status { get; set; }
+        [Required] public string? StatusName { get; set; }
+        [Required] public int? StatusId { get; set; }
 
 
     }

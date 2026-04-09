@@ -25,7 +25,7 @@ namespace Data
         public dService()
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<Models.Response<List<T>>> GetAll<T>(string? filter, int? rowFrom, int userId, int serviceTypeId, int dealerId, int? supplierId, DateTime? fromDate, DateTime? upToDate, int? estatusId, int? serviceId = null)

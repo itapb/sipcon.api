@@ -19,7 +19,7 @@ namespace Data
         public dPolicy() 
         {
             Util.Setting.GetSettings(true);
-            _semaphore = new SemaphoreSlim(100, 150);
+            _semaphore = new SemaphoreSlim(300, 500);
         }
 
         public async Task<Response<List<Models.Policy>>> GetAll(string? filter, Int32 rowFrom, Int32 userId, Int32? supplierId,Int32? dealerId, DateTime? fromDate, DateTime? upToDate, int? estatusId)
@@ -61,6 +61,7 @@ namespace Data
                 _mapping.AddItem("Description", "VDESCRIPTION");
                 _mapping.AddItem("VehicleId", "IDVEHICLE");
                 _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("CertificateNumber", "ICERTIFICATENUMBER");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("ModelName", "MODELNAME");
@@ -143,6 +144,7 @@ namespace Data
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("CertificateNumber", "ICERTIFICATENUMBER");
                 _mapping.AddItem("ModelName", "MODELNAME");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("Vat", "VVAT");
