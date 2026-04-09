@@ -19,7 +19,7 @@ namespace Models
     }
     public class PaymentDetails : Record
     {
-        
+        [SwaggerIgnore] public int? PaymentId{ get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
         [SwaggerIgnore] public decimal? Rate { get; set; }

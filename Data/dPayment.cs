@@ -206,6 +206,7 @@ namespace Data
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("PaymentId", "IDPAYMENT");
                 _mapping.AddItem("Date", "DDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
                 _mapping.AddItem("Rate", "NRATE");
