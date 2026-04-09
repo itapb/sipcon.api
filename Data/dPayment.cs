@@ -186,6 +186,29 @@ namespace Data
             }
             return _response;
         }
+        private async Task<Response<List<Models.EstatusRecord>>> _getDocumentStatus()
+        {
+            Response<List<Models.EstatusRecord>> _response = new Response<List<Models.EstatusRecord>>();
+
+            try
+            {
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Display", "VDISPLAYESTATUS");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DOCUMENTSTATUS");
+                _response.Data = _data.GetList<Models.EstatusRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
         public async Task<Response<List<Models.Currency>>> GetCurrencys()
         {
@@ -253,6 +276,18 @@ namespace Data
             try
             {
                 return await _getBankAccounts(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        public async Task<Response<List<Models.EstatusRecord>>> GetDocumentStatus()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getDocumentStatus();
             }
             finally
             {
