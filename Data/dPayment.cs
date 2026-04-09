@@ -206,7 +206,7 @@ namespace Data
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("Date", "VDATE");
+                _mapping.AddItem("Date", "DDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
                 _mapping.AddItem("Rate", "NRATE");
                 _mapping.AddItem("DateRate", "DDATERATE");
@@ -226,7 +226,7 @@ namespace Data
                 _mapping.AddItem("StatusId", "IDESTATUS");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTDETAILS", _parameter);
                 _response.Data = _data.GetList<Models.PaymentDetails>(_mapping, _table);
                 _response.SetGetResponse(_table);
 

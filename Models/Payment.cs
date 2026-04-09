@@ -36,7 +36,6 @@ namespace Models
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
         [SwaggerIgnore] public string? DealerName { get; set; }
-        [SwaggerIgnore] public string? SupplierName { get; set; }
         [SwaggerIgnore] public string? StatusName { get; set; }
         [SwaggerIgnore] public int? StatusId { get; set; }
 
