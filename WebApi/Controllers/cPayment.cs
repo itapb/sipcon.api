@@ -108,5 +108,20 @@ namespace WebApi.Controllers
             }
         }
 
+
+        [HttpGet("GetPayments")]
+        public async Task<IActionResult> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetPayments(userId, supplierId, dealerId,rowfrom, filter, fromDate, upToDate, statusId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
     }
 }

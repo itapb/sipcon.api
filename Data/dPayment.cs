@@ -187,6 +187,57 @@ namespace Data
             return _response;
         }
 
+
+        private async Task<Response<List<Models.PaymentDetails>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        {
+            Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IDESTATUS", statusId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Date", "VDATE");
+                _mapping.AddItem("Amount", "NAMOUNT");
+                _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DDATERATE");
+                _mapping.AddItem("CurrencyName", "VCURRENCY");
+                _mapping.AddItem("CurrencyId", "IDCURRENCY");
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("TypeId", "IDTYPE");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("BankName", "VBANK");
+                _mapping.AddItem("BankId", "IDBANK");
+                _mapping.AddItem("AccountId", "IDACCOUNT");
+                _mapping.AddItem("AccountNumber", "VACCOUNTNUMBER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("StatusId", "IDESTATUS");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
+                _response.Data = _data.GetList<Models.PaymentDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
         public async Task<Response<List<Models.Currency>>> GetCurrencys()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -253,6 +304,19 @@ namespace Data
             try
             {
                 return await _getBankAccounts(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<List<Models.PaymentDetails>>> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPayments(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId);
             }
             finally
             {
