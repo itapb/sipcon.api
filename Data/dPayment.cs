@@ -347,5 +347,19 @@ namespace Data
                 _semaphore.Release();
             }
         }
+
+        public async Task<Response<List<Models.EstatusRecord>>> GetDocumentStatus()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getDocumentStatus();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        
     }
 }
