@@ -95,6 +95,7 @@ builder.Services.AddSingleton<RefreshTokenStore>();
 builder.Services.AddScoped<dTemplate>();
 builder.Services.AddScoped<dReporting>();
 builder.Services.AddScoped<dPayment>();
+builder.Services.AddScoped<dInspection>();
 // 5. crear app
 var app = builder.Build();
 
