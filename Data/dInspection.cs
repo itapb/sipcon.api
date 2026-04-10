@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Office2016.Excel;
 using DocumentFormat.OpenXml.Office2021.Excel.NamedSheetViews;
 using DocumentFormat.OpenXml.Presentation;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -91,7 +92,7 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
 
-        public async Task<List<Models.Area>> GetAreaExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<List<Models.Area>> GetAreaExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -105,7 +106,7 @@ namespace Data
         }
         /*---------------------------------------------------------------GetAll---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Area>>> GetAllAreas(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<Response<List<Models.Area>>> GetAllAreas(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -118,7 +119,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Area>>> _GetAllAreas(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? areaId = null)
+        private async Task<Response<List<Models.Area>>> _GetAllAreas(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? areaId = null)
         {
 
             Response<List<Models.Area>> _response = new Response<List<Models.Area>>();
@@ -248,7 +249,7 @@ namespace Data
 
         #region "FASE"
         /*---------------------------------------------------------------GetOne---------------------------------------------------------------*/
-        public async Task<Response<Models.Fase>> GetFase(int userId, int faseId)
+        public async Task<Response<Models.Fase>> GetFase(Int32 userId, int faseId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -260,7 +261,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Models.Fase>> _GetFase(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? faseId)
+        private async Task<Response<Models.Fase>> _GetFase(Int32 userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? faseId)
         {
             Response<Models.Fase> _response = new Response<Models.Fase>();
             try
@@ -303,7 +304,7 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
 
-        public async Task<List<Models.Fase>> GetFaseExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<List<Models.Fase>> GetFaseExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -317,7 +318,7 @@ namespace Data
         }
         /*---------------------------------------------------------------GetAll---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Fase>>> GetAllFases(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<Response<List<Models.Fase>>> GetAllFases(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -330,7 +331,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Fase>>> _GetAllFases(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? faseId = null)
+        private async Task<Response<List<Models.Fase>>> _GetAllFases(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? faseId = null)
         {
 
             Response<List<Models.Fase>> _response = new Response<List<Models.Fase>>();
@@ -461,7 +462,7 @@ namespace Data
 
         #region "FEATURETYPE"
         /*---------------------------------------------------------------GetOne---------------------------------------------------------------*/
-        public async Task<Response<Models.FeatureType>> GetFeatureType(int userId, int featureTypeId)
+        public async Task<Response<Models.FeatureType>> GetFeatureType(Int32 userId, int featureTypeId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -473,7 +474,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Models.FeatureType>> _GetFeatureType(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? featureTypeId)
+        private async Task<Response<Models.FeatureType>> _GetFeatureType(Int32 userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? featureTypeId)
         {
             Response<Models.FeatureType> _response = new Response<Models.FeatureType>();
             try
@@ -518,7 +519,7 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/ 
 
-        public async Task<List<Models.FeatureType>> GetFeatureTypeExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<List<Models.FeatureType>> GetFeatureTypeExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -532,7 +533,7 @@ namespace Data
         }
         /*---------------------------------------------------------------GetAll---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.FeatureType>>> GetAllFeatureType(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<Response<List<Models.FeatureType>>> GetAllFeatureType(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -545,7 +546,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.FeatureType>>> _GetAllFeatureType(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? featureTypeId = null)
+        private async Task<Response<List<Models.FeatureType>>> _GetAllFeatureType(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? featureTypeId = null)
         {
 
             Response<List<Models.FeatureType>> _response = new Response<List<Models.FeatureType>>();
@@ -679,7 +680,7 @@ namespace Data
 
         #region "FEATURE"
         /*---------------------------------------------------------------GetOne---------------------------------------------------------------*/
-        public async Task<Response<Models.Feature>> GetFeature(int userId, int featureId)
+        public async Task<Response<Models.Feature>> GetFeature(Int32 userId, int featureId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -691,7 +692,7 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        private async Task<Response<Models.Feature>> _GetFeature(int userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? featureId)
+        private async Task<Response<Models.Feature>> _GetFeature(Int32 userId, int? supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? featureId)
         {
             Response<Models.Feature> _response = new Response<Models.Feature>();
             try
@@ -741,7 +742,7 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
 
-        public async Task<List<Feature>> GetFeatureExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<List<Feature>> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -755,7 +756,7 @@ namespace Data
         }
         /*---------------------------------------------------------------GetAll---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Feature>>> GetAllFeature(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<Response<List<Models.Feature>>> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -768,7 +769,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Feature>>> _GetAllFeature(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active, int? featureId = null)
+        private async Task<Response<List<Models.Feature>>> _GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? featureId = null)
         {
 
             Response<List<Models.Feature>> _response = new Response<List<Models.Feature>>();
