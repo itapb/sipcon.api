@@ -85,5 +85,19 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        [HttpPost("Post_FullInspection")]
+        public async Task<IActionResult> Post_FullInspection(List<Models.FullInspection> _fullInspection, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInspection.Post_FullInspection(_fullInspection, userId);
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

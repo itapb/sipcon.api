@@ -79,6 +79,19 @@ namespace Data
             }
         }
 
+        public async Task<Result> Post_FullInspection(List<FullInspection> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_FullInspection(_list,userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task<Response<List<Models.Inspection>>> _GetAll(Int32? AreaId)
         {
             Response<List<Models.Inspection>> _response = new Response<List<Models.Inspection>>();
@@ -216,6 +229,32 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 _results = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_INSPECTION_FASE", _mapping, _parameter);
+            }
+            catch (Exception ex)
+            {
+                Util.Log.Error(ex);
+                throw;
+            }
+
+            return _results[0];
+        }
+
+        private async Task<Result> _Post_FullInspection(List<FullInspection> _list, Int32 userId)
+        {
+            List<Result> _results = new List<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                _results = await _data.ExecuteReaderAsync<Models.Result>("USP_POST_GENERATE_FULL_INSPECTION", _mapping, _parameter);
             }
             catch (Exception ex)
             {

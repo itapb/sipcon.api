@@ -26,4 +26,10 @@ namespace Models
         [SwaggerIgnore] public Int32? AreaId { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
     }
+
+    public class FullInspection
+    {
+        [Required] public Int32? VehicleId { get; set; }
+        [Required] public Int32? AreaId { get; set; }
+    }
 }
