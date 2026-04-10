@@ -30,7 +30,20 @@ namespace WebApi.Controllers
         }
 
         #region "AREA"
-         
+        [HttpGet("/api/PDI/Area/GetAll")]
+        public async Task<IActionResult> GeAllAreaPdi(int userId, int supplierId, int dealerId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAreaPDI(userId, supplierId, dealerId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         [HttpGet("/api/Area/GetOne")]
         public async Task<IActionResult> GetOneArea(int userId, int areaId)
         {
