@@ -10,6 +10,9 @@ namespace Models
         [Required] public int? AreaId { get; set; }
         [SwaggerIgnore] public String? UserName { get; set; }
         [SwaggerIgnore] public String? VehiclePlate { get; set; }
+        [SwaggerIgnore] public String? Model { get; set; }
+        [SwaggerIgnore] public String? Lote { get; set; }
+        [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public String? NameArea { get; set; }
         [SwaggerIgnore] public DateTime? Created { get; set; }
         [SwaggerIgnore] public DateTime? Updated { get; set; }

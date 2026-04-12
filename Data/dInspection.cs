@@ -108,6 +108,9 @@ namespace Data
                 _mapping.AddItem("VehiclePlate", "PLATE");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("NameArea", "AREA");
+                _mapping.AddItem("Model", "MODEL");
+                _mapping.AddItem("Lote", "LOTE");
+                _mapping.AddItem("Vin", "VIN");
                 _mapping.AddItem("Created", "DCREATED");
                 _mapping.AddItem("Updated", "DUPDATED");
 
@@ -174,6 +177,9 @@ namespace Data
                 _mapping.AddItem("VehiclePlate", "PLATE");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("NameArea", "AREA");
+                _mapping.AddItem("Model", "MODEL");
+                _mapping.AddItem("Lote", "LOTE");
+                _mapping.AddItem("Vin", "VIN");
                 _mapping.AddItem("Created", "DCREATED");
                 _mapping.AddItem("Updated", "DUPDATED");
 
