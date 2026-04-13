@@ -13,6 +13,8 @@ namespace Models
         [SwaggerIgnore] public String? Feature { get; set; }
         [SwaggerIgnore] public Int32? FeatureTypeId { get; set; }
         [SwaggerIgnore] public String? FeatureType { get; set; }
+        [SwaggerIgnore] public String? FaseId { get; set; }
+        [SwaggerIgnore] public String? Fase { get; set; }
         [SwaggerIgnore] public Int32? AreaId { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
         [SwaggerIgnore] public String? Color { get; set; }
