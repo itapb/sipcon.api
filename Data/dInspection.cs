@@ -38,8 +38,56 @@ namespace Data
         }
 
         #region "AREA"
+        /*---------------------------------------------------------------PDI---------------------------------------------------------------*/
+         
+        public async Task<Response<List<Models.Area>>> GetAreaPDI(Int32 userId, Int32 supplierId, int? dealerId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAreaPDI(userId, supplierId, dealerId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Area>>> _GetAreaPDI(Int32 userId, Int32 supplierId, int? dealerId)
+        {
+
+            Response<List<Models.Area>> _response = new Response<List<Models.Area>>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId); 
+                _parameter.AddSqlParameter("@IDUSER", userId); 
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME"); 
+                // Supplier
+                _mapping.AddItem("SupplierId", "IDSUPPLIER"); 
+                // Dealer
+                _mapping.AddItem("DealerId", "IDDEALER"); 
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_AREA_ACCESSGROUPUSER", _parameter);
+                _response.Data = _data.GetList<Models.Area>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
         /*---------------------------------------------------------------GetOne---------------------------------------------------------------*/
-         public async Task<Response<Models.Area>> GetArea(int userId, int areaId)
+        public async Task<Response<Models.Area>> GetArea(int userId, int areaId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try

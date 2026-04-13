@@ -10,7 +10,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Models
 {
     // test models
-    public class EstatusRecord
+    public class EstatusRecord : Record
     {
 
        
@@ -22,7 +22,10 @@ namespace Models
 
         public DateTime Date { get; set; }
 
-   
+        public String? Name { get; set; }
+
+        public String? Display { get; set; }
+
 
     }
 }
