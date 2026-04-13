@@ -197,9 +197,31 @@ namespace Data
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("Display", "VDISPLAYESTATUS");
 
+        private async Task<Response<Models.PaymentStatus>> _GetEstatusAccount(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        {
+            Response<Models.PaymentStatus> _response = new Response<Models.PaymentStatus>();
+
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Validate", "NVALIDATE");
+                _mapping.AddItem("ToValidate", "NTOVALIDATE");
+                _mapping.AddItem("Approve", "NAPPROVE");
+                _mapping.AddItem("Decline", "NDECLINE");
+                _mapping.AddItem("Create", "NCREATE");
+
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_DOCUMENTSTATUS");
-                _response.Data = _data.GetList<Models.EstatusRecord>(_mapping, _table);
+                DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTSTATUS", _parameter);
+                _response.Data = _data.GetItem<Models.PaymentStatus>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -360,6 +382,18 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        
+
+        public async Task<Response<Models.PaymentStatus>> GetEstatusAccount(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetEstatusAccount(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
     }
 }
