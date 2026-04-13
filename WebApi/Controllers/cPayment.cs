@@ -123,5 +123,19 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("GetEstatusAccount")]
+        public async Task<IActionResult> GetEstatusAccount(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        {
+            try
+            {
+                var _response = await _dPayment.GetEstatusAccount(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
     }
 }
