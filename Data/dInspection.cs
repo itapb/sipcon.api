@@ -283,6 +283,7 @@ namespace Data
                 _mapping.AddItem("AreaName", "VAREA");
                 _mapping.AddItem("Updated", "DUPDATED");
                 _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
+                _mapping.AddItem("OrderBy", "IORDERBY");
                 // Supplier
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
@@ -355,6 +356,7 @@ namespace Data
                 _mapping.AddItem("AreaName", "VAREA");
                 _mapping.AddItem("Updated", "DUPDATED");
                 _mapping.AddItem("UpdatedBy", "VUPDATEDBY");
+                _mapping.AddItem("OrderBy", "IORDERBY");
                 // Supplier
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("SupplierName", "VSUPPLIER");
