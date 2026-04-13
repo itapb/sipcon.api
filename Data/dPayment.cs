@@ -132,6 +132,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
                 _mapping.AddItem("TypeCode", "VTYPECODE");
                 _mapping.AddItem("TypeName", "VTYPENAME");
                 _mapping.AddItem("ConceptCode", "VCONCEPTCODE");

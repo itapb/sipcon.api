@@ -9,6 +9,7 @@ namespace Models
     {
         [Required] public int? SupplierId { get; set; }
         [Required] public int? DealerId { get; set; }
+        [Required] public string? DealerName { get; set; }
         [Required] public string? TypeCode { get; set; }
         [Required] public string? TypeName { get; set; }
         [Required] public string? ConceptCode { get; set; }
