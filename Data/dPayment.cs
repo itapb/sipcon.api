@@ -197,6 +197,18 @@ namespace Data
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("Display", "VDISPLAYESTATUS");
 
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DOCUMENTSTATUS");
+                _response.Data = _data.GetList<Models.EstatusRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
         private async Task<Response<Models.PaymentStatus>> _GetEstatusAccount(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
         {
             Response<Models.PaymentStatus> _response = new Response<Models.PaymentStatus>();
