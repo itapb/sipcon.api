@@ -39,6 +39,15 @@ namespace Models
         [SwaggerIgnore] public string? StatusName { get; set; }
         [SwaggerIgnore] public int? StatusId { get; set; }
 
+    }
 
+
+    public class PaymentStatus
+    {
+        [SwaggerIgnore] public string? Validate { get; set; }
+        [SwaggerIgnore] public string? ToValidate { get; set; }
+        [SwaggerIgnore] public string? Approve { get; set; }
+        [SwaggerIgnore] public string? Decline { get; set; }
+        [SwaggerIgnore] public string? Create { get; set; }
     }
 }
