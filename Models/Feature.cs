@@ -12,9 +12,7 @@ namespace Models
 
     {
         [Required]
-        public string? Name { get; set; }
-
-        [Required]
+        public string? Name { get; set; } 
         public bool? DefaultValue { get; set; }
 
         [Required]
