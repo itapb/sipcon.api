@@ -44,10 +44,9 @@ namespace Models
 
     public class PaymentStatus
     {
-        [SwaggerIgnore] public string? Validate { get; set; }
-        [SwaggerIgnore] public string? ToValidate { get; set; }
-        [SwaggerIgnore] public string? Approve { get; set; }
-        [SwaggerIgnore] public string? Decline { get; set; }
-        [SwaggerIgnore] public string? Create { get; set; }
+        [SwaggerIgnore] public int? Id { get; set; }
+        [SwaggerIgnore] public string? Name { get; set; }
+        [SwaggerIgnore] public int? Count { get; set; }
+
     }
 }
