@@ -28,8 +28,8 @@ namespace WebApi.Controllers
         { 
             _dInspection = dInspection;
         }
-
-        #region "AREA"
+         
+        #region "PDI"
         [HttpGet("/api/PDI/Area/GetAll")]
         public async Task<IActionResult> GeAllAreaPdi(int userId, int supplierId, int dealerId)
         {
@@ -43,6 +43,22 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+        [HttpGet("/api/PDI/Transporter/GetAll")]
+        public async Task<IActionResult> GetAllTransportPdi()
+        {
+            try
+            {
+                var _response = await _dInspection.GetTransportPDI();
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        } 
+        #endregion
+
+        #region "AREA"
 
         [HttpGet("/api/Area/GetOne")]
         public async Task<IActionResult> GetOneArea(int userId, int areaId)
