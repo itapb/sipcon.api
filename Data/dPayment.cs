@@ -210,9 +210,9 @@ namespace Data
             }
             return _response;
         }
-        private async Task<Response<Models.PaymentStatus>> _GetEstatusAccount(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        private async Task<Response<List<Models.PaymentStatus>>> _GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
         {
-            Response<Models.PaymentStatus> _response = new Response<Models.PaymentStatus>();
+            Response<List<Models.PaymentStatus>> _response = new Response<List<Models.PaymentStatus>>();
 
             try
             {
@@ -226,15 +226,13 @@ namespace Data
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Validate", "NVALIDATE");
-                _mapping.AddItem("ToValidate", "NTOVALIDATE");
-                _mapping.AddItem("Approve", "NAPPROVE");
-                _mapping.AddItem("Decline", "NDECLINE");
-                _mapping.AddItem("Create", "NCREATE");
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Count", "NCOUNT");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTSTATUS", _parameter);
-                _response.Data = _data.GetItem<Models.PaymentStatus>(_mapping, _table);
+                _response.Data = _data.GetList<Models.PaymentStatus>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -396,12 +394,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<Models.PaymentStatus>> GetEstatusAccount(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        public async Task<Response<List<Models.PaymentStatus>>> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetEstatusAccount(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
+                return await _GetPaymentStatus(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
             }
             finally
             {
