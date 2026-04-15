@@ -91,11 +91,13 @@ builder.Services.AddScoped<dLaborTime>();
 builder.Services.AddScoped<dPrintqueue>();
 builder.Services.AddScoped<dSecurity>();
 builder.Services.AddScoped<dAssessment>();
-builder.Services.AddSingleton<RefreshTokenStore>();
-builder.Services.AddSingleton<dTemplate>();
-builder.Services.AddSingleton<dReporting>();
-builder.Services.AddSingleton<dPayment>();
-builder.Services.AddSingleton<dIntt>();
+builder.Services.AddSingleton<RefreshTokenStore>();// este queda AddSingleton
+builder.Services.AddScoped<dTemplate>();
+builder.Services.AddScoped<dReporting>();
+builder.Services.AddScoped<dPayment>();
+builder.Services.AddScoped<dIntt>();
+builder.Services.AddScoped<dInspection>();
+
 // 5. crear app
 var app = builder.Build();
 
