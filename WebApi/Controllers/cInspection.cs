@@ -28,9 +28,38 @@ namespace WebApi.Controllers
         { 
             _dInspection = dInspection;
         }
+         
+        #region "PDI"
+        [HttpGet("/api/PDI/Area/GetAll")]
+        public async Task<IActionResult> GeAllAreaPdi(int userId, int supplierId, int dealerId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAreaPDI(userId, supplierId, dealerId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        [HttpGet("/api/PDI/Transporter/GetAll")]
+        public async Task<IActionResult> GetAllTransportPdi()
+        {
+            try
+            {
+                var _response = await _dInspection.GetTransportPDI();
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        } 
+        #endregion
 
         #region "AREA"
-         
+
         [HttpGet("/api/Area/GetOne")]
         public async Task<IActionResult> GetOneArea(int userId, int areaId)
         {
@@ -46,7 +75,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Area/GetAll")]
-        public async Task<IActionResult> GetAllAreas(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<IActionResult> GetAllAreas(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         { 
             try
             {
@@ -105,7 +134,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Area/Export")]
-        public async Task<IActionResult> GetAreaExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<IActionResult> GetAreaExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             try
             {
@@ -157,7 +186,7 @@ namespace WebApi.Controllers
         #region "FASE"
 
         [HttpGet("/api/Fase/GetOne")]
-        public async Task<IActionResult> GetOneFase(int userId, int fasesId)
+        public async Task<IActionResult> GetOneFase(Int32 userId, int fasesId)
         {
             try
             {
@@ -171,7 +200,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Fase/GetAll")]
-        public async Task<IActionResult> GetAllFases(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<IActionResult> GetAllFases(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             try
             {
@@ -232,7 +261,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Fase/Export")]
-        public async Task<IActionResult> GetFaseExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<IActionResult> GetFaseExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             try
             {
@@ -285,7 +314,7 @@ namespace WebApi.Controllers
         #region "FEATURETYPE"
 
         [HttpGet("/api/FeatureType/GetOne")]
-        public async Task<IActionResult> GetOneFeatureType(int userId, int featureTypeId)
+        public async Task<IActionResult> GetOneFeatureType(Int32 userId, int featureTypeId)
         {
             try
             {
@@ -299,7 +328,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/FeatureType/GetAll")]
-        public async Task<IActionResult> GetAllFeatureType(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<IActionResult> GetAllFeatureType(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             try
             {
@@ -362,7 +391,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/FeatureType/Export")]
-        public async Task<IActionResult> GetFeatureTypeExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<IActionResult> GetFeatureTypeExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             try
             {
@@ -415,7 +444,7 @@ namespace WebApi.Controllers
         #region "FEATURE"
 
         [HttpGet("/api/Feature/GetOne")]
-        public async Task<IActionResult> GetOneFeature(int userId, int featureId)
+        public async Task<IActionResult> GetOneFeature(Int32 userId, int featureId)
         {
             try
             {
@@ -429,7 +458,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Feature/GetAll")]
-        public async Task<IActionResult> GetAllFeature(Int32 userId, Int32 supplierId, int? dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<IActionResult> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
         {
             try
             {
@@ -498,7 +527,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Feature/Export")]
-        public async Task<IActionResult> GetFeatureExport(Int32 userId, Int32 supplierId, int? dealerId, string? filter, bool? active)
+        public async Task<IActionResult> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
         {
             try
             {
