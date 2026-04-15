@@ -8,14 +8,30 @@ namespace Models
         [Required] public int? CreatedBy { get; set; }
         [Required] public int? VehicleId { get; set; }
         [Required] public int? AreaId { get; set; }
+
+        public int? InitBy { get; set; }
+        public int? ClosedBy { get; set; }
+        public int? TransporterId { get; set; }
+        public int? RecepBy { get; set; }
+
         [SwaggerIgnore] public String? UserName { get; set; }
+        [SwaggerIgnore] public String? InitByName { get; set; }
+        [SwaggerIgnore] public String? ClosedByName { get; set; }
+        [SwaggerIgnore] public String? TransporterName { get; set; } 
+        [SwaggerIgnore] public String? RecepByName { get; set; }
+
         [SwaggerIgnore] public String? VehiclePlate { get; set; }
         [SwaggerIgnore] public String? Model { get; set; }
         [SwaggerIgnore] public String? Lote { get; set; }
         [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public String? NameArea { get; set; }
         [SwaggerIgnore] public DateTime? Created { get; set; }
-        [SwaggerIgnore] public DateTime? Updated { get; set; }
+
+        public DateTime? DInit { get; set; }
+        public DateTime? DClose { get; set; }
+        public DateTime? DReception { get; set; }
+
+        [SwaggerIgnore] public Int32? IsCompleted { get; set; }
     }
 
     public class InspectionFase : Record

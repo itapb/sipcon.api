@@ -140,6 +140,9 @@ builder.Services.AddSingleton<dAssessment>();
 builder.Services.AddSingleton<RefreshTokenStore>();
 builder.Services.AddSingleton<dTemplate>();
 builder.Services.AddSingleton<dReporting>();
+// Forzar a que escuche en todas las interfaces de red
+builder.WebHost.UseUrls("http://*:5294");
+
 // 5. crear app
 var app = builder.Build();
 

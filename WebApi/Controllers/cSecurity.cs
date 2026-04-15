@@ -236,10 +236,31 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetEncrypt")]
+        public async Task<IActionResult> GetEncrypt(String Password, String Salt)
+        {
+            try
+            {
+                string contenido = Password + Salt;
+                SHA512 sha512 = SHA512.Create();
+                byte[] salida = Encoding.ASCII.GetBytes(contenido);
 
-      
+                for (int i = 1; i <= 13; i++)
+                {
+                    salida = sha512.ComputeHash(salida);
+                }
+                sha512.Clear();
 
+                string result = Encoding.ASCII.GetString(salida);
 
+                //return await Task.FromResult(Encoding.UTF8.GetString(salida));
+                return StatusCode(StatusCodes.Status200OK, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
 
         [HttpPost("Auth_User")]
