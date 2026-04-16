@@ -28,7 +28,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 
 
-// 2. Configuración de CORS
+// 2. ConfiguraciÃ³n de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", p =>
@@ -36,7 +36,7 @@ builder.Services.AddCors(options =>
 });
 
 
-// 3. Configuración de servicios
+// 3. ConfiguraciÃ³n de servicios
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -44,7 +44,7 @@ builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<Be
 
 
 
-// Autenticación JWT
+// AutenticaciÃ³n JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
