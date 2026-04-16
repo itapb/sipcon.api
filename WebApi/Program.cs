@@ -28,7 +28,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 
 
-// 2. Configuración de CORS
+// 2. ConfiguraciÃ³n de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", p =>
@@ -36,7 +36,7 @@ builder.Services.AddCors(options =>
 });
 
 
-// 3. Configuración de servicios
+// 3. ConfiguraciÃ³n de servicios
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -44,7 +44,7 @@ builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<Be
 
 
 
-// Autenticación JWT
+// AutenticaciÃ³n JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -91,12 +91,13 @@ builder.Services.AddScoped<dLaborTime>();
 builder.Services.AddScoped<dPrintqueue>();
 builder.Services.AddScoped<dSecurity>();
 builder.Services.AddScoped<dAssessment>();
-builder.Services.AddSingleton<RefreshTokenStore>();
-builder.Services.AddSingleton<dTemplate>();
-builder.Services.AddSingleton<dReporting>();
-builder.Services.AddSingleton<dPayment>();
-builder.Services.AddSingleton<dIntt>(); 
+builder.Services.AddSingleton<RefreshTokenStore>();// este queda AddSingleton
+builder.Services.AddScoped<dTemplate>();
+builder.Services.AddScoped<dReporting>();
+builder.Services.AddScoped<dPayment>();
+builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
+
 // 5. crear app
 var app = builder.Build();
 
