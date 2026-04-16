@@ -70,6 +70,7 @@ namespace Data
                 _mapping.AddItem("IsSupplier", "BSUPPLIER");
                 _mapping.AddItem("IsUser", "BUSER");
                 _mapping.AddItem("IsProvider", "BPROVIDER");
+                _mapping.AddItem("IsTransporter", "BTRANSPORTER");
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("CityId", "IDCITY");
                 _mapping.AddItem("CityName", "VCITY");
