@@ -48,7 +48,7 @@ namespace Models
 
     public class FullInspection
     {
-        [Required] public Int32? VehicleId { get; set; }
+        [Required] public String? Identifier { get; set; }
         [Required] public Int32? AreaId { get; set; }
     }
 
