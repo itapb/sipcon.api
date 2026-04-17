@@ -110,7 +110,7 @@ namespace Data
             }
             return _response;
         }
-        private async Task<Response<List<Models.AccountReceivable>>> _getAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        private async Task<Response<List<Models.AccountReceivable>>> _getAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
         {
             Response<List<Models.AccountReceivable>> _response = new Response<List<Models.AccountReceivable>>();
 
@@ -127,11 +127,14 @@ namespace Data
                 _parameter.AddSqlParameter("@DFROMDATE", fromDate);
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
                 _parameter.AddSqlParameter("@IDESTATUS", statusId);
+                _parameter.AddSqlParameter("@DRATEDATE", paymentDate);
+                
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
                 _mapping.AddItem("TypeCode", "VTYPECODE");
                 _mapping.AddItem("TypeName", "VTYPENAME");
                 _mapping.AddItem("ConceptCode", "VCONCEPTCODE");
@@ -142,6 +145,8 @@ namespace Data
                 _mapping.AddItem("DocumentDueDate", "VDUEDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
                 _mapping.AddItem("Balance", "NBALANCE");
+                _mapping.AddItem("AmountBs", "NAMOUNTBS");
+                _mapping.AddItem("BalanceBs", "NBALANCEBS");
                 _mapping.AddItem("Rate", "NRATE");
                 _mapping.AddItem("StatusName", "VSTATUSNAME");
                 _mapping.AddItem("StatusId", "ISTATUSID");
@@ -200,6 +205,38 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DOCUMENTSTATUS");
                 _response.Data = _data.GetList<Models.EstatusRecord>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+        private async Task<Response<List<Models.PaymentStatus>>> _GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        {
+            Response<List<Models.PaymentStatus>> _response = new Response<List<Models.PaymentStatus>>();
+
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Count", "NCOUNT");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTSTATUS", _parameter);
+                _response.Data = _data.GetList<Models.PaymentStatus>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -310,12 +347,12 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response<List<Models.AccountReceivable>>> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        public async Task<Response<List<Models.AccountReceivable>>> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId,DateTime? paymentDate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getAccountReceivables( userId,  supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId);
+                return await _getAccountReceivables( userId,  supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId, paymentDate);
             }
             finally
             {
@@ -360,6 +397,19 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        
+
+        public async Task<Response<List<Models.PaymentStatus>>> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPaymentStatus(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
     }
 }

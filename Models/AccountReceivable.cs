@@ -9,6 +9,7 @@ namespace Models
     {
         [Required] public int? SupplierId { get; set; }
         [Required] public int? DealerId { get; set; }
+        [Required] public string? DealerName { get; set; }
         [Required] public string? TypeCode { get; set; }
         [Required] public string? TypeName { get; set; }
         [Required] public string? ConceptCode { get; set; }
@@ -18,7 +19,9 @@ namespace Models
         [Required] public string? DocumentDate { get; set; }
         [Required] public string? DocumentDueDate { get; set; }
         [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? AmountBs { get; set; }
         [Required] public decimal? Balance { get; set; }
+        [Required] public decimal? BalanceBs { get; set; }
         [Required] public decimal? Rate { get; set; }
         [Required] public string? StatusName { get; set; }
         [Required] public int? StatusId { get; set; }

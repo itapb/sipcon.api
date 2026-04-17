@@ -96,11 +96,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAccountReceivables")]
-        public async Task<IActionResult> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        public async Task<IActionResult> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
         {
             try
             {
-                var _response = await _dPayment.GetAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId);
+                var _response = await _dPayment.GetAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId, paymentDate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -130,6 +130,20 @@ namespace WebApi.Controllers
             try
             {
                 var _response = await _dPayment.GetPayments(userId, supplierId, dealerId,rowfrom, filter, fromDate, upToDate, statusId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("GetPaymentStatus")]
+        public async Task<IActionResult> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        {
+            try
+            {
+                var _response = await _dPayment.GetPaymentStatus(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
