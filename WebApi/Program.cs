@@ -97,8 +97,6 @@ builder.Services.AddScoped<dReporting>();
 builder.Services.AddScoped<dPayment>();
 builder.Services.AddScoped<dInspection>();
 
-builder.WebHost.UseUrls("http://*:5294");
-// 5. crear app
 var app = builder.Build();
 
 
