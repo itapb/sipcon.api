@@ -56,7 +56,21 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
-        #endregion
+
+        [HttpGet("/api/PDI/Dealer/GetAll")]
+        public async Task<IActionResult> GetAllDealerPdi(Int32 supplierId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAllDealer(supplierId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        #endregion 
 
         #region "AREA"
 

@@ -119,6 +119,47 @@ namespace Data
             }
             return _response;
         }
+        /*---------------------------------------------------------------DEALER---------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Dealer>>> GetAllDealer(Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAllDealer(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Dealer>>> _GetAllDealer(Int32 supplierId)
+        {
+
+            Response<List<Models.Dealer>> _response = new Response<List<Models.Dealer>>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId); 
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Reference", "VREFERENCE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DEALER", _parameter);
+                _response.Data = _data.GetList<Models.Dealer>(_mapping, _table);
+                _response.SetGetResponse(_table); 
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
         #endregion
 
         #region "AREA"
@@ -1185,6 +1226,7 @@ namespace Data
                 _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("DInit", "DDATEINIT");
                 _mapping.AddItem("InitByName", "INITBYNAME");
+                _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("DClose", "DDATECLOSE");
                 _mapping.AddItem("ClosedByName", "CLOSEDBYNAME");
                 _mapping.AddItem("DReception", "DRECEPTION");
@@ -1227,6 +1269,7 @@ namespace Data
                 _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("DInit", "DDATEINIT");
                 _mapping.AddItem("InitByName", "INITBYNAME");
+                _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("DClose", "DDATECLOSE");
                 _mapping.AddItem("ClosedByName", "CLOSEDBYNAME");
                 _mapping.AddItem("DReception", "DRECEPTION");

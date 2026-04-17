@@ -13,6 +13,8 @@ namespace Models
         public int? ClosedBy { get; set; }
         public int? TransporterId { get; set; }
         public int? RecepBy { get; set; }
+        public string? Comment { get; set; }
+        public int? DealerId { get; set; }
 
         [SwaggerIgnore] public String? UserName { get; set; }
         [SwaggerIgnore] public String? InitByName { get; set; }
