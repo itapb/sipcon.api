@@ -20,15 +20,15 @@ namespace WebApi.Controllers
     [Authorize]
     public class cInspection : ControllerBase
     {
-        
 
-        private readonly dInspection _dInspection;  
+
+        private readonly dInspection _dInspection;
 
         public cInspection(dInspection dInspection, dModel dModel)
-        { 
+        {
             _dInspection = dInspection;
         }
-         
+
         #region "PDI"
         [HttpGet("/api/PDI/Area/GetAll")]
         public async Task<IActionResult> GeAllAreaPdi(int userId, int supplierId, int dealerId)
@@ -55,7 +55,7 @@ namespace WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
-        } 
+        }
         #endregion
 
         #region "AREA"
@@ -76,7 +76,7 @@ namespace WebApi.Controllers
 
         [HttpGet("/api/Area/GetAll")]
         public async Task<IActionResult> GetAllAreas(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
-        { 
+        {
             try
             {
                 var _response = await _dInspection.GetAllAreas(userId, supplierId, dealerId, rowFrom, filter, active);
@@ -85,7 +85,7 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }       
+            }
 
         }
         private MemoryStream ConvertToExcelArea(List<Models.Area> _area)
@@ -97,7 +97,7 @@ namespace WebApi.Controllers
                 // Encabezados (fila 1)
                 worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
                 worksheet.Cell(1, 2).Value = "AREA";
-                worksheet.Cell(1, 3).Value = "ACTIVO"; 
+                worksheet.Cell(1, 3).Value = "ACTIVO";
                 worksheet.Cell(1, 4).Value = "ACTUALIZACION";
                 worksheet.Cell(1, 5).Value = "ACTUALIZADO POR";
 
@@ -114,7 +114,7 @@ namespace WebApi.Controllers
 
                     worksheet.Cell(row, 1).Value = _areas.Id;
                     worksheet.Cell(row, 2).Value = _areas.Name;
-                    worksheet.Cell(row, 3).Value = _areas.IsActive != false ? "SI" : "NO";  
+                    worksheet.Cell(row, 3).Value = _areas.IsActive != false ? "SI" : "NO";
                     worksheet.Cell(row, 4).Value = _areas.Updated;
                     worksheet.Cell(row, 5).Value = _areas.UpdatedBy;
                 }
@@ -220,12 +220,12 @@ namespace WebApi.Controllers
                 var worksheet = workbook.Worksheets.Add("FASES");
 
                 // Encabezados (fila 1)
-                worksheet.Cell(1, 1).Value  = "NRO DOCUMENTO";
-                worksheet.Cell(1, 2).Value  = "FASE"; 
-                worksheet.Cell(1, 3).Value  = "ACTIVO";    
-                worksheet.Cell(1, 4).Value  = "AREA";
-                worksheet.Cell(1, 5).Value  = "ACTUALIZACION";
-                worksheet.Cell(1, 6).Value  = "ACTUALIZADO POR";
+                worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
+                worksheet.Cell(1, 2).Value = "FASE";
+                worksheet.Cell(1, 3).Value = "ACTIVO";
+                worksheet.Cell(1, 4).Value = "AREA";
+                worksheet.Cell(1, 5).Value = "ACTUALIZACION";
+                worksheet.Cell(1, 6).Value = "ACTUALIZADO POR";
 
                 var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
@@ -238,12 +238,12 @@ namespace WebApi.Controllers
                     var _fases = _fase[i];
                     int row = i + 2;
 
-                    worksheet.Cell(row, 1).Value  = _fases.Id;
-                    worksheet.Cell(row, 2).Value  = _fases.Name; 
-                    worksheet.Cell(row, 3).Value  = _fases.IsActive != false ? "SI" : "NO"; 
-                    worksheet.Cell(row, 4).Value  = _fases.AreaName;
-                    worksheet.Cell(row, 5).Value  = _fases.Updated;
-                    worksheet.Cell(row, 6).Value  = _fases.UpdatedBy;
+                    worksheet.Cell(row, 1).Value = _fases.Id;
+                    worksheet.Cell(row, 2).Value = _fases.Name;
+                    worksheet.Cell(row, 3).Value = _fases.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(row, 4).Value = _fases.AreaName;
+                    worksheet.Cell(row, 5).Value = _fases.Updated;
+                    worksheet.Cell(row, 6).Value = _fases.UpdatedBy;
                 }
 
                 worksheet.Columns().AdjustToContents();
@@ -349,8 +349,8 @@ namespace WebApi.Controllers
 
                 // Encabezados (fila 1)
                 worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
-                worksheet.Cell(1, 2).Value = "TIPO CARACTERISTICA"; 
-                worksheet.Cell(1, 3).Value = "ACTIVO"; 
+                worksheet.Cell(1, 2).Value = "TIPO CARACTERISTICA";
+                worksheet.Cell(1, 3).Value = "ACTIVO";
                 worksheet.Cell(1, 4).Value = "FASE";
                 worksheet.Cell(1, 5).Value = "AREA";
                 worksheet.Cell(1, 6).Value = "ACTUALIZACION";
@@ -367,13 +367,13 @@ namespace WebApi.Controllers
                     var _featureTypes = _featureType[i];
                     int row = i + 2;
 
-                    worksheet.Cell(row, 1).Value  = _featureTypes.Id;
-                    worksheet.Cell(row, 2).Value  = _featureTypes.Name; 
-                    worksheet.Cell(row, 3).Value  = _featureTypes.IsActive != false ? "SI" : "NO"; 
-                    worksheet.Cell(row, 4).Value  = _featureTypes.FaseName;
-                    worksheet.Cell(row, 5).Value  = _featureTypes.AreaName;
-                    worksheet.Cell(row, 6).Value  = _featureTypes.Updated;
-                    worksheet.Cell(row, 7).Value  = _featureTypes.UpdatedBy;
+                    worksheet.Cell(row, 1).Value = _featureTypes.Id;
+                    worksheet.Cell(row, 2).Value = _featureTypes.Name;
+                    worksheet.Cell(row, 3).Value = _featureTypes.IsActive != false ? "SI" : "NO";
+                    worksheet.Cell(row, 4).Value = _featureTypes.FaseName;
+                    worksheet.Cell(row, 5).Value = _featureTypes.AreaName;
+                    worksheet.Cell(row, 6).Value = _featureTypes.Updated;
+                    worksheet.Cell(row, 7).Value = _featureTypes.UpdatedBy;
                 }
 
                 worksheet.Columns().AdjustToContents();
@@ -614,6 +614,146 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        #endregion
+
+        #region "INSPECTIONS"
+
+        [HttpGet("/api/Inspections/GetAll")]
+        public async Task<IActionResult> GetAll(Int32? AreaId = null)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAllInspections(AreaId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/Inspections/GetOne")]
+        public async Task<IActionResult> GetOne(Int32 InspectionId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetOneInspection(InspectionId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/Inspections/Post_Inspections")]
+        public async Task<IActionResult> Post_Inspections(List<Models.Inspection> _inspections)
+        {
+            try
+            {
+                var _response = await _dInspection.Post_Inspections(_inspections);
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region "INSPECTIONDETAILS"
+
+        [HttpGet("/api/InspectionsDetails/GetAll")]
+        public async Task<IActionResult> GetAllInspectionsDetails(Int32? InspectionId = null, Int32? AreaId = null, Int32? FaseId = null, Int32? FeatureTypeId = null)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAllInspectionsDetails(InspectionId, AreaId, FaseId, FeatureTypeId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InspectionsDetails/GetOne")]
+        public async Task<IActionResult> GetOneInspectionsDetails(Int32 DetailInspectionId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetOneInspectionsDetails(DetailInspectionId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/InspectionsDetails/Post_InspectionsDetail")]
+        public async Task<IActionResult> Post_InspectionsDetail(List<Models.InspectionDetail> _details)
+        {
+            try
+            {
+                var _response = await _dInspection.Post_InspectionDetails(_details);
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region "INSPECTION_FASE"
+
+        [HttpGet("/api/InspectionFase/GetAll")]
+        public async Task<IActionResult> GetAllInspectionFase(Int32? AreaId = null, Int32? FaseId = null, Int32? InspectionId = null, bool? IsCompleted = null)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/InspectionFase/Post_InspectionFase")]
+        public async Task<IActionResult> Post_InspectionFase(List<Models.InspectionFase> _inspectionsFase)
+        {
+            try
+            {
+                var _response = await _dInspection.Post_InspectionFase(_inspectionsFase);
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region "FULLINSPECTION"
+        [HttpPost("/api/Post_FullInspection")]
+        public async Task<IActionResult> Post_FullInspection(List<Models.FullInspection> _fullInspection, Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInspection.Post_FullInspection(_fullInspection, userId);
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
         #endregion
