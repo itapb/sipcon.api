@@ -25,7 +25,17 @@ namespace Models
         [Required] public decimal? Rate { get; set; }
         [Required] public string? StatusName { get; set; }
         [Required] public int? StatusId { get; set; }
+    }
 
+
+    public class AccountPreview 
+    {
+        [Required] public int? Id { get; set; }
+        [Required] public string? Number { get; set; }
+        [Required] public string? DocumentDate { get; set; }
+        [Required] public decimal? Amount { get; set; }
 
     }
+
+
 }
