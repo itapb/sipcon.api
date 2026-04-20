@@ -119,6 +119,47 @@ namespace Data
             }
             return _response;
         }
+        /*---------------------------------------------------------------DEALER---------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.Dealer>>> GetAllDealer(Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAllDealer(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.Dealer>>> _GetAllDealer(Int32 supplierId)
+        {
+
+            Response<List<Models.Dealer>> _response = new Response<List<Models.Dealer>>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId); 
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Reference", "VREFERENCE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DEALER", _parameter);
+                _response.Data = _data.GetList<Models.Dealer>(_mapping, _table);
+                _response.SetGetResponse(_table); 
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
         #endregion
 
         #region "AREA"
@@ -905,7 +946,91 @@ namespace Data
             }
             return _response;
         }
+        /*---------------------------------------------------------------FEATURE VALUE TYPE---------------------------------------------------------------*/
 
+        public async Task<Response<List<Models.FeatureValueType>>> GetFeatureValueType(Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetFeatureValueType(userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.FeatureValueType>>> _GetFeatureValueType(Int32 userId)
+        {
+
+            Response<List<Models.FeatureValueType>> _response = new Response<List<Models.FeatureValueType>>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter(); 
+                _parameter.AddSqlParameter("@IDUSER", userId); 
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME"); 
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_FEATUREVALUETYPE", _parameter);
+                _response.Data = _data.GetList<Models.FeatureValueType>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+        /*-------------------------------------------------------------FEATURE OPTION---------------------------------------------------------------*/
+
+        public async Task<Response<List<Models.FeatureOption>>> GetFeatureOption(Int32 userId, Int32 featureId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetFeatureOption(userId, featureId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.FeatureOption>>> _GetFeatureOption(Int32 userId, Int32 featureId)
+        {
+
+            Response<List<Models.FeatureOption>> _response = new Response<List<Models.FeatureOption>>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDFEATURE", featureId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");  
+                _mapping.AddItem("FeatureId", "IDFEATURE"); 
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_FEATUREOPTION", _parameter);
+                _response.Data = _data.GetList<Models.FeatureOption>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
         /*---------------------------------------------------------------POST FEATURE---------------------------------------------------------------------------*/
         public async Task<Response<Result>> PostFeature(List<Models.Feature> _list, Int32 userId)
         {
@@ -989,6 +1114,49 @@ namespace Data
 
             return _response;
 
+        } 
+        /*---------------------------------------------------------------POST FEATURE OPTION---------------------------------------------------------------------------*/
+        public async Task<Response<Result>> PostFeatureOption(List<Models.FeatureOption> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostFeatureOption(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostFeatureOption(List<Models.FeatureOption> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_FEATUREOPTION", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
         }
         #endregion
 
@@ -1058,6 +1226,7 @@ namespace Data
                 _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("DInit", "DDATEINIT");
                 _mapping.AddItem("InitByName", "INITBYNAME");
+                _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("DClose", "DDATECLOSE");
                 _mapping.AddItem("ClosedByName", "CLOSEDBYNAME");
                 _mapping.AddItem("DReception", "DRECEPTION");
@@ -1100,6 +1269,7 @@ namespace Data
                 _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("DInit", "DDATEINIT");
                 _mapping.AddItem("InitByName", "INITBYNAME");
+                _mapping.AddItem("Comment", "VCOMMENT");
                 _mapping.AddItem("DClose", "DDATECLOSE");
                 _mapping.AddItem("ClosedByName", "CLOSEDBYNAME");
                 _mapping.AddItem("DReception", "DRECEPTION");

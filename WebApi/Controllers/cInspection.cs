@@ -56,7 +56,21 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
-        #endregion
+
+        [HttpGet("/api/PDI/Dealer/GetAll")]
+        public async Task<IActionResult> GetAllDealerPdi(Int32 supplierId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetAllDealer(supplierId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        #endregion 
 
         #region "AREA"
 
@@ -471,6 +485,34 @@ namespace WebApi.Controllers
             }
 
         }
+        [HttpGet("/api/FeatureValueType/GetAll")]
+        public async Task<IActionResult> GetFeatureValueType(Int32 userId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetFeatureValueType(userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+        [HttpGet("/api/FeatureOption/GetAll")]
+        public async Task<IActionResult> GetFeatureOption(Int32 userId, Int32 featureId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetFeatureOption(userId, featureId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
         private MemoryStream ConvertToExcelFeature(List<Models.Feature> _feature)
         {
             using (var workbook = new XLWorkbook())
@@ -575,7 +617,19 @@ namespace WebApi.Controllers
             }
         }
 
-
+        [HttpPost("/api/FeatureOption/Post")]
+        public async Task<IActionResult> PostFeatureOption(List<Models.FeatureOption> FeatureOptionId, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInspection.PostFeatureOption(FeatureOptionId, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
         #endregion
 
         #region "INSPECTIONS"

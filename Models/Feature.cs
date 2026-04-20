@@ -16,7 +16,10 @@ namespace Models
         public bool? DefaultValue { get; set; }
 
         [Required]
-        public int? FeatureTypeId { get; set; } 
+        public int? FeatureTypeId { get; set; }
+
+        [Required]
+        public int? FeatureValueTypeId { get; set; }
 
         [Required]
         public int? ModelId { get; set; }

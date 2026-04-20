@@ -54,6 +54,10 @@ namespace Models
         [Required]
         public bool? IsProvider { get; set; } = false;
 
+
+        [Required]
+        public bool? IsTransporter { get; set; } = false;
+
         [Required]
         public Int32? CityId { get; set; } = 0;
 
