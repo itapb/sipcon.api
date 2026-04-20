@@ -23,5 +23,8 @@ namespace Models
 
         [Required] 
         public int? FeatureId { get; set; }
+
+        [Required]
+        public int? OrderBy { get; set; } = 0;
     }
 }
