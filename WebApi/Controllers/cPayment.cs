@@ -200,7 +200,21 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpPost("PostPayment")]
+        public async Task<IActionResult> PostPayment(Int32 userId, Models.PostPaymentDetail payment)
+        {
 
+
+            try
+            {
+                var _response = await _dPayment.PostPayment(payment, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
 
 
