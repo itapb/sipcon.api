@@ -34,6 +34,7 @@ namespace Models
          public int? AccountId { get; set; }
         [SwaggerIgnore] public string? AccountNumber { get; set; }
         [SwaggerIgnore] public string? BankOriginName { get; set; }
+        [SwaggerIgnore] public int? BankOriginId { get; set; }
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
         [SwaggerIgnore] public string? DealerName { get; set; }
@@ -74,4 +75,6 @@ namespace Models
         [SwaggerIgnore] public int? Count { get; set; }
 
     }
+
+
 }
