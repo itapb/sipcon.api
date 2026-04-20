@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.Reflection;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Data;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Reflection;
 
 namespace WebApi.Controllers
 {
@@ -124,12 +125,12 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpGet("GetPayments")]
-        public async Task<IActionResult> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        [HttpGet("GetBank")]
+        public async Task<IActionResult> GetBank()
         {
             try
             {
-                var _response = await _dPayment.GetPayments(userId, supplierId, dealerId,rowfrom, filter, fromDate, upToDate, statusId);
+                var _response = await _dPayment.GetBank();
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -138,12 +139,44 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpGet("GetPaymentStatus")]
-        public async Task<IActionResult> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        [HttpGet("GetPayments")]
+        public async Task<IActionResult> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId,int? typeId)
         {
             try
             {
-                var _response = await _dPayment.GetPaymentStatus(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
+                // 1. Obtener la lista de pagos (PaymentDetails)
+                var paymentsResponse = await _dPayment.GetPayments(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId);
+
+                if (paymentsResponse.Data == null || !paymentsResponse.Data.Any())
+                    return Ok(new List<PaymentFull>());
+
+                // 2. Obtener todas las cuentas/settlements relacionados 
+                // Pasamos null en PaymentId para que, según tu lógica, traiga toda la lista filtrada
+                var accountsResponse = await _dPayment.GetAccountByPayment(userId, supplierId, dealerId, null, filter, fromDate, upToDate, statusId, currencyId, typeId, null);
+
+                // 3. Unir (Anclar) los modelos usando LINQ
+                var result = paymentsResponse.Data.Select(p => new PaymentFull
+                {
+                    PaymentDetail = p,
+                    AccountPreview = accountsResponse.Data?
+                        .Where(a => a.PaymentId == p.PaymentId) // Suponiendo que AccountPreview tiene una propiedad PaymentId
+                        .ToList() ?? new List<AccountPreview>()
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("GetPaymentStatus")]
+        public async Task<IActionResult> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetPaymentStatus(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -153,11 +186,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetAccountByPayment")]
-        public async Task<IActionResult> GetAccountByPayment(Int32 userId, Int32? rowfrom, Int32 PaymentId)
+        public async Task<IActionResult> GetAccountByPayment(Int32 userId, Int32 rowfrom, Int32 PaymentId)
         {
             try
             {
-                var _response = await _dPayment.GetAccountByPayment(userId, rowfrom, PaymentId);
+                var _response = await _dPayment.GetAccountByPayment(userId, null, null, rowfrom, null, null, null, null, null, null, PaymentId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

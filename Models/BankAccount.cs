@@ -7,6 +7,7 @@ namespace Models
 {
     public class BankAccount
     {
+        [Required] public int? Id { get; set; }
         [Required] public String? Code { get; set; }
         [Required] public String? Name { get; set; }
         [Required] public String? Account { get; set; }
