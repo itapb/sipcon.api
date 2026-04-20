@@ -152,5 +152,71 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("GetAccountByPayment")]
+        public async Task<IActionResult> GetAccountByPayment(Int32 userId, Int32? rowfrom, Int32 PaymentId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetAccountByPayment(userId, rowfrom, PaymentId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("GetPaymentDetailsById")]
+        public async Task<IActionResult> GetPaymentDetailsById(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetPaymentDetailsById(userId, rowfrom, PaymentDetailId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpPost("PostActions")]
+        public async Task<IActionResult> Post_Actions(Int32 userId, List<Models.Action> actions)
+        {
+
+            try
+            {
+
+                var _response = await _dPayment.Post_Actions(actions, userId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("PostPayment")]
+        public async Task<IActionResult> PostPayment(Int32 userId, Models.PostPaymentDetail payment)
+        {
+
+
+            try
+            {
+                var _response = await _dPayment.PostPayment(payment, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
     }
 }

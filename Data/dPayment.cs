@@ -2,6 +2,7 @@
 using Models;
 using System.Data;
 using Util;
+using Parameter = Util.Parameter;
 
 
 namespace Data
@@ -299,6 +300,149 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<List<Models.AccountPreview>>> _GetAccountByPayment(Int32 userId, Int32? rowfrom, Int32 PaymentId)
+        {
+            Response<List<Models.AccountPreview>> _response = new Response<List<Models.AccountPreview>>();
+
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@IDPAYMENT", PaymentId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Number", "VNUMBER");
+                _mapping.AddItem("Amount", "NAMOUNT"); ;
+                _mapping.AddItem("DocumentDate", "DCREATED");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNT_BYPAYMENT", _parameter);
+                _response.Data = _data.GetList<Models.AccountPreview>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        private async Task<Response<List<Models.PaymentDetails>>> _GetPaymentDetailsById(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@IDPAYMENTDETAIL", PaymentDetailId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("PaymentId", "IDPAYMENT");
+                _mapping.AddItem("Date", "DDATE");
+                _mapping.AddItem("Amount", "NAMOUNT");
+                _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DDATERATE");
+                _mapping.AddItem("CurrencyName", "VCURRENCY");
+                _mapping.AddItem("CurrencyId", "IDCURRENCY");
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("TypeId", "IDTYPE");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("BankName", "VBANK");
+                _mapping.AddItem("BankId", "IDBANK");
+                _mapping.AddItem("AccountId", "IDACCOUNT");
+                _mapping.AddItem("AccountNumber", "VACCOUNTNUMBER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("BankOriginName", "VBANKORIGIN");
+                _mapping.AddItem("BankOriginId", "IDBANKORIGIN");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTDETAILS_BY_ID", _parameter);
+                _response.Data = _data.GetList<Models.PaymentDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        private async Task<Response<Models.Result>> _PostPayment(PostPaymentDetail payment, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(payment);
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_PAYMENT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+
+
+        private async Task<Response<Models.Result>> _Post_Actions(List<Models.Action> _list, Int32 userId)
+
+        {
+            Response<Models.Result> _response = new Models.Response<Models.Result>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_PAYMENT_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
         public async Task<Response<List<Models.Currency>>> GetCurrencys()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -385,6 +529,7 @@ namespace Data
             }
         }
 
+
         public async Task<Response<List<Models.EstatusRecord>>> GetDocumentStatus()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -410,6 +555,64 @@ namespace Data
                 _semaphore.Release();
             }
         }
+
+        public async Task<Response<List<Models.AccountPreview>>> GetAccountByPayment(Int32 userId,Int32? rowfrom,Int32 PaymentId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAccountByPayment(userId, rowfrom, PaymentId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+        public async Task<Response<List<Models.PaymentDetails>>> GetPaymentDetailsById(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPaymentDetailsById(userId, rowfrom, PaymentDetailId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<Models.Result>> PostPayment(PostPaymentDetail payment, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostPayment(payment, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+       
+
+
+        public async Task<Response<Models.Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
+
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Post_Actions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        
 
     }
 }

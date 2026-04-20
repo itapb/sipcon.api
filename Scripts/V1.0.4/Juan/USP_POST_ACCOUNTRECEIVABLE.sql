@@ -1,0 +1,201 @@
+USE [SODA]
+GO
+/****** Object:  StoredProcedure [dbo].[USP_POST_VEHICLES_FIGO]    Script Date: 31/03/2026 10:42:07 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[USP_POST_ACCOUNTRECEIVABLE]  
+ @DATA VARCHAR(MAX)
+AS
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : JUAN GUARECUCO
+  '   CREADO PARA           : 
+  '   FUNCIÓN               :  
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        :  
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+SET XACT_ABORT ON               
+SET NOCOUNT ON
+SET LOCK_TIMEOUT 180000
+
+BEGIN
+
+	BEGIN TRY
+	     
+		  DECLARE @IDUSER INT=1
+		  DECLARE @ErrorMessage NVARCHAR(4000)
+	
+				DECLARE @TDATA AS TABLE
+				(
+					VTYPE VARCHAR(1),
+					VCONCEPT VARCHAR(1),
+					VNUMBER VARCHAR(15),
+					VREFERENCE VARCHAR(15),
+					DDATE DATETIME,
+					DDUEDATE DATETIME,
+					NBALANCE NUMERIC(18,2),
+					NAMOUNT NUMERIC(18,2),
+					NRATE NUMERIC (18,2),
+					VSUPPLIERVAT VARCHAR(12),
+					VDEALERVAT VARCHAR(12),
+					IDSUPPLIER INT,
+					IDDEALER INT
+				);
+
+				INSERT INTO @TDATA (
+					VTYPE, 
+					VCONCEPT, 
+					VNUMBER,
+					VREFERENCE,
+					DDATE,
+					DDUEDATE,
+					NBALANCE,
+					NAMOUNT,
+					NRATE,
+					VSUPPLIERVAT,
+					VDEALERVAT
+				)
+				SELECT 
+					D.Type,
+					D.Concept,
+					D.Number,
+					D.Reference,
+					D.Date,
+					D.DueDate,
+					D.Balance,
+					D.Amount,
+					D.Rate,
+					D.SupplierVat,
+					D.DealerVat
+				FROM OPENJSON(@DATA)
+				WITH (
+					Type VARCHAR(1),
+					Concept VARCHAR(1),
+					Number VARCHAR(15),
+					Reference VARCHAR(15),
+					Date DATETIME,
+					DueDate DATETIME,
+					Balance NUMERIC(18,2),
+					Amount NUMERIC(18,2),
+					Rate NUMERIC (18,2),
+					SupplierVat VARCHAR(12),
+					DealerVat VARCHAR(12)
+				) AS D;
+
+
+
+				UPDATE A
+						SET A.IDSUPPLIER = V.IDSUPPLIER
+						FROM @TDATA A
+						INNER JOIN V_SUPPLIERS V ON UPPER(A.VSUPPLIERVAT) = UPPER(V.VVAT)
+
+				UPDATE A
+				SET A.IDDEALER = V.IDDEALER
+				FROM @TDATA A
+				INNER JOIN V_DEALERS V ON UPPER(A.VSUPPLIERVAT) = UPPER(V.VVATINVOICE) AND V.IDSUPPLIER=A.IDSUPPLIER
+
+				IF EXISTS (SELECT * FROM @TDATA WHERE ISNULL(IDSUPPLIER,0)=0)
+					BEGIN
+						RAISERROR('PLANTA INCORRECTA', 16, 1)
+					END
+
+				IF EXISTS (SELECT * FROM @TDATA WHERE ISNULL(IDDEALER,0)=0)
+					BEGIN
+						RAISERROR('CONCESIONARIO INCORRECTO', 16, 1)
+					END
+
+
+				IF  EXISTS (SELECT * FROM @TDATA T WHERE VCONCEPT NOT IN ('B','I','P','R'))
+					BEGIN
+						RAISERROR('CONCEPTO INVALIDO', 16, 1)
+					END
+
+				IF EXISTS (SELECT * FROM @TDATA WHERE VTYPE NOT IN  ('U','R'))
+					BEGIN
+						RAISERROR('TIPO INVALIDO', 16, 1)
+					END
+
+
+
+	            BEGIN TRAN 
+
+				DECLARE @IID INT
+				DECLARE @IINSERTED INT
+				DECLARE @IUPDATED INT
+				
+
+					INSERT INTO ACCOUNTRECEIVABLE (  IDSUPPLIER, IDDEALER, VTYPE, VCONCEPT, VNUMBER, VREFERENCE, DDATE, DDUEDATE, NAMOUNT, NBALANCE, NRATE, DCREATED, IDSTATUS)
+					SELECT 
+						D.IDSUPPLIER, 
+						D.IDDEALER, 
+						M.NewVType,    -- Usamos el tipo calculado (I o R)
+						D.VCONCEPT, 
+						D.VNUMBER, 
+						D.VREFERENCE, 
+						D.DDATE, 
+						D.DDUEDATE, 
+						D.NAMOUNT * M.Factor, -- Aplicamos el 25% o 75%
+						D.NBALANCE * M.Factor, -- Aplicamos el mismo factor al balance
+						D.NRATE, 
+						GETDATE(), 
+						DBO.UFN_GET_ISTATUS('OPEN')
+					FROM @TDATA D
+					CROSS APPLY (
+						-- Si el concepto es 'I', generamos dos filas
+						SELECT D.VTYPE AS NewVType, 0.25 AS Factor WHERE D.VCONCEPT = 'I'
+						UNION ALL
+						SELECT 'R' AS NewVType, 0.75 AS Factor WHERE D.VCONCEPT = 'I'
+						-- Si el concepto NO es 'I', generamos una sola fila normal
+						UNION ALL
+						SELECT D.VTYPE, 1.0 AS Factor WHERE D.VCONCEPT <> 'I'
+					) M
+					WHERE NOT EXISTS (
+						SELECT 1 
+						FROM ACCOUNTRECEIVABLE V WITH (NOLOCK) 
+						WHERE D.IDSUPPLIER = V.IDSUPPLIER 
+						  AND D.IDDEALER = V.IDDEALER 
+						  AND D.VCONCEPT = V.VCONCEPT 
+						  AND D.VNUMBER = V.VNUMBER
+);
+
+					SELECT @IINSERTED=@@ROWCOUNT
+					SELECT @IID=SCOPE_IDENTITY()
+
+					UPDATE V
+					SET V.NBALANCE=D.NBALANCE,
+						V.IDSTATUS= CASE 
+										WHEN D.NBALANCE=0 AND V.IDSTATUS<>DBO.UFN_GET_ISTATUS('PAID') THEN DBO.UFN_GET_ISTATUS('PAID')
+										ELSE V.IDSTATUS 
+									END
+					FROM ACCOUNTRECEIVABLE V
+					INNER JOIN @TDATA D ON D.IDSUPPLIER=V.IDSUPPLIER AND D.IDDEALER=V.IDDEALER AND D.VCONCEPT=V.VCONCEPT AND D.VNUMBER=V.VNUMBER
+					WHERE D.NBALANCE<V.NBALANCE
+
+					SELECT @IUPDATED=@@ROWCOUNT
+				
+				
+
+				SELECT
+				ISNULL(@IID,0) AS IID , 
+				ISNULL(@IINSERTED,0) AS IINSERTED,
+				ISNULL(@IUPDATED,0) AS IUPDATED
+
+ 		COMMIT TRAN
+	END TRY
+	BEGIN CATCH
+		IF XACT_STATE() <> 0
+			ROLLBACK TRAN
+		 
+		SELECT  @ErrorMessage = ERROR_PROCEDURE() + ' : ' + ERROR_MESSAGE()
+		RAISERROR ( @ErrorMessage , 16,1) 
+	END CATCH
+
+END
+
+
