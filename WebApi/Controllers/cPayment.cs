@@ -96,11 +96,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("GetAccountReceivables")]
-        public async Task<IActionResult> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        public async Task<IActionResult> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
         {
             try
             {
-                var _response = await _dPayment.GetAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId);
+                var _response = await _dPayment.GetAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId, paymentDate);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

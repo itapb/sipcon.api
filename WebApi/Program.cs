@@ -98,7 +98,6 @@ builder.Services.AddScoped<dPayment>();
 builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
 
-// 5. crear app
 var app = builder.Build();
 
 
