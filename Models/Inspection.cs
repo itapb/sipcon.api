@@ -63,6 +63,7 @@ namespace Models
         [Required] public Int32? FeatureId { get; set; }
         [SwaggerIgnore] public String? Feature { get; set; }
         [SwaggerIgnore] public Int32? FeatureTypeId { get; set; }
+        [SwaggerIgnore] public String? FeatureValueTypeId { get; set; }
         [SwaggerIgnore] public String? FeatureType { get; set; }
         [SwaggerIgnore] public String? FaseId { get; set; }
         [SwaggerIgnore] public String? Fase { get; set; }

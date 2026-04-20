@@ -1379,6 +1379,7 @@ namespace Data
                 _mapping.AddItem("Feature", "VFEATURE");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
                 _mapping.AddItem("FeatureType", "VFEATURETYPE");
+                _mapping.AddItem("FeatureValueTypeId", "IDFEATUREVALUETYPE");
                 _mapping.AddItem("FaseId", "IDFASE");
                 _mapping.AddItem("Fase", "VFASE");
                 _mapping.AddItem("AreaId", "IDAREA");
