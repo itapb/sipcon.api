@@ -1,4 +1,6 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Models;
 using System.Data;
 using Util;
@@ -215,7 +217,7 @@ namespace Data
             }
             return _response;
         }
-        private async Task<Response<List<Models.PaymentStatus>>> _GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        private async Task<Response<List<Models.PaymentStatus>>> _GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             Response<List<Models.PaymentStatus>> _response = new Response<List<Models.PaymentStatus>>();
 
@@ -227,8 +229,12 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
                 _parameter.AddSqlParameter("@DFROMDATE", fromDate);
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IDESTATUS", statusId);
+                _parameter.AddSqlParameter("@IDCURRENCY", currencyId);
+                _parameter.AddSqlParameter("@IDTYPE", typeId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -249,7 +255,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.PaymentDetails>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        private async Task<Response<List<Models.PaymentDetails>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
 
@@ -264,6 +270,8 @@ namespace Data
                 _parameter.AddSqlParameter("@DFROMDATE", fromDate);
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
                 _parameter.AddSqlParameter("@IDESTATUS", statusId);
+                _parameter.AddSqlParameter("@IDCURRENCY", currencyId);
+                _parameter.AddSqlParameter("@IDTYPE", typeId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -286,6 +294,8 @@ namespace Data
                 _mapping.AddItem("DealerName", "VDEALER");
                 _mapping.AddItem("StatusName", "VESTATUS");
                 _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("BankOriginName", "VBANKORIGIN");
+                _mapping.AddItem("BankOriginId", "IDBANKORIGIN");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTDETAILS", _parameter);
@@ -300,7 +310,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Models.AccountPreview>>> _GetAccountByPayment(Int32 userId, Int32? rowfrom, Int32 PaymentId)
+        private async Task<Response<List<Models.AccountPreview>>> _GetAccountByPayment(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId, Int32? PaymentId=null)
         {
             Response<List<Models.AccountPreview>> _response = new Response<List<Models.AccountPreview>>();
 
@@ -309,7 +319,15 @@ namespace Data
 
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IDESTATUS", statusId);
+                _parameter.AddSqlParameter("@IDCURRENCY", currencyId);
+                _parameter.AddSqlParameter("@IDTYPE", typeId);
                 _parameter.AddSqlParameter("@IDPAYMENT", PaymentId);
 
                 Mapping _mapping = new Mapping();
@@ -317,6 +335,9 @@ namespace Data
                 _mapping.AddItem("Number", "VNUMBER");
                 _mapping.AddItem("Amount", "NAMOUNT"); ;
                 _mapping.AddItem("DocumentDate", "DCREATED");
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("ConceptName", "VCONCEPT");
+                _mapping.AddItem("PaymentId", "IDPAYMENT");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNT_BYPAYMENT", _parameter);
@@ -516,12 +537,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.PaymentDetails>>> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId)
+        public async Task<Response<List<Models.PaymentDetails>>> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetPayments(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId);
+                return await _GetPayments(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId);
             }
             finally
             {
@@ -543,12 +564,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.PaymentStatus>>> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, DateTime? fromDate, DateTime? upToDate)
+        public async Task<Response<List<Models.PaymentStatus>>> GetPaymentStatus(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetPaymentStatus(userId, supplierId, dealerId, rowfrom, fromDate, upToDate);
+                return await _GetPaymentStatus(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId);
             }
             finally
             {
@@ -556,12 +577,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.AccountPreview>>> GetAccountByPayment(Int32 userId,Int32? rowfrom,Int32 PaymentId)
+        public async Task<Response<List<Models.AccountPreview>>> GetAccountByPayment(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId, Int32? PaymentId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAccountByPayment(userId, rowfrom, PaymentId);
+                return await _GetAccountByPayment(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId, PaymentId);
             }
             finally
             {
