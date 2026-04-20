@@ -504,7 +504,21 @@ namespace WebApi.Controllers
         {
             try
             {
-                var _response = await _dInspection.GetFeatureOption(userId, featureId);
+                var _response = await _dInspection.GetFeatureOption(userId, featureId, null);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+        [HttpGet("/api/FeatureOption/True")]
+        public async Task<IActionResult> GetFeatureOptionTrue(Int32 userId, Int32 featureId)
+        {
+            try
+            {
+                var _response = await _dInspection.GetFeatureOption(userId, featureId, true);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

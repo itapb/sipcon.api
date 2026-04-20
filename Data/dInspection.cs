@@ -838,6 +838,7 @@ namespace Data
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("DefaultValue", "BDEFAULT");
+                _mapping.AddItem("FeatureValueTypeId", "IDFEATUREVALUETYPE"); 
                 _mapping.AddItem("ModelId", "IDMODEL");
                 _mapping.AddItem("ModelName", "VMODEL");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
@@ -917,6 +918,7 @@ namespace Data
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("DefaultValue", "BDEFAULT");
+                _mapping.AddItem("FeatureValueTypeId", "IDFEATUREVALUETYPE"); 
                 _mapping.AddItem("ModelId", "IDMODEL");
                 _mapping.AddItem("ModelName", "VMODEL");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
@@ -989,12 +991,12 @@ namespace Data
         }
         /*-------------------------------------------------------------FEATURE OPTION---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.FeatureOption>>> GetFeatureOption(Int32 userId, Int32 featureId)
+        public async Task<Response<List<Models.FeatureOption>>> GetFeatureOption(Int32 userId, Int32 featureId, bool? active)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetFeatureOption(userId, featureId);
+                return await _GetFeatureOption(userId, featureId, active);
             }
             finally
             {
@@ -1002,7 +1004,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.FeatureOption>>> _GetFeatureOption(Int32 userId, Int32 featureId)
+        private async Task<Response<List<Models.FeatureOption>>> _GetFeatureOption(Int32 userId, Int32 featureId, bool? active)
         {
 
             Response<List<Models.FeatureOption>> _response = new Response<List<Models.FeatureOption>>();
@@ -1012,12 +1014,14 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDFEATURE", featureId);
+                _parameter.AddSqlParameter("@BACTIVE", active);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("IsActive", "BACTIVE");  
-                _mapping.AddItem("FeatureId", "IDFEATURE"); 
+                _mapping.AddItem("FeatureId", "IDFEATURE");
+                _mapping.AddItem("OrderBy", "IORDER");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_FEATUREOPTION", _parameter);

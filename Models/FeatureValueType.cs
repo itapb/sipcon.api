@@ -12,7 +12,7 @@ namespace Models
 
     {
         [SwaggerIgnore]
-        public string? Id { get; set; }
+        public int? Id { get; set; }
 
         [SwaggerIgnore]
         public string? Name { get; set; } 
