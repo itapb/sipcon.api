@@ -12,32 +12,57 @@ namespace Models
     {
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
-        [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? Balance { get; set; }
         [Required] public DateTime? Date { get; set; }
         public List<PaymentDetails> PaymentDetails { get; set; } = new List<PaymentDetails>();
 
     }
     public class PaymentDetails : Record
     {
-        [SwaggerIgnore] public int? PaymentId{ get; set; }
+        public int? PaymentId{ get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
-        [SwaggerIgnore] public decimal? Rate { get; set; }
-        [SwaggerIgnore] public DateTime? DateRate { get; set; }
+        [Required] public decimal? Rate { get; set; }
+        [Required] public DateTime? DateRate { get; set; }
         [SwaggerIgnore] public string? CurrencyName { get; set; }
         [Required] public int? CurrencyId { get; set; }
         [SwaggerIgnore] public string? TypeName { get; set; }
         [Required] public int? TypeId { get; set; }
         [Required] public string? Reference { get; set; }
-        [SwaggerIgnore] public int? BankId { get; set; }
+         public int? BankId { get; set; }
         [SwaggerIgnore] public string? BankName { get; set; }
          public int? AccountId { get; set; }
         [SwaggerIgnore] public string? AccountNumber { get; set; }
+        [SwaggerIgnore] public string? BankOriginName { get; set; }
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
         [SwaggerIgnore] public string? DealerName { get; set; }
         [SwaggerIgnore] public string? StatusName { get; set; }
         [SwaggerIgnore] public int? StatusId { get; set; }
+
+    }
+
+    public class PostPaymentDetail :Record
+    {
+        public int? PaymentId { get; set; }
+        [Required] public DateTime? Date { get; set; }
+        [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? Rate { get; set; }
+        [Required] public DateTime? DateRate { get; set; }
+        [Required] public int? CurrencyId { get; set; }
+        [Required] public int? TypeId { get; set; }
+        [Required] public string? Reference { get; set; }
+        public int? AccountId { get; set; }
+        [Required] public int? DealerId { get; set; }
+        [Required] public int? SupplierId { get; set; }
+        [Required] public string? Concept { get; set; }
+        public int? BankOriginId { get; set; }
+        public List<Settlements>? Settlements { get; set; } = new List<Settlements>();
+    }
+
+    public class Settlements 
+    {
+         public int? DocumentId { get; set; }
 
     }
 
