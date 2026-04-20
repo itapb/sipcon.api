@@ -194,6 +194,31 @@ namespace Data
             }
             return _response;
         }
+
+        private async Task<Response<List<Models.BankAccount>>> _getBank()
+        {
+            Response<List<Models.BankAccount>> _response = new Response<List<Models.BankAccount>>();
+
+            try
+            {
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Code", "VCODE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_BANK",null);
+                _response.Data = _data.GetList<Models.BankAccount>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
         private async Task<Response<List<Models.EstatusRecord>>> _getDocumentStatus()
         {
             Response<List<Models.EstatusRecord>> _response = new Response<List<Models.EstatusRecord>>();
@@ -530,6 +555,20 @@ namespace Data
             try
             {
                 return await _getBankAccounts(supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        public async Task<Response<List<Models.BankAccount>>> GetBank()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _getBank();
             }
             finally
             {
