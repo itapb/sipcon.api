@@ -113,7 +113,7 @@ namespace Data
             }
             return _response;
         }
-        private async Task<Response<List<Models.AccountReceivable>>> _getAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
+        private async Task<Response<List<Models.AccountReceivable>>> _getAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
         {
             Response<List<Models.AccountReceivable>> _response = new Response<List<Models.AccountReceivable>>();
 
@@ -280,7 +280,7 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.PaymentDetails>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
+        private async Task<Response<List<Models.PaymentDetails>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
 
@@ -488,6 +488,39 @@ namespace Data
         }
 
 
+        private async Task<Response<Models.Result>> _PostPayDetails_Actions(List<Models.Action> _list, Int32 userId)
+
+        {
+            Response<Models.Result> _response = new Models.Response<Models.Result>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_PAYMENTDETAIL_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
 
         public async Task<Response<List<Models.Currency>>> GetCurrencys()
         {
@@ -641,6 +674,37 @@ namespace Data
             }
         }
 
+        public async Task<List<PaymentDetails>> GetExportPaymentDetails(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
+                _response = await _GetPayments(userId, supplierId, dealerId, null, filter, fromDate, upToDate, statusId, currencyId, typeId);
+                return (List<PaymentDetails>)_response.Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        public async Task<List<AccountReceivable>> GetExportAccountReceivable(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                Response<List<Models.AccountReceivable>> _response = new Response<List<Models.AccountReceivable>>();
+                _response = await _getAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode,null, filter, fromDate, upToDate, statusId, paymentDate);
+                return (List<AccountReceivable>)_response.Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         public async Task<Response<Models.Result>> PostPayment(PostPaymentDetail payment, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -671,8 +735,21 @@ namespace Data
             }
         }
 
+        public async Task<Response<Models.Result>> PostPayDetails_Actions(List<Models.Action> _list, Int32 userId)
 
-        
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostPayDetails_Actions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
 
     }
 }
