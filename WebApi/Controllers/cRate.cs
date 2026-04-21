@@ -36,24 +36,18 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("Update_Rate")]
-        public async Task<IActionResult> Update_Rate(int id, decimal nRate)
+        [HttpPost("/api/Rate/Post")]
+        public async Task<IActionResult> PostRate(Models.Rate rate, Int32 userId)
         {
+
             try
             {
-                var response = await _dRate.Update(id, nRate);
-
-                if (!response.Processed)
-                    return StatusCode(StatusCodes.Status400BadRequest, response.Message);
-
-                if (response.Data == null)
-                    return StatusCode(StatusCodes.Status404NotFound, "Tasa no encontrada");
-
-                return StatusCode(StatusCodes.Status200OK, response);
+                var _response = await _dRate.PostRate(rate, userId);
+                return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
     }

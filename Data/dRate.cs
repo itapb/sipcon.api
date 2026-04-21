@@ -57,12 +57,13 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response<Rate>> Update(int id, decimal nRate)
+        /*---------------------------------------------------------------POST RATE---------------------------------------------------------------------------*/
+        public async Task<Response<Result>> PostRate(Models.Rate _item, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Update(id, nRate);
+                return await _PostRate(_item, userId);
             }
             finally
             {
@@ -70,24 +71,28 @@ namespace Data
             }
         }
 
-        private async Task<Response<Rate>> _Update(int id, decimal nRate)
-        {
-            Response<Rate> _response = new Response<Rate>();
 
+        private async Task<Response<Result>> _PostRate(Rate _item, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
             try
             {
-                Parameter _parameter = new Parameter();
-                _parameter.AddSqlParameter("@ID", id);
-                _parameter.AddSqlParameter("@NRATE", nRate);
+                string _jsonstring = Util.Json.ConvertToJsonString(_item);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("DDate", "DDATE");
-                _mapping.AddItem("NRate", "NRATE");
+                _mapping.SetDefaultPostMapping();
+
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_UPDATE_RATES", _parameter);
-                _response.Data = _data.GetItem<Rate>(_mapping, _table);
+                DataTable _table = await _data.GetDataTable("USP_POST_RATES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
             }
             catch (Exception ex)
             {
