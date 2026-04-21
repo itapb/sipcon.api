@@ -4,10 +4,13 @@ using System.ComponentModel;
 
 namespace Models
 {
-    public class Rate : Record
+    public class Rate  
     {
-        public DateTime DDate { get; set; }
-        public decimal NRate { get; set; }
-
+        [Required]
+        public int? Id { get; set; } = 0;
+        [Required]
+        public decimal? NRate { get; set; }
+        [SwaggerIgnore]
+        public DateTime? DDate { get; set; } 
     }
 }
