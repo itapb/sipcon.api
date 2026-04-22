@@ -43,9 +43,10 @@ namespace Models
         [SwaggerIgnore] public String? Fase { get; set; }
         [SwaggerIgnore] public DateTime? CompletedDate { get; set; }
         [SwaggerIgnore] public Int32? IsCompleted { get; set; }
-
+        [SwaggerIgnore] public String? InitDate { get; set; }
         [SwaggerIgnore] public Int32? AreaId { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
+        [SwaggerIgnore] public Int32? UserInitId { get; set; }
     }
 
     public class FullInspection
@@ -63,6 +64,7 @@ namespace Models
         [Required] public Int32? FeatureId { get; set; }
         [SwaggerIgnore] public String? Feature { get; set; }
         [SwaggerIgnore] public Int32? FeatureTypeId { get; set; }
+        [SwaggerIgnore] public String? FeatureValueTypeId { get; set; }
         [SwaggerIgnore] public String? FeatureType { get; set; }
         [SwaggerIgnore] public String? FaseId { get; set; }
         [SwaggerIgnore] public String? Fase { get; set; }

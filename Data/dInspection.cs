@@ -37,14 +37,14 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
         #region "PDI"
-        /*---------------------------------------------------------------AREA---------------------------------------------------------------*/
+        /*---------------------------------------------------------------Get AccessGroup PDI---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Area>>> GetAreaPDI(Int32 userId, Int32 supplierId, int? dealerId)
+        public async Task<Response<List<Models.AccessGroupPDI>>> GetAccessGroupPDI(Int32 userId, Int32 supplierId, int? dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAreaPDI(userId, supplierId, dealerId);
+                return await _GetAccessGroupPDI(userId, supplierId, dealerId);
             }
             finally
             {
@@ -52,29 +52,27 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Area>>> _GetAreaPDI(Int32 userId, Int32 supplierId, int? dealerId)
+        private async Task<Response<List<Models.AccessGroupPDI>>> _GetAccessGroupPDI(Int32 userId, Int32 supplierId, int? dealerId)
         {
 
-            Response<List<Models.Area>> _response = new Response<List<Models.Area>>();
+            Response<List<Models.AccessGroupPDI>> _response = new Response<List<Models.AccessGroupPDI>>();
             try
             {
 
                 Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
-                _parameter.AddSqlParameter("@IDUSER", userId);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("Name", "VNAME");
-                // Supplier
-                _mapping.AddItem("SupplierId", "IDSUPPLIER");
-                // Dealer
-                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("Id", "IDFASE");
+                _mapping.AddItem("FaseName", "VFASE"); 
+                _mapping.AddItem("AreaId", "IDAREA"); 
+                _mapping.AddItem("AreaName", "VAREA");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_AREA_ACCESSGROUPUSER", _parameter);
-                _response.Data = _data.GetList<Models.Area>(_mapping, _table);
+                DataTable _table = await _data.GetDataTable("USP_GET_ACCESSGROUPPDI", _parameter);
+                _response.Data = _data.GetList<Models.AccessGroupPDI>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -870,12 +868,12 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
 
-        public async Task<List<Feature>> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
+        public async Task<List<Feature>> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active, int? modelId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Feature>)(await _GetAllFeature(userId, supplierId, dealerId, null, filter, active)).Data;
+                return (List<Feature>)(await _GetAllFeature(userId, supplierId, dealerId, null, filter, active, modelId)).Data;
             }
             finally
             {
@@ -884,12 +882,12 @@ namespace Data
         }
         /*---------------------------------------------------------------GetAll---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Feature>>> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<Response<List<Models.Feature>>> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? modelId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllFeature(userId, supplierId, dealerId, rowFrom, filter, active);
+                return await _GetAllFeature(userId, supplierId, dealerId, rowFrom, filter, active, modelId);
             }
             finally
             {
@@ -897,7 +895,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Feature>>> _GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? featureId = null)
+        private async Task<Response<List<Models.Feature>>> _GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? modelId, int? featureId = null)
         {
 
             Response<List<Models.Feature>> _response = new Response<List<Models.Feature>>();
@@ -912,6 +910,7 @@ namespace Data
                 _parameter.AddSqlParameter("@BACTIVE", active);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@ID", featureId);
+                _parameter.AddSqlParameter("@IDMODEL", modelId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1383,6 +1382,7 @@ namespace Data
                 _mapping.AddItem("Feature", "VFEATURE");
                 _mapping.AddItem("FeatureTypeId", "IDFEATURETYPE");
                 _mapping.AddItem("FeatureType", "VFEATURETYPE");
+                _mapping.AddItem("FeatureValueTypeId", "IDFEATUREVALUETYPE");
                 _mapping.AddItem("FaseId", "IDFASE");
                 _mapping.AddItem("Fase", "VFASE");
                 _mapping.AddItem("AreaId", "IDAREA");
@@ -1516,7 +1516,9 @@ namespace Data
                 _mapping.AddItem("FaseId", "IDFASE");
                 _mapping.AddItem("Fase", "FASE");
                 _mapping.AddItem("CompletedDate", "DCOMPLETED");
+                _mapping.AddItem("InitDate", "DDATEINIT");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
+                _mapping.AddItem("UserInitId", "IIDUSERINIT");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");
 
