@@ -868,12 +868,12 @@ namespace Data
         }
         /*-------------------------------------------------------------- Get Export   ---------------------------------------------------------------*/
 
-        public async Task<List<Feature>> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
+        public async Task<List<Feature>> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active, int? modelId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<Feature>)(await _GetAllFeature(userId, supplierId, dealerId, null, filter, active)).Data;
+                return (List<Feature>)(await _GetAllFeature(userId, supplierId, dealerId, null, filter, active, modelId)).Data;
             }
             finally
             {
@@ -882,12 +882,12 @@ namespace Data
         }
         /*---------------------------------------------------------------GetAll---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Feature>>> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<Response<List<Models.Feature>>> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? modelId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllFeature(userId, supplierId, dealerId, rowFrom, filter, active);
+                return await _GetAllFeature(userId, supplierId, dealerId, rowFrom, filter, active, modelId);
             }
             finally
             {
@@ -895,7 +895,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Feature>>> _GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? featureId = null)
+        private async Task<Response<List<Models.Feature>>> _GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? modelId, int? featureId = null)
         {
 
             Response<List<Models.Feature>> _response = new Response<List<Models.Feature>>();
@@ -910,6 +910,7 @@ namespace Data
                 _parameter.AddSqlParameter("@BACTIVE", active);
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@ID", featureId);
+                _parameter.AddSqlParameter("@IDMODEL", modelId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");

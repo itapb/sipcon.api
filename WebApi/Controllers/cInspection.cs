@@ -472,11 +472,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/Feature/GetAll")]
-        public async Task<IActionResult> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active)
+        public async Task<IActionResult> GetAllFeature(Int32 userId, Int32 supplierId, Int32 dealerId, int? rowFrom, string? filter, bool? active, int? modelId)
         {
             try
             {
-                var _response = await _dInspection.GetAllFeature(userId, supplierId, dealerId, rowFrom, filter, active);
+                var _response = await _dInspection.GetAllFeature(userId, supplierId, dealerId, rowFrom, filter, active, modelId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -583,11 +583,11 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/Feature/Export")]
-        public async Task<IActionResult> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active)
+        public async Task<IActionResult> GetFeatureExport(Int32 userId, Int32 supplierId, Int32 dealerId, string? filter, bool? active, int? modelId)
         {
             try
             {
-                List<Feature> _response = await _dInspection.GetFeatureExport(userId, supplierId, dealerId, filter, active);
+                List<Feature> _response = await _dInspection.GetFeatureExport(userId, supplierId, dealerId, filter, active, modelId);
                 MemoryStream _excel = ConvertToExcelFeature(_response);
                 string _fileName = "Caracteristicas.xlsx";
 
