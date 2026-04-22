@@ -1513,6 +1513,7 @@ namespace Data
                 _mapping.AddItem("FaseId", "IDFASE");
                 _mapping.AddItem("Fase", "FASE");
                 _mapping.AddItem("CompletedDate", "DCOMPLETED");
+                _mapping.AddItem("InitDate", "DDATEINIT");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");

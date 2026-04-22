@@ -43,7 +43,7 @@ namespace Models
         [SwaggerIgnore] public String? Fase { get; set; }
         [SwaggerIgnore] public DateTime? CompletedDate { get; set; }
         [SwaggerIgnore] public Int32? IsCompleted { get; set; }
-
+        [SwaggerIgnore] public String? InitDate { get; set; }
         [SwaggerIgnore] public Int32? AreaId { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
     }
