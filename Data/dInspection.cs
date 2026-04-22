@@ -37,14 +37,14 @@ namespace Data
             _semaphore = new SemaphoreSlim(100, 150);
         }
         #region "PDI"
-        /*---------------------------------------------------------------AREA---------------------------------------------------------------*/
+        /*---------------------------------------------------------------Get AccessGroup PDI---------------------------------------------------------------*/
 
-        public async Task<Response<List<Models.Area>>> GetAreaPDI(Int32 userId, Int32 supplierId, int? dealerId)
+        public async Task<Response<List<Models.AccessGroupPDI>>> GetAccessGroupPDI(Int32 userId, Int32 supplierId, int? dealerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAreaPDI(userId, supplierId, dealerId);
+                return await _GetAccessGroupPDI(userId, supplierId, dealerId);
             }
             finally
             {
@@ -52,29 +52,27 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Area>>> _GetAreaPDI(Int32 userId, Int32 supplierId, int? dealerId)
+        private async Task<Response<List<Models.AccessGroupPDI>>> _GetAccessGroupPDI(Int32 userId, Int32 supplierId, int? dealerId)
         {
 
-            Response<List<Models.Area>> _response = new Response<List<Models.Area>>();
+            Response<List<Models.AccessGroupPDI>> _response = new Response<List<Models.AccessGroupPDI>>();
             try
             {
 
                 Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IDDEALER", dealerId);
-                _parameter.AddSqlParameter("@IDUSER", userId);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
-                _mapping.AddItem("Name", "VNAME");
-                // Supplier
-                _mapping.AddItem("SupplierId", "IDSUPPLIER");
-                // Dealer
-                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("Id", "IDFASE");
+                _mapping.AddItem("FaseName", "VFASE"); 
+                _mapping.AddItem("AreaId", "IDAREA"); 
+                _mapping.AddItem("AreaName", "VAREA");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_AREA_ACCESSGROUPUSER", _parameter);
-                _response.Data = _data.GetList<Models.Area>(_mapping, _table);
+                DataTable _table = await _data.GetDataTable("USP_GET_ACCESSGROUPPDI", _parameter);
+                _response.Data = _data.GetList<Models.AccessGroupPDI>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }

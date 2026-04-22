@@ -30,12 +30,12 @@ namespace WebApi.Controllers
         }
 
         #region "PDI"
-        [HttpGet("/api/PDI/Area/GetAll")]
-        public async Task<IActionResult> GeAllAreaPdi(int userId, int supplierId, int dealerId)
+        [HttpGet("/api/PDI/AccessGroupPDI/GetAll")]
+        public async Task<IActionResult> GetAccessGroupPDI(int userId, int supplierId, int? dealerId)
         {
             try
             {
-                var _response = await _dInspection.GetAreaPDI(userId, supplierId, dealerId);
+                var _response = await _dInspection.GetAccessGroupPDI(userId, supplierId, dealerId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
