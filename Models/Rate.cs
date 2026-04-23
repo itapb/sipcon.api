@@ -7,6 +7,9 @@ namespace Models
 {
     public class Rate  
     {
+        [Required]
+        public int? Id { get; set; } = 0;
+
         [JsonPropertyName("fechaActualizacion")]
         public DateTime DDate { get; set; }
 
