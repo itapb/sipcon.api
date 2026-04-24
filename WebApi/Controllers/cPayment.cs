@@ -466,6 +466,22 @@ namespace WebApi.Controllers
 
 
 
+        [HttpPost("Delete_Details")]
+        public async Task<IActionResult> Delete_Details(List<Models.Action> _list, int userId)
+        {
+            try
+            {
+
+                var _response = await _dPayment.Delete_Details(_list, userId);
+                return StatusCode(_response.Status, _response);
+
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error al eliminar el archivo: {ex.Message}");
+            }
+        }
 
 
     }
