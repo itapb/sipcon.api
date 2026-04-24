@@ -101,5 +101,48 @@ namespace Data
 
             return _response;
         }
+    
+
+
+        public async Task<Response<Models.Result>> Insert_Rate(Rate rate)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Insert_Rate(rate);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _Insert_Rate(Rate rate)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(rate);
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_INSERT_RATES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
     }
 }

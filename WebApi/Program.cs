@@ -99,6 +99,9 @@ builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
 builder.Services.AddScoped<dRate>();
 
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<WebApi.BackgroundServices.TasaBackgroundService>();
+
 var app = builder.Build();
 
 
