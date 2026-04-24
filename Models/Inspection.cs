@@ -48,7 +48,7 @@ namespace Models
         [SwaggerIgnore] public String? Area { get; set; }
         [SwaggerIgnore] public Int32? UserInitId { get; set; }
         [SwaggerIgnore] public String? Login { get; set; } 
-        [SwaggerIgnore] public Boolean? Completed { get; set; }
+        [SwaggerIgnore] public Int32? Completed { get; set; }
     }
 
     public class FullInspection
