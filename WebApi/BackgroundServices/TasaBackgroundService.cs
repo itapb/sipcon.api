@@ -28,30 +28,45 @@ namespace WebApi.BackgroundServices
             var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
                 .WaitAndRetryAsync(3, _ => TimeSpan.FromMinutes(5));
 
+            //var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
+            //     .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(5));
+
             while (!stoppingToken.IsCancellationRequested)
             {
+                bool success = false;
+
                 try
                 {
                     await retryPolicy.ExecuteAsync(async () =>
                     {
                         var client = _httpClientFactory.CreateClient();
+                        //var client = _httpClientFactory.CreateClient();
+                        //client.Timeout = TimeSpan.FromSeconds(10);
 
-                        // Usamos "officialRate" para ser específicos
+                        // 1. Intentamos consultar la API
                         var response = await client.GetAsync("https://ve.dolarapi.com/v1/dolares/oficial", stoppingToken);
+
+                        // Si la API responde con un error (ej. 500, 503), esto lanzará una excepción 
+                        // que Polly atrapará para reintentar.
                         response.EnsureSuccessStatusCode();
 
+                        // 2. Intentamos leer el JSON
                         var rateData = await response.Content.ReadFromJsonAsync<Rate>(cancellationToken: stoppingToken);
 
-                        using (var scope = _serviceProvider.CreateScope())
+                        // Si llegamos aquí, la API respondió y el JSON es válido.
+                        if (rateData != null)
                         {
-                            // "rateService" suena más profesional que "dRate"
-                            var rateService = scope.ServiceProvider.GetRequiredService<dRate>();
-                            var result = await rateService.Insert_Rate(rateData);
+                            using (var scope = _serviceProvider.CreateScope())
+                            {
+                                var dRate = scope.ServiceProvider.GetRequiredService<dRate>();
+                                var result = await dRate.Insert_Rate(rateData);
 
-                            if (result.Processed)
-                                Util.Log.Info(result.Message);
-                            else
-                                Util.Log.Error(result.Message);
+                                if (result.Processed)
+                                    Util.Log.Info(result.Message);
+                                else
+                                    Util.Log.Error(result.Message);
+                            }
+                            success = true; // Todo salió bien
                         }
 
                         return response;
@@ -59,9 +74,30 @@ namespace WebApi.BackgroundServices
                 }
                 catch (Exception ex)
                 {
-                    Util.Log.Error($"Error in BackgroundService: {ex.Message}");
+                    // Si llega aquí, significa que tras los 3 intentos, la API siguió fallando
+                    Util.Log.Error($"API unreachable after retries: {ex.Message}");
+                    success = false;
                 }
 
+                // 3. Lógica de respaldo: solo si 'success' sigue siendo false, insertamos 0
+                if (!success)
+                {
+                    Util.Log.Error("Applying fallback: Inserting 0 due to API failure.");
+
+                    var fallbackRate = new Rate
+                    {
+                        DDate = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                        NRate = 0
+                    };
+
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var dRate = scope.ServiceProvider.GetRequiredService<dRate>();
+                        await dRate.Insert_Rate(fallbackRate);
+                    }
+                }
+
+                // 4. Esperar hasta la próxima ejecución (4:30 PM)
                 await ScheduleNextExecution(stoppingToken);
             }
         }
