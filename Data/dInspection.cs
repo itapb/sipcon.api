@@ -1521,6 +1521,7 @@ namespace Data
                 _mapping.AddItem("UserInitId", "IIDUSERINIT");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");
+                _mapping.AddItem("Login", "VLOGIN");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INPECTIONFASE", _parameter);
