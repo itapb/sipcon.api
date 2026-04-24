@@ -1473,12 +1473,12 @@ namespace Data
         #endregion
 
         #region "INSPECTIONFASE"
-        public async Task<Response<List<Models.InspectionFase>>> GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted)
+        public async Task<Response<List<Models.InspectionFase>>> GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted, bool? IsCompletedInspection)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted);
+                return await _GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted, IsCompletedInspection);
             }
             finally
             {
@@ -1499,7 +1499,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.InspectionFase>>> _GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted)
+        private async Task<Response<List<Models.InspectionFase>>> _GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted, bool? IsCompletedInspection)
         {
             Response<List<Models.InspectionFase>> _response = new Response<List<Models.InspectionFase>>();
             try
@@ -1509,6 +1509,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDFASE", FaseId);
                 _parameter.AddSqlParameter("@IDINSPECTION", InspectionId);
                 _parameter.AddSqlParameter("@ISCOMPLETED", IsCompleted);
+                _parameter.AddSqlParameter("@ISCOMPLETEDINSPECTION", IsCompletedInspection);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1522,6 +1524,7 @@ namespace Data
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");
                 _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("Completed", "ISCOMPLETEDINSPECTION");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INPECTIONFASE", _parameter);

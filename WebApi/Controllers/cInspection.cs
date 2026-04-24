@@ -741,11 +741,11 @@ namespace WebApi.Controllers
         #region "INSPECTION_FASE"
 
         [HttpGet("/api/InspectionFase/GetAll")]
-        public async Task<IActionResult> GetAllInspectionFase(Int32? AreaId = null, Int32? FaseId = null, Int32? InspectionId = null, bool? IsCompleted = null)
+        public async Task<IActionResult> GetAllInspectionFase(Int32? AreaId = null, Int32? FaseId = null, Int32? InspectionId = null, bool? IsCompleted = null, bool? IsCompletedInspection = null)
         {
             try
             {
-                var _response = await _dInspection.GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted);
+                var _response = await _dInspection.GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted, IsCompletedInspection);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
