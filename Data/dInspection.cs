@@ -1165,12 +1165,12 @@ namespace Data
 
         #region "INSPECTION"
         /* ----------------------------- GET ALL -------------------------------*/
-        public async Task<Response<List<Models.Inspection>>> GetAllInspections(Int32? AreaId)
+        public async Task<Response<List<Models.Inspection>>> GetAllInspections(Int32? AreaId, bool? IsCompleted)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllInspections(AreaId);
+                return await _GetAllInspections(AreaId, IsCompleted);
             }
             finally
             {
@@ -1207,13 +1207,15 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Inspection>>> _GetAllInspections(Int32? AreaId)
+        private async Task<Response<List<Models.Inspection>>> _GetAllInspections(Int32? AreaId, bool? IsCompleted)
         {
             Response<List<Models.Inspection>> _response = new Response<List<Models.Inspection>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDAREA", AreaId);
+                _parameter.AddSqlParameter("@ISCOMPLETED", IsCompleted);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");

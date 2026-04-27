@@ -649,11 +649,11 @@ namespace WebApi.Controllers
         #region "INSPECTIONS"
 
         [HttpGet("/api/Inspections/GetAll")]
-        public async Task<IActionResult> GetAll(Int32? AreaId = null)
+        public async Task<IActionResult> GetAll(Int32? AreaId = null, bool? IsCompleted = null)
         {
             try
             {
-                var _response = await _dInspection.GetAllInspections(AreaId);
+                var _response = await _dInspection.GetAllInspections(AreaId, IsCompleted);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
