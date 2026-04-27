@@ -34,6 +34,9 @@ namespace Models
         public DateTime? DReception { get; set; }
 
         [SwaggerIgnore] public Int32? IsCompleted { get; set; }
+        [SwaggerIgnore] public bool? IsDispatch { get; set; }
+        [SwaggerIgnore] public bool? HasFiles { get; set; }
+
     }
 
     public class InspectionFase : Record
@@ -47,6 +50,8 @@ namespace Models
         [SwaggerIgnore] public Int32? AreaId { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
         [SwaggerIgnore] public Int32? UserInitId { get; set; }
+        [SwaggerIgnore] public String? Login { get; set; } 
+        [SwaggerIgnore] public Int32? Completed { get; set; }
     }
 
     public class FullInspection
@@ -74,5 +79,16 @@ namespace Models
         [SwaggerIgnore] public String? Model { get; set; }
         [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public String? Plate { get; set; }
+        [SwaggerIgnore] public bool? HasFiles { get; set; }
+
+    }
+
+    public class DealersByInspection
+    {
+        [SwaggerIgnore] public Int32? InspectionId { get; set; }
+        [SwaggerIgnore] public Int32? VehicleId { get; set; }
+        [SwaggerIgnore] public Int32? DealerId { get; set; }
+        [SwaggerIgnore] public String? DealerName { get; set; }
+
     }
 }

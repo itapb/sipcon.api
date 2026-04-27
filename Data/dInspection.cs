@@ -1165,12 +1165,12 @@ namespace Data
 
         #region "INSPECTION"
         /* ----------------------------- GET ALL -------------------------------*/
-        public async Task<Response<List<Models.Inspection>>> GetAllInspections(Int32? AreaId)
+        public async Task<Response<List<Models.Inspection>>> GetAllInspections(Int32? AreaId, bool? IsCompleted)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllInspections(AreaId);
+                return await _GetAllInspections(AreaId, IsCompleted);
             }
             finally
             {
@@ -1207,13 +1207,31 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.Inspection>>> _GetAllInspections(Int32? AreaId)
+        /* ----------------------------- GET DEALERS -------------------------------*/
+
+        public async Task<Response<List<Models.DealersByInspection>>> InspectionGetDealers(string ids)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _InspectionGetDealers(ids);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        private async Task<Response<List<Models.Inspection>>> _GetAllInspections(Int32? AreaId, bool? IsCompleted)
         {
             Response<List<Models.Inspection>> _response = new Response<List<Models.Inspection>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDAREA", AreaId);
+                _parameter.AddSqlParameter("@ISCOMPLETED", IsCompleted);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1279,6 +1297,8 @@ namespace Data
                 _mapping.AddItem("RecepByName", "RECEPBYNAME");
                 _mapping.AddItem("TransporterName", "TRANSPORTER_NAME");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
+                _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_BY_ID", _parameter);
@@ -1316,6 +1336,35 @@ namespace Data
             }
 
             return _results[0];
+        }
+
+        private async Task<Response<List<Models.DealersByInspection>>> _InspectionGetDealers(string ids)
+        {
+            Response<List<Models.DealersByInspection>> _response = new Response<List<Models.DealersByInspection>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@INSPECTIONSID", ids);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("InspectionId", "ID");
+                _mapping.AddItem("VehicleId", "VEHICLEID");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "DEALERNAME");
+
+          
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DEALERSLIST_BYINSPECTION", _parameter);
+                _response.Data = _data.GetList<Models.DealersByInspection>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
         }
 
         #endregion
@@ -1391,6 +1440,7 @@ namespace Data
                 _mapping.AddItem("Model", "VMODEL");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1432,6 +1482,7 @@ namespace Data
                 _mapping.AddItem("Model", "VMODEL");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_DETAIL_BY_ID", _parameter);
@@ -1473,12 +1524,12 @@ namespace Data
         #endregion
 
         #region "INSPECTIONFASE"
-        public async Task<Response<List<Models.InspectionFase>>> GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted)
+        public async Task<Response<List<Models.InspectionFase>>> GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted, bool? IsCompletedInspection)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted);
+                return await _GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted, IsCompletedInspection);
             }
             finally
             {
@@ -1499,7 +1550,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.InspectionFase>>> _GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted)
+        private async Task<Response<List<Models.InspectionFase>>> _GetAllInspectionFase(Int32? AreaId, Int32? FaseId, Int32? InspectionId, bool? IsCompleted, bool? IsCompletedInspection)
         {
             Response<List<Models.InspectionFase>> _response = new Response<List<Models.InspectionFase>>();
             try
@@ -1509,6 +1560,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDFASE", FaseId);
                 _parameter.AddSqlParameter("@IDINSPECTION", InspectionId);
                 _parameter.AddSqlParameter("@ISCOMPLETED", IsCompleted);
+                _parameter.AddSqlParameter("@ISCOMPLETEDINSPECTION", IsCompletedInspection);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -1521,6 +1574,8 @@ namespace Data
                 _mapping.AddItem("UserInitId", "IIDUSERINIT");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("Area", "AREA");
+                _mapping.AddItem("Login", "VLOGIN");
+                _mapping.AddItem("Completed", "ISCOMPLETEDINSPECTION");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INPECTIONFASE", _parameter);

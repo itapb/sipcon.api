@@ -649,11 +649,11 @@ namespace WebApi.Controllers
         #region "INSPECTIONS"
 
         [HttpGet("/api/Inspections/GetAll")]
-        public async Task<IActionResult> GetAll(Int32? AreaId = null)
+        public async Task<IActionResult> GetAll(Int32? AreaId = null, bool? IsCompleted = null)
         {
             try
             {
-                var _response = await _dInspection.GetAllInspections(AreaId);
+                var _response = await _dInspection.GetAllInspections(AreaId, IsCompleted);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -687,6 +687,20 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/Inspections/GetDealers")]
+        public async Task<IActionResult> InspectionGetDealers(string ids)
+        {
+            try
+            {
+                var _response = await _dInspection.InspectionGetDealers(ids);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
 
@@ -741,11 +755,11 @@ namespace WebApi.Controllers
         #region "INSPECTION_FASE"
 
         [HttpGet("/api/InspectionFase/GetAll")]
-        public async Task<IActionResult> GetAllInspectionFase(Int32? AreaId = null, Int32? FaseId = null, Int32? InspectionId = null, bool? IsCompleted = null)
+        public async Task<IActionResult> GetAllInspectionFase(Int32? AreaId = null, Int32? FaseId = null, Int32? InspectionId = null, bool? IsCompleted = null, bool? IsCompletedInspection = null)
         {
             try
             {
-                var _response = await _dInspection.GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted);
+                var _response = await _dInspection.GetAllInspectionFase(AreaId, FaseId, InspectionId, IsCompleted, IsCompletedInspection);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
