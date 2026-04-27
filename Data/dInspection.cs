@@ -1207,6 +1207,22 @@ namespace Data
             }
         }
 
+        /* ----------------------------- GET DEALERS -------------------------------*/
+
+        public async Task<Response<List<Models.DealersByInspection>>> InspectionGetDealers(string ids)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _InspectionGetDealers(ids);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
         private async Task<Response<List<Models.Inspection>>> _GetAllInspections(Int32? AreaId, bool? IsCompleted)
         {
             Response<List<Models.Inspection>> _response = new Response<List<Models.Inspection>>();
@@ -1318,6 +1334,35 @@ namespace Data
             }
 
             return _results[0];
+        }
+
+        private async Task<Response<List<Models.DealersByInspection>>> _InspectionGetDealers(string ids)
+        {
+            Response<List<Models.DealersByInspection>> _response = new Response<List<Models.DealersByInspection>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@INSPECTIONSID", ids);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("InspectionId", "ID");
+                _mapping.AddItem("VehicleId", "VEHICLEID");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "DEALERNAME");
+
+          
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_DEALERSLIST_BYINSPECTION", _parameter);
+                _response.Data = _data.GetList<Models.DealersByInspection>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
         }
 
         #endregion

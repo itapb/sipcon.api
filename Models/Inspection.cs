@@ -77,4 +77,13 @@ namespace Models
         [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public String? Plate { get; set; }
     }
+
+    public class DealersByInspection
+    {
+        [SwaggerIgnore] public Int32? InspectionId { get; set; }
+        [SwaggerIgnore] public Int32? VehicleId { get; set; }
+        [SwaggerIgnore] public Int32? DealerId { get; set; }
+        [SwaggerIgnore] public String? DealerName { get; set; }
+
+    }
 }

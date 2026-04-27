@@ -690,6 +690,20 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/Inspections/GetDealers")]
+        public async Task<IActionResult> InspectionGetDealers(string ids)
+        {
+            try
+            {
+                var _response = await _dInspection.InspectionGetDealers(ids);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         #endregion
 
         #region "INSPECTIONDETAILS"
