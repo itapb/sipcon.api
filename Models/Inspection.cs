@@ -34,6 +34,7 @@ namespace Models
         public DateTime? DReception { get; set; }
 
         [SwaggerIgnore] public Int32? IsCompleted { get; set; }
+        [SwaggerIgnore] public bool? IsDispatch { get; set; }
     }
 
     public class InspectionFase : Record
