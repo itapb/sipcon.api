@@ -1297,6 +1297,8 @@ namespace Data
                 _mapping.AddItem("RecepByName", "RECEPBYNAME");
                 _mapping.AddItem("TransporterName", "TRANSPORTER_NAME");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
+                _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_BY_ID", _parameter);
@@ -1438,6 +1440,7 @@ namespace Data
                 _mapping.AddItem("Model", "VMODEL");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1479,6 +1482,7 @@ namespace Data
                 _mapping.AddItem("Model", "VMODEL");
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_DETAIL_BY_ID", _parameter);

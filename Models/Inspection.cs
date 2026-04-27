@@ -35,6 +35,8 @@ namespace Models
 
         [SwaggerIgnore] public Int32? IsCompleted { get; set; }
         [SwaggerIgnore] public bool? IsDispatch { get; set; }
+        [SwaggerIgnore] public bool? HasFiles { get; set; }
+
     }
 
     public class InspectionFase : Record
@@ -77,6 +79,8 @@ namespace Models
         [SwaggerIgnore] public String? Model { get; set; }
         [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public String? Plate { get; set; }
+        [SwaggerIgnore] public bool? HasFiles { get; set; }
+
     }
 
     public class DealersByInspection
