@@ -77,9 +77,9 @@ namespace Models
     }
 
 
-    public class PaymentFull
+    public class PaymentFull:PaymentDetails
     {
-        public Models.PaymentDetails? PaymentDetail { get; set; } = new Models.PaymentDetails();
+        
         public List<AccountPreview>? AccountPreview { get; set; } = new List<AccountPreview>();
 
     }

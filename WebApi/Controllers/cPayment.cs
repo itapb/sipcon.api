@@ -142,34 +142,52 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetPayments")]
-        public async Task<IActionResult> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId,int? typeId)
+        public async Task<IActionResult> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             try
             {
-                // 1. Obtener la lista de pagos (PaymentDetails)
+                // 1. Obtener la respuesta de pagos
                 var paymentsResponse = await _dPayment.GetPayments(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId);
 
-                if (paymentsResponse.Data == null || !paymentsResponse.Data.Any())
-                    return Ok(new List<PaymentFull>());
+                if (paymentsResponse.Data == null)
+                    return Ok(new Response<List<PaymentFull>> { Data = new List<PaymentFull>(), Message = "No hay datos", Status = 200 });
 
-                // 2. Obtener todas las cuentas/settlements relacionados 
-                // Pasamos null en PaymentId para que, según tu lógica, traiga toda la lista filtrada
+                // 2. Obtener cuentas
                 var accountsResponse = await _dPayment.GetAccountByPayment(userId, supplierId, dealerId, null, filter, fromDate, upToDate, statusId, currencyId, typeId, null);
 
-                // 3. Unir (Anclar) los modelos usando LINQ
-                var result = paymentsResponse.Data.Select(p => new PaymentFull
+                // Optimización con Lookup para mayor velocidad
+                var accountsLookup = accountsResponse.Data?.ToLookup(a => a.PaymentId);
+
+                // 3. Mapeo a la lista de PaymentFull
+                var paymentsFullList = paymentsResponse.Data.Select(p =>
                 {
-                    PaymentDetail = p,
-                    AccountPreview = accountsResponse.Data?
-                        .Where(a => a.PaymentId == p.PaymentId) // Suponiendo que AccountPreview tiene una propiedad PaymentId
-                        .ToList() ?? new List<AccountPreview>()
+                    var fullPayment = new PaymentFull
+                    {
+                        PaymentId = p.PaymentId,
+                        Amount = p.Amount,
+                        Date = p.Date,
+                        // ... asigna las demás propiedades heredadas de PaymentDetails
+
+                        AccountPreview = accountsLookup?[p.PaymentId].ToList() ?? new List<AccountPreview>()
+                    };
+                    return fullPayment;
                 }).ToList();
 
-                return Ok(result);
+                // 4. Envolver el resultado en el objeto Response esperado
+                var finalResponse = new Response<List<PaymentFull>>
+                {
+                    Data = paymentsFullList,
+                    Message = paymentsResponse.Message,
+                    Processed = paymentsResponse.Processed,
+                    Status = paymentsResponse.Status,
+                    Total = paymentsResponse.Total
+                };
+
+                return Ok(finalResponse);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                return StatusCode(StatusCodes.Status409Conflict, new Response<List<PaymentFull>> { Message = ex.Message, Status = 409 });
             }
         }
 
