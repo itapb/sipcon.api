@@ -146,7 +146,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                // 1. Obtener la respuesta de pagos
+                // 1. Obtener la lista de pagos que YA SON de tipo PaymentFull
                 var paymentsResponse = await _dPayment.GetPayments(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, statusId, currencyId, typeId);
 
                 if (paymentsResponse.Data == null)
@@ -155,28 +155,20 @@ namespace WebApi.Controllers
                 // 2. Obtener cuentas
                 var accountsResponse = await _dPayment.GetAccountByPayment(userId, supplierId, dealerId, null, filter, fromDate, upToDate, statusId, currencyId, typeId, null);
 
-                // Optimización con Lookup para mayor velocidad
+                // 3. Crear el Lookup para optimización (O(1))
                 var accountsLookup = accountsResponse.Data?.ToLookup(a => a.PaymentId);
 
-                // 3. Mapeo a la lista de PaymentFull
-                var paymentsFullList = paymentsResponse.Data.Select(p =>
+                // 4. Hidratar la propiedad AccountPreview directamente
+                // Como 'paymentsResponse.Data' ya es List<PaymentFull>, simplemente iteramos
+                foreach (var payment in paymentsResponse.Data)
                 {
-                    var fullPayment = new PaymentFull
-                    {
-                        PaymentId = p.PaymentId,
-                        Amount = p.Amount,
-                        Date = p.Date,
-                        // ... asigna las demás propiedades heredadas de PaymentDetails
+                    payment.AccountPreview = accountsLookup?[payment.PaymentId].ToList() ?? new List<AccountPreview>();
+                }
 
-                        AccountPreview = accountsLookup?[p.PaymentId].ToList() ?? new List<AccountPreview>()
-                    };
-                    return fullPayment;
-                }).ToList();
-
-                // 4. Envolver el resultado en el objeto Response esperado
+                // 5. Envolver el resultado final
                 var finalResponse = new Response<List<PaymentFull>>
                 {
-                    Data = paymentsFullList,
+                    Data = paymentsResponse.Data, // Ya es la lista enriquecida
                     Message = paymentsResponse.Message,
                     Processed = paymentsResponse.Processed,
                     Status = paymentsResponse.Status,
