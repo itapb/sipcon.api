@@ -151,6 +151,7 @@ namespace Data
                 _mapping.AddItem("AmountBs", "NAMOUNTBS");
                 _mapping.AddItem("BalanceBs", "NBALANCEBS");
                 _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DRATEDATE");
                 _mapping.AddItem("StatusName", "VSTATUSNAME");
                 _mapping.AddItem("StatusId", "ISTATUSID");
 

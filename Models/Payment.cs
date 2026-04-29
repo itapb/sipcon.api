@@ -48,8 +48,6 @@ namespace Models
         public int? PaymentId { get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
-        [Required] public decimal? Rate { get; set; }
-        [Required] public DateTime? DateRate { get; set; }
         [Required] public int? CurrencyId { get; set; }
         [Required] public int? TypeId { get; set; }
         [Required] public string? Reference { get; set; }
@@ -64,6 +62,8 @@ namespace Models
     public class Settlements 
     {
          public int? DocumentId { get; set; }
+         public decimal? Rate { get; set; }
+         public DateTime? DateRate { get; set; }
 
     }
 
