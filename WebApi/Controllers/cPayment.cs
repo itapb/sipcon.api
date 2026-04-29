@@ -476,8 +476,8 @@ namespace WebApi.Controllers
 
 
 
-        [HttpPost("Delete_Details")]
-        public async Task<IActionResult> Delete_Details(List<Models.Action> _list, int userId)
+        [HttpPost("DeletePaymentDetails")]
+        public async Task<IActionResult> DeletePaymentDetails(List<Models.Action> _list, int userId)
         {
             try
             {
