@@ -17,8 +17,9 @@ namespace Models
         public List<PaymentDetails> PaymentDetails { get; set; } = new List<PaymentDetails>();
 
     }
-    public class PaymentDetails : Record
+    public class PaymentDetails 
     {
+        public int? Id { get; set; }
         public int? PaymentId{ get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
