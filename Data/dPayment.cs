@@ -151,6 +151,7 @@ namespace Data
                 _mapping.AddItem("AmountBs", "NAMOUNTBS");
                 _mapping.AddItem("BalanceBs", "NBALANCEBS");
                 _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DRATEDATE");
                 _mapping.AddItem("StatusName", "VSTATUSNAME");
                 _mapping.AddItem("StatusId", "ISTATUSID");
 
@@ -280,9 +281,9 @@ namespace Data
         }
 
 
-        private async Task<Response<List<Models.PaymentDetails>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
+        private async Task<Response<List<Models.PaymentFull>>> _GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
-            Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
+            Response<List<Models.PaymentFull>> _response = new Response<List<Models.PaymentFull>>();
 
             try
             {
@@ -324,7 +325,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTDETAILS", _parameter);
-                _response.Data = _data.GetList<Models.PaymentDetails>(_mapping, _table);
+                _response.Data = _data.GetList<Models.PaymentFull>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
             }
@@ -334,6 +335,10 @@ namespace Data
             }
             return _response;
         }
+
+
+
+
 
         private async Task<Response<List<Models.AccountPreview>>> _GetAccountByPayment(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId, Int32? PaymentId=null)
         {
@@ -376,6 +381,7 @@ namespace Data
             }
             return _response;
         }
+
 
         private async Task<Response<List<Models.PaymentDetails>>> _GetPaymentDetailsById(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
         {
@@ -642,7 +648,7 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.PaymentDetails>>> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
+        public async Task<Response<List<Models.PaymentFull>>> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -712,9 +718,15 @@ namespace Data
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
-                _response = await _GetPayments(userId, supplierId, dealerId, null, filter, fromDate, upToDate, statusId, currencyId, typeId);
-                return (List<PaymentDetails>)_response.Data;
+                // 1. Llamada a tu método que devuelve PaymentFull
+                var response = await _GetPayments(userId, supplierId, dealerId, null, filter, fromDate, upToDate, statusId, currencyId, typeId);
+
+                if (response?.Data == null)
+                    return new List<PaymentDetails>();
+
+                // 2. Convertir de PaymentFull a PaymentDetails (Proyección)
+                // Como PaymentFull hereda de PaymentDetails, simplemente extraemos la parte base
+                return response.Data.Select(p => (PaymentDetails)p).ToList();
             }
             finally
             {

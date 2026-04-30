@@ -18,6 +18,7 @@ namespace Models
         [Required] public string? Reference { get; set; }
         [Required] public string? DocumentDate { get; set; }
         [Required] public string? DocumentDueDate { get; set; }
+         public string? DateRate { get; set; }
         [Required] public decimal? Amount { get; set; }
         [Required] public decimal? AmountBs { get; set; }
         [Required] public decimal? Balance { get; set; }
