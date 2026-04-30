@@ -1615,12 +1615,12 @@ namespace Data
         #endregion
 
         #region "FULLINSPECTION"
-        public async Task<Result> Post_FullInspection(List<FullInspection> _list, Int32 userId)
+        public async Task<Result> Post_FullInspection(List<FullInspection> _list, Int32 userId, Int32 supplierId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Post_FullInspection(_list, userId);
+                return await _Post_FullInspection(_list, userId, supplierId);
             }
             finally
             {
@@ -1628,7 +1628,7 @@ namespace Data
             }
         }
 
-        private async Task<Result> _Post_FullInspection(List<FullInspection> _list, Int32 userId)
+        private async Task<Result> _Post_FullInspection(List<FullInspection> _list, Int32 userId, Int32 supplierId)
         {
             List<Result> _results = new List<Result>();
             try
@@ -1638,6 +1638,8 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();

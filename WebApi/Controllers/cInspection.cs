@@ -786,11 +786,11 @@ namespace WebApi.Controllers
 
         #region "FULLINSPECTION"
         [HttpPost("/api/Post_FullInspection")]
-        public async Task<IActionResult> Post_FullInspection(List<Models.FullInspection> _fullInspection, Int32 userId)
+        public async Task<IActionResult> Post_FullInspection(List<Models.FullInspection> _fullInspection, Int32 userId, Int32 supplierId)
         {
             try
             {
-                var _response = await _dInspection.Post_FullInspection(_fullInspection, userId);
+                var _response = await _dInspection.Post_FullInspection(_fullInspection, userId, supplierId);
                 return StatusCode(StatusCodes.Status200OK, _response);
             }
             catch (Exception ex)
