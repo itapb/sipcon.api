@@ -55,7 +55,6 @@ namespace Models
         public int? AccountId { get; set; }
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
-        [Required] public string? Concept { get; set; }
         public int? BankOriginId { get; set; }
         public List<Settlements>? Settlements { get; set; } = new List<Settlements>();
     }
