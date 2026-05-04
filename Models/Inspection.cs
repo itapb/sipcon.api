@@ -80,6 +80,7 @@ namespace Models
         [SwaggerIgnore] public String? Vin { get; set; }
         [SwaggerIgnore] public String? Plate { get; set; }
         [SwaggerIgnore] public bool? HasFiles { get; set; }
+        [SwaggerIgnore] public String? OptionSelected { get; set; }
 
     }
 
@@ -89,6 +90,17 @@ namespace Models
         [SwaggerIgnore] public Int32? VehicleId { get; set; }
         [SwaggerIgnore] public Int32? DealerId { get; set; }
         [SwaggerIgnore] public String? DealerName { get; set; }
+    }
 
+    public class TableInspection
+    {
+        [SwaggerIgnore] public Int32? InspectionId { get; set; }
+        [SwaggerIgnore] public DateTime? CreatedDate { get; set; }
+        [SwaggerIgnore] public String? Vin { get; set; }
+        [SwaggerIgnore] public String? Plate { get; set; }
+        [SwaggerIgnore] public String? Model { get; set; }
+        [SwaggerIgnore] public String? Area { get; set; }
+        [SwaggerIgnore] public String? User { get; set; }
+        [SwaggerIgnore] public Int32? Isclosed { get; set; }
     }
 }

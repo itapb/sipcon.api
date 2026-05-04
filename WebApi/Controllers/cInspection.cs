@@ -648,6 +648,20 @@ namespace WebApi.Controllers
 
         #region "INSPECTIONS"
 
+        [HttpGet("/api/Inspections/TableGetAll")]
+        public async Task<IActionResult> TableGetAll(Int32? supplierId, Int32? rowfrom, string? filter)
+        {
+            try
+            {
+                var _response = await _dInspection.TableGetAllInspections(supplierId, rowfrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         [HttpGet("/api/Inspections/GetAll")]
         public async Task<IActionResult> GetAll(Int32? AreaId = null, bool? IsCompleted = null)
         {
@@ -786,11 +800,11 @@ namespace WebApi.Controllers
 
         #region "FULLINSPECTION"
         [HttpPost("/api/Post_FullInspection")]
-        public async Task<IActionResult> Post_FullInspection(List<Models.FullInspection> _fullInspection, Int32 userId)
+        public async Task<IActionResult> Post_FullInspection(List<Models.FullInspection> _fullInspection, Int32 userId, Int32 supplierId)
         {
             try
             {
-                var _response = await _dInspection.Post_FullInspection(_fullInspection, userId);
+                var _response = await _dInspection.Post_FullInspection(_fullInspection, userId, supplierId);
                 return StatusCode(StatusCodes.Status200OK, _response);
             }
             catch (Exception ex)
