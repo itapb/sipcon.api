@@ -51,7 +51,7 @@ namespace WebApi.BackgroundServices
                         response.EnsureSuccessStatusCode();
 
                         // 2. Intentamos leer el JSON
-                        var rateData = await response.Content.ReadFromJsonAsync<Rate>(cancellationToken: stoppingToken);
+                        var rateData = await response.Content.ReadFromJsonAsync<InsertRate>(cancellationToken: stoppingToken);
 
                         // Si llegamos aquí, la API respondió y el JSON es válido.
                         if (rateData != null)
@@ -84,7 +84,7 @@ namespace WebApi.BackgroundServices
                 {
                     Util.Log.Error("Applying fallback: Inserting 0 due to API failure.");
 
-                    var fallbackRate = new Rate
+                    var fallbackRate = new InsertRate
                     {
                         DDate = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                         NRate = 0
