@@ -10,6 +10,18 @@ namespace Models
         [Required]
         public int? Id { get; set; } = 0;
 
+        public DateTime DDate { get; set; }
+
+        public decimal NRate { get; set; }
+
+    }
+
+
+    public class InsertRate
+    {
+        [Required]
+        public int? Id { get; set; } = 0;
+
         [JsonPropertyName("fechaActualizacion")]
         public DateTime DDate { get; set; }
 
