@@ -648,6 +648,20 @@ namespace WebApi.Controllers
 
         #region "INSPECTIONS"
 
+        [HttpGet("/api/Inspections/TableGetAll")]
+        public async Task<IActionResult> TableGetAll(Int32? supplierId, Int32? rowfrom, string? filter)
+        {
+            try
+            {
+                var _response = await _dInspection.TableGetAllInspections(supplierId, rowfrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         [HttpGet("/api/Inspections/GetAll")]
         public async Task<IActionResult> GetAll(Int32? AreaId = null, bool? IsCompleted = null)
         {

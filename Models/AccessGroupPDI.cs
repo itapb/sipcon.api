@@ -18,9 +18,12 @@ namespace Models
         public string? FaseName { get; set; } 
 
         [SwaggerIgnore]
-        public int? AreaId { get; set; } 
-
+        public int? AreaId { get; set; }
+        
         [SwaggerIgnore]
         public string? AreaName { get; set; }
+
+        [SwaggerIgnore]
+        public bool? GivesOutCar { get; set; }
     }
 }

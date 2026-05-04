@@ -69,6 +69,7 @@ namespace Data
                 _mapping.AddItem("FaseName", "VFASE"); 
                 _mapping.AddItem("AreaId", "IDAREA"); 
                 _mapping.AddItem("AreaName", "VAREA");
+                _mapping.AddItem("GivesOutCar", "BGIVESOUTCAR");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCESSGROUPPDI", _parameter);
@@ -1164,6 +1165,23 @@ namespace Data
         #endregion
 
         #region "INSPECTION"
+
+        /* ----------------------------- GET ALL -------------------------------*/
+        public async Task<Response<List<Models.TableInspection>>> TableGetAllInspections(Int32? supplierId, Int32? rowfrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _TableGetAllInspections(supplierId, rowfrom, filter);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
         /* ----------------------------- GET ALL -------------------------------*/
         public async Task<Response<List<Models.Inspection>>> GetAllInspections(Int32? AreaId, bool? IsCompleted)
         {
@@ -1221,6 +1239,40 @@ namespace Data
                 _semaphore.Release();
             }
         }
+
+        private async Task<Response<List<Models.TableInspection>>> _TableGetAllInspections(Int32? supplierId, Int32? rowfrom, string? filter)
+        {
+            Response<List<Models.TableInspection>> _response = new Response<List<Models.TableInspection>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("InspectionId", "IDINSPECTION");
+                _mapping.AddItem("CreatedDate", "DCREATED");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Model", "MODEL");
+                _mapping.AddItem("Area", "AREA");
+                _mapping.AddItem("User", "VUSER");
+                _mapping.AddItem("Isclosed", "IS_CLOSED");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS_ALL", _parameter);
+                _response.Data = _data.GetList<Models.TableInspection>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
 
 
         private async Task<Response<List<Models.Inspection>>> _GetAllInspections(Int32? AreaId, bool? IsCompleted)
@@ -1441,7 +1493,7 @@ namespace Data
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
-
+                _mapping.AddItem("OptionSelected", "OPTIONSELECT");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS_DETAIL", _parameter);
@@ -1483,6 +1535,8 @@ namespace Data
                 _mapping.AddItem("Vin", "VVIN");
                 _mapping.AddItem("Plate", "VPLATE");
                 _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
+                _mapping.AddItem("OptionSelected", "OPTIONSELECT");
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_DETAIL_BY_ID", _parameter);
