@@ -104,7 +104,7 @@ namespace Data
     
 
 
-        public async Task<Response<Models.Result>> Insert_Rate(Rate rate)
+        public async Task<Response<Models.Result>> Insert_Rate(InsertRate rate)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -117,7 +117,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Models.Result>> _Insert_Rate(Rate rate)
+        private async Task<Response<Models.Result>> _Insert_Rate(InsertRate rate)
         {
             Response<Models.Result> _response = new Response<Models.Result>();
 
