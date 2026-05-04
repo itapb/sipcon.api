@@ -44,8 +44,9 @@ namespace Models
 
     }
 
-    public class PostPaymentDetail :Record
+    public class PostPaymentDetail 
     {
+        public int? Id { get; set; }
         public int? PaymentId { get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
