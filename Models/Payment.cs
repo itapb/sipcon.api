@@ -44,8 +44,9 @@ namespace Models
 
     }
 
-    public class PostPaymentDetail :Record
+    public class PostPaymentDetail 
     {
+        public int? Id { get; set; }
         public int? PaymentId { get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
@@ -55,7 +56,6 @@ namespace Models
         public int? AccountId { get; set; }
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
-        [Required] public string? Concept { get; set; }
         public int? BankOriginId { get; set; }
         public List<Settlements>? Settlements { get; set; } = new List<Settlements>();
     }
