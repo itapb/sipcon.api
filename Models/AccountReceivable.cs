@@ -16,8 +16,8 @@ namespace Models
         [Required] public string? ConceptName { get; set; }
         [Required] public string? Number { get; set; }
         [Required] public string? Reference { get; set; }
-        [Required] public string? DocumentDate { get; set; }
-        [Required] public string? DocumentDueDate { get; set; }
+        [Required] public DateTime? DocumentDate { get; set; }
+        [Required] public DateTime? DocumentDueDate { get; set; }
          public string? DateRate { get; set; }
         [Required] public decimal? Amount { get; set; }
         [Required] public decimal? AmountBs { get; set; }
@@ -33,7 +33,7 @@ namespace Models
     {
         [Required] public int? Id { get; set; }
         [Required] public string? Number { get; set; }
-        [Required] public string? DocumentDate { get; set; }
+        [Required] public DateTime? DocumentDate { get; set; }
         [Required] public decimal? Amount { get; set; }
         [Required] public string? ConceptName { get; set; }
         [Required] public string? TypeName { get; set; }
