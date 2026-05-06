@@ -1194,7 +1194,7 @@ namespace WebApi.Controllers
                             table.Cell().Element(HeaderStyle).Text("CIUDAD");
                             table.Cell().Element(HeaderStyle).Text("TELEFONO");
 
-                            table.Cell().Element(RowStyle).Text(""); // Ejemplo estático
+                            table.Cell().Element(RowStyle).Text(DataInspection.NameSupplier); // Ejemplo estático
                             table.Cell().Element(RowStyle).Text(DataInspection.Vin);
                             table.Cell().Element(RowStyle).Text(DataInspection.VehiclePlate);
                             table.Cell().Element(RowStyle).Text(""); // Ejemplo estático
