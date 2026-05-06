@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2016.Excel;
 using DocumentFormat.OpenXml.Office2021.Excel.NamedSheetViews;
@@ -1350,7 +1351,17 @@ namespace Data
                 _mapping.AddItem("TransporterName", "TRANSPORTER_NAME");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
                 _mapping.AddItem("HasFiles", "BHASTTACHMENTS");
-
+                _mapping.AddItem("Brand", "VBRAND");
+                _mapping.AddItem("Color", "COLOR");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("ClosedByVVTA", "CLOSEDBYVVTA");
+                _mapping.AddItem("RecepByVVTA", "RECEPBYVVTA");
+                _mapping.AddItem("TransporterByVVTA", "TRANSPORTERVVTA");
+                _mapping.AddItem("NameSupplier", "NAMESUPPLIER");
+                _mapping.AddItem("Format", "VFORMAT");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("BrandId", "IDBRAND");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_BY_ID", _parameter);

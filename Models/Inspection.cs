@@ -36,7 +36,17 @@ namespace Models
         [SwaggerIgnore] public Int32? IsCompleted { get; set; }
         [SwaggerIgnore] public bool? IsDispatch { get; set; }
         [SwaggerIgnore] public bool? HasFiles { get; set; }
-
+        [SwaggerIgnore] public String? Brand { get; set; }
+        [SwaggerIgnore] public String? Color { get; set; }
+        [SwaggerIgnore] public String? Year { get; set; }
+        [SwaggerIgnore] public String? EngineSerial { get; set; }
+        [SwaggerIgnore] public String? ClosedByVVTA { get; set; }
+        [SwaggerIgnore] public String? RecepByVVTA { get; set; }
+        [SwaggerIgnore] public String? TransporterByVVTA { get; set; }
+        [SwaggerIgnore] public String? NameSupplier { get; set; }
+        [SwaggerIgnore] public String? Format { get; set; }
+        [SwaggerIgnore] public int? SupplierId { get; set; }
+        [SwaggerIgnore] public int? BrandId { get; set; }
     }
 
     public class InspectionFase : Record
