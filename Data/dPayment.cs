@@ -368,6 +368,8 @@ namespace Data
                 _mapping.AddItem("TypeName", "VTYPE");
                 _mapping.AddItem("ConceptName", "VCONCEPT");
                 _mapping.AddItem("PaymentId", "IDPAYMENT");
+                _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DDATERATE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNT_BYPAYMENT", _parameter);

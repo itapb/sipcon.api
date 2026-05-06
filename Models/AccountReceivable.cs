@@ -38,6 +38,8 @@ namespace Models
         [Required] public string? ConceptName { get; set; }
         [Required] public string? TypeName { get; set; }
         [Required] public int? PaymentId { get; set; }
+        public decimal Rate { get; set; }
+        public DateTime? DateRate { get; set; }
 
     }
 
