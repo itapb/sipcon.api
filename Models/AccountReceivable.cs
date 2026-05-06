@@ -18,7 +18,7 @@ namespace Models
         [Required] public string? Reference { get; set; }
         [Required] public DateTime? DocumentDate { get; set; }
         [Required] public DateTime? DocumentDueDate { get; set; }
-         public string? DateRate { get; set; }
+         public DateTime? DateRate { get; set; }
         [Required] public decimal? Amount { get; set; }
         [Required] public decimal? AmountBs { get; set; }
         [Required] public decimal? Balance { get; set; }
@@ -38,6 +38,8 @@ namespace Models
         [Required] public string? ConceptName { get; set; }
         [Required] public string? TypeName { get; set; }
         [Required] public int? PaymentId { get; set; }
+        public decimal Rate { get; set; }
+        public DateTime? DateRate { get; set; }
 
     }
 
