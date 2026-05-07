@@ -617,6 +617,20 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpPost("/api/Movements/PostReceptionAutoAssign")]
+        public async Task<IActionResult> PostReceptionAutoAssign(string locationName, Int32 userId, Int32 supplierId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostReceptionAutoAssign(locationName, userId, supplierId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         private List<NewMovementDetail> ExceltoMovementDetail(IFormFile file, Int32 movementId)
         {
             var _list = new List<NewMovementDetail>();
