@@ -933,6 +933,18 @@ namespace Data
             }
         }
 
+        public async Task<Response<Result>> PostReceptionAutoAssign(string locationName, Int32 userId, Int32 supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postReceptionAutoAssign(locationName, userId, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         private async Task<Response<Result>> _PostMovements(List<Models.Movement> _list, Int32 userId)
         {
@@ -1029,6 +1041,33 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<Result>> _postReceptionAutoAssign(string locationName, Int32 userId, Int32 supplierId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@LOCATIONNAME", locationName);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_RECEPTION_AUTOASSIGN", _parameter);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("InsertedRows", "IINSERTED");
+                _mapping.AddItem("UpdatedRows", "IUPDATED");
+
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.Processed = true;
+                _response.Status = 200;
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
         public async Task<Response<Result>> Post_Actions(List<Models.Action> _list, Int32 userId)
         {
