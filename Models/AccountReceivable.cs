@@ -35,9 +35,12 @@ namespace Models
         [Required] public string? Number { get; set; }
         [Required] public DateTime? DocumentDate { get; set; }
         [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? AmountBs { get; set; }
         [Required] public string? ConceptName { get; set; }
         [Required] public string? TypeName { get; set; }
         [Required] public int? PaymentId { get; set; }
+        public decimal Rate { get; set; }
+        public DateTime? DateRate { get; set; }
 
     }
 

@@ -23,6 +23,7 @@ namespace Models
         public int? PaymentId{ get; set; }
         [Required] public DateTime? Date { get; set; }
         [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? AmountBs { get; set; }
         [Required] public decimal? Rate { get; set; }
         [Required] public DateTime? DateRate { get; set; }
         [SwaggerIgnore] public string? CurrencyName { get; set; }

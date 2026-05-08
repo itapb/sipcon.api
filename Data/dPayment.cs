@@ -366,11 +366,14 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Number", "VNUMBER");
-                _mapping.AddItem("Amount", "NAMOUNT"); ;
+                _mapping.AddItem("Amount", "NAMOUNT");
+                _mapping.AddItem("AmountBs", "NAMOUNTBS");
                 _mapping.AddItem("DocumentDate", "DCREATED");
                 _mapping.AddItem("TypeName", "VTYPE");
                 _mapping.AddItem("ConceptName", "VCONCEPT");
                 _mapping.AddItem("PaymentId", "IDPAYMENT");
+                _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DDATERATE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNT_BYPAYMENT", _parameter);
@@ -402,6 +405,7 @@ namespace Data
                 _mapping.AddItem("PaymentId", "IDPAYMENT");
                 _mapping.AddItem("Date", "DDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
+                _mapping.AddItem("AmountBs", "NAMOUNTBS");
                 _mapping.AddItem("Rate", "NRATE");
                 _mapping.AddItem("DateRate", "DDATERATE");
                 _mapping.AddItem("CurrencyName", "VCURRENCY");
