@@ -113,11 +113,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetBankAccounts")]
-        public async Task<IActionResult> GetBankAccounts(Int32 supplierId)
+        public async Task<IActionResult> GetBankAccounts(Int32 supplierId, Int32? idCurrency)
         {
             try
             {
-                var _response = await _dPayment.GetBankAccounts(supplierId);
+                var _response = await _dPayment.GetBankAccounts(supplierId, idCurrency);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

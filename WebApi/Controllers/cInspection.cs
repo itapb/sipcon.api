@@ -11,8 +11,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Models; 
- 
+using Models;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System.Net.Mail;
+
 namespace WebApi.Controllers
 {
     [Route("api/Inspection")]
@@ -23,10 +27,12 @@ namespace WebApi.Controllers
 
 
         private readonly dInspection _dInspection;
+        private readonly dAttachment _dAttachment;
 
-        public cInspection(dInspection dInspection, dModel dModel)
+        public cInspection(dInspection dInspection, dAttachment dAttachment)
         {
             _dInspection = dInspection;
+            _dAttachment = dAttachment;
         }
 
         #region "PDI"
@@ -811,6 +817,577 @@ namespace WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
+        }
+        #endregion
+
+        #region "EXPORTS"
+
+        [HttpGet("/api/Inspection/ExportPdf")]
+        public async Task<IActionResult> GetExportPdf(Int32 InspectionId)
+        {
+            // Obtengo la información de la cabecera de la inspección
+            var response_inspection = await _dInspection.GetOneInspection(InspectionId);
+
+            // Obtengo el valor de cada uno de los features
+            var response_detail = await _dInspection.GetAllInspectionsDetails(
+                InspectionId,
+                AreaId: null,
+                FaseId: null,
+                FeatureTypeId: null
+            );
+
+
+            // 1. Obtener IDs de los detalles que tienen archivos
+            List<int> idsConArchivos = response_detail.Data
+                                        .Where(item => item.HasFiles == true)
+                                        .Select(item => item.Id ?? 0)
+                                        .ToList();
+
+            // 2. Preparar tareas de búsqueda (Detalles + Encabezado de Inspección)
+            var tareasAdjuntos = idsConArchivos
+                .Select(id => _dAttachment.GetAll("INSPECCION-TIPOS-CARACTERISTICAS", id))
+                .ToList();
+
+            // Si la inspección general tiene archivos (Modulo: INSPECCION-INSPECCION)
+            if (response_inspection.Data.HasFiles == true)
+            {
+                tareasAdjuntos.Add(_dAttachment.GetAll("INSPECCION-INSPECCION", InspectionId));
+            }
+
+            var resultadosAdjuntos = await Task.WhenAll(tareasAdjuntos);
+
+            // 3. Configuración de rutas para lectura física
+            string baseUrl = Util.Setting.AttachmentUrl;
+            string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+            var _modules = await _dAttachment.GetModule(null, 1);
+
+            List<byte[]> imagenesParaPdf = new List<byte[]>();
+            var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".bmp" };
+
+            // 4. Aplanar resultados y leer archivos físicos (Solo imágenes)
+            var todosLosAdjuntos = resultadosAdjuntos
+                                    .Where(r => r.Data != null)
+                                    .SelectMany(r => (List<Models.Attachment>)r.Data)
+                                    .ToList();
+
+            foreach (var attachment in todosLosAdjuntos)
+            {
+                string extension = Path.GetExtension(attachment.FileName)?.ToLower();
+                if (string.IsNullOrEmpty(extension) || !extensionesPermitidas.Contains(extension)) continue;
+
+                string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
+                string filePath = Path.Combine(attachmentUrl, modulePath, attachment.RecordId.ToString(), attachment.FileName);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                    imagenesParaPdf.Add(fileBytes);
+                }
+            }
+
+            // 5. Agrupación de datos para la tabla
+            var datosInspeccion = response_detail.Data
+             .GroupBy(d => d.FeatureType ?? "SIN CATEGORÍA")
+             .Select(grupo => (
+                 Grupo: grupo.Key,
+                 Items: grupo.Select(item =>
+                 {
+                     string observacionFinal;
+                     if (item.FeatureValueTypeId == "2")
+                         observacionFinal = item.OptionSelected ?? "";
+                     else if (item.FeatureValueTypeId == "3")
+                         observacionFinal = item.Value?.ToString() ?? "-";
+                     else
+                         observacionFinal = item.Value == 1 ? "OK" : (item.Observation ?? "-");
+
+                     return (Nombre: item.Feature ?? "Sin Nombre", Obs: observacionFinal, Type: item.FeatureValueTypeId);
+                 }).ToList()
+             )).ToList();
+
+            try
+            {
+                byte[] pdfBytes;
+
+                if (response_inspection.Data.Format == "FORMAT_CALIDAD")
+                {
+                    pdfBytes = await GeneratePdfReportAsync(
+                       "INSPECCIÓN DE CALIDAD",
+                       BrandId: response_inspection.Data.BrandId ?? 0,
+                       SupplierId: response_inspection.Data.SupplierId ?? 0,
+                       response_inspection.Data,
+                       datosInspeccion,
+                       imagenesParaPdf
+                   );
+                } 
+                else
+                {
+                    pdfBytes = await GenerateDispatchGuidePdfAsync(
+                        "GUIA DE DESPACHO",
+                        BrandId: response_inspection.Data.BrandId ?? 0,
+                        SupplierId: response_inspection.Data.SupplierId ?? 0,
+                        response_inspection.Data,
+                        datosInspeccion,
+                        imagenesParaPdf
+                    );
+                }
+
+                if (pdfBytes == null || pdfBytes.Length == 0)
+                    return NotFound("No se pudo generar el contenido del PDF.");
+
+                return File(pdfBytes, "application/pdf", $"Inspeccion_{InspectionId}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+        private async Task<string> GetFirstAttachmentFilePath(string moduleName, int? recordId)
+        {
+            var _response = await _dAttachment.GetAll(moduleName, recordId);
+            if (_response?.Data == null) return null;
+
+            var attachment = ((List<Models.Attachment>)_response.Data).FirstOrDefault();
+            if (attachment == null || string.IsNullOrEmpty(attachment.FileName)) return null;
+
+            string attachmentUrl = $@"\\{Environment.MachineName}{Util.Setting.AttachmentUrl}\";
+            var _modules = moduleName;
+
+            return Path.Combine(attachmentUrl, _modules, attachment.RecordId.ToString(), attachment.FileName);
+        }
+
+        private async Task<byte[]> GeneratePdfReportAsync(
+            string titleReport,
+            Int32 BrandId,
+            Int32 SupplierId,
+            Inspection DataInspection, // Cabecera
+            List<(string Grupo, List<(string Nombre, string Obs, string Type)> Items)> datosInspeccion, // Features agrupados
+            List<byte[]> imagenesParaPdf) //Adjuntos
+        {
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", SupplierId);
+            string brandImagePath = await GetFirstAttachmentFilePath("RECURSOS-MARCAS", BrandId);
+
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            return QuestPDF.Fluent.Document.Create(container =>
+            {
+                // --- PÁGINA 1: DATOS E INSPECCIÓN ---
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1, Unit.Centimetre);
+                    page.PageColor(QuestPDF.Helpers.Colors.White);
+
+                    // Cabecera
+                    page.Header().PaddingBottom(10).Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            if (!string.IsNullOrEmpty(supplierImagePath))
+                                col.Item().Height(30).Image(supplierImagePath).FitArea();
+                        });
+
+                        row.RelativeItem(2).AlignCenter().AlignMiddle().Column(col =>
+                        {
+                            col.Item().Text(titleReport).FontSize(16).SemiBold().AlignCenter();
+                        });
+
+                        row.RelativeItem().AlignRight().Column(col =>
+                        {
+                            if (!string.IsNullOrEmpty(brandImagePath))
+                                col.Item().Height(50).Width(60).Image(brandImagePath).FitArea();
+                        });
+                    });
+
+                    // Contenido Principal
+                    page.Content().PaddingVertical(10).Column(column =>
+                    {
+                        // 1. Fechas
+                        column.Item().PaddingBottom(5).Row(row =>
+                        {
+                            row.RelativeItem().Text(t => { t.Span("Fecha Recepción: ").FontSize(10); t.Span(DataInspection.Created?.ToString("yyyy-MM-dd")).FontSize(10); });
+                            row.RelativeItem().AlignRight().Text(t => { t.Span("Fecha Inspección: ").FontSize(10); t.Span(DataInspection.DClose?.ToString("yyyy-MM-dd")).FontSize(10); });
+                        });
+
+                        // 2. Características del Vehículo
+                        column.Item().PaddingBottom(5).AlignCenter().Text("CARACTERÍSTICAS DEL VEHÍCULO").SemiBold().FontSize(12);
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns => { columns.RelativeColumn(); columns.RelativeColumn(); });
+                            table.Cell().Element(CellStyle).Text(t => { t.Span("VIN: ").SemiBold().FontSize(10); t.Span(DataInspection.Vin).FontSize(10); });
+                            table.Cell().Element(CellStyle).Text(t => { t.Span("Placa: ").SemiBold().FontSize(10); t.Span(DataInspection.VehiclePlate).FontSize(10); });
+                            table.Cell().Element(CellStyle).Text(t => { t.Span("Marca y Modelo: ").SemiBold().FontSize(10); t.Span($"{DataInspection.Brand}-{DataInspection.Model}").FontSize(10); });
+                            table.Cell().Element(CellStyle).Text(t => { t.Span("Color: ").SemiBold().FontSize(10); t.Span(DataInspection.Color).FontSize(10); });
+                            table.Cell().Element(CellStyle).Text(t => { t.Span("Año: ").SemiBold().FontSize(10); t.Span(DataInspection.Year).FontSize(10); });
+                        });
+
+                        // 3. LISTA DE INSPECCIÓN
+                        column.Item().PaddingTop(15).PaddingBottom(15).AlignCenter().Text("LISTA DE INSPECCIÓN").SemiBold().FontSize(12);
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); columns.RelativeColumn(1);
+                                columns.RelativeColumn(2); columns.RelativeColumn(1);
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(HeaderStyle).Text("DESCRIPCIÓN");
+                                header.Cell().Element(HeaderStyle).Text("OBSERVACIÓN");
+                                header.Cell().Element(HeaderStyle).Text("DESCRIPCIÓN");
+                                header.Cell().Element(HeaderStyle).Text("OBSERVACIÓN");
+                            });
+
+                            foreach (var grupo in datosInspeccion)
+                            {
+                                table.Cell().ColumnSpan(4).Border(1).Background(QuestPDF.Helpers.Colors.Grey.Lighten4)
+                                     .Padding(2).AlignCenter().Text(grupo.Grupo.ToUpper()).SemiBold().FontSize(9);
+
+                                for (int i = 0; i < grupo.Items.Count; i += 2)
+                                {
+                                    var item1 = grupo.Items[i];
+                                    var item2 = (i + 1 < grupo.Items.Count) ? grupo.Items[i + 1] : (Nombre: "", Obs: "", Type: "");
+
+                                    table.Cell().Element(RowStyle).Text(item1.Nombre);
+                                    table.Cell().Element(RowStyle).AlignCenter().Text(item1.Obs);
+                                    table.Cell().Element(RowStyle).Text(item2.Nombre);
+                                    table.Cell().Element(RowStyle).AlignCenter().Text(item2.Obs);
+                                }
+                            }
+                        });
+                    });
+
+                    // Footer de la primera página
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Página ").FontSize(10);
+                        x.CurrentPageNumber().FontSize(10);
+                        x.Span(" de ").FontSize(10);
+                        x.TotalPages().FontSize(10);
+                    });
+                });
+
+                // --- PÁGINAS ADICIONALES: UNA POR FOTO ---
+                if (imagenesParaPdf != null && imagenesParaPdf.Any())
+                {
+                    foreach (var foto in imagenesParaPdf)
+                    {
+                        container.Page(page =>
+                        {
+                            page.Size(PageSizes.A4);
+                            page.Margin(1, Unit.Centimetre);
+                            page.PageColor(QuestPDF.Helpers.Colors.White);
+
+                            page.Header().PaddingBottom(10).Text("ANEXO FOTOGRÁFICO")
+                                .SemiBold().FontSize(14).AlignCenter();
+
+                            page.Content().PaddingVertical(20).AlignCenter().AlignMiddle().Column(c =>
+                            {
+                                c.Item().Border(0.5f).BorderColor(QuestPDF.Helpers.Colors.Grey.Lighten2).Column(imgContainer =>
+                                {
+                                    // Maximizamos el espacio para la foto centrada
+                                    imgContainer.Item().MaxHeight(650).Image(foto).FitArea();
+                                });
+
+                                c.Item().PaddingTop(15).AlignCenter().Text("Detalle de Inspección de Unidad")
+                                    .FontSize(11).Italic().FontColor(QuestPDF.Helpers.Colors.Grey.Medium);
+                            });
+
+                            page.Footer().AlignCenter().Text(x =>
+                            {
+                                x.Span("Página ").FontSize(10);
+                                x.CurrentPageNumber().FontSize(10);
+                                x.Span(" de ").FontSize(10);
+                                x.TotalPages().FontSize(10);
+                            });
+                        });
+                    }
+                }
+            })
+            .GeneratePdf();
+
+            // Estilos Helpers
+            static IContainer CellStyle(IContainer container) => container.PaddingVertical(1);
+            static IContainer HeaderStyle(IContainer container) => container.Border(1).AlignCenter().Padding(2).DefaultTextStyle(x => x.SemiBold().FontSize(8));
+            static IContainer RowStyle(IContainer container) => container.Border(1).PaddingHorizontal(4).PaddingVertical(2).DefaultTextStyle(x => x.FontSize(8));
+        }
+
+        private async Task<byte[]> GenerateDispatchGuidePdfAsync(
+            string titleReport,
+            Int32 BrandId,
+            Int32 SupplierId,
+            Inspection DataInspection,
+            List<(string Grupo, List<(string Nombre, string Obs, string Type)> Items)> datosInspeccion,
+            List<byte[]> imagenesParaPdf)
+        {
+            // Obtención de logos (reutilizando tu lógica existente)
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", SupplierId);
+            string brandImagePath = await GetFirstAttachmentFilePath("RECURSOS-MARCAS", BrandId);
+
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            return QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1, Unit.Centimetre);
+                    page.PageColor(QuestPDF.Helpers.Colors.White);
+
+                    // --- CABECERA ESTILO "GUIA DE DESPACHO" ---
+                    page.Header().Column(headerCol =>
+                    {
+                        // Fila Superior: Logos y Título
+                        headerCol.Item().Border(1).Row(row =>
+                        {
+                            // Logo Empresa
+                            row.RelativeItem().Padding(5).Column(col =>
+                            {
+                                if (!string.IsNullOrEmpty(supplierImagePath))
+                                    col.Item().Height(35).Image(supplierImagePath).FitArea();
+                            });
+
+                            // Título y Contacto Central
+                            row.RelativeItem(3).BorderLeft(1).BorderRight(1).AlignCenter().Column(col =>
+                            {
+                                col.Item().PaddingTop(4).Text(titleReport).FontSize(12).SemiBold().AlignCenter();
+                                col.Item().PaddingVertical(2).Text("Teléfono: (+58)(424) - 532. 26 39\nDirección: Calle Principal local parcela 53 Parque Industrial del Este Nro S/N caserio las Piedras. Yaritagua Yaracuy").FontSize(8).AlignCenter();
+                            });
+
+                            // Logo Marca
+                            row.RelativeItem().Padding(5).AlignRight().Column(col =>
+                            {
+                                if (!string.IsNullOrEmpty(brandImagePath))
+                                    col.Item().Height(35).Image(brandImagePath).FitArea();
+                            });
+                        });
+
+                        // Fila Secundaria: Lugar, Fecha y Control (Basado en imagen_f35954.png)
+                        headerCol.Item().BorderHorizontal(1).BorderBottom(1).Row(row =>
+                        {
+                            row.RelativeItem().Border(1).Column(c => {
+                                c.Item().Element(HeaderStyle).Text("LUGAR DE EMISIÓN");
+                                c.Item().Element(SubHeaderValueStyle).Text("YARITAGUA");
+                            });
+                            row.RelativeItem().Border(1).Column(c => {
+                                c.Item().Element(HeaderStyle).Text("FECHA DE EMISIÓN");
+                                c.Item().Element(SubHeaderValueStyle).Text(DateTime.Now.ToString("dd/MM/yyyy"));
+                            });
+                            row.RelativeItem().Border(1).Column(c => {
+                                c.Item().Element(HeaderStyle).Text("CONTROL");
+                                c.Item().Element(SubHeaderValueStyle).Text($"Nº. D-{DataInspection.Id?.ToString("D10")}").FontColor(QuestPDF.Helpers.Colors.Red.Medium).SemiBold();
+                            });
+                        });
+                    });
+
+                    // --- CONTENIDO ---
+                    page.Content().Column(column =>
+                    {
+                        // Información del Vehículo / Cliente
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols => { cols.RelativeColumn(2); cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); });
+
+                            table.Cell().Element(HeaderStyle).Text("RAZON SOCIAL");
+                            table.Cell().Element(HeaderStyle).Text("RIF");
+                            table.Cell().Element(HeaderStyle).Text("CIUDAD");
+                            table.Cell().Element(HeaderStyle).Text("TELEFONO");
+
+                            table.Cell().Element(RowStyle).Text(DataInspection.NameSupplier); // Ejemplo estático
+                            table.Cell().Element(RowStyle).Text(DataInspection.Vin);
+                            table.Cell().Element(RowStyle).Text(DataInspection.VehiclePlate);
+                            table.Cell().Element(RowStyle).Text(""); // Ejemplo estático
+                        });
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols => { cols.RelativeColumn(1); });
+                            table.Cell().Element(HeaderStyle).Text("DIRECCIÓN DE DESTINO");
+                            table.Cell().Element(RowStyle).Text(""); // Ejemplo estático
+                        });
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols => { cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); });
+                            table.Cell().Element(HeaderStyleBlue).Text("MODELO");
+                            table.Cell().Element(HeaderStyleBlue).Text("AÑO");
+                            table.Cell().Element(HeaderStyleBlue).Text("COLOR");
+                            table.Cell().Element(HeaderStyleBlue).Text("SERIAL DE CARROCERÍA");
+                            table.Cell().Element(HeaderStyleBlue).Text("PLACA");
+
+
+                            table.Cell().Element(RowStyle).Text(DataInspection.Model);
+                            table.Cell().Element(RowStyle).Text(DataInspection.Year);
+                            table.Cell().Element(RowStyle).Text(DataInspection.Color);
+                            table.Cell().Element(RowStyle).Text(DataInspection.Vin);
+                            table.Cell().Element(RowStyle).Text(DataInspection.VehiclePlate);
+                        });
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols => {
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(4);
+                            });
+
+                            // Primera celda de la tabla principal - contiene la subtabla
+                            table.Cell().Column(cellContent =>
+                            {
+                                // Crear subtabla dentro de esta celda
+                                cellContent.Item().Table(subTable =>
+                                {
+                                    subTable.ColumnsDefinition(cols => {
+                                        cols.RelativeColumn(1);
+                                        cols.RelativeColumn(2);
+                                    });
+
+                                    subTable.Cell().ColumnSpan(2).Element(HeaderStyleBlue).Text("CODIGO DE DAÑO");
+                                    subTable.Cell().Element(RowStyle).Text("1");
+                                    subTable.Cell().Element(RowStyle).Text("DOBLADO");
+                                    subTable.Cell().Element(RowStyle).Text("2");
+                                    subTable.Cell().Element(RowStyle).Text("ROTO");
+                                    subTable.Cell().Element(RowStyle).Text("3");
+                                    subTable.Cell().Element(RowStyle).Text("CORTADO");
+                                    subTable.Cell().Element(RowStyle).Text("4");
+                                    subTable.Cell().Element(RowStyle).Text("PERFORADO");
+                                    subTable.Cell().Element(RowStyle).Text("5");
+                                    subTable.Cell().Element(RowStyle).Text("RAYADO");
+                                    subTable.Cell().Element(RowStyle).Text("6");
+                                    subTable.Cell().Element(RowStyle).Text("GOLPEADO");
+                                    subTable.Cell().Element(RowStyle).Text("7");
+                                    subTable.Cell().Element(RowStyle).Text("DESCONCHADO");
+                                    subTable.Cell().Element(RowStyle).Text("8");
+                                    subTable.Cell().Element(RowStyle).Text("SUCIO");
+                                    subTable.Cell().Element(RowStyle).Text("9");
+                                    subTable.Cell().Element(RowStyle).Text("FALTANTE");
+                                    subTable.Cell().Element(RowStyle).Text("10");
+                                    subTable.Cell().Element(RowStyle).Text("OTROS");
+
+                                    subTable.Cell().ColumnSpan(2).Element(HeaderStyleBlue).Text("TAMAÑO DEL DAÑO");
+                                    subTable.Cell().Element(RowStyle).Text("1");
+                                    subTable.Cell().Element(RowStyle).Text("MENOS DE 5cms");
+                                    subTable.Cell().Element(RowStyle).Text("2");
+                                    subTable.Cell().Element(RowStyle).Text("DE 6 A 10cms");
+                                    subTable.Cell().Element(RowStyle).Text("3");
+                                    subTable.Cell().Element(RowStyle).Text("DE 11 A 20 cms");
+                                    subTable.Cell().Element(RowStyle).Text("4");
+                                    subTable.Cell().Element(RowStyle).Text("DE 21 A 30 cms");
+                                    subTable.Cell().Element(RowStyle).Text("5");
+                                    subTable.Cell().Element(RowStyle).Text("MAS DE 30 cms");
+                                    subTable.Cell().Element(RowStyle).Text("6");
+                                    subTable.Cell().Element(RowStyle).Text("REEMPLAZO DE PIEZA");
+                                });
+                            });
+
+                            // Segunda celda de la tabla principal
+                            table.Cell().Element(RowStyle).Text("");
+
+                            column.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(cols =>
+                                {
+                                    cols.RelativeColumn(1);
+                                    cols.RelativeColumn(1);
+                                    cols.RelativeColumn(1);
+                                    cols.RelativeColumn(1);
+                                });
+
+                                foreach (var grupo in datosInspeccion)
+                                 {
+                                    table.Cell().ColumnSpan(4).Border(1).Background(QuestPDF.Helpers.Colors.Grey.Lighten4)
+                                                 .Padding(2).AlignCenter().Text(grupo.Grupo.ToUpper()).SemiBold().FontSize(8);
+
+                                    for (int i = 0; i < grupo.Items.Count; i++)
+                                    {
+                                        var item = grupo.Items[i];
+
+                                        table.Cell().Column(cellContent =>
+                                        {
+                                            // Crear subtabla dentro de esta celda
+                                            cellContent.Item().Table(subTable =>
+                                            {
+                                                subTable.ColumnsDefinition(cols =>
+                                                {
+                                                    cols.RelativeColumn(1);
+                                                    cols.RelativeColumn(1);
+                                                });
+
+                                                subTable.Cell().ColumnSpan(2).Element(HeaderStyle).Height(15).AlignMiddle().Text(item.Nombre);
+                                                subTable.Cell().ColumnSpan(2).Element(RowStyle).Height(9).Text(item.Obs);
+                                            });
+                                        });
+                                    }
+                                }
+                            });
+
+                            column.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(cols => { cols.RelativeColumn(1); });
+                                table.Cell().Element(HeaderStyle).Text("Observaciones");
+                                table.Cell().Element(RowStyle).Height(30).Text(DataInspection.Comment);
+                            });
+
+                            column.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(cols => 
+                                { 
+                                    cols.RelativeColumn(1);
+                                    cols.RelativeColumn(1);
+                                    cols.RelativeColumn(1);
+                                    cols.RelativeColumn(1);
+                                });
+
+                                table.Cell().Element(HeaderStyle).Text("GERENCIA DE DISTRIBUCIÓN Y LOGÍSTICA");
+                                table.Cell().Element(HeaderStyle).Text("TRANSPORTE");
+                                table.Cell().Element(HeaderStyle).Text("SEGURIDAD");
+                                table.Cell().Element(HeaderStyle).Text("GCONCESIONARIO / CLIENTE FINAL");
+
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre: {DataInspection.ClosedByName}");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre: {DataInspection.TransporterName}");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre:");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre: {DataInspection.RecepByName}" );
+
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Cargo: DESPACHADOR");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Cedula: {DataInspection.TransporterByVVTA}");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Cedula:");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"RIF: {DataInspection.RecepByVVTA}");
+
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha: {DataInspection.DClose}");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha: {DataInspection.DClose}");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha: {DataInspection.DClose}");
+                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha:");
+
+                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
+                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
+                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
+                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
+
+                            });
+                        });
+                    });
+                });
+
+                // Páginas de fotos (Anexo)
+                if (imagenesParaPdf?.Any() == true)
+                {
+                    foreach (var foto in imagenesParaPdf)
+                    {
+                        container.Page(page => {
+                            page.Size(PageSizes.A4);
+                            page.Margin(1, Unit.Centimetre);
+                            page.Content().AlignCenter().Image(foto).FitArea();
+                        });
+                    }
+                }
+            }).GeneratePdf();
+
+            // --- ESTILOS LOCALES ---
+            static IContainer SubHeaderLabelStyle(IContainer container) => container.AlignCenter().Background(QuestPDF.Helpers.Colors.Grey.Lighten4).PaddingVertical(1).DefaultTextStyle(x => x.FontSize(7).SemiBold());
+            static IContainer SubHeaderValueStyle(IContainer container) => container.AlignCenter().PaddingVertical(2).DefaultTextStyle(x => x.FontSize(8));
+            static IContainer HeaderStyle(IContainer container) => container.Border(1).Background(QuestPDF.Helpers.Colors.Grey.Lighten2).Padding(2).AlignCenter().DefaultTextStyle(x => x.SemiBold().FontSize(6));
+            static IContainer HeaderStyleBlue(IContainer container) => container.Border(1).Background(QuestPDF.Helpers.Colors.Blue.Accent3).Padding(2).AlignCenter().DefaultTextStyle(x => x.SemiBold().FontSize(6).FontColor(QuestPDF.Helpers.Colors.White));
+            static IContainer RowStyle(IContainer container) => container.Border(1).Padding(2).AlignCenter().DefaultTextStyle(x => x.FontSize(7));
         }
         #endregion
     }
