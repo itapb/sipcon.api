@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Models;
 using System.Data;
@@ -167,7 +168,7 @@ namespace Data
             }
             return _response;
         }
-        private async Task<Response<List<Models.BankAccount>>> _getBankAccounts(Int32 supplierId)
+        private async Task<Response<List<Models.BankAccount>>> _getBankAccounts(Int32 supplierId, Int32? idCurrency)
         {
             Response<List<Models.BankAccount>> _response = new Response<List<Models.BankAccount>>();
 
@@ -176,6 +177,8 @@ namespace Data
 
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDCURRENCY", idCurrency);
+                
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -621,12 +624,12 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response<List<Models.BankAccount>>> GetBankAccounts(Int32 supplierId)
+        public async Task<Response<List<Models.BankAccount>>> GetBankAccounts(Int32 supplierId, Int32? idCurrency)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getBankAccounts(supplierId);
+                return await _getBankAccounts(supplierId, idCurrency);
             }
             finally
             {
