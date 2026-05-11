@@ -307,6 +307,7 @@ namespace Data
                 _mapping.AddItem("PaymentId", "IDPAYMENT");
                 _mapping.AddItem("Date", "DDATE");
                 _mapping.AddItem("Amount", "NAMOUNT");
+                _mapping.AddItem("AmountBs", "NAMOUNTBS");
                 _mapping.AddItem("Rate", "NRATE");
                 _mapping.AddItem("DateRate", "DDATERATE");
                 _mapping.AddItem("CurrencyName", "VCURRENCY");
