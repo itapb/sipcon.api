@@ -14,6 +14,8 @@ namespace Models
 
         public decimal NRate { get; set; }
 
+        public decimal NAltRate { get; set; }
+
     }
 
 
@@ -28,5 +30,7 @@ namespace Models
         [JsonPropertyName("promedio")]
         public decimal NRate { get; set; }
 
+        [JsonPropertyName("promedioAlternativo")]
+        public decimal NAltRate { get; set; }
     }
 }
