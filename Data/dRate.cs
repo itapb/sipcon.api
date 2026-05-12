@@ -43,6 +43,7 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("DDate", "DDATE");
                 _mapping.AddItem("NRate", "NRATE");
+                _mapping.AddItem("NAltRate", "NALTERRATE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_RATES", _parameter);
