@@ -14,6 +14,7 @@ namespace Models
         public int? TransporterId { get; set; }
         public int? RecepBy { get; set; }
         public string? Comment { get; set; }
+        public string? BranchOffice { get; set; }
         public int? DealerId { get; set; }
 
         [SwaggerIgnore] public String? UserName { get; set; }
