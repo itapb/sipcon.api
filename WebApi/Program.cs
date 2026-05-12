@@ -98,6 +98,7 @@ builder.Services.AddScoped<dPayment>();
 builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
 builder.Services.AddScoped<dRate>();
+builder.Services.AddScoped<dBranchOffice>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<WebApi.BackgroundServices.TasaBackgroundService>();
