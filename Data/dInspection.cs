@@ -1307,6 +1307,7 @@ namespace Data
                 _mapping.AddItem("RecepByName", "RECEPBYNAME");
                 _mapping.AddItem("TransporterName", "TRANSPORTER_NAME");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
+                _mapping.AddItem("BranchOffice", "BRANCHOFFICE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS", _parameter);
@@ -1362,6 +1363,7 @@ namespace Data
                 _mapping.AddItem("Format", "VFORMAT");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BranchOffice", "BRANCHOFFICE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_BY_ID", _parameter);
