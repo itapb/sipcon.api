@@ -41,6 +41,7 @@ BEGIN
 					DDUEDATE DATETIME,
 					NBALANCE NUMERIC(18,2),
 					NAMOUNT NUMERIC(18,2),
+					NAMOUNTFULL NUMERIC(18,2),
 					NRATE NUMERIC (18,2),
 					VSUPPLIERVAT VARCHAR(12),
 					VDEALERVAT VARCHAR(12),
@@ -57,6 +58,7 @@ BEGIN
 					DDUEDATE,
 					NBALANCE,
 					NAMOUNT,
+					NAMOUNTFULL,
 					NRATE,
 					VSUPPLIERVAT,
 					VDEALERVAT
@@ -70,6 +72,7 @@ BEGIN
 					D.DueDate,
 					D.Balance,
 					D.Amount,
+					D.AmountFull,
 					D.Rate,
 					D.SupplierVat,
 					D.DealerVat
@@ -83,6 +86,7 @@ BEGIN
 					DueDate DATETIME,
 					Balance NUMERIC(18,2),
 					Amount NUMERIC(18,2),
+					AmountFull NUMERIC(18,2),
 					Rate NUMERIC (18,2),
 					SupplierVat VARCHAR(12),
 					DealerVat VARCHAR(12)
@@ -130,7 +134,7 @@ BEGIN
 				DECLARE @IUPDATED INT
 				
 
-					INSERT INTO ACCOUNTRECEIVABLE (  IDSUPPLIER, IDDEALER, VTYPE, VCONCEPT, VNUMBER, VREFERENCE, DDATE, DDUEDATE, NAMOUNT, NBALANCE, NRATE, DCREATED, IDSTATUS)
+					INSERT INTO ACCOUNTRECEIVABLE (  IDSUPPLIER, IDDEALER, VTYPE, VCONCEPT, VNUMBER, VREFERENCE, DDATE, DDUEDATE, NAMOUNT, NBALANCE, NRATE, DCREATED, IDSTATUS,NAMOUNTFULL)
 					SELECT 
 						D.IDSUPPLIER, 
 						D.IDDEALER, 
@@ -144,7 +148,8 @@ BEGIN
 						D.NBALANCE * M.Factor, -- Aplicamos el mismo factor al balance
 						D.NRATE, 
 						GETDATE(), 
-						DBO.UFN_GET_ISTATUS('OPEN')
+						DBO.UFN_GET_ISTATUS('OPEN'),
+						NAMOUNTFULL
 					FROM @TDATA D
 					CROSS APPLY (
 						-- Si el concepto es 'I', generamos dos filas
