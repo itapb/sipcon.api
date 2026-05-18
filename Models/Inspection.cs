@@ -14,14 +14,17 @@ namespace Models
         public int? TransporterId { get; set; }
         public int? RecepBy { get; set; }
         public string? Comment { get; set; }
-        public string? BranchOffice { get; set; }
+        public int? BranchOffice { get; set; }
         public int? DealerId { get; set; }
 
         [SwaggerIgnore] public String? UserName { get; set; }
         [SwaggerIgnore] public String? InitByName { get; set; }
         [SwaggerIgnore] public String? ClosedByName { get; set; }
         [SwaggerIgnore] public String? TransporterName { get; set; }
+        [SwaggerIgnore] public String? BranchOfficeAddress { get; set; }
+
         [SwaggerIgnore] public String? RecepByName { get; set; }
+
 
         [SwaggerIgnore] public String? VehiclePlate { get; set; }
         [SwaggerIgnore] public String? Model { get; set; }

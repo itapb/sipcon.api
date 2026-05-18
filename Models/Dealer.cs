@@ -16,5 +16,11 @@ namespace Models
 
         [SwaggerIgnore]
         public string? Reference { get; set; } = string.Empty;
+
+        [SwaggerIgnore]
+        public string? Adress { get; set; } = string.Empty;
+
+        [SwaggerIgnore]
+        public int? BranchOfficeId { get; set; }
     }
 }

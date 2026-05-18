@@ -1204,7 +1204,7 @@ namespace WebApi.Controllers
                         {
                             table.ColumnsDefinition(cols => { cols.RelativeColumn(1); });
                             table.Cell().Element(HeaderStyle).Text("DIRECCIÓN DE DESTINO");
-                            table.Cell().Element(RowStyle).Text(""); // Ejemplo estático
+                            table.Cell().Element(RowStyle).Text(DataInspection.BranchOfficeAddress); // Ejemplo estático
                         });
 
                         column.Item().Table(table =>
