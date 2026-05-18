@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Office2016.Excel;
 using DocumentFormat.OpenXml.Office2021.Excel.NamedSheetViews;
 using DocumentFormat.OpenXml.Presentation;
@@ -148,7 +149,9 @@ namespace Data
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
                 _mapping.AddItem("Reference", "VREFERENCE");
-
+                _mapping.AddItem("Adress", "VADDRESS");
+                _mapping.AddItem("BranchOfficeId", "IDBRANCHOFFICE");
+                
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DEALER", _parameter);
                 _response.Data = _data.GetList<Models.Dealer>(_mapping, _table);
@@ -1241,6 +1244,19 @@ namespace Data
             }
         }
 
+        public async Task<List<Models.TableInspection>> GetInspectionExport(Int32 supplierId, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Models.TableInspection>)(await _TableGetAllInspections(supplierId, null, filter)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task<Response<List<Models.TableInspection>>> _TableGetAllInspections(Int32? supplierId, Int32? rowfrom, string? filter)
         {
             Response<List<Models.TableInspection>> _response = new Response<List<Models.TableInspection>>();
@@ -1259,6 +1275,7 @@ namespace Data
                 _mapping.AddItem("Model", "MODEL");
                 _mapping.AddItem("Area", "AREA");
                 _mapping.AddItem("User", "VUSER");
+                _mapping.AddItem("Batch", "VBATCH");
                 _mapping.AddItem("Isclosed", "IS_CLOSED");
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -1307,7 +1324,7 @@ namespace Data
                 _mapping.AddItem("RecepByName", "RECEPBYNAME");
                 _mapping.AddItem("TransporterName", "TRANSPORTER_NAME");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
-                _mapping.AddItem("BranchOffice", "BRANCHOFFICE");
+                _mapping.AddItem("BranchOfficeAddress", "BRANCHOFFICE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS", _parameter);
@@ -1363,7 +1380,7 @@ namespace Data
                 _mapping.AddItem("Format", "VFORMAT");
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("BrandId", "IDBRAND");
-                _mapping.AddItem("BranchOffice", "BRANCHOFFICE");
+                _mapping.AddItem("BranchOfficeAddress", "BRANCHOFFICE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_BY_ID", _parameter);
