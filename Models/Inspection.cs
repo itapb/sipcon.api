@@ -77,7 +77,7 @@ namespace Models
     public class InspectionDetail : Record
     {
         [Required] public Int32? Value { get; set; }
-        [Required] public String? Observation { get; set; }
+        [SwaggerIgnore] public String? Observation { get; set; }
         [SwaggerIgnore] public String? FileUrl { get; set; }
         [Required] public Int32? InspectionId { get; set; }
         [Required] public Int32? FeatureId { get; set; }
@@ -115,6 +115,7 @@ namespace Models
         [SwaggerIgnore] public String? Model { get; set; }
         [SwaggerIgnore] public String? Area { get; set; }
         [SwaggerIgnore] public String? User { get; set; }
+        [SwaggerIgnore] public String? Batch { get; set; }
         [SwaggerIgnore] public Int32? Isclosed { get; set; }
     }
 }

@@ -1244,6 +1244,19 @@ namespace Data
             }
         }
 
+        public async Task<List<Models.TableInspection>> GetInspectionExport(Int32 supplierId, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return (List<Models.TableInspection>)(await _TableGetAllInspections(supplierId, null, filter)).Data;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task<Response<List<Models.TableInspection>>> _TableGetAllInspections(Int32? supplierId, Int32? rowfrom, string? filter)
         {
             Response<List<Models.TableInspection>> _response = new Response<List<Models.TableInspection>>();
@@ -1262,6 +1275,7 @@ namespace Data
                 _mapping.AddItem("Model", "MODEL");
                 _mapping.AddItem("Area", "AREA");
                 _mapping.AddItem("User", "VUSER");
+                _mapping.AddItem("Batch", "VBATCH");
                 _mapping.AddItem("Isclosed", "IS_CLOSED");
 
                 Util.Data _data = Util.Data.GetInstance();

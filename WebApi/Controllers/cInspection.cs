@@ -172,8 +172,8 @@ namespace WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
-
         }
+
         [HttpPost("/api/Area/Post")]
         public async Task<IActionResult> PostArea(List<Models.Area> AreaId, Int32 userId)
         {
@@ -679,6 +679,79 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        private MemoryStream ConvertToExcelInspection(List<Models.TableInspection> _inspections)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("INSPECCIONES");
+
+                // Encabezados (fila 1)
+                worksheet.Cell(1, 1).Value = "NRO DOCUMENTO";
+                worksheet.Cell(1, 2).Value = "LOTE";
+                worksheet.Cell(1, 3).Value = "AREA";
+                worksheet.Cell(1, 4).Value = "MODELO";
+                worksheet.Cell(1, 5).Value = "VIN";
+                worksheet.Cell(1, 6).Value = "PLACA";
+                worksheet.Cell(1, 7).Value = "USUARIO";
+                worksheet.Cell(1, 8).Value = "ESTADO";
+
+
+                var headerRange = worksheet.Range("A1:H1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:H1").SetAutoFilter();
+
+                for (int i = 0; i < _inspections.Count; i++)
+                {
+                    var _inspection = _inspections[i];
+                    int row = i + 2;
+
+                    worksheet.Cell(row, 1).Value = _inspection.InspectionId;
+                    worksheet.Cell(row, 2).Value = _inspection.Batch;
+                    worksheet.Cell(row, 3).Value = _inspection.Area;
+                    worksheet.Cell(row, 4).Value = _inspection.Model;
+                    worksheet.Cell(row, 5).Value = _inspection.Vin;
+                    worksheet.Cell(row, 6).Value = _inspection.Plate;
+                    worksheet.Cell(row, 7).Value = _inspection.User;
+                    worksheet.Cell(row, 8).Value = _inspection.Isclosed == 1 ? "CERRADA" : "EN PROCESO";
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
+
+
+        [HttpGet("/api/Inspections/Export")]
+        public async Task<IActionResult> GetInspectionExport(Int32 supplierId, string? filter = null)
+        {
+            try
+            {
+                List<TableInspection> _response = await _dInspection.GetInspectionExport(supplierId, filter);
+                MemoryStream _excel = ConvertToExcelInspection(_response);
+                string _fileName = "Inspecciones.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
