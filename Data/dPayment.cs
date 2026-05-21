@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.VariantTypes;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Models;
 using System.Data;
+using System.Transactions;
 using Util;
 using Parameter = Util.Parameter;
 
@@ -155,7 +156,9 @@ namespace Data
                 _mapping.AddItem("DateRate", "DRATEDATE");
                 _mapping.AddItem("StatusName", "VSTATUSNAME");
                 _mapping.AddItem("StatusId", "ISTATUSID");
-
+                _mapping.AddItem("PaymentDetailId", "IDPAYMENDETAIL");
+                _mapping.AddItem("TransactionStatusId", "IDPAYMENDETAIL");
+                _mapping.AddItem("TransactionStatusName", "VTRANSACTIONSTATUS");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
                 _response.Data = _data.GetList<Models.AccountReceivable>(_mapping, _table);

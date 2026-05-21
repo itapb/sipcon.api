@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -26,6 +27,10 @@ namespace Models
         [Required] public decimal? Rate { get; set; }
         [Required] public string? StatusName { get; set; }
         [Required] public int? StatusId { get; set; }
+        [SwaggerIgnore] public int? PaymentDetailId { get; set; }
+        [SwaggerIgnore] public int? TransactionStatusId { get; set; }
+        [SwaggerIgnore] public string? TransactionStatusName { get; set; }
+        
     }
 
 
