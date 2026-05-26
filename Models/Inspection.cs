@@ -27,6 +27,7 @@ namespace Models
 
 
         [SwaggerIgnore] public String? VehiclePlate { get; set; }
+        [SwaggerIgnore] public int? ModelId { get; set; }
         [SwaggerIgnore] public String? Model { get; set; }
         [SwaggerIgnore] public String? Lote { get; set; }
         [SwaggerIgnore] public String? Vin { get; set; }
@@ -48,6 +49,8 @@ namespace Models
         [SwaggerIgnore] public String? RecepByVVTA { get; set; }
         [SwaggerIgnore] public String? TransporterByVVTA { get; set; }
         [SwaggerIgnore] public String? NameSupplier { get; set; }
+        [SwaggerIgnore] public String? SupplerVVTA { get; set; }
+        [SwaggerIgnore] public String? City { get; set; }
         [SwaggerIgnore] public String? Format { get; set; }
         [SwaggerIgnore] public int? SupplierId { get; set; }
         [SwaggerIgnore] public int? BrandId { get; set; }

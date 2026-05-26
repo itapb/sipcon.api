@@ -1313,6 +1313,7 @@ namespace Data
                 _mapping.AddItem("Lote", "LOTE");
                 _mapping.AddItem("Vin", "VIN");
                 _mapping.AddItem("Model", "MODEL");
+                _mapping.AddItem("ModelId", "IDMODEL");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("DInit", "DDATEINIT");
@@ -1325,6 +1326,8 @@ namespace Data
                 _mapping.AddItem("TransporterName", "TRANSPORTER_NAME");
                 _mapping.AddItem("IsCompleted", "ISCOMPLETED");
                 _mapping.AddItem("BranchOfficeAddress", "BRANCHOFFICE");
+                _mapping.AddItem("SupplerVVTA", "SUPPLIERVVTA");
+                _mapping.AddItem("City", "CITY");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTIONS", _parameter);
@@ -1357,6 +1360,7 @@ namespace Data
                 _mapping.AddItem("Lote", "LOTE");
                 _mapping.AddItem("Vin", "VIN");
                 _mapping.AddItem("Model", "MODEL");
+                _mapping.AddItem("ModelId", "IDMODEL");
                 _mapping.AddItem("AreaId", "IDAREA");
                 _mapping.AddItem("NameArea", "AREA");
                 _mapping.AddItem("DInit", "DDATEINIT");
@@ -1381,6 +1385,8 @@ namespace Data
                 _mapping.AddItem("SupplierId", "IDSUPPLIER");
                 _mapping.AddItem("BrandId", "IDBRAND");
                 _mapping.AddItem("BranchOfficeAddress", "BRANCHOFFICE");
+                _mapping.AddItem("SupplerVVTA", "SUPPLIERVVTA");
+                _mapping.AddItem("City", "CITY");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INSPECTION_BY_ID", _parameter);

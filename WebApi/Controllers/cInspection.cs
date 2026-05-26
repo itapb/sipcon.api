@@ -909,7 +909,6 @@ namespace WebApi.Controllers
                 FeatureTypeId: null
             );
 
-
             // 1. Obtener IDs de los detalles que tienen archivos
             List<int> idsConArchivos = response_detail.Data
                                         .Where(item => item.HasFiles == true)
@@ -1033,7 +1032,7 @@ namespace WebApi.Controllers
             string titleReport,
             Int32 BrandId,
             Int32 SupplierId,
-            Inspection DataInspection, // Cabecera
+            Inspection DataInspection, // Cabecera de la inspección
             List<(string Grupo, List<(string Nombre, string Obs, string Type)> Items)> datosInspeccion, // Features agrupados
             List<byte[]> imagenesParaPdf) //Adjuntos
         {
@@ -1187,16 +1186,17 @@ namespace WebApi.Controllers
         }
 
         private async Task<byte[]> GenerateDispatchGuidePdfAsync(
-            string titleReport,
-            Int32 BrandId,
-            Int32 SupplierId,
-            Inspection DataInspection,
-            List<(string Grupo, List<(string Nombre, string Obs, string Type)> Items)> datosInspeccion,
-            List<byte[]> imagenesParaPdf)
+             string titleReport,
+             Int32 BrandId,
+             Int32 SupplierId,
+             Inspection DataInspection,
+             List<(string Grupo, List<(string Nombre, string Obs, string Type)> Items)> datosInspeccion,
+             List<byte[]> imagenesParaPdf)
         {
-            // Obtención de logos (reutilizando tu lógica existente)
+            // Obtención de logos y recursos
             string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", SupplierId);
             string brandImagePath = await GetFirstAttachmentFilePath("RECURSOS-MARCAS", BrandId);
+            string VehicleImagePath = await GetFirstAttachmentFilePath("VEHICULOS-MODELOS", DataInspection.ModelId);
 
             QuestPDF.Settings.License = LicenseType.Community;
 
@@ -1208,7 +1208,7 @@ namespace WebApi.Controllers
                     page.Margin(1, Unit.Centimetre);
                     page.PageColor(QuestPDF.Helpers.Colors.White);
 
-                    // --- CABECERA ESTILO "GUIA DE DESPACHO" ---
+                    // ─── CABECERA ESTILO "GUIA DE DESPACHO" ───
                     page.Header().Column(headerCol =>
                     {
                         // Fila Superior: Logos y Título
@@ -1236,7 +1236,7 @@ namespace WebApi.Controllers
                             });
                         });
 
-                        // Fila Secundaria: Lugar, Fecha y Control (Basado en imagen_f35954.png)
+                        // Fila Secundaria: Lugar, Fecha y Control
                         headerCol.Item().BorderHorizontal(1).BorderBottom(1).Row(row =>
                         {
                             row.RelativeItem().Border(1).Column(c => {
@@ -1254,41 +1254,48 @@ namespace WebApi.Controllers
                         });
                     });
 
-                    // --- CONTENIDO ---
+                    // ─── CONTENIDO PRINCIPAL ───
                     page.Content().Column(column =>
                     {
-                        // Información del Vehículo / Cliente
+                        // Información del Proveedor / Cliente
                         column.Item().Table(table =>
                         {
-                            table.ColumnsDefinition(cols => { cols.RelativeColumn(2); cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); });
+                            table.ColumnsDefinition(cols => { cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); });
 
                             table.Cell().Element(HeaderStyle).Text("RAZON SOCIAL");
                             table.Cell().Element(HeaderStyle).Text("RIF");
                             table.Cell().Element(HeaderStyle).Text("CIUDAD");
-                            table.Cell().Element(HeaderStyle).Text("TELEFONO");
 
-                            table.Cell().Element(RowStyle).Text(DataInspection.NameSupplier); // Ejemplo estático
-                            table.Cell().Element(RowStyle).Text(DataInspection.Vin);
-                            table.Cell().Element(RowStyle).Text(DataInspection.VehiclePlate);
-                            table.Cell().Element(RowStyle).Text(""); // Ejemplo estático
+                            table.Cell().Element(RowStyle).Text(DataInspection.NameSupplier);
+                            table.Cell().Element(RowStyle).Text(DataInspection.SupplerVVTA);
+                            table.Cell().Element(RowStyle).Text(DataInspection.City);
                         });
 
+                        // Dirección de Destino
                         column.Item().Table(table =>
                         {
                             table.ColumnsDefinition(cols => { cols.RelativeColumn(1); });
                             table.Cell().Element(HeaderStyle).Text("DIRECCIÓN DE DESTINO");
-                            table.Cell().Element(RowStyle).Text(DataInspection.BranchOfficeAddress); // Ejemplo estático
+                            table.Cell().Element(RowStyle).Text(DataInspection.BranchOfficeAddress);
                         });
 
+                        // 1. Tabla de datos técnicos del Vehículo (Ocupa todo el ancho disponible)
                         column.Item().Table(table =>
                         {
-                            table.ColumnsDefinition(cols => { cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); cols.RelativeColumn(1); });
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(2);
+                                cols.RelativeColumn(1);
+                            });
+
                             table.Cell().Element(HeaderStyleBlue).Text("MODELO");
                             table.Cell().Element(HeaderStyleBlue).Text("AÑO");
                             table.Cell().Element(HeaderStyleBlue).Text("COLOR");
                             table.Cell().Element(HeaderStyleBlue).Text("SERIAL DE CARROCERÍA");
                             table.Cell().Element(HeaderStyleBlue).Text("PLACA");
-
 
                             table.Cell().Element(RowStyle).Text(DataInspection.Model);
                             table.Cell().Element(RowStyle).Text(DataInspection.Year);
@@ -1297,151 +1304,100 @@ namespace WebApi.Controllers
                             table.Cell().Element(RowStyle).Text(DataInspection.VehiclePlate);
                         });
 
+                        // 2. Foto del vehículo justo abajo de la tabla (Si existe)
+                        if (!string.IsNullOrEmpty(VehicleImagePath))
+                        {
+                            column.Item().PaddingTop(4).PaddingBottom(4).AlignCenter().Column(col =>
+                            {
+                                // Ajusta el Height (alto) o Width (ancho) según el tamaño que quieras que tenga en la hoja
+                                col.Item().Height(250).Image(VehicleImagePath).FitArea();
+                            });
+                        }
+
+                        // Tabla Matriz de Inspecciones (Grupos e Ítems)
                         column.Item().Table(table =>
                         {
-                            table.ColumnsDefinition(cols => {
+                            table.ColumnsDefinition(cols =>
+                            {
                                 cols.RelativeColumn(1);
-                                cols.RelativeColumn(4);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
                             });
 
-                            // Primera celda de la tabla principal - contiene la subtabla
-                            table.Cell().Column(cellContent =>
+                            foreach (var grupo in datosInspeccion)
                             {
-                                // Crear subtabla dentro de esta celda
-                                cellContent.Item().Table(subTable =>
+                                table.Cell().ColumnSpan(4).Border(1).Background(QuestPDF.Helpers.Colors.Grey.Lighten4)
+                                             .Padding(2).AlignCenter().Text(grupo.Grupo.ToUpper()).SemiBold().FontSize(8);
+
+                                for (int i = 0; i < grupo.Items.Count; i++)
                                 {
-                                    subTable.ColumnsDefinition(cols => {
-                                        cols.RelativeColumn(1);
-                                        cols.RelativeColumn(2);
-                                    });
+                                    var item = grupo.Items[i];
 
-                                    subTable.Cell().ColumnSpan(2).Element(HeaderStyleBlue).Text("CODIGO DE DAÑO");
-                                    subTable.Cell().Element(RowStyle).Text("1");
-                                    subTable.Cell().Element(RowStyle).Text("DOBLADO");
-                                    subTable.Cell().Element(RowStyle).Text("2");
-                                    subTable.Cell().Element(RowStyle).Text("ROTO");
-                                    subTable.Cell().Element(RowStyle).Text("3");
-                                    subTable.Cell().Element(RowStyle).Text("CORTADO");
-                                    subTable.Cell().Element(RowStyle).Text("4");
-                                    subTable.Cell().Element(RowStyle).Text("PERFORADO");
-                                    subTable.Cell().Element(RowStyle).Text("5");
-                                    subTable.Cell().Element(RowStyle).Text("RAYADO");
-                                    subTable.Cell().Element(RowStyle).Text("6");
-                                    subTable.Cell().Element(RowStyle).Text("GOLPEADO");
-                                    subTable.Cell().Element(RowStyle).Text("7");
-                                    subTable.Cell().Element(RowStyle).Text("DESCONCHADO");
-                                    subTable.Cell().Element(RowStyle).Text("8");
-                                    subTable.Cell().Element(RowStyle).Text("SUCIO");
-                                    subTable.Cell().Element(RowStyle).Text("9");
-                                    subTable.Cell().Element(RowStyle).Text("FALTANTE");
-                                    subTable.Cell().Element(RowStyle).Text("10");
-                                    subTable.Cell().Element(RowStyle).Text("OTROS");
-
-                                    subTable.Cell().ColumnSpan(2).Element(HeaderStyleBlue).Text("TAMAÑO DEL DAÑO");
-                                    subTable.Cell().Element(RowStyle).Text("1");
-                                    subTable.Cell().Element(RowStyle).Text("MENOS DE 5cms");
-                                    subTable.Cell().Element(RowStyle).Text("2");
-                                    subTable.Cell().Element(RowStyle).Text("DE 6 A 10cms");
-                                    subTable.Cell().Element(RowStyle).Text("3");
-                                    subTable.Cell().Element(RowStyle).Text("DE 11 A 20 cms");
-                                    subTable.Cell().Element(RowStyle).Text("4");
-                                    subTable.Cell().Element(RowStyle).Text("DE 21 A 30 cms");
-                                    subTable.Cell().Element(RowStyle).Text("5");
-                                    subTable.Cell().Element(RowStyle).Text("MAS DE 30 cms");
-                                    subTable.Cell().Element(RowStyle).Text("6");
-                                    subTable.Cell().Element(RowStyle).Text("REEMPLAZO DE PIEZA");
-                                });
-                            });
-
-                            // Segunda celda de la tabla principal
-                            table.Cell().Element(RowStyle).Text("");
-
-                            column.Item().Table(table =>
-                            {
-                                table.ColumnsDefinition(cols =>
-                                {
-                                    cols.RelativeColumn(1);
-                                    cols.RelativeColumn(1);
-                                    cols.RelativeColumn(1);
-                                    cols.RelativeColumn(1);
-                                });
-
-                                foreach (var grupo in datosInspeccion)
-                                 {
-                                    table.Cell().ColumnSpan(4).Border(1).Background(QuestPDF.Helpers.Colors.Grey.Lighten4)
-                                                 .Padding(2).AlignCenter().Text(grupo.Grupo.ToUpper()).SemiBold().FontSize(8);
-
-                                    for (int i = 0; i < grupo.Items.Count; i++)
+                                    table.Cell().Column(cellContent =>
                                     {
-                                        var item = grupo.Items[i];
-
-                                        table.Cell().Column(cellContent =>
+                                        cellContent.Item().Table(subTable =>
                                         {
-                                            // Crear subtabla dentro de esta celda
-                                            cellContent.Item().Table(subTable =>
+                                            subTable.ColumnsDefinition(cols =>
                                             {
-                                                subTable.ColumnsDefinition(cols =>
-                                                {
-                                                    cols.RelativeColumn(1);
-                                                    cols.RelativeColumn(1);
-                                                });
-
-                                                subTable.Cell().ColumnSpan(2).Element(HeaderStyle).Height(15).AlignMiddle().Text(item.Nombre);
-                                                subTable.Cell().ColumnSpan(2).Element(RowStyle).Height(9).Text(item.Obs);
+                                                cols.RelativeColumn(1);
+                                                cols.RelativeColumn(1);
                                             });
+
+                                            subTable.Cell().ColumnSpan(2).Element(HeaderStyle).Height(15).AlignMiddle().Text(item.Nombre);
+                                            subTable.Cell().ColumnSpan(2).Element(RowStyle).Height(9).Text(item.Obs);
                                         });
-                                    }
+                                    });
                                 }
-                            });
+                            }
+                        });
 
-                            column.Item().Table(table =>
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols => { cols.RelativeColumn(1); });
+                            table.Cell().Element(HeaderStyle).Text("Observaciones");
+                            table.Cell().Element(RowStyle).Height(15).Text(DataInspection.Comment);
+                        });
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
                             {
-                                table.ColumnsDefinition(cols => { cols.RelativeColumn(1); });
-                                table.Cell().Element(HeaderStyle).Text("Observaciones");
-                                table.Cell().Element(RowStyle).Height(30).Text(DataInspection.Comment);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
+                                cols.RelativeColumn(1);
                             });
 
-                            column.Item().Table(table =>
-                            {
-                                table.ColumnsDefinition(cols => 
-                                { 
-                                    cols.RelativeColumn(1);
-                                    cols.RelativeColumn(1);
-                                    cols.RelativeColumn(1);
-                                    cols.RelativeColumn(1);
-                                });
+                            table.Cell().Element(HeaderStyle).Text("GERENCIA DE DISTRIBUCIÓN Y LOGÍSTICA");
+                            table.Cell().Element(HeaderStyle).Text("TRANSPORTE");
+                            table.Cell().Element(HeaderStyle).Text("SEGURIDAD");
+                            table.Cell().Element(HeaderStyle).Text("CONCESIONARIO / CLIENTE FINAL");
 
-                                table.Cell().Element(HeaderStyle).Text("GERENCIA DE DISTRIBUCIÓN Y LOGÍSTICA");
-                                table.Cell().Element(HeaderStyle).Text("TRANSPORTE");
-                                table.Cell().Element(HeaderStyle).Text("SEGURIDAD");
-                                table.Cell().Element(HeaderStyle).Text("GCONCESIONARIO / CLIENTE FINAL");
+                            table.Cell().Element(RowStyle2).Text($"Nombre: {DataInspection.ClosedByName}");
+                            table.Cell().Element(RowStyle2).AlignLeft().Text($"Nombre: {DataInspection.TransporterName}");
+                            table.Cell().Element(RowStyle2).AlignLeft().Text("Nombre:");
+                            table.Cell().Element(RowStyle2).AlignLeft().Text($"Nombre: {DataInspection.RecepByName}");
 
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre: {DataInspection.ClosedByName}");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre: {DataInspection.TransporterName}");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre:");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Nombre: {DataInspection.RecepByName}" );
+                            table.Cell().Element(RowStyle2).Text("Cargo: DESPACHADOR");
+                            table.Cell().Element(RowStyle2).Text($"Cedula: {DataInspection.TransporterByVVTA}");
+                            table.Cell().Element(RowStyle2).Text("Cedula:");
+                            table.Cell().Element(RowStyle2).Text($"RIF: {DataInspection.RecepByVVTA}");
 
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Cargo: DESPACHADOR");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Cedula: {DataInspection.TransporterByVVTA}");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Cedula:");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"RIF: {DataInspection.RecepByVVTA}");
+                            table.Cell().Element(RowStyle2).Text($"Fecha: {DataInspection.DClose}");
+                            table.Cell().Element(RowStyle2).Text($"Fecha: {DataInspection.DClose}");
+                            table.Cell().Element(RowStyle2).Text($"Fecha: {DataInspection.DClose}");
+                            table.Cell().Element(RowStyle2).Text("Fecha:");
 
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha: {DataInspection.DClose}");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha: {DataInspection.DClose}");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha: {DataInspection.DClose}");
-                                table.Cell().Element(RowStyle).AlignLeft().Text($"Fecha:");
-
-                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
-                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
-                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
-                                table.Cell().Element(RowStyle).AlignLeft().Height(30).Text("Firma / SELLO:");
-
-                            });
+                            table.Cell().Element(RowStyle2).Height(30).Text("Firma / SELLO:");
+                            table.Cell().Element(RowStyle2).Height(30).Text("Firma / SELLO:");
+                            table.Cell().Element(RowStyle2).Height(30).Text("Firma / SELLO:");
+                            table.Cell().Element(RowStyle2).Height(30).Text("Firma / SELLO:");
                         });
                     });
                 });
 
-                // Páginas de fotos (Anexo)
+                // Páginas anexas de fotos enviadas por parámetro
                 if (imagenesParaPdf?.Any() == true)
                 {
                     foreach (var foto in imagenesParaPdf)
@@ -1456,11 +1412,11 @@ namespace WebApi.Controllers
             }).GeneratePdf();
 
             // --- ESTILOS LOCALES ---
-            static IContainer SubHeaderLabelStyle(IContainer container) => container.AlignCenter().Background(QuestPDF.Helpers.Colors.Grey.Lighten4).PaddingVertical(1).DefaultTextStyle(x => x.FontSize(7).SemiBold());
             static IContainer SubHeaderValueStyle(IContainer container) => container.AlignCenter().PaddingVertical(2).DefaultTextStyle(x => x.FontSize(8));
             static IContainer HeaderStyle(IContainer container) => container.Border(1).Background(QuestPDF.Helpers.Colors.Grey.Lighten2).Padding(2).AlignCenter().DefaultTextStyle(x => x.SemiBold().FontSize(6));
             static IContainer HeaderStyleBlue(IContainer container) => container.Border(1).Background(QuestPDF.Helpers.Colors.Blue.Accent3).Padding(2).AlignCenter().DefaultTextStyle(x => x.SemiBold().FontSize(6).FontColor(QuestPDF.Helpers.Colors.White));
             static IContainer RowStyle(IContainer container) => container.Border(1).Padding(2).AlignCenter().DefaultTextStyle(x => x.FontSize(7));
+            static IContainer RowStyle2(IContainer container) => container.Border(1).Padding(2).AlignLeft().DefaultTextStyle(x => x.FontSize(8));
         }
         #endregion
     }
