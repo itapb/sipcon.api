@@ -53,7 +53,7 @@ namespace Models
         [Required] public decimal? Amount { get; set; }
         [Required] public int? CurrencyId { get; set; }
         [Required] public int? TypeId { get; set; }
-        [Required] public string? Reference { get; set; }
+         public string? Reference { get; set; }
         public int? AccountId { get; set; }
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
