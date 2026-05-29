@@ -72,10 +72,3 @@ SELECT 30,'PAID','Pagado','Pagado'
 INSERT INTO ACTION
 SELECT 31,'TRANSIT','Por Revision','Por Revision'
 
-
-
-
-
-
-
-
