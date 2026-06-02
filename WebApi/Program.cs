@@ -67,7 +67,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 4. Servicios personalizados
+builder.Services.AddSingleton<OracleDB>();
+
 builder.Services.AddScoped<dColor>();
 builder.Services.AddScoped<dBrand>();
 builder.Services.AddScoped<dContact>();
@@ -99,6 +100,7 @@ builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
 builder.Services.AddScoped<dRate>();
 builder.Services.AddScoped<dBranchOffice>();
+builder.Services.AddScoped<dFigo>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<WebApi.BackgroundServices.TasaBackgroundService>();
