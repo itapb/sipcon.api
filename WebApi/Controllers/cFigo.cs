@@ -1,11 +1,10 @@
 ﻿using Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+using WebApi.ExportFiles;
 
 namespace WebApi.Controllers
 {
-
     [Route("api/Figo")]
     [ApiController]
     [Authorize]
@@ -19,6 +18,7 @@ namespace WebApi.Controllers
             _dFigo = dFigo;
         }
 
+        #region "CxC"
         [HttpGet("ReportCxC")]
         public async Task<IActionResult> GetReportCxC(DateTime? Date, string Currency, string? filter)
         {
@@ -33,5 +33,34 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+
+        [HttpGet("ExportReportCxC")]
+        public async Task<IActionResult> ExportReportCxC(DateTime? Date, string Currency, string? filter)
+        {
+            try
+            {
+                DateTime FinalDate = Date ?? DateTime.Today;
+                var _response = await _dFigo.GetReportCxC(FinalDate, Currency, filter);
+
+                if (_response.Data == null)
+                {
+                    return StatusCode(_response.Status, _response);
+                }
+
+                MemoryStream _excel = ExportExcel.ConvertToExcelReportCxC(_response.Data, FinalDate);
+                string _fileName = "ReporteCxC.xlsx";
+
+                return File(
+                    _excel,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    _fileName
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        #endregion "CxC"
     }
 }
