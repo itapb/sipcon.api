@@ -24,6 +24,7 @@ namespace Util
         public static TimeSpan TimeFrecuency;
         public static List<Parameter> Parameters = new List<Parameter>();
         public static string Environment = "";
+        public static string EnvironmentFigo = "";
         public static string ImagesUrl = "";
         public static string AttachmentUrl = "";
         public static string OracleDbConnection = "";
@@ -55,6 +56,9 @@ namespace Util
             {
                 var _valor = _Configuration.GetSection("Custom:Environment").Value ?? "DEV";
                 Environment = _valor;
+
+                var _valor2 = _Configuration.GetSection("Custom:EnvironmentFigo").Value ?? "";
+                EnvironmentFigo = _valor2;
 
             }
             catch (Exception)
@@ -100,10 +104,16 @@ namespace Util
 
             try
             {
+
                 string _valor = "";
                 _valor = _Configuration.GetSection($"Custom:ConnectionStrings:{Environment}").Value ?? "";
                 ConnectionString = _valor;
 
+                string _valor2 = "";
+                _valor2 = _Configuration.GetSection($"Custom:ConnectionStrings:{EnvironmentFigo}").Value ?? "";
+                OracleDbConnection = _valor2;
+
+                
                 //if (Environment == "DEV")
                 //{
                 //    _valor = _Configuration.GetSection("Custom:ConnectionStrings:DEV").Value ?? "";
@@ -216,23 +226,7 @@ namespace Util
                 goto inicio;
             }
 
-            try
-            {
-                OracleDbConnection = _Configuration.GetSection("Custom:OracleDbConnection").Value ?? "";
-                if (OracleDbConnection == "")
-                {
-                    Console.WriteLine("Error: OracleDbConnection no definido en app.config");
-                    System.Threading.Thread.Sleep(5000);
-                    goto inicio;
-                }
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine("Error: OracleDbConnection no definido en app.config");
-                System.Threading.Thread.Sleep(5000);
-                goto inicio;
-            }
+            
         }
 
         private static void GetSettingsFromConfig()
