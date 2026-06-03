@@ -57,7 +57,7 @@ namespace Data
                 _mapping.AddItem("SerialNumber", "SERIAL");
                 _mapping.AddItem("ProductGroup", "GRUPO_PRODUCTO");
 
-                string FormatDate = Date.ToString("MM/dd/yyyy");
+                string FormatDate = Date.ToString("MM/dd/yyyy"); // Es necesario este formato para poder filtra con las tablas de FIGO
 
                 var Params = new List<OracleParameter>
                 {
