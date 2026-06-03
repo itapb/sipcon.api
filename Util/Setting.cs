@@ -26,6 +26,7 @@ namespace Util
         public static string Environment = "";
         public static string ImagesUrl = "";
         public static string AttachmentUrl = "";
+        public static string OracleDbConnection = "";
 
         private  static void GetSettingsFromJson()
         {
@@ -215,7 +216,23 @@ namespace Util
                 goto inicio;
             }
 
+            try
+            {
+                OracleDbConnection = _Configuration.GetSection("Custom:OracleDbConnection").Value ?? "";
+                if (OracleDbConnection == "")
+                {
+                    Console.WriteLine("Error: OracleDbConnection no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
 
+                Console.WriteLine("Error: OracleDbConnection no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
         }
 
         private static void GetSettingsFromConfig()
