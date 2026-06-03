@@ -48,11 +48,40 @@ namespace WebApi.Controllers
                 }
 
                 MemoryStream _excel = ExportExcel.ConvertToExcelReportCxC(_response.Data, FinalDate);
-                string _fileName = "ReporteCxC.xlsx";
+                string _fileName = $"ReporteCxC_{FinalDate:yyyyMMdd}.xlsx";
 
                 return File(
                     _excel,
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    _fileName
+                );
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("ExportReportCxCPdf")]
+        public async Task<IActionResult> ExportReportCxCPdf(DateTime? Date, string Currency, string? filter)
+        {
+            try
+            {
+                DateTime FinalDate = Date ?? DateTime.Today;
+
+                var _response = await _dFigo.GetReportCxC(FinalDate, Currency, filter);
+
+                if (_response.Data == null)
+                {
+                    return StatusCode(_response.Status, _response);
+                }
+
+                byte[] _pdfBytes = ExportPDF.ConvertToPdfReportCxC(_response.Data, FinalDate);
+                string _fileName = $"ReporteCxC_{FinalDate:yyyyMMdd}.pdf";
+
+                return File(
+                    _pdfBytes,
+                    "application/pdf",
                     _fileName
                 );
             }
