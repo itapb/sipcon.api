@@ -65,13 +65,14 @@ namespace WebApi.ExportFiles
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(1.5f); 
-                                columns.RelativeColumn(1.5f); 
-                                columns.RelativeColumn(1.2f); 
-                                columns.RelativeColumn(1.2f); 
-                                columns.RelativeColumn(1f); 
-                                columns.RelativeColumn(1.2f); 
-                                columns.RelativeColumn(1.2f); 
+                                columns.RelativeColumn(1.5f);
+                                columns.RelativeColumn(1.5f);
+                                columns.RelativeColumn(2.0f);
+                                columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1f);  
+                                columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1.2f);
                                 columns.RelativeColumn(1.2f);
                             });
 
@@ -79,6 +80,7 @@ namespace WebApi.ExportFiles
                             {
                                 header.Cell().Element(HeaderStyle).Text("OCURRENCIA");
                                 header.Cell().Element(HeaderStyle).Text("DOCUMENTO");
+                                header.Cell().Element(HeaderStyle).Text("PRODUCTO");
                                 header.Cell().Element(HeaderStyle).Text("EMISIÓN");
                                 header.Cell().Element(HeaderStyle).Text("VENCIMIENTO");
                                 header.Cell().Element(HeaderStyle).Text("DÍAS VENC.");
@@ -93,7 +95,7 @@ namespace WebApi.ExportFiles
                                 string nombreCliente = primerRegistro.Client ?? "S/N";
                                 string telefonoCliente = primerRegistro.Phone ?? "S/T";
 
-                                table.Cell().RowSpan(1).ColumnSpan(8).Background(Colors.Grey.Lighten4).Padding(4).Text(x =>
+                                table.Cell().RowSpan(1).ColumnSpan(9).Background(Colors.Grey.Lighten4).Padding(4).Text(x =>
                                 {
                                     x.Span("Cliente: ").Bold().FontSize(9);
                                     x.Span($"{nombreCliente}         ").FontSize(9);
@@ -110,6 +112,7 @@ namespace WebApi.ExportFiles
                                 {
                                     table.Cell().Element(RowStyle).Text(detalle.Occurrence ?? "");
                                     table.Cell().Element(RowStyle).Text(detalle.Document ?? "");
+                                    table.Cell().Element(RowStyle).Text($"{detalle.Product} - {detalle.SerialNumber}");
                                     table.Cell().Element(RowStyle).Text(detalle.IssueDate ?? "");
                                     table.Cell().Element(RowStyle).Text(detalle.DueDate ?? "");
 
@@ -124,7 +127,7 @@ namespace WebApi.ExportFiles
                                     totalDeuda += detalle.TotalDebt;
                                 }
 
-                                table.Cell().RowSpan(1).ColumnSpan(4).Padding(3).AlignRight().Text("TOTAL CLIENTE:").Bold().FontSize(8);
+                                table.Cell().RowSpan(1).ColumnSpan(5).Padding(3).AlignRight().Text("TOTAL CLIENTE:").Bold().FontSize(8);
 
                                 table.Cell().Element(TotalStyle).Text(totalDiasVenc.ToString());
                                 table.Cell().Element(TotalStyle).Text(totalVencido.ToString("N2"));
@@ -132,15 +135,6 @@ namespace WebApi.ExportFiles
                                 table.Cell().Element(TotalStyle).Text(totalDeuda.ToString("N2"));
                             }
                         });
-                    });
-
-                    // --- FOOTER ---
-                    page.Footer().AlignCenter().Text(x =>
-                    {
-                        x.Span("Página ").FontSize(9);
-                        x.CurrentPageNumber().FontSize(9);
-                        x.Span(" de ").FontSize(9);
-                        x.TotalPages().FontSize(9);
                     });
                 });
             });
