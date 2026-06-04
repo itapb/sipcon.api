@@ -1,0 +1,97 @@
+USE [FIGO]
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MOUNT_PAYMENT]    Script Date: 03/06/2026 23:22:27 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[USP_MOUNT_PAYMENT]--USP_MOUNT_PAYMENT 30,1
+@IDPAYMENT INT,
+@IDUSER INT
+AS
+
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : JUAN GUARECUCO
+  '   CREADO PARA           : 
+  '   FUNCIÓN               :  
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        :  
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+
+SET NOCOUNT ON;
+BEGIN
+   
+			    DECLARE @TOTAL NUMERIC(18,2),
+						@NRATE NUMERIC (18,2),
+						@SALDO NUMERIC(18,2);
+
+				  --------------SELECCION DE TASA --------------
+				 SET @NRATE = (SELECT NRATE FROM PAYMENT WITH (NOLOCK) WHERE ID=@IDPAYMENT)
+	       
+			     -------------------------CALCULO DE TOTAL PAGADO-------------------------------------
+				 SET @TOTAL = (SELECT  SUM( CASE WHEN C.VNAME ='$ - Dolar'  THEN PD.NAMOUNT ELSE (PD.NAMOUNT / NULLIF(@NRATE, 0)) END)
+										FROM PAYMENTDETAILS PD WITH (NOLOCK)
+										INNER JOIN CURRENCY C  WITH (NOLOCK) ON PD.IDCURRENCY=C.ID WHERE IDPAYMENT=@IDPAYMENT AND IDSTATUS<>DBO.UFN_GET_ISTATUS('DECLINE') )	
+
+				-- INGRESAR EL TOTAL EN TABLA PAYMENT
+				UPDATE PAYMENT SET NPAIDAMOUNT=@TOTAL WHERE ID=@IDPAYMENT
+
+				-----------------SELECCION DE SETTLEMENTS----------------
+				SELECT 
+					S.ID,
+					S.IDACCOUNTRECEIVABLE,
+					AR.DDATE,
+					AR.NBALANCE,
+					CAST(0 AS NUMERIC(18,2)) AS NPAIDAMOUNT
+				INTO #SETTLEMENTS
+				FROM SETTLEMENTS S
+				INNER JOIN ACCOUNTRECEIVABLE AR WITH(NOLOCK)
+					ON AR.ID = S.IDACCOUNTRECEIVABLE
+				WHERE S.IDPAYMENT = @IDPAYMENT
+				ORDER BY AR.DDATE ASC;
+
+
+				--------------------DISTRIBUCION DE SALDO EN TABLA TEMPORAL-----------------------
+				SET @SALDO = @TOTAL;
+
+
+				UPDATE T
+				SET 
+					NPAIDAMOUNT =
+						CASE
+							WHEN X.ACUMULADO <= @TOTAL 	THEN T.NBALANCE
+							WHEN X.ACUMULADO - T.NBALANCE < @TOTAL
+							THEN @TOTAL - (X.ACUMULADO - T.NBALANCE)
+							ELSE 0
+						END
+
+				FROM #SETTLEMENTS T
+				INNER JOIN
+				(
+					SELECT 
+						ID,
+						SUM(NBALANCE) OVER(
+							ORDER BY DDATE ASC
+							ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+						) AS ACUMULADO
+
+					FROM #SETTLEMENTS
+
+				) X ON X.ID = T.ID;
+
+				---------------DISTRIBUCION DE SALDO POR FACTURA EN TABLA SETTLEMENTS----------
+
+				UPDATE S
+				SET S.NPAIDAMOUNT = T.NPAIDAMOUNT
+				FROM SETTLEMENTS S
+				INNER JOIN #SETTLEMENTS T ON T.ID = S.ID
+			    
+         
+	   
+END
