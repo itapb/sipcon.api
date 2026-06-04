@@ -21,6 +21,7 @@ namespace Models
         [Required] public DateTime? DocumentDueDate { get; set; }
          public DateTime? DateRate { get; set; }
         [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? AmountFull { get; set; }
         [Required] public decimal? AmountBs { get; set; }
         [Required] public decimal? Balance { get; set; }
         [Required] public decimal? BalanceBs { get; set; }

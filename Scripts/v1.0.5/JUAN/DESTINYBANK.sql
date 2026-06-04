@@ -1,4 +1,4 @@
-USE [FIGO]
+USE [OASIS]
 GO
 
 /****** Object:  Table [dbo].[BANK]    Script Date: 01/06/2026 11:03:56 ******/
