@@ -262,6 +262,7 @@ namespace WebApi.Controllers
         }
 
 
+
         [HttpPost("PostPayDetailsActions")]
         public async Task<IActionResult> PostPayDetailsActions(Int32 userId, List<Models.Action> actions)
         {
@@ -278,6 +279,23 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
 
+        }
+
+
+        [HttpPost("PostPaidAmount")]
+        public async Task<IActionResult> PostPaidAmount(Int32 userId, Models.PostPaidAmount paidAmount)
+        {
+
+
+            try
+            {
+                var _response = await _dPayment.PostPaidAmount(paidAmount, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
         }
 
         private MemoryStream ConvertToExcel_Payment(List<Models.PaymentDetails> _paymentDetails)
