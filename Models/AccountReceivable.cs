@@ -21,6 +21,7 @@ namespace Models
         [Required] public DateTime? DocumentDueDate { get; set; }
          public DateTime? DateRate { get; set; }
         [Required] public decimal? Amount { get; set; }
+        [Required] public decimal? AmountFull { get; set; }
         [Required] public decimal? AmountBs { get; set; }
         [Required] public decimal? Balance { get; set; }
         [Required] public decimal? BalanceBs { get; set; }
@@ -46,8 +47,17 @@ namespace Models
         [Required] public int? PaymentId { get; set; }
         public decimal Rate { get; set; }
         public DateTime? DateRate { get; set; }
+        [Required] public decimal? PaidAmount { get; set; }
+        [Required] public decimal? PaidAmountBs { get; set; }
 
     }
 
+    public class PostPaidAmount
+    {
+        [Required] public int? Id { get; set; }
+        [Required] public decimal? PaidAmount { get; set; }
+        [Required] public int? PaymentId { get; set; }
+
+    }
 
 }

@@ -159,6 +159,7 @@ namespace Data
                 _mapping.AddItem("PaymentDetailId", "IDPAYMENDETAIL");
                 _mapping.AddItem("TransactionStatusId", "IDPAYMENDETAIL");
                 _mapping.AddItem("TransactionStatusName", "VTRANSACTIONSTATUS");
+                _mapping.AddItem("AmountFull", "NAMOUNTFULL");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
                 _response.Data = _data.GetList<Models.AccountReceivable>(_mapping, _table);
@@ -378,6 +379,8 @@ namespace Data
                 _mapping.AddItem("PaymentId", "IDPAYMENT");
                 _mapping.AddItem("Rate", "NRATE");
                 _mapping.AddItem("DateRate", "DDATERATE");
+                _mapping.AddItem("PaidAmount", "NPAIDAMOUNT");
+                _mapping.AddItem("PaidAmountBs", "NPAIDAMOUNTBS");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNT_BYPAYMENT", _parameter);
@@ -569,7 +572,34 @@ namespace Data
             return _response;
         }
 
+        private async Task<Response<Models.Result>> _PostPaidAmount(PostPaidAmount paidAmount, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
 
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(paidAmount);
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_PAIDAMOUNT", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
 
         public async Task<Response<List<Models.Currency>>> GetCurrencys()
@@ -818,7 +848,21 @@ namespace Data
             }
         }
 
-        
+
+        public async Task<Response<Models.Result>> PostPaidAmount(PostPaidAmount paidAmount, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostPaidAmount(paidAmount, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
 
     }
 }
