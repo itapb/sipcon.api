@@ -381,6 +381,7 @@ namespace Data
                 _mapping.AddItem("DateRate", "DDATERATE");
                 _mapping.AddItem("PaidAmount", "NPAIDAMOUNT");
                 _mapping.AddItem("PaidAmountBs", "NPAIDAMOUNTBS");
+                _mapping.AddItem("TransactionStatusName", "VTRANSTATUS");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNT_BYPAYMENT", _parameter);
