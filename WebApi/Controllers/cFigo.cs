@@ -33,6 +33,20 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("ReportsFilters")]
+        public async Task<IActionResult> ReportsFilters(int userId, int reportId, int rowFrom)
+        {
+            try
+            {
+                var _response = await _dFigo.ReportsFilters(userId, reportId, rowFrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         #endregion "Reports"
 
         #region "CxC"

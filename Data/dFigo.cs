@@ -43,6 +43,19 @@ namespace Data
             }
         }
 
+        public async Task<Response<List<Models.FIGO_Filters>>> ReportsFilters(int userId, int reportId, int rowFrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ReportsFilters(userId, reportId, rowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task<Response<List<Models.FIGO_ReportCxC>>> _GetReportCxC(DateTime Date, string Currency, string? filter)
         {
             Response<List<Models.FIGO_ReportCxC>> _response = new Response<List<Models.FIGO_ReportCxC>>();
@@ -116,6 +129,38 @@ namespace Data
                 DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FIGO", _parameter);
 
                 _response.Data = _data.GetList<Models.FIGO_Report>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Response<List<Models.FIGO_Filters>>> _ReportsFilters(int userId, int reportId, int rowFrom)
+        {
+            Response<List<Models.FIGO_Filters>> _response = new Response<List<Models.FIGO_Filters>>();
+            try
+            {
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDREPORT", reportId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Field", "VFIELD");
+                _mapping.AddItem("FieldType", "VFIELDTYPE");
+                _mapping.AddItem("ActionType", "VACTIONTYPE");
+                _mapping.AddItem("ReportFigoId", "IDREPORTFIGO");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FILTERS", _parameter);
+
+                _response.Data = _data.GetList<Models.FIGO_Filters>(_mapping, _table);
                 _response.SetGetResponse(_table);
             }
             catch (Exception ex)
