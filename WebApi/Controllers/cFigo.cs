@@ -10,7 +10,6 @@ namespace WebApi.Controllers
     [Authorize]
     public class cFigo : ControllerBase
     {
-
         private readonly dFigo _dFigo;
 
         public cFigo(dFigo dFigo)
@@ -18,7 +17,26 @@ namespace WebApi.Controllers
             _dFigo = dFigo;
         }
 
+        #region "Reports"
+
+        [HttpGet("ReportsFigo")]
+        public async Task<IActionResult> GetReportsFigo(int userId, int rowFrom)
+        {
+            try
+            {
+                var _response = await _dFigo.GetReportsFigo(userId, rowFrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        #endregion "Reports"
+
         #region "CxC"
+
         [HttpGet("ReportCxC")]
         public async Task<IActionResult> GetReportCxC(DateTime? Date, string Currency, string? filter)
         {

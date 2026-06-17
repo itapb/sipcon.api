@@ -30,6 +30,19 @@ namespace Data
             }
         }
 
+        public async Task<Response<List<Models.FIGO_Report>>> GetReportsFigo(int userId, int rowFrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetReportsFigo(userId, rowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task<Response<List<Models.FIGO_ReportCxC>>> _GetReportCxC(DateTime Date, string Currency, string? filter)
         {
             Response<List<Models.FIGO_ReportCxC>> _response = new Response<List<Models.FIGO_ReportCxC>>();
@@ -72,6 +85,37 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 _response.Data = _data.GetList<Models.FIGO_ReportCxC>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Response<List<Models.FIGO_Report>>> _GetReportsFigo(int userId, int rowFrom)
+        {
+            Response<List<Models.FIGO_Report>> _response = new Response<List<Models.FIGO_Report>>();
+            try
+            {
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("NameReport", "VNAME");
+                _mapping.AddItem("AccessGroupId", "IDACCESSGROUP");
+                _mapping.AddItem("IsPdfReport", "BPDFREPORT");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FIGO", _parameter);
+
+                _response.Data = _data.GetList<Models.FIGO_Report>(_mapping, _table);
                 _response.SetGetResponse(_table);
             }
             catch (Exception ex)
