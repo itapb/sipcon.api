@@ -330,6 +330,7 @@ namespace Data
                 _mapping.AddItem("StatusId", "IDESTATUS");
                 _mapping.AddItem("BankOriginName", "VBANKORIGIN");
                 _mapping.AddItem("BankOriginId", "IDBANKORIGIN");
+                _mapping.AddItem("CreatedDate", "DCREATED");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_PAYMENTDETAILS", _parameter);
