@@ -1,8 +1,9 @@
-﻿using Models;
+﻿using DocumentFormat.OpenXml.Vml;
+using Models;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
-using Util;
 using System.Text.Json;
+using Util;
 
 namespace Data
 {
@@ -57,12 +58,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int reportId, string jsonParameters)
+        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllJsonAsync(userId, reportId, jsonParameters)
+                return await _GetAllJsonAsync(userId, supplierId, rowfrom, reportId, jsonParameters)
                     .ConfigureAwait(false);
             }
             finally
@@ -105,7 +106,7 @@ namespace Data
 
 
 
-        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int reportId, string jsonParameters)
+        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
         {
             var response = new Response<List<Dictionary<string, object>>>();
 
@@ -154,19 +155,30 @@ namespace Data
                     oracleParams.Add(new OracleParameter(kvp.Key, finalValue));
                 }
 
+                // 4. Agregar parámetros internos del sistema
+                oracleParams.Add(new OracleParameter("IDSUPPLIER", supplierId));
+                oracleParams.Add(new OracleParameter("IROWFROM", rowfrom));
+
+
                 // 4. Ejecutar el Query crudo
                 Util.Data dataInstance = Util.Data.GetInstance();
                 DataTable table = await _oracleDB.GetDataTable(rawQuery, oracleParams);
-
+                int total = 0;
                 // 5. Convertir el resultado a List<Dictionary<string, object>> (Tu formato dinámico)
                 var rows = new List<Dictionary<string, object>>();
                 foreach (DataRow row in table.Rows)
                 {
                     var dict = new Dictionary<string, object>();
+                    
                     foreach (DataColumn col in table.Columns)
                     {
                         // Excluimos columnas de control si es necesario
-                        if (col.ColumnName.Equals("TOTAL", StringComparison.OrdinalIgnoreCase)) continue;
+                        if (col.ColumnName.Equals("TOTAL", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (row[col] != DBNull.Value)
+                                total = Convert.ToInt32(row[col]);
+                            continue; // no se agrega al diccionario
+                        }
 
                         dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
                     }
@@ -174,6 +186,7 @@ namespace Data
                 }
 
                 response.Data = rows;
+                response.Total = total;
                 response.Processed = true;
             }
             catch (Exception ex)
