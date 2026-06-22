@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.ExportFiles;
 
+
 namespace WebApi.Controllers
 {
     [Route("api/Figo")]
@@ -91,5 +92,38 @@ namespace WebApi.Controllers
             }
         }
         #endregion "CxC"
+
+        #region "VENTAS"
+        [HttpPost("ExtractDaily")]
+        public async Task<IActionResult> ExtractDailySales(DateTime? date)
+        {
+            try
+            {
+                DateTime processDate = date ?? DateTime.Today;
+                var response = await _dFigo.ExtractAndInsertSales(processDate);
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+            }
+        }
+        #endregion "VENTAS" 
+
+        #region "TRÁNSITO"
+        [HttpPost("ExtractTransit")]
+        public async Task<IActionResult> ExtractTransitRepuestos()
+        {
+            try
+            {
+                var response = await _dFigo.ExtractAndInsertTransit();
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+            }
+        }
+        #endregion "TRÁNSITO"
     }
 }

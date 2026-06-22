@@ -7,6 +7,7 @@ using Scalar.AspNetCore;
 using System.Globalization;
 using System.Text;
 using WebApi;
+using WebApi.BackgroundServices;
 
 // 1. CreateBuilder
 var builder = WebApplication.CreateBuilder(args);
@@ -100,11 +101,13 @@ builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
 builder.Services.AddScoped<dRate>();
 builder.Services.AddScoped<dBranchOffice>();
+
 builder.Services.AddScoped<dFigo>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<WebApi.BackgroundServices.TasaBackgroundService>();
-
+builder.Services.AddHostedService<WebApi.BackgroundServices.SalesFigoBackgroundService>();//Servicio para extraer ventas diariamente de figo
+builder.Services.AddHostedService<WebApi.BackgroundServices.TransitFigoBackgroundService>();//Servicio para extraer y actualizar el transito diariamente de figo
 var app = builder.Build();
 
 
