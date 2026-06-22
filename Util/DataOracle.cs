@@ -11,7 +11,9 @@ namespace Data
 
         public OracleDB(IConfiguration config)
         {
+            Util.Setting.GetSettings(true);
             _connectionString = Util.Setting.OracleDbConnection;
+            Util.Log.Info($"OracleDB - Connection String: {_connectionString?.Substring(0, 50)}...");
         }
 
         public OracleConnection GetConnection()
