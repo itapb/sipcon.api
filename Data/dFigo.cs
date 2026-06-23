@@ -1,6 +1,8 @@
-﻿using Models;
+﻿using DocumentFormat.OpenXml.Vml;
+using Models;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using System.Text.Json;
 using Util;
 
 namespace Data
@@ -17,12 +19,25 @@ namespace Data
             _oracleDB = oracle;
         }
 
-        public async Task<Response<List<Models.FIGO_ReportCxC>>> GetReportCxC(DateTime Date, string Currency, string? filter)
+        //public async Task<Response<List<Models.FIGO_ReportCxC>>> GetReportCxC(DateTime Date, string Currency, string? filter)
+        //{
+        //    await _semaphore.WaitAsync(Util.Setting.TimeOut);
+        //    try
+        //    {
+        //        return await _GetReportCxC(Date, Currency, filter);
+        //    }
+        //    finally
+        //    {
+        //        _semaphore.Release();
+        //    }
+        //}
+
+        public async Task<Response<List<Models.FIGO_Report>>> GetReportsFigo(int userId, int rowFrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetReportCxC(Date, Currency, filter);
+                return await _GetReportsFigo(userId, rowFrom);
             }
             finally
             {
@@ -30,48 +45,270 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<Models.FIGO_ReportCxC>>> _GetReportCxC(DateTime Date, string Currency, string? filter)
+        public async Task<Response<List<Models.FIGO_Filters>>> ReportsFilters(int userId, int reportId, int rowFrom)
         {
-            Response<List<Models.FIGO_ReportCxC>> _response = new Response<List<Models.FIGO_ReportCxC>>();
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
+                return await _ReportsFilters(userId, reportId, rowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetAllJsonAsync(userId, supplierId, rowfrom, reportId, jsonParameters)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<Models.FIGO_Query>> _GetReportQuery(int userId, int reportId, int? rowfrom = 0)
+        {
+            Response<Models.FIGO_Query> _response = new Response<Models.FIGO_Query>();
+            try
+            {
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDREPORT", reportId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID_REGISTRO");
-                _mapping.AddItem("DealerName", "EMPRESA");
-                _mapping.AddItem("Vat", "RIF");
-                _mapping.AddItem("Client", "ORGANIZACION");
-                _mapping.AddItem("Phone", "TELEFONO");
-                _mapping.AddItem("Zone", "ZONA");
-                _mapping.AddItem("Occurrence", "OCURRENCIA");
-                _mapping.AddItem("Document", "DOCUMENTO");
-                _mapping.AddItem("IssueDate", "EMISION");
-                _mapping.AddItem("DueDate", "VENCIMIENTO");
-                _mapping.AddItem("OverdueDays", "DIAS_VENCIDOS");
-                _mapping.AddItem("Currency", "MONEDA");
-                _mapping.AddItem("DocumentCurrency", "MONEDA_DOCUMENTO");
-                _mapping.AddItem("OverdueAmount", "VENCIDO");
-                _mapping.AddItem("CurrentAmount", "POR_VENCER");
-                _mapping.AddItem("TotalDebt", "TOTAL_DEUDA");
-                _mapping.AddItem("ExchangeRate", "TASA");
-                _mapping.AddItem("Product", "PRODUCTO");
-                _mapping.AddItem("SerialNumber", "SERIAL");
-                _mapping.AddItem("ProductGroup", "GRUPO_PRODUCTO");
-
-                string FormatDate = Date.ToString("MM/dd/yyyy"); // Es necesario este formato para poder filtra con las tablas de FIGO
-
-                var Params = new List<OracleParameter>
-                {
-                    new OracleParameter("FECHA_CORTE", OracleDbType.Varchar2) { Value = FormatDate },
-                    new OracleParameter("MONEDA_REPORTE", OracleDbType.Varchar2) { Value = Currency.ToUpper() },
-                    new OracleParameter("BUSQUEDA", OracleDbType.Varchar2) { Value = filter }
-                };
-
-                string Query = FigoQueries.ReportCxC;
-
-                DataTable _table = await _oracleDB.GetDataTable(Query, Params);
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Query", "VCONTENT");
 
                 Util.Data _data = Util.Data.GetInstance();
-                _response.Data = _data.GetList<Models.FIGO_ReportCxC>(_mapping, _table);
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FIGOQUERY", _parameter);
+                _response.Data = _data.GetItem<Models.FIGO_Query>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
+
+
+
+
+        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
+        {
+            var response = new Response<List<Dictionary<string, object>>>();
+
+            try
+            {
+                // 1. Obtener el query crudo desde la BD usando tu método existente
+                var queryResponse = await _GetReportQuery(userId, reportId);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    response.Message = "No se pudo obtener la configuración del reporte.";
+                    return response;
+                }
+
+                string rawQuery = queryResponse.Data.Query; // Aquí extraemos el SQL crudo de tu objeto
+
+                // 2. Deserializar los parámetros recibidos desde el cliente
+                var parametersDict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonParameters)
+                                     ?? new Dictionary<string, object>();
+
+                // 3. Crear los parámetros de Oracle dinámicamente
+                var oracleParams = new List<OracleParameter>();
+                foreach (var kvp in parametersDict)
+                {
+                    // Obtener el valor crudo del JsonElement
+                    object valor = kvp.Value;
+
+                    // Si el valor es de tipo JsonElement (común al deserializar a object), extrae su valor real
+                    if (valor is JsonElement element)
+                    {
+                        valor = element.ValueKind switch
+                        {
+                            JsonValueKind.String => element.GetString(),
+                            JsonValueKind.Number => element.GetDecimal(),
+                            JsonValueKind.True => true,
+                            JsonValueKind.False => false,
+                            JsonValueKind.Null => DBNull.Value,
+                            _ => element.GetRawText()
+                        };
+                    }
+
+                    // Asegurarse de que si es null sea DBNull
+                    object finalValue = valor ?? DBNull.Value;
+
+                    // Crear el parámetro
+                    oracleParams.Add(new OracleParameter(kvp.Key, finalValue));
+                }
+
+                // 4. Agregar parámetros internos del sistema
+                oracleParams.Add(new OracleParameter("IDSUPPLIER", supplierId));
+                oracleParams.Add(new OracleParameter("IROWFROM", rowfrom));
+
+
+                // 4. Ejecutar el Query crudo
+                Util.Data dataInstance = Util.Data.GetInstance();
+                DataTable table = await _oracleDB.GetDataTable(rawQuery, oracleParams);
+                int total = 0;
+                // 5. Convertir el resultado a List<Dictionary<string, object>> (Tu formato dinámico)
+                var rows = new List<Dictionary<string, object>>();
+                foreach (DataRow row in table.Rows)
+                {
+                    var dict = new Dictionary<string, object>();
+                    
+                    foreach (DataColumn col in table.Columns)
+                    {
+                        // Excluimos columnas de control si es necesario
+                        if (col.ColumnName.Equals("TOTAL", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (row[col] != DBNull.Value)
+                                total = Convert.ToInt32(row[col]);
+                            continue; // no se agrega al diccionario
+                        }
+
+                        dict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
+                    }
+                    rows.Add(dict);
+                }
+
+                response.Data = rows;
+                response.Total = total;
+                response.Processed = true;
+            }
+            catch (Exception ex)
+            {
+                response.SetError(ex);
+            }
+
+            return response;
+        }
+
+
+
+
+
+
+
+
+        //private async Task<Response<List<Models.FIGO_ReportCxC>>> _GetReportCxC(DateTime Date, string Currency, string? filter)
+        //{
+        //    Response<List<Models.FIGO_ReportCxC>> _response = new Response<List<Models.FIGO_ReportCxC>>();
+        //    try
+        //    {
+        //        Mapping _mapping = new Mapping();
+        //        _mapping.AddItem("Id", "ID_REGISTRO");
+        //        _mapping.AddItem("DealerName", "EMPRESA");
+        //        _mapping.AddItem("Vat", "RIF");
+        //        _mapping.AddItem("Client", "ORGANIZACION");
+        //        _mapping.AddItem("Phone", "TELEFONO");
+        //        _mapping.AddItem("Zone", "ZONA");
+        //        _mapping.AddItem("Occurrence", "OCURRENCIA");
+        //        _mapping.AddItem("Document", "DOCUMENTO");
+        //        _mapping.AddItem("IssueDate", "EMISION");
+        //        _mapping.AddItem("DueDate", "VENCIMIENTO");
+        //        _mapping.AddItem("OverdueDays", "DIAS_VENCIDOS");
+        //        _mapping.AddItem("Currency", "MONEDA");
+        //        _mapping.AddItem("DocumentCurrency", "MONEDA_DOCUMENTO");
+        //        _mapping.AddItem("OverdueAmount", "VENCIDO");
+        //        _mapping.AddItem("CurrentAmount", "POR_VENCER");
+        //        _mapping.AddItem("TotalDebt", "TOTAL_DEUDA");
+        //        _mapping.AddItem("ExchangeRate", "TASA");
+        //        _mapping.AddItem("Product", "PRODUCTO");
+        //        _mapping.AddItem("SerialNumber", "SERIAL");
+        //        _mapping.AddItem("ProductGroup", "GRUPO_PRODUCTO");
+
+        //        string FormatDate = Date.ToString("MM/dd/yyyy"); // Es necesario este formato para poder filtra con las tablas de FIGO
+
+        //        var Params = new List<OracleParameter>
+        //        {
+        //            new OracleParameter("FECHA_CORTE", OracleDbType.Varchar2) { Value = FormatDate },
+        //            new OracleParameter("MONEDA_REPORTE", OracleDbType.Varchar2) { Value = Currency.ToUpper() },
+        //            new OracleParameter("BUSQUEDA", OracleDbType.Varchar2) { Value = filter }
+        //        };
+
+        //        string Query = FigoQueries.ReportCxC;
+
+        //        DataTable _table = await _oracleDB.GetDataTable(Query, Params);
+
+        //        Util.Data _data = Util.Data.GetInstance();
+        //        _response.Data = _data.GetList<Models.FIGO_ReportCxC>(_mapping, _table);
+        //        _response.SetGetResponse(_table);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _response.SetError(ex);
+        //    }
+
+        //    return _response;
+        //}
+
+        private async Task<Response<List<Models.FIGO_Report>>> _GetReportsFigo(int userId, int rowFrom)
+        {
+            Response<List<Models.FIGO_Report>> _response = new Response<List<Models.FIGO_Report>>();
+            try
+            {
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("NameReport", "VNAME");
+                _mapping.AddItem("AccessGroupId", "IDACCESSGROUP");
+                _mapping.AddItem("IsPdfReport", "BPDFREPORT");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FIGO", _parameter);
+
+                _response.Data = _data.GetList<Models.FIGO_Report>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Response<List<Models.FIGO_Filters>>> _ReportsFilters(int userId, int reportId, int rowFrom)
+        {
+            Response<List<Models.FIGO_Filters>> _response = new Response<List<Models.FIGO_Filters>>();
+            try
+            {
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDREPORT", reportId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Field", "VFIELD");
+                _mapping.AddItem("FieldType", "VFIELDTYPE");
+                _mapping.AddItem("ActionType", "VACTIONTYPE");
+                _mapping.AddItem("ReportFigoId", "IDREPORTFIGO");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FILTERS", _parameter);
+
+                _response.Data = _data.GetList<Models.FIGO_Filters>(_mapping, _table);
                 _response.SetGetResponse(_table);
             }
             catch (Exception ex)
