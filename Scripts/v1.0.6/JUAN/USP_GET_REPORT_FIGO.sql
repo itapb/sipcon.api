@@ -1,0 +1,58 @@
+USE [SODA]
+GO
+/****** Object:  StoredProcedure [dbo].[USP_GET_REPORT_FIGO]    Script Date: 17/06/2026 8:35:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[USP_GET_REPORT_FIGO] -- USP_GET_REPORT_FIGO 1,0
+@IDUSER INT=NULL,
+@IROWFROM INT = NULL
+
+AS
+/* '===============================================================          
+  '   NOMBRE                : 
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : JUAN GUARECUCO
+  '   CREADO PARA           : 
+  '   FUNCIÓN               :  
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        :  
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+
+SET XACT_ABORT ON               
+SET NOCOUNT ON
+SET LOCK_TIMEOUT 180000
+
+
+DECLARE @TOPE INT
+
+	IF @IROWFROM IS NULL
+	BEGIN
+		SET @TOPE=1000000
+		SET @IROWFROM=0
+	END
+	ELSE
+	BEGIN
+		SET @TOPE=100
+	END
+	
+
+BEGIN
+     WITH T1 AS (
+	SELECT ID, VNAME,IDACCESSGROUP,DCREATED,DUPDATED,VUPDATEDBY,BACTIVE,BPDFREPORT FROM REPORTFIGO  WITH (NOLOCK)
+	WHERE BACTIVE=1 AND IDACCESSGROUP IN (SELECT IDACCESGROUP FROM ACCESSGROUPUSER WHERE IDUSER=@IDUSER AND BASSIGN=1)
+	),
+    T2 AS (SELECT COUNT(*) AS TOTAL FROM T1),
+    T3 AS (
+        SELECT * FROM T1
+        ORDER BY T1.ID
+        OFFSET @IROWFROM ROWS
+        FETCH NEXT @TOPE ROWS ONLY
+    )
+    SELECT T3.*, T2.TOTAL
+    FROM T3, T2
+
+END
