@@ -24,7 +24,7 @@ namespace Models
         [Required]
         public int? Id { get; set; } = 0;
 
-        [JsonPropertyName("fechaActualizacion")]
+        [JsonPropertyName("fecha")]
         public DateTime DDate { get; set; }
 
         [JsonPropertyName("promedio")]

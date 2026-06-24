@@ -25,68 +25,75 @@ namespace WebApi.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Configuramos la política para manejar errores de red, 5xx y 404
             var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
-                .WaitAndRetryAsync(3, _ => TimeSpan.FromMinutes(5));
-
-            //var retryPolicy = HttpPolicyExtensions.HandleTransientHttpError()
-            //     .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(5));
+                .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+                .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(2));
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 bool success = false;
+                // Definimos las fechas a consultar: Hoy, Mañana, Pasado Mañana
+                var daysToTry = new[] { DateTime.Today, DateTime.Today.AddDays(1), DateTime.Today.AddDays(2) };
 
-                try
+                foreach (var date in daysToTry)
                 {
-                    await retryPolicy.ExecuteAsync(async () =>
+                    try
                     {
-                        var client = _httpClientFactory.CreateClient();
-                        //var client = _httpClientFactory.CreateClient();
-                        //client.Timeout = TimeSpan.FromSeconds(10);
-
-                        // 1. Intentamos consultar la API
-                        var response = await client.GetAsync("https://ve.dolarapi.com/v1/dolares/oficial", stoppingToken);
-
-                        // Si la API responde con un error (ej. 500, 503), esto lanzará una excepción 
-                        // que Polly atrapará para reintentar.
-                        response.EnsureSuccessStatusCode();
-
-                        // 2. Intentamos leer el JSON
-                        var rateData = await response.Content.ReadFromJsonAsync<InsertRate>(cancellationToken: stoppingToken);
-
-                        // Si llegamos aquí, la API respondió y el JSON es válido.
-                        if (rateData != null)
+                        await retryPolicy.ExecuteAsync(async () =>
                         {
-                            using (var scope = _serviceProvider.CreateScope())
+                            var client = _httpClientFactory.CreateClient();
+                            string formattedDate = date.ToString("yyyy/MM/dd");
+                            string url = $"https://ve.dolarapi.com/v1/historicos/dolares/oficial/{formattedDate}";
+
+                            var response = await client.GetAsync(url, stoppingToken);
+
+                            // Si es 404, lanzamos una excepción para que Polly la capture y reintente 
+                            // o para que el flujo pase a la siguiente fecha en el foreach
+                            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                                throw new HttpRequestException($"No data found for {formattedDate}", null, System.Net.HttpStatusCode.NotFound);
+
+                            response.EnsureSuccessStatusCode();
+
+                            var rateData = await response.Content.ReadFromJsonAsync<InsertRate>(cancellationToken: stoppingToken);
+
+                            if (rateData != null)
                             {
-                                var dRate = scope.ServiceProvider.GetRequiredService<dRate>();
-                                var result = await dRate.Insert_Rate(rateData);
+                                using (var scope = _serviceProvider.CreateScope())
+                                {
+                                    var dRate = scope.ServiceProvider.GetRequiredService<dRate>();
+                                    var result = await dRate.Insert_Rate(rateData);
 
-                                if (result.Processed)
-                                    Util.Log.Info(result.Message);
-                                else
-                                    Util.Log.Error(result.Message);
+                                    if (result.Processed)
+                                    {
+                                        Util.Log.Info($"Data processed for {formattedDate}: {result.Message}");
+                                        success = true;
+                                    }
+                                    else
+                                    {
+                                        Util.Log.Error($"Error inserting data for {formattedDate}: {result.Message}");
+                                    }
+                                }
                             }
-                            success = true; // Todo salió bien
-                        }
+                            return response;
+                        });
 
-                        return response;
-                    });
-                }
-                catch (Exception ex)
-                {
-                    // Si llega aquí, significa que tras los 3 intentos, la API siguió fallando
-                    Util.Log.Error($"API unreachable after retries: {ex.Message}");
-                    success = false;
+                        if (success) break; // Si ya insertamos un valor, salimos del ciclo de fechas
+                    }
+                    catch (Exception ex)
+                    {
+                        Util.Log.Error($"Failed to retrieve/process data for {date:yyyy-MM-dd}: {ex.Message}");
+                    }
                 }
 
-                // 3. Lógica de respaldo: solo si 'success' sigue siendo false, insertamos 0
+                // Lógica de respaldo: Si ninguna fecha tuvo éxito
                 if (!success)
                 {
-                    Util.Log.Error("Applying fallback: Inserting 0 due to API failure.");
+                    Util.Log.Error("All attempts failed. Applying fallback: Inserting 0 for today.");
 
                     var fallbackRate = new InsertRate
                     {
-                        DDate = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                        DDate = DateTime.Now,
                         NRate = 0
                     };
 
@@ -97,7 +104,6 @@ namespace WebApi.BackgroundServices
                     }
                 }
 
-                // 4. Esperar hasta la próxima ejecución (4:30 PM)
                 await ScheduleNextExecution(stoppingToken);
             }
         }
