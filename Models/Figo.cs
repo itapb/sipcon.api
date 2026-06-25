@@ -24,12 +24,18 @@ namespace Models
         public int ReportFigoId { get; set; }
     }
 
-
     public class FIGO_Query
     {
         public int Id { get; set; }
         public string? Query { get; set; }
     }
 
-
+    public class FIGO_Options
+    {
+        public int ReportFigoId { get; set; }
+        public int FilterReportId { get; set; }
+        public int FilterOptionId { get; set; }
+        public string? Name {  get; set; }
+        public string? Value { get; set; }
+    }
 }

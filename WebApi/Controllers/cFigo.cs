@@ -48,6 +48,20 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("ReportsOptions")]
+        public async Task<IActionResult> ReportsOptions(int userId, int reportId, int rowFrom)
+        {
+            try
+            {
+                var _response = await _dFigo.ReportsOptions(userId, reportId, rowFrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         [HttpGet("GetReportsContent")]
         public async Task<IActionResult> GetAllJson(int userId,int supplierId, int rowfrom, int reportId, string jsonParameters)
         {

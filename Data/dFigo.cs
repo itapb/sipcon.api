@@ -58,6 +58,19 @@ namespace Data
             }
         }
 
+        public async Task<Response<List<Models.FIGO_Options>>> ReportsOptions(int userId, int reportId, int rowFrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ReportsOptions(userId, reportId, rowFrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -71,8 +84,6 @@ namespace Data
                 _semaphore.Release();
             }
         }
-
-
 
         private async Task<Response<Models.FIGO_Query>> _GetReportQuery(int userId, int reportId, int? rowfrom = 0)
         {
@@ -100,11 +111,6 @@ namespace Data
 
             return _response;
         }
-
-
-
-
-
 
         private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
         {
@@ -197,65 +203,6 @@ namespace Data
             return response;
         }
 
-
-
-
-
-
-
-
-        //private async Task<Response<List<Models.FIGO_ReportCxC>>> _GetReportCxC(DateTime Date, string Currency, string? filter)
-        //{
-        //    Response<List<Models.FIGO_ReportCxC>> _response = new Response<List<Models.FIGO_ReportCxC>>();
-        //    try
-        //    {
-        //        Mapping _mapping = new Mapping();
-        //        _mapping.AddItem("Id", "ID_REGISTRO");
-        //        _mapping.AddItem("DealerName", "EMPRESA");
-        //        _mapping.AddItem("Vat", "RIF");
-        //        _mapping.AddItem("Client", "ORGANIZACION");
-        //        _mapping.AddItem("Phone", "TELEFONO");
-        //        _mapping.AddItem("Zone", "ZONA");
-        //        _mapping.AddItem("Occurrence", "OCURRENCIA");
-        //        _mapping.AddItem("Document", "DOCUMENTO");
-        //        _mapping.AddItem("IssueDate", "EMISION");
-        //        _mapping.AddItem("DueDate", "VENCIMIENTO");
-        //        _mapping.AddItem("OverdueDays", "DIAS_VENCIDOS");
-        //        _mapping.AddItem("Currency", "MONEDA");
-        //        _mapping.AddItem("DocumentCurrency", "MONEDA_DOCUMENTO");
-        //        _mapping.AddItem("OverdueAmount", "VENCIDO");
-        //        _mapping.AddItem("CurrentAmount", "POR_VENCER");
-        //        _mapping.AddItem("TotalDebt", "TOTAL_DEUDA");
-        //        _mapping.AddItem("ExchangeRate", "TASA");
-        //        _mapping.AddItem("Product", "PRODUCTO");
-        //        _mapping.AddItem("SerialNumber", "SERIAL");
-        //        _mapping.AddItem("ProductGroup", "GRUPO_PRODUCTO");
-
-        //        string FormatDate = Date.ToString("MM/dd/yyyy"); // Es necesario este formato para poder filtra con las tablas de FIGO
-
-        //        var Params = new List<OracleParameter>
-        //        {
-        //            new OracleParameter("FECHA_CORTE", OracleDbType.Varchar2) { Value = FormatDate },
-        //            new OracleParameter("MONEDA_REPORTE", OracleDbType.Varchar2) { Value = Currency.ToUpper() },
-        //            new OracleParameter("BUSQUEDA", OracleDbType.Varchar2) { Value = filter }
-        //        };
-
-        //        string Query = FigoQueries.ReportCxC;
-
-        //        DataTable _table = await _oracleDB.GetDataTable(Query, Params);
-
-        //        Util.Data _data = Util.Data.GetInstance();
-        //        _response.Data = _data.GetList<Models.FIGO_ReportCxC>(_mapping, _table);
-        //        _response.SetGetResponse(_table);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _response.SetError(ex);
-        //    }
-
-        //    return _response;
-        //}
-
         private async Task<Response<List<Models.FIGO_Report>>> _GetReportsFigo(int userId, int rowFrom)
         {
             Response<List<Models.FIGO_Report>> _response = new Response<List<Models.FIGO_Report>>();
@@ -309,6 +256,38 @@ namespace Data
                 DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FILTERS", _parameter);
 
                 _response.Data = _data.GetList<Models.FIGO_Filters>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int rowFrom)
+        {
+            Response<List<Models.FIGO_Options>> _response = new Response<List<Models.FIGO_Options>>();
+            try
+            {
+                Parameter _parameter = new Parameter();
+
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDREPORT", reportId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("ReportFigoId", "REPORTFIGOID");
+                _mapping.AddItem("FilterReportId", "FILTERREPORTID");
+                _mapping.AddItem("FilterOptionId", "FILTEROPTIONSID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("Value", "VVALUE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_REPORT_OPTIONS", _parameter);
+
+                _response.Data = _data.GetList<Models.FIGO_Options>(_mapping, _table);
                 _response.SetGetResponse(_table);
             }
             catch (Exception ex)
