@@ -117,7 +117,6 @@ namespace WebApi.Controllers
             }
 
         }
-        #endregion "CxC"
 
         #region "VENTAS"
         [HttpPost("ExtractDaily")]

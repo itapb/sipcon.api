@@ -160,7 +160,6 @@
         // Query para extraer el tránsito de repuestos (cantidad pendiente por despachar)
             public static readonly string ExtractTransitRepuestos = """
             WITH
-            --PEDIDOS (Solo repuestos de Changan y Foton)
             PEDIDO AS (
                 SELECT
                     p.ID_REGISTRO AS PEC_ID_ORDEN_COMPRA,
@@ -180,7 +179,6 @@
                     p.ID_REGISTRO,
                     pp.PRD_ID_PRODUCTO
             ),
-            --RECIBIDO (Solo Notas de Entrada PROCESADAS)
             RECIBIDO AS (
                 SELECT
                     ne.PEC_ID_ORDEN_COMPRA,
@@ -203,7 +201,6 @@
                     ne.PEC_ID_ORDEN_COMPRA,
                     nep.PRD_ID_PRODUCTO
             ),
-            --TRANSITO
             TRANSITO AS (
                 SELECT
                     ped.PEC_ID_ORDEN_COMPRA,
