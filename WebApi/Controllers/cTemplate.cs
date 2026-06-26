@@ -21,7 +21,46 @@ namespace WebApi.Controllers
         }
 
 
+        private List<InventoryTamplate> ExcelToInventoryTamplateFigo(IFormFile file)
+        {
+            var _list = new List<InventoryTamplate>();
 
+
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1); // Primera hoja
+                    var rows = worksheet.RowsUsed().Skip(1); // Saltar encabezados
+
+                    foreach (var row in rows)
+                    {
+
+                        try
+                        {
+                            _list.Add(new InventoryTamplate
+                            {
+                                InnerCode = row.Cell(1).GetValue<string>(),
+                                Description = row.Cell(2).GetValue<string>(),
+                                Family = row.Cell(3).GetValue<string>(),
+                                Stock = row.Cell(4).GetValue<int>()
+
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+
+
+                        }
+
+                    }
+                }
+            }
+
+            return _list;
+        }
         private List<InventoryTamplate> ExcelToInventoryTamplate(IFormFile file)
         {
             var _list = new List<InventoryTamplate>();
@@ -267,6 +306,39 @@ namespace WebApi.Controllers
                 List<InventoryTamplate> _list = ExcelToInventoryTamplate(file);
 
                 var _response = await _dTemplate.ImportInventoryTemplate(_list, supplierId);
+
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("/api/Templates/ImportInventoryTemplateFigo")]
+        public async Task<IActionResult> ImportInventoryTemplateFigo(IFormFile file, Int32 supplierId)
+        {
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No se ha proporcionado un archivo válido.");
+
+            if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Solo se permiten archivos Excel (.xlsx)");
+
+            if (supplierId == 0)
+            {
+                return BadRequest("Planta invalida");
+            }
+
+            try
+            {
+
+                List<InventoryTamplate> _list = ExcelToInventoryTamplateFigo(file);
+
+                var _response = await _dTemplate.ImportInventoryTemplateFigo(_list, supplierId);
 
                 return StatusCode(_response.Status, _response);
 
