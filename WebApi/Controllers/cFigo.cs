@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.ExportFiles;
 
+
 namespace WebApi.Controllers
 {
     [Route("api/Figo")]
@@ -116,35 +117,39 @@ namespace WebApi.Controllers
             }
 
         }
+        #endregion "CxC"
 
-        //[HttpGet("ExportReportCxCPdf")]
-        //public async Task<IActionResult> ExportReportCxCPdf(DateTime? Date, string Currency, string? filter)
-        //{
-        //    try
-        //    {
-        //        DateTime FinalDate = Date ?? DateTime.Today;
+        #region "VENTAS"
+        [HttpPost("ExtractDaily")]
+        public async Task<IActionResult> ExtractDailySales(DateTime? date)
+        {
+            try
+            {
+                DateTime processDate = date ?? DateTime.Today;
+                var response = await _dFigo.ExtractAndInsertSales(processDate);
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+            }
+        }
+        #endregion "VENTAS" 
 
-        //        var _response = await _dFigo.GetReportCxC(FinalDate, Currency, filter);
-
-        //        if (_response.Data == null)
-        //        {
-        //            return StatusCode(_response.Status, _response);
-        //        }
-
-        //        byte[] _pdfBytes = ExportPDF.ConvertToPdfReportCxC(_response.Data, FinalDate);
-        //        string _fileName = $"ReporteCxC_{FinalDate:yyyyMMdd}.pdf";
-
-        //        return File(
-        //            _pdfBytes,
-        //            "application/pdf",
-        //            _fileName
-        //        );
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-        //    }
-        //}
-
+        #region "TRÁNSITO"
+        [HttpPost("ExtractTransit")]
+        public async Task<IActionResult> ExtractTransitRepuestos()
+        {
+            try
+            {
+                var response = await _dFigo.ExtractAndInsertTransit();
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+            }
+        }
+        #endregion "TRÁNSITO"
     }
 }

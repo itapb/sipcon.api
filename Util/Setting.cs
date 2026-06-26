@@ -29,10 +29,10 @@ namespace Util
         public static string AttachmentUrl = "";
         public static string OracleDbConnection = "";
 
-        private  static void GetSettingsFromJson()
+        private static void GetSettingsFromJson()
         {
-          
-           
+
+
         inicio:
 
 
@@ -90,7 +90,7 @@ namespace Util
 
                 var _valor = _Configuration.GetSection("Custom:TimeFrecuency").Value ?? "15";
                 int _value = int.Parse(_valor);
-                TimeFrecuency = new TimeSpan(0,_value,0);
+                TimeFrecuency = new TimeSpan(0, _value, 0);
 
             }
             catch (Exception)
@@ -113,7 +113,7 @@ namespace Util
                 _valor2 = _Configuration.GetSection($"Custom:ConnectionStrings:{EnvironmentFigo}").Value ?? "";
                 OracleDbConnection = _valor2;
 
-                
+
                 //if (Environment == "DEV")
                 //{
                 //    _valor = _Configuration.GetSection("Custom:ConnectionStrings:DEV").Value ?? "";
@@ -226,7 +226,7 @@ namespace Util
                 goto inicio;
             }
 
-            
+
         }
 
         private static void GetSettingsFromConfig()
@@ -235,7 +235,7 @@ namespace Util
 
             try
             {
-                
+
                 Environment = System.Configuration.ConfigurationManager.AppSettings["Environment"]?.ToString() ?? "DEV";
 
             }
@@ -262,7 +262,7 @@ namespace Util
             try
             {
                 var _value = System.Configuration.ConfigurationManager.AppSettings["Logger"]?.ToString() ?? "0";
-                if (_value  == "1")
+                if (_value == "1")
                     Logger = true;
             }
             catch (Exception)
@@ -443,7 +443,7 @@ namespace Util
             {
 
                 Parameters.Clear();
-           
+
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Code", "CODE");
@@ -451,8 +451,8 @@ namespace Util
                 _mapping.AddItem("Value", "VALUE");
 
                 Util.Data _data = Util.Data.GetInstance();
-                Parameters =  await _data.ExecuteReaderAsync<Parameter>("USP_GETPARAMETERS",_mapping);
-                
+                Parameters = await _data.ExecuteReaderAsync<Parameter>("USP_GETPARAMETERS", _mapping);
+
             }
             catch (Exception ex)
             {
@@ -506,7 +506,7 @@ namespace Util
 
         }
 
-        public static  string GetParameterValue(string _code)
+        public static string GetParameterValue(string _code)
         {
 
             return Parameters.Find(x => x.Code == _code)?.Value ?? "";
