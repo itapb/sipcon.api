@@ -34,7 +34,7 @@ namespace WebApi.BackgroundServices
             {
                 bool success = false;
                 // Definimos las fechas a consultar: Hoy, Mañana, Pasado Mañana
-                var daysToTry = new[] { DateTime.Today, DateTime.Today.AddDays(1), DateTime.Today.AddDays(2) };
+                var daysToTry = new[] { DateTime.Today, DateTime.Today.AddDays(1), DateTime.Today.AddDays(2), DateTime.Today.AddDays(3), DateTime.Today.AddDays(4), DateTime.Today.AddDays(5) };
 
                 foreach (var date in daysToTry)
                 {
