@@ -85,7 +85,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Models.FIGO_Query>> _GetReportQuery(int userId, int reportId, int? rowfrom = 0)
+        private async Task<Response<Models.FIGO_Query>> _GetReportQuery(int userId, int? reportId, string? reportName = null, int? rowfrom = 0)
         {
             Response<Models.FIGO_Query> _response = new Response<Models.FIGO_Query>();
             try
@@ -93,8 +93,10 @@ namespace Data
                 Parameter _parameter = new Parameter();
 
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@IDREPORT", reportId);
-                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VREPORT", reportName ?? (object)DBNull.Value);
+                _parameter.AddSqlParameter("@IDREPORT", reportId ?? (object)DBNull.Value);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom ?? 0);
+
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Query", "VCONTENT");
@@ -316,13 +318,25 @@ namespace Data
             Response<Result> _response = new Response<Result>();
             try
             {
+                
+                int userId = 1;
+                string reportName = "ExtractSalesRepuestos";
+
+                // Obtener el query desde BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query de tránsito desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
                 // 1. Extraer datos desde FIGO
                 var Params = new List<OracleParameter>
-        {
-            new OracleParameter("FECHA_EMISION", OracleDbType.Date) { Value = date.Date }
-        };
+                {
+                new OracleParameter("FECHA_EMISION", OracleDbType.Date) { Value = date.Date }
+                };
 
-                DataTable extractedData = await _oracleDB.GetDataTable(FigoQueries.ExtractSalesRepuestos, Params);
+                DataTable extractedData = await _oracleDB.GetDataTable(queryResponse.Data.Query, Params);
 
                 if (extractedData.Rows.Count == 0)
                 {
@@ -389,8 +403,21 @@ namespace Data
             Response<Result> _response = new Response<Result>();
             try
             {
-                // 1. Extraer datos desde FIGO (sin parámetros)
-                DataTable extractedData = await _oracleDB.GetDataTable(FigoQueries.ExtractTransitRepuestos, null);
+                int userId = 1;                
+                string reportName = "ExtractTransitRepuestos";
+
+                // 1. Obtener el query desde BD
+                var queryResponse = await _GetReportQuery(userId, null,reportName);
+                
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query de tránsito desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+
+                // 2. Extraer datos desde FIGO con el query obtenido
+                DataTable extractedData = await _oracleDB.GetDataTable(queryResponse.Data.Query, null);
 
                 if (extractedData.Rows.Count == 0)
                 {
@@ -400,7 +427,7 @@ namespace Data
                     return _response;
                 }
 
-                // 2. Convertir DataTable a List<FigoTransitRepuestos>
+                // 3. Convertir DataTable a List<FigoTransitRepuestos>
                 List<Models.FigoTransitRepuestos> transitList = new List<Models.FigoTransitRepuestos>();
                 foreach (DataRow row in extractedData.Rows)
                 {
@@ -411,10 +438,10 @@ namespace Data
                     });
                 }
 
-                // 3. Convertir lista a JSON
+                // 4. Convertir lista a JSON
                 string jsonTransit = Util.Json.ConvertToJsonString(transitList);
 
-                // 4. Ejecutar SP
+                // 5. Ejecutar SP en SIPCON
                 Parameter _parameter = new Parameter();
                 _parameter.AddSqlParameter("@DATA", jsonTransit);
                 _parameter.AddSqlParameter("@IDUSER", 0);
@@ -427,8 +454,7 @@ namespace Data
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
-           
-                //  verificar si actualizó algo      
+                // 6. Verificar si actualizó algo      
                 if (_response.Data != null && _response.Data.UpdatedRows == 0 && _response.Data.InsertedRows == 0)
                 {
                     _response.Message = "No se encontraron coincidencias en la tabla PART para actualizar";
