@@ -125,8 +125,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                DateTime processDate = date ?? DateTime.Today;
-                var response = await _dFigo.ExtractAndInsertSales(processDate);
+                var response = await _dFigo.ExtractAndInsertSales();
                 return StatusCode(response.Status, response);
             }
             catch (Exception ex)

@@ -299,12 +299,13 @@ namespace Data
 
             return _response;
         }
-        public async Task<Response<Result>> ExtractAndInsertSales(DateTime date)
+        // Método público (sin parámetros)
+        public async Task<Response<Result>> ExtractAndInsertSales()
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _ExtractAndInsertSales(date);
+                return await _ExtractAndInsertSales();
             }
             finally
             {
@@ -312,13 +313,11 @@ namespace Data
             }
         }
 
-        //traer las ventas de repuestos desde FIGO e insertarlas
-        private async Task<Response<Result>> _ExtractAndInsertSales(DateTime date)
+        private async Task<Response<Result>> _ExtractAndInsertSales()
         {
             Response<Result> _response = new Response<Result>();
             try
             {
-                
                 int userId = 1;
                 string reportName = "ExtractSalesRepuestos";
 
@@ -326,21 +325,16 @@ namespace Data
                 var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
                 if (!queryResponse.Processed || queryResponse.Data == null)
                 {
-                    _response.SetError(new Exception($"No se pudo obtener el query de tránsito desde la BD (VNAME: {reportName})"));
+                    _response.SetError(new Exception($"No se pudo obtener el query de ventas desde la BD (VNAME: {reportName})"));
                     return _response;
                 }
 
-                // 1. Extraer datos desde FIGO
-                var Params = new List<OracleParameter>
-                {
-                new OracleParameter("FECHA_EMISION", OracleDbType.Date) { Value = date.Date }
-                };
-
-                DataTable extractedData = await _oracleDB.GetDataTable(queryResponse.Data.Query, Params);
+                // 1. Extraer datos desde FIGO - SIN PARÁMETROS
+                DataTable extractedData = await _oracleDB.GetDataTable(queryResponse.Data.Query, null);
 
                 if (extractedData.Rows.Count == 0)
                 {
-                    _response.Message = $"No se encontraron ventas de repuestos para la fecha {date:yyyy-MM-dd}";
+                    _response.Message = "No se encontraron ventas de repuestos para la fecha del día anterior";
                     _response.Processed = true;
                     _response.Status = 200;
                     return _response;
@@ -358,7 +352,6 @@ namespace Data
                         vInnerCode = row["VINNERCODE"].ToString(),
                         iQuantity = Convert.ToInt32(row["IQUANTITY"]),
                         idSupplier = Convert.ToInt32(row["IDSUPPLIER"])
-
                     });
                 }
 
