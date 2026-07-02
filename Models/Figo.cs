@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-
 namespace Models
 {
     public class FIGO_Report
@@ -13,7 +12,7 @@ namespace Models
         public int Id { get; set; }
         public string? NameReport { get; set; }
         public int AccessGroupId { get; set; }
-        public Boolean IsPdfReport { get; set;  }
+        public Boolean IsPdfReport { get; set; }
     }
 
     public class FIGO_Filters
@@ -29,6 +28,7 @@ namespace Models
     {
         public int Id { get; set; }
         public string? Query { get; set; }
+        public string? Type { get; set; }
     }
 
     public class FIGO_Options
@@ -36,7 +36,7 @@ namespace Models
         public int ReportFigoId { get; set; }
         public int FilterReportId { get; set; }
         public int FilterOptionId { get; set; }
-        public string? Name {  get; set; }
+        public string? Name { get; set; }
         public string? Value { get; set; }
     }
 
@@ -56,5 +56,71 @@ namespace Models
     {
         public string? CodigoRepuesto { get; set; }
         public int CantidadTransito { get; set; }
+    }
+
+    public class FIGO_ReportCxC
+    {
+        [Column("ID_REGISTRO")]
+        public long Id { get; set; }
+
+        [Column("EMPRESA")]
+        public string? DealerName { get; set; }
+
+        [Column("RIF")]
+        public string? Vat { get; set; }
+
+        [Column("ORGANIZACION")]
+        public string? Client { get; set; }
+
+        [Column("TELEFONO")]
+        public string? Phone { get; set; }
+
+        [Column("ZONA")]
+        public string? Zone { get; set; }
+
+        [Column("OCURRENCIA")]
+        public string? Occurrence { get; set; }
+
+        [Column("DOCUMENTO")]
+        public string? Document { get; set; }
+
+        [Column("EMISION")]
+        public string? IssueDate { get; set; }
+
+        [Column("VENCIMIENTO")]
+        public string? DueDate { get; set; }
+
+        [Column("DIAS_VENCIDOS")]
+        public int OverdueDays { get; set; }
+
+        [Column("MONEDA")]
+        public string? Currency { get; set; }
+
+        [Column("MONEDA_DOCUMENTO")]
+        public string? DocumentCurrency { get; set; }
+
+        [Column("VENCIDO")]
+        public decimal OverdueAmount { get; set; }
+
+        [Column("POR_VENCER")]
+        public decimal CurrentAmount { get; set; }
+
+        [Column("TOTAL_DEUDA")]
+        public decimal TotalDebt { get; set; }
+
+        [Column("TASA")]
+        public decimal ExchangeRate { get; set; }
+
+        [Column("PRODUCTO")]
+        public string? Product { get; set; }
+
+        [Column("SERIAL")]
+        public string? SerialNumber { get; set; }
+
+        [Column("GRUPO_PRODUCTO")]
+        public string? ProductGroup { get; set; }
+
+        [Column("FECHA_ORDEN_DATE")]
+        public string? OrdenDate { get; set; }
     }
 }

@@ -7,50 +7,62 @@ namespace Data
 {
     public class OracleDB
     {
-        private readonly string _connectionString;
+        private readonly string _connA;
+        private readonly string _connB;
 
         public OracleDB(IConfiguration config)
         {
             Util.Setting.GetSettings(true);
-            _connectionString = Util.Setting.OracleDbConnection;
-            Util.Log.Info($"OracleDB - Connection String: {_connectionString?.Substring(0, 50)}...");
+            _connA = Util.Setting.OracleDbConnection_A;
+            _connB = Util.Setting.OracleDbConnection_B;
         }
 
-        public OracleConnection GetConnection()
+        private string GetConnectionString(string tipo) => (tipo == "B") ? _connB : _connA;
+
+        public OracleConnection GetConnection(string tipo)
         {
-            return new OracleConnection(_connectionString);
+            return new OracleConnection(GetConnectionString(tipo));
         }
 
-        public async Task<DataTable> GetDataTable(string Query, List<OracleParameter>? Params = null, int? empId = null, int? userId = null)
+        public async Task<DataTable> GetDataTable(string Query, int supplierId, string tipoConn = "A", List<OracleParameter>? Params = null, int? empId = null, int? userId = null)
         {
             var dataTable = new DataTable();
 
-            using (var connection = GetConnection())
+            using (var connection = GetConnection(tipoConn))
             {
                 await connection.OpenAsync();
 
-                //  Ejecutar el Stored Procedure de Contexto en la misma sesión física de Oracle
-                using (var contextCmd = new OracleCommand("SQLFIGO.P_SETEAR_CONTEXTO", connection))
+                if (supplierId == 4069)
                 {
-                    contextCmd.CommandType = CommandType.StoredProcedure;
-                    contextCmd.CommandTimeout = Setting.TimeOut.Seconds;
-                    contextCmd.BindByName = true;
-
-                    // Si no se envían los valores desde C#, no se añaden los parámetros.
-                    // Esto obliga a Oracle a tomar los valores "DEFAULT" definidos en el procedimiento almacenado.
-                    if (empId.HasValue)
+                    // Sin variables
+                    using (var cmd = new OracleCommand("BEGIN SQLFIGO.P_SETEAR_CONTEXTO; END;", connection))
                     {
-                        contextCmd.Parameters.Add(new OracleParameter("p_emp", OracleDbType.Int32) { Value = empId.Value });
+                        cmd.CommandType = CommandType.Text;
+                        await cmd.ExecuteNonQueryAsync();
                     }
-                    if (userId.HasValue)
+                }
+                else if (supplierId == 4076)
+                {
+                    using (var cmd = new OracleCommand("BEGIN SQLFIGO.P_SETEAR_CONTEXTO(:p_id); END;", connection))
                     {
-                        contextCmd.Parameters.Add(new OracleParameter("p_user", OracleDbType.Int32) { Value = userId.Value });
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.Add("p_id", OracleDbType.Int32).Value = 6569364;
+                        await cmd.ExecuteNonQueryAsync();
                     }
-
-                    await contextCmd.ExecuteNonQueryAsync();
+                }
+                else
+                {
+                    using (var cmd = new OracleCommand("SQLFIGO.P_SETEAR_CONTEXTO", connection))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.BindByName = true;
+                        if (empId.HasValue) cmd.Parameters.Add("p_emp", OracleDbType.Int32).Value = empId.Value;
+                        if (userId.HasValue) cmd.Parameters.Add("p_user", OracleDbType.Int32).Value = userId.Value;
+                        await cmd.ExecuteNonQueryAsync();
+                    }
                 }
 
-                // Ejecutar el Query de selección manteniendo la conexión abierta para no perder el contexto
+                // --- EJECUCIÓN DEL QUERY ---
                 using (var command = new OracleCommand(Query, connection))
                 {
                     command.CommandType = CommandType.Text;
