@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Models
@@ -13,7 +12,7 @@ namespace Models
         public int Id { get; set; }
         public string? NameReport { get; set; }
         public int AccessGroupId { get; set; }
-        public Boolean IsPdfReport { get; set;  }
+        public Boolean IsPdfReport { get; set; }
     }
 
     public class FIGO_Filters
@@ -29,6 +28,7 @@ namespace Models
     {
         public int Id { get; set; }
         public string? Query { get; set; }
+        public string? Type { get; set; }
     }
 
     public class FIGO_Options
@@ -36,7 +36,7 @@ namespace Models
         public int ReportFigoId { get; set; }
         public int FilterReportId { get; set; }
         public int FilterOptionId { get; set; }
-        public string? Name {  get; set; }
+        public string? Name { get; set; }
         public string? Value { get; set; }
     }
 
