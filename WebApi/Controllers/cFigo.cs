@@ -149,6 +149,7 @@ namespace WebApi.Controllers
         }
 
 
+
         #region "VENTAS"
         [HttpPost("ExtractDaily")]
         public async Task<IActionResult> ExtractDailySales(DateTime? date)
