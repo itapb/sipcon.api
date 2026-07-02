@@ -58,7 +58,7 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.FIGO_Options>>> ReportsOptions(int userId, int reportId, int rowFrom)
+        public async Task<Response<List<Models.FIGO_Options>>> ReportsOptions(int userId, int reportId, int? rowFrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -71,12 +71,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
+        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllJsonAsync(userId, supplierId, rowfrom, reportId, jsonParameters)
+                return await _GetAllJsonAsync(userId, supplierId, rowfrom, reportId, jsonParameters,filter)
                     .ConfigureAwait(false);
             }
             finally
@@ -114,7 +114,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
+        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters, string? filter)
         {
             var response = new Response<List<Dictionary<string, object>>>();
 
@@ -166,6 +166,7 @@ namespace Data
                 // 4. Agregar parámetros internos del sistema
                 oracleParams.Add(new OracleParameter("IDSUPPLIER", supplierId));
                 oracleParams.Add(new OracleParameter("IROWFROM", rowfrom));
+                oracleParams.Add(new OracleParameter("BUSQUEDA", filter));
 
 
                 // 4. Ejecutar el Query crudo
@@ -268,7 +269,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int rowFrom)
+        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int? rowFrom=null)
         {
             Response<List<Models.FIGO_Options>> _response = new Response<List<Models.FIGO_Options>>();
             try

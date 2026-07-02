@@ -50,7 +50,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("ReportsOptions")]
-        public async Task<IActionResult> ReportsOptions(int userId, int reportId, int rowFrom)
+        public async Task<IActionResult> ReportsOptions(int userId, int reportId, int? rowFrom)
         {
             try
             {
@@ -64,11 +64,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetReportsContent")]
-        public async Task<IActionResult> GetAllJson(int userId,int supplierId, int rowfrom, int reportId, string jsonParameters)
+        public async Task<IActionResult> GetAllJson(int userId,int supplierId, int rowfrom, int reportId, string jsonParameters,string? filter)
         {
             try
             {
-                var response = await _dFigo.GetAllJson(userId, supplierId,rowfrom, reportId, jsonParameters);
+                var response = await _dFigo.GetAllJson(userId, supplierId,rowfrom, reportId, jsonParameters,filter);
 
                 return StatusCode(StatusCodes.Status200OK, response);
             }
@@ -87,14 +87,14 @@ namespace WebApi.Controllers
 
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(int userId, int supplierId, int reportId, string jsonParameters)
+        public async Task<IActionResult> GetExport(int userId, int supplierId, int reportId, string jsonParameters,string? filter)
 
         {
 
             try
             {
 
-                var response = await _dFigo.GetAllJson(userId, supplierId, null,reportId, jsonParameters);
+                var response = await _dFigo.GetAllJson(userId, supplierId, null,reportId, jsonParameters,filter);
 
                 // Convertir la respuesta a una lista dinámica
                 List<Dictionary<string, object>> genericList = response.Data;
