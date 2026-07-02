@@ -152,7 +152,7 @@
                 INNER JOIN T00_ORGANIZACION torg ON torg.ID_REGISTRO = tf.ORG_ID_ORGANIZACION
             WHERE SUBSTR(tgp.CO_GRUPO_PRODUCTO, 1, 5) IN ('06-01', '06-02') 
                 AND tgp.CO_GRUPO_PRODUCTO NOT IN ('06-01-91', '06-02-91')
-                AND TRUNC(tf.FE_EMISION) = TRUNC(:FECHA_EMISION)
+                AND TRUNC(tf.FE_EMISION) = TRUNC(SYSDATE - 1)
                 AND tf.CO_SERIE_FACTURA = 'A'  
             ORDER BY tf.FE_EMISION ASC
             """;

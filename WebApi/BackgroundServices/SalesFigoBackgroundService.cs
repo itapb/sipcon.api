@@ -39,14 +39,10 @@ namespace WebApi.BackgroundServices
                         {
                             var dFigo = scope.ServiceProvider.GetRequiredService<dFigo>();
 
-                            // Calcular la fecha del día anterior
-                            DateTime previousDay = DateTime.Today.AddDays(-1);
-                            //DateTime previousDay = new DateTime(2026, 6, 5);
-
-                            Util.Log.Info($"SalesFigoBackgroundService - Iniciando extracción de ventas para la fecha: {previousDay:yyyy-MM-dd}");
+                            Util.Log.Info($"SalesFigoBackgroundService - Iniciando extracción de ventas del día anterior");
 
                             // Ejecutar la extracción e inserción
-                            var response = await dFigo.ExtractAndInsertSales(previousDay);
+                            var response = await dFigo.ExtractAndInsertSales();
 
                             if (response.Processed)
                             {
@@ -70,7 +66,7 @@ namespace WebApi.BackgroundServices
                 catch (Exception ex)
                 {
                     // Si llega aquí, significa que tras los 3 intentos, el proceso siguió fallando
-                    Util.Log.Error($"SalesFigoBackgroundService - Fallaron los 3 intentos para la fecha {DateTime.Today.AddDays(-1):yyyy-MM-dd}. Error final: {ex.Message}");
+                    Util.Log.Error($"SalesFigoBackgroundService - Fallaron los 3 intentos. Error final: {ex.Message}");
                 }
 
                 // Esperar hasta la próxima ejecución (5:00 AM del día siguiente)
