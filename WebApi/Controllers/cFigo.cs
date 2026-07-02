@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using WebApi.ExportFiles;
 
 
@@ -87,35 +88,64 @@ namespace WebApi.Controllers
 
 
         [HttpGet("Export")]
-        public async Task<IActionResult> GetExport(int userId, int supplierId, int reportId, string jsonParameters,string? filter)
-
+        public async Task<IActionResult> GetExport(int userId, int supplierId, int reportId, string jsonParameters, string? filter)
         {
-
             try
             {
-
-                var response = await _dFigo.GetAllJson(userId, supplierId, null,reportId, jsonParameters,filter);
-
-                // Convertir la respuesta a una lista dinámica
+                // 1. Traemos la data del reporte como siempre
+                var response = await _dFigo.GetAllJson(userId, supplierId, null, reportId, jsonParameters, filter);
                 List<Dictionary<string, object>> genericList = response.Data;
 
-                // Pasar la lista genérica al método ConvertToExcel
-                MemoryStream _excel = ExportExcel.ConvertToExcel(genericList);
+                // 2. NUEVO: Traemos la configuración de los filtros/campos para este reporte
+                // (Usa el valor correspondiente para 'rowFrom', por ejemplo 0 o el que requiera tu método)
+                var filtersResponse = await _dFigo.ReportsFilters(userId, reportId, 0);
 
+                List<string> columnsToTotal = new List<string>();
+
+                // 1. Validamos que la respuesta no sea nula y que la propiedad Data contenga elementos
+                if (filtersResponse != null && filtersResponse.Data != null)
+                {
+                    columnsToTotal = filtersResponse.Data
+                        .Where(f => f.ActionType == "T" && !string.IsNullOrEmpty(f.Field))
+                        .Select(f => f.Field)
+                        .ToList();
+                }
+
+                // 3. Pasar la lista genérica Y la lista de columnas a totalizar al método ConvertToExcel
+                // NOTA: Necesitamos ajustar la firma de tu método ConvertToExcel para que reciba este parámetro
+                MemoryStream _excel = ExportExcel.ConvertToExcelFigo(genericList, columnsToTotal);
 
                 string _fileName = "Reporte.xlsx";
 
                 return File(
-                 _excel,
-                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                 _fileName);
-
+                    _excel,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    _fileName);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
+        }
 
+        [HttpGet("ExportPdf")]
+        public async Task<IActionResult> GetExportPdf(int userId, int supplierId,int reportId, string jsonParameters, string? filter)
+        {
+            try
+            {
+                var response = await _dFigo.GetAllJson( userId, supplierId, null, reportId, jsonParameters, filter);
+                List<Dictionary<string, object>> genericList = response.Data;
+                if (!response.Processed || response.Data == null)
+                    return BadRequest();
+
+                byte[] pdf = ExportPDF.PdfFactory( reportId, genericList, jsonParameters);
+
+                return File(pdf, "application/pdf", $"Reporte_{reportId}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
 
