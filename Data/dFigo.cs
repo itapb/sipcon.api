@@ -314,22 +314,19 @@ namespace Data
 
                 // Obtener el query desde BD
                 var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                string rawQuery = queryResponse.Data.Query; // Aquí extraemos el SQL crudo de tu objeto
+                string rawType = queryResponse.Data.Type;
+
                 if (!queryResponse.Processed || queryResponse.Data == null)
                 {
                     _response.SetError(new Exception($"No se pudo obtener el query de ventas desde la BD (VNAME: {reportName})"));
                     return _response;
-                } 
+                }
 
-                // 1. Extraer datos desde FIGO
-                var Params = new List<OracleParameter>
-                {
-                new OracleParameter("FECHA_EMISION", OracleDbType.Date) { Value = date.Date }
-                };
+                // 1. Extraer datos desde FIGO - SIN PARÁMETROS
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 0, rawType, null);
 
-                var rawQuery = queryResponse.Data.Query;
-                var rawType = queryResponse.Data.Type;
-
-                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 0, rawType, Params);
 
                 if (extractedData.Rows.Count == 0)
                 {
