@@ -1,5 +1,4 @@
-﻿
-using System.Configuration;
+﻿using System.Configuration;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +26,8 @@ namespace Util
         public static string EnvironmentFigo = "";
         public static string ImagesUrl = "";
         public static string AttachmentUrl = "";
-        public static string OracleDbConnection = "";
+        public static string OracleDbConnection_A = "";
+        public static string OracleDbConnection_B = "";
 
         private static void GetSettingsFromJson()
         {
@@ -110,8 +110,13 @@ namespace Util
                 ConnectionString = _valor;
 
                 string _valor2 = "";
-                _valor2 = _Configuration.GetSection($"Custom:ConnectionStrings:{EnvironmentFigo}").Value ?? "";
-                OracleDbConnection = _valor2;
+                _valor2 = _Configuration.GetSection($"Custom:ConnectionStrings:ORACLE_A").Value ?? "";
+                OracleDbConnection_A = _valor2;
+
+
+                string _valor3 = "";
+                _valor3 = _Configuration.GetSection($"Custom:ConnectionStrings:ORACLE_B").Value ?? "";
+                OracleDbConnection_B = _valor3;
 
 
                 //if (Environment == "DEV")

@@ -19,19 +19,6 @@ namespace Data
             _oracleDB = oracle;
         }
 
-        //public async Task<Response<List<Models.FIGO_ReportCxC>>> GetReportCxC(DateTime Date, string Currency, string? filter)
-        //{
-        //    await _semaphore.WaitAsync(Util.Setting.TimeOut);
-        //    try
-        //    {
-        //        return await _GetReportCxC(Date, Currency, filter);
-        //    }
-        //    finally
-        //    {
-        //        _semaphore.Release();
-        //    }
-        //}
-
         public async Task<Response<List<Models.FIGO_Report>>> GetReportsFigo(int userId, int rowFrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -58,7 +45,7 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Models.FIGO_Options>>> ReportsOptions(int userId, int reportId, int rowFrom)
+        public async Task<Response<List<Models.FIGO_Options>>> ReportsOptions(int userId, int reportId, int? rowFrom)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -71,12 +58,12 @@ namespace Data
             }
         }
 
-        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
+        public async Task<Response<List<Dictionary<string, object>>>> GetAllJson(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters, string? filter)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetAllJsonAsync(userId, supplierId, rowfrom, reportId, jsonParameters)
+                return await _GetAllJsonAsync(userId, supplierId, rowfrom, reportId, jsonParameters, filter)
                     .ConfigureAwait(false);
             }
             finally
@@ -100,6 +87,7 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Query", "VCONTENT");
+                _mapping.AddItem("Type", "VTYPE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_REPORT_FIGOQUERY", _parameter);
@@ -114,7 +102,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters)
+        private async Task<Response<List<Dictionary<string, object>>>> _GetAllJsonAsync(int userId, int supplierId, int? rowfrom, int reportId, string jsonParameters, string? filter)
         {
             var response = new Response<List<Dictionary<string, object>>>();
 
@@ -130,6 +118,7 @@ namespace Data
                 }
 
                 string rawQuery = queryResponse.Data.Query; // Aquí extraemos el SQL crudo de tu objeto
+                string rawType = queryResponse.Data.Type;
 
                 // 2. Deserializar los parámetros recibidos desde el cliente
                 var parametersDict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonParameters)
@@ -166,18 +155,20 @@ namespace Data
                 // 4. Agregar parámetros internos del sistema
                 oracleParams.Add(new OracleParameter("IDSUPPLIER", supplierId));
                 oracleParams.Add(new OracleParameter("IROWFROM", rowfrom));
+                oracleParams.Add(new OracleParameter("BUSQUEDA", filter));
 
 
                 // 4. Ejecutar el Query crudo
                 Util.Data dataInstance = Util.Data.GetInstance();
-                DataTable table = await _oracleDB.GetDataTable(rawQuery, oracleParams);
+                DataTable table = await _oracleDB.GetDataTable(rawQuery, supplierId, rawType, oracleParams);
                 int total = 0;
+
                 // 5. Convertir el resultado a List<Dictionary<string, object>> (Tu formato dinámico)
                 var rows = new List<Dictionary<string, object>>();
                 foreach (DataRow row in table.Rows)
                 {
                     var dict = new Dictionary<string, object>();
-                    
+
                     foreach (DataColumn col in table.Columns)
                     {
                         // Excluimos columnas de control si es necesario
@@ -268,7 +259,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int rowFrom)
+        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int? rowFrom=null)
         {
             Response<List<Models.FIGO_Options>> _response = new Response<List<Models.FIGO_Options>>();
             try
@@ -323,6 +314,10 @@ namespace Data
 
                 // Obtener el query desde BD
                 var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                string rawQuery = queryResponse.Data.Query; // Aquí extraemos el SQL crudo de tu objeto
+                string rawType = queryResponse.Data.Type;
+
                 if (!queryResponse.Processed || queryResponse.Data == null)
                 {
                     _response.SetError(new Exception($"No se pudo obtener el query de ventas desde la BD (VNAME: {reportName})"));
@@ -330,7 +325,8 @@ namespace Data
                 }
 
                 // 1. Extraer datos desde FIGO - SIN PARÁMETROS
-                DataTable extractedData = await _oracleDB.GetDataTable(queryResponse.Data.Query, null);
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 0, rawType, null);
+
 
                 if (extractedData.Rows.Count == 0)
                 {
@@ -408,9 +404,11 @@ namespace Data
                     return _response;
                 }
 
+                var rawQuery = queryResponse.Data.Query;
+                var rawType = queryResponse.Data.Type;
 
                 // 2. Extraer datos desde FIGO con el query obtenido
-                DataTable extractedData = await _oracleDB.GetDataTable(queryResponse.Data.Query, null);
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 0, rawType, null);
 
                 if (extractedData.Rows.Count == 0)
                 {
@@ -429,7 +427,7 @@ namespace Data
                         CodigoRepuesto = row["CODIGO_REPUESTO"].ToString(),
                         CantidadTransito = Convert.ToInt32(row["CANTIDAD_TRANSITO"])
                     });
-                }
+    }
 
                 // 4. Convertir lista a JSON
                 string jsonTransit = Util.Json.ConvertToJsonString(transitList);
