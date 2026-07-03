@@ -101,15 +101,16 @@ namespace WebApi.Controllers
                 worksheet.Cell(1, 25).Value = "FEC FACTURA";
                 worksheet.Cell(1, 26).Value = "ESTATUS";
                 worksheet.Cell(1, 27).Value = "VENDEDOR";
+                worksheet.Cell(1, 28).Value = "NRO CERTIFICADO";
 
 
 
                 // 5. Estilo para los encabezados
-                var headerRange = worksheet.Range("A1:AA1");
+                var headerRange = worksheet.Range("A1:AB1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
                 var colorMap = new Dictionary<string, XLColor> { { "Activado", XLColor.Green }, { "Desactivado", XLColor.Red }, { "Bloqueado", XLColor.Orange }, { "Desbloqueado", XLColor.GreenYellow } };
-                worksheet.Range("A1:AA1").SetAutoFilter();
+                worksheet.Range("A1:AB1").SetAutoFilter();
                 // 6. Llenar los datos
                 for (int i = 0; i < _policies.Count; i++)
                 {
@@ -146,6 +147,7 @@ namespace WebApi.Controllers
                     worksheet.Cell(i + 2, 26).Value = _policy.EstatusName;
                     worksheet.Cell(i + 2, 26).Style.Fill.BackgroundColor = colorMap.TryGetValue(_policy.EstatusName, out var color) ? color : XLColor.Yellow;
                     worksheet.Cell(i + 2, 27).Value = _policy.Seller;
+                    worksheet.Cell(i + 2, 28).Value = _policy.CertificateNumber;
 
 
 
