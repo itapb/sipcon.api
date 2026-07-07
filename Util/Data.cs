@@ -142,7 +142,7 @@ namespace Util
         private List<T> ExecuteReader<T>(string _storedProcedure, Dictionary<string, string> _mapping, List<SqlParameter>? _sqlParameters = null)
         {
             Type type = typeof(List<T>);
-            List<T> items = (List<T>)Activator.CreateInstance(type);
+            List<T> items = (List<T>)Activator.CreateInstance(type)!;
 
             try
             {
@@ -196,7 +196,7 @@ namespace Util
             try
             {
                 Type type = typeof(T);
-                T _objeto = (T)Activator.CreateInstance(type);
+                T _objeto = (T)Activator.CreateInstance(type)!;
 
                 if (_objeto != null)
                 {
@@ -227,7 +227,7 @@ namespace Util
             try
             {
                 Type type = typeof(T);
-                T _objeto = (T)Activator.CreateInstance(type);
+                T _objeto = (T)Activator.CreateInstance(type)!;
 
                 if (_objeto != null)
                 {
@@ -264,17 +264,17 @@ namespace Util
                 string remainingProperty = propertyName.Substring(index + 1);
 
                 // Obtener la propiedad padre
-                PropertyInfo parentProp = obj.GetType().GetProperty(parentProperty);
+                PropertyInfo parentProp = obj.GetType().GetProperty(parentProperty)!;
 
                 // Si existe y es un objeto
                 if (parentProp != null && parentProp.PropertyType.IsClass)
                 {
-                    object parentValue = parentProp.GetValue(obj);
+                    object? parentValue = parentProp.GetValue(obj);
 
                     // Crear instancia si no existe
                     if (parentValue == null)
                     {
-                        parentValue = Activator.CreateInstance(parentProp.PropertyType);
+                        parentValue = Activator.CreateInstance(parentProp.PropertyType)!;
                         parentProp.SetValue(obj, parentValue);
                     }
 
@@ -285,30 +285,30 @@ namespace Util
             else
             {
                 // Caso normal: propiedad directa
-                PropertyInfo property = obj.GetType().GetProperty(propertyName);
+                PropertyInfo property = obj.GetType().GetProperty(propertyName)!;
                 if (property != null)
                 {
                     try
                     {
 
                         //property.SetValue(obj, Convert.ChangeType(value, property.PropertyType));
-                        if (property.GetGetMethod().ReturnType.FullName.Contains("System.Nullable`1[[System.Boolean"))
+                        if (property.GetGetMethod()!.ReturnType.FullName!.Contains("System.Nullable`1[[System.Boolean"))
                         {
                             property.SetValue(obj, value);
                         }
-                        else if (property.GetGetMethod().ReturnType.FullName.Contains("System.Nullable`1[[System.Int32"))
+                        else if (property.GetGetMethod()!.ReturnType.FullName!.Contains("System.Nullable`1[[System.Int32"))
                         {
                             property.SetValue(obj, value);
                         }
-                        else if (property.GetGetMethod().ReturnType.FullName.Contains("System.Nullable`1[[System.DateTime"))
+                        else if (property.GetGetMethod()!.ReturnType.FullName!.Contains("System.Nullable`1[[System.DateTime"))
                         {
                             property.SetValue(obj, value);
                         }
-                        else if (property.GetGetMethod().ReturnType.FullName.Contains("System.Nullable`1[[System.Decimal"))
+                        else if (property.GetGetMethod()!.ReturnType.FullName!.Contains("System.Nullable`1[[System.Decimal"))
                         {
                             property.SetValue(obj, value);
                         }
-                        else if (property.GetGetMethod().ReturnType.FullName.Contains("System.String"))
+                        else if (property.GetGetMethod()!.ReturnType.FullName!.Contains("System.String"))
                         {
                             property.SetValue(obj, Convert.ChangeType(value.ToString().ToUpper(), property.PropertyType));
                         }
@@ -333,7 +333,7 @@ namespace Util
         {
 
             Type type = typeof(List<T>);
-            List<T> items = (List<T>)Activator.CreateInstance(type);
+            List<T> items = (List<T>)Activator.CreateInstance(type)!;
 
             try
             {
@@ -385,7 +385,7 @@ namespace Util
         {
 
             Type type = typeof(T);
-            T _item = (T)Activator.CreateInstance(type);
+            T _item = (T)Activator.CreateInstance(type)!;
 
             try
             {
@@ -438,7 +438,7 @@ namespace Util
         {
 
             Type type = typeof(List<T>);
-            List<T> _list = (List<T>)Activator.CreateInstance(type);
+            List<T> _list = (List<T>)Activator.CreateInstance(type)!;
 
             try
             {
@@ -466,7 +466,7 @@ namespace Util
         public T GetItem<T>(Mapping _mapping, DataRow row)
         {
             Type type = typeof(T);
-            T _item = (T)Activator.CreateInstance(type);
+            T _item = (T)Activator.CreateInstance(type)!;
 
             try
             {
@@ -491,7 +491,7 @@ namespace Util
         public T GetItem<T>(Mapping _mapping, DataTable _dataTable)
         {
             Type type = typeof(T);
-            T _item = (T)Activator.CreateInstance(type);
+            T _item = (T)Activator.CreateInstance(type)!;
 
             try
             {

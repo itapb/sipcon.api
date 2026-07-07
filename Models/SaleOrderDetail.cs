@@ -11,8 +11,8 @@ namespace Models
 
     public class SaleOrderDetail : Record
     {
-        [Required]
-        public int? Id { get; set; }
+        //[Required]
+        //public int? Id { get; set; }
         
         [Required]
         public int? SaleOrderId { get; set; }

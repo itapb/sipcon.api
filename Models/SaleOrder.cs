@@ -10,8 +10,8 @@ namespace Models
 {
     public class SaleOrder: Record
     {   
-        [Required]
-        public int? Id { get; set; }
+        //[Required]
+        //public int? Id { get; set; }
 
         [Required]
         public int? DealerId { get; set; }

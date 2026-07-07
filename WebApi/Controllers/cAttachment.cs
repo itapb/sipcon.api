@@ -83,7 +83,7 @@ namespace WebApi.Controllers
                 string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
 
                 // Construir la ruta completa
-                string filePath = Path.Combine(attachmentUrl, modulePath, attachment.RecordId.ToString(), attachment.FileName);
+                string filePath = Path.Combine(attachmentUrl, modulePath, attachment.RecordId!.Value.ToString(), attachment.FileName);
 
                 // Verificar si el archivo existe
                 if (!System.IO.File.Exists(filePath))
@@ -235,7 +235,7 @@ namespace WebApi.Controllers
                     return StatusCode(response.Status, response);
                 }
 
-                string modulePath = module.Name;
+                string modulePath = module.Name!;
                 int moduleId = module.Id;
                 string recordPath = Path.Combine(servicesUrl, modulePath, recordId.ToString());
 

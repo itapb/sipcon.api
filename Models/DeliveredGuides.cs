@@ -16,6 +16,6 @@ namespace Models
         public int ProviderId { get; set; }
 
         [Required]
-        public string Number { get; set; }
+        public string Number { get; set; } = "";
     }
 }

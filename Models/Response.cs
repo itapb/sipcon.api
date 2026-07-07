@@ -67,7 +67,7 @@ namespace Models
             else
             {
                 Type type = typeof(T);
-                T _item = (T)Activator.CreateInstance(type);
+                T _item = (T)Activator.CreateInstance(type)!;
                 Data =_item;
             }
             Message = ex.Message;
@@ -99,7 +99,7 @@ namespace Models
         public bool Processed { get; set; } = true;
         public string Message { get; set; } = string.Empty;
         public int Total { get; set; } = 0;
-        public T Data { get; set; }
+        public T? Data { get; set; }
 
         public void SetPostResponse()
         {

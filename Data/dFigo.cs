@@ -117,8 +117,8 @@ namespace Data
                     return response;
                 }
 
-                string rawQuery = queryResponse.Data.Query; // Aquí extraemos el SQL crudo de tu objeto
-                string rawType = queryResponse.Data.Type;
+                string rawQuery = queryResponse.Data.Query!; // Aquí extraemos el SQL crudo de tu objeto
+                string rawType = queryResponse.Data.Type!;
 
                 // 2. Deserializar los parámetros recibidos desde el cliente
                 var parametersDict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonParameters)

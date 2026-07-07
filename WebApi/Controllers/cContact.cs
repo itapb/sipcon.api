@@ -306,7 +306,7 @@ namespace WebApi.Controllers
             {
                 var error = "";
                 foreach (var contact in _contacts) { 
-                if ((contact.Vat.Substring(0,1).ToUpper() == "V") || (contact.Vat.Substring(0, 1).ToUpper() == "E"))
+                if ((contact.Vat!.Substring(0,1).ToUpper() == "V") || (contact.Vat.Substring(0, 1).ToUpper() == "E"))
                     {
                         if (string.IsNullOrEmpty(contact.LastName))
                         {
