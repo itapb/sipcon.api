@@ -2,7 +2,7 @@ using Data; // Tu namespace para servicios personalizados
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
+//using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using System.Globalization;
 using System.Text;

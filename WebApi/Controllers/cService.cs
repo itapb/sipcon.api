@@ -198,7 +198,7 @@ namespace WebApi.Controllers
                     "VIN DE VEHICULO", "PLACA", "KM", "AÑO", "MODELO",  "RIF CLIENTE", "NOMBRE DE CLIENTE", 
                     "APELLIDO DE CLIENTE","REPORTE DE CLIENTE","REPORTE DE CONDICIONES Y POSIBLES CAUSAS","DIAGNOSTICO DE CONCESIONARIO","REPORTE DE PLANTA",
                      "NOMBRE DE AUTORIZADO","SRG NUM", "NUM FACTURA", "MONTO FACTURACION", "FECHA FACTURACION",
-                    "ESTATUS","TIPO DE REPORTE","FECHA APERTURA","FECHA CIERRE"
+                    "ESTATUS","TIPO DE REPORTE","FECHA APERTURA","FECHA CIERRE","PARALIZADA"
                 };
                         break;
 
@@ -317,6 +317,7 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 24).Style.DateFormat.Format = "dd/MM/yyyy";
                         worksheet.Cell(row, 25).Value = s.EndDate;
                         worksheet.Cell(row, 25).Style.DateFormat.Format = "dd/MM/yyyy";
+                        worksheet.Cell(row, 26).Value = s.Paralyzed == true ? "SI" : "NO";
 
                     }
                 }
