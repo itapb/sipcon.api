@@ -3241,6 +3241,9 @@ namespace Data
                 _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
 
                 _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
+                _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
+                _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
 
 
 
@@ -3318,6 +3321,9 @@ namespace Data
                 _mapping.AddItem("Required", "IREQUIRED");
                 _mapping.AddItem("Price", "NPRICE");
                 _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
+                _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
+                _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
+                _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
@@ -3384,7 +3390,10 @@ namespace Data
                 _mapping.AddItem("PartName", "VPART");
                 _mapping.AddItem("SupplierName", "VSUPPLIER"); 
                 _mapping.AddItem("Price", "NPRICE");
-              
+                _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
+                _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
+                _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INVOICE", _parameter);
