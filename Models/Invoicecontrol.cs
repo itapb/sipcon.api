@@ -98,5 +98,12 @@ namespace Models
         [SwaggerIgnore]
         public string? SaleOrderType { get; set; }
 
+        [SwaggerIgnore]
+        public int? CustomerInvoiceId { get; set; }
+
+        [SwaggerIgnore]
+        public string? CustomerInvoice { get; set; }
+        [SwaggerIgnore]
+        public string? CustomerVat { get; set; }
     }
 }

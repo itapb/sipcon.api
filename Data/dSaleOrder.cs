@@ -94,6 +94,10 @@ namespace Data
                 _mapping.AddItem("VehicleId", "IDVEHICLE");
                 _mapping.AddItem("VehicleVin", "VVIN");
                 _mapping.AddItem("VehicleCustomer", "VCUSTOMER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMERINVOICE");
+                _mapping.AddItem("Customer", "VCUSTOMERINVOICE");
+                _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
+                _mapping.AddItem("GroupId", "IDGROUP");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -257,8 +261,10 @@ namespace Data
                 _mapping.AddItem("VehicleVin", "VVIN");
                 _mapping.AddItem("VehicleCustomer", "VCUSTOMER");
                 _mapping.AddItem("NameCreatedBy", "VNAMECREATEDBY");
-                
-
+                _mapping.AddItem("CustomerId", "IDCUSTOMERINVOICE");
+                _mapping.AddItem("Customer", "VCUSTOMERINVOICE");
+                _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
+                _mapping.AddItem("GroupId", "IDGROUP");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -300,7 +306,10 @@ namespace Data
                 _mapping.AddItem("Created", "VCREATED");
                 _mapping.AddItem("CreatedBy", "VCREATEDBY");
                 _mapping.AddItem("IsClaim", "BCLAIM");
-
+                _mapping.AddItem("CustomerId", "IDCUSTOMERINVOICE");
+                _mapping.AddItem("Customer", "VCUSTOMERINVOICE");
+                _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
+                _mapping.AddItem("GroupId", "IDGROUP");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_LASTSALEORDER", _parameter);

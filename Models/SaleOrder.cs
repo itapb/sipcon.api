@@ -69,6 +69,14 @@ namespace Models
         [SwaggerIgnore]
         public string? NameCreatedBy { get; set; }
 
+        public int? CustomerId { get; set; }
+
+        [SwaggerIgnore]
+        public string? Customer { get; set; }
+        [SwaggerIgnore]
+        public string? CustomerVat { get; set; }
+        public int? GroupId { get; set; }
+
 
 
     }
