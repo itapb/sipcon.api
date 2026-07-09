@@ -72,6 +72,41 @@ namespace Data
             }
         }
 
+        public async Task<Response<List<Models.FIGO_MastersID>>> GetMasterSaleIds()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetMasterSaleIds();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.FIGO_MastersID>>> _GetMasterSaleIds()
+        {
+            Response<List<Models.FIGO_MastersID>> _response = new Response<List<Models.FIGO_MastersID>>();
+            try
+            {
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_MASTERSALEID");
+
+                _response.Data = _data.GetList<Models.FIGO_MastersID>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
         private async Task<Response<Models.FIGO_Query>> _GetReportQuery(int userId, int? reportId, string? reportName = null, int? rowfrom = 0)
         {
             Response<Models.FIGO_Query> _response = new Response<Models.FIGO_Query>();
@@ -290,6 +325,7 @@ namespace Data
 
             return _response;
         }
+
         // Método público (sin parámetros)
         public async Task<Response<Result>> ExtractAndInsertSales()
         {
@@ -392,12 +428,12 @@ namespace Data
             Response<Result> _response = new Response<Result>();
             try
             {
-                int userId = 1;                
+                int userId = 1;
                 string reportName = "ExtractTransitRepuestos";
 
                 // 1. Obtener el query desde BD
-                var queryResponse = await _GetReportQuery(userId, null,reportName);
-                
+                var queryResponse = await _GetReportQuery(userId, null, reportName);
+
                 if (!queryResponse.Processed || queryResponse.Data == null)
                 {
                     _response.SetError(new Exception($"No se pudo obtener el query de tránsito desde la BD (VNAME: {reportName})"));
@@ -427,7 +463,7 @@ namespace Data
                         CodigoRepuesto = row["CODIGO_REPUESTO"].ToString(),
                         CantidadTransito = Convert.ToInt32(row["CANTIDAD_TRANSITO"])
                     });
-    }
+                }
 
                 // 4. Convertir lista a JSON
                 string jsonTransit = Util.Json.ConvertToJsonString(transitList);
@@ -465,6 +501,239 @@ namespace Data
             }
             return _response;
         }
-    }
+    
+        public async Task<Response<Result>> ExtractAndInsertMasterSales(string list_id)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ExtractAndInsertMasterSales(list_id);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
+        private async Task<Response<Result>> _ExtractAndInsertMasterSales(string list_id)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                int userId = 1;
+                string reportName = "ExtractMasterSales";
+
+                // 1. Traer query de la BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                string rawQuery = queryResponse.Data.Query;
+                string rawType = queryResponse.Data.Type;
+
+                if (rawQuery.Contains(":LIST_ID"))
+                {
+                    if(list_id == "")
+                    {
+                        list_id = "''";
+                    }
+
+                    rawQuery = rawQuery.Replace(":LIST_ID", list_id);
+                } 
+
+                DataTable extractedData_MDV = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+                DataTable extractedData_CIM = await _oracleDB.GetDataTable(rawQuery, 4076, rawType, null);
+
+                if (extractedData_MDV.Rows.Count == 0 && extractedData_CIM.Rows.Count == 0)
+                {
+                    _response.Message = "No se encontraron facturas en el master de ventas";
+                    _response.Processed = true;
+                    _response.Status = 200;
+                    return _response;
+                }
+
+                // 2. Convertir DataTable a List<FIGO_MasterSales>
+                List<Models.FIGO_MasterSales> salesList = new List<Models.FIGO_MasterSales>();
+
+                if(extractedData_MDV.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedData_MDV.Rows)
+                    {
+                        salesList.Add(new Models.FIGO_MasterSales
+                        {
+                            Id = row["ID"].ToString(),
+                            CompanyId = row["COMPANY_ID"].ToString(),
+                            CompanyTaxId = row["COMPANY_TAX_ID"].ToString(),
+                            CompanyName = row["COMPANY_NAME"].ToString(),
+                            DocumentType = row["DOCUMENT_TYPE"].ToString(),
+                            InvoiceNumber = row["INVOICE_NUMBER"].ToString(),
+                            NoteNumber = row["NOTE_NUMBER"].ToString(),
+                            IssueDate = Convert.ToDateTime(row["ISSUE_DATE"]),
+                            ClientTaxId = row["CLIENT_TAX_ID"]?.ToString(),
+                            ClientName = row["CLIENT_NAME"]?.ToString(),
+                            ProductName = row["PRODUCT_NAME"]?.ToString(),
+                            ProductId = row["PRODUCT_ID"]?.ToString(),
+                            Year = row["YEAR"]?.ToString(),
+                            Vin = row["VIN"]?.ToString(),
+                            EngineNumber = row["ENGINE_NUMBER"]?.ToString(),
+                            LicensePlate = row["LICENSE_PLATE"]?.ToString(),
+                            Color = row["COLOR"]?.ToString(),
+                            UnitPrice = Convert.ToDecimal(row["UNIT_PRICE"]),
+                            FinalPrice = Convert.ToDecimal(row["FINAL_PRICE"]),
+                            PlatePrice = Convert.ToDecimal(row["PLATE_PRICE"]),
+                            UnitPlatePrice = Convert.ToDecimal(row["UNIT_PLATE_PRICE"]),
+                            TaxAmount = Convert.ToDecimal(row["TAX_AMOUNT"]),
+                            TotalSales = Convert.ToDecimal(row["TOTAL_SALES"]),
+                            Cost = Convert.ToDecimal(row["COST"]),
+                            ExchangeRate = Convert.ToDecimal(row["EXCHANGE_RATE"])
+                        });
+                    }
+                }
+
+                if (extractedData_MDV.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedData_CIM.Rows)
+                    {
+                        salesList.Add(new Models.FIGO_MasterSales
+                        {
+                            Id = row["ID"].ToString(),
+                            CompanyId = row["COMPANY_ID"].ToString(),
+                            CompanyTaxId = row["COMPANY_TAX_ID"].ToString(),
+                            CompanyName = row["COMPANY_NAME"].ToString(),
+                            DocumentType = row["DOCUMENT_TYPE"].ToString(),
+                            InvoiceNumber = row["INVOICE_NUMBER"].ToString(),
+                            NoteNumber = row["NOTE_NUMBER"].ToString(),
+                            IssueDate = Convert.ToDateTime(row["ISSUE_DATE"]),
+                            ClientTaxId = row["CLIENT_TAX_ID"]?.ToString(),
+                            ClientName = row["CLIENT_NAME"]?.ToString(),
+                            ProductName = row["PRODUCT_NAME"]?.ToString(),
+                            ProductId = row["PRODUCT_ID"]?.ToString(),
+                            Year = row["YEAR"]?.ToString(),
+                            Vin = row["VIN"]?.ToString(),
+                            EngineNumber = row["ENGINE_NUMBER"]?.ToString(),
+                            LicensePlate = row["LICENSE_PLATE"]?.ToString(),
+                            Color = row["COLOR"]?.ToString(),
+                            UnitPrice = Convert.ToDecimal(row["UNIT_PRICE"]),
+                            FinalPrice = Convert.ToDecimal(row["FINAL_PRICE"]),
+                            PlatePrice = Convert.ToDecimal(row["PLATE_PRICE"]),
+                            UnitPlatePrice = Convert.ToDecimal(row["UNIT_PLATE_PRICE"]),
+                            TaxAmount = Convert.ToDecimal(row["TAX_AMOUNT"]),
+                            TotalSales = Convert.ToDecimal(row["TOTAL_SALES"]),
+                            Cost = Convert.ToDecimal(row["COST"]),
+                            ExchangeRate = Convert.ToDecimal(row["EXCHANGE_RATE"])
+                        });
+                    }
+                }
+
+                // 3. Convertir lista a JSON
+                string jsonSales = Util.Json.ConvertToJsonString(salesList);
+
+                // 4. Ejecutar SP en SIPCON
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", jsonSales);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_MASTERSALES", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        public async Task<Response<Result>> ExtractAndInsertParts()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ExtractAndInsertParts();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _ExtractAndInsertParts()
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                int userId = 1;
+                string reportName = "ExtractAndInsertParts";
+
+                // 1. Traer query de la BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                string rawQuery = queryResponse.Data.Query;
+                string rawType = queryResponse.Data.Type;
+
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+
+                if (extractedData.Rows.Count == 0)
+                {
+                    _response.Message = "No se encontraron facturas en el master de ventas";
+                    _response.Processed = true;
+                    _response.Status = 200;
+                    return _response;
+                }
+
+                // 2. Convertir DataTable a List<FIGO_MasterSales>
+                List<Models.FIGO_Parts> partList = new List<Models.FIGO_Parts>();
+
+                if (extractedData.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedData.Rows)
+                    {
+                        partList.Add(new Models.FIGO_Parts
+                        {
+                            Id = Convert.ToInt32(row["ID"]),
+                            CompanyId = row["COMPANY_ID"].ToString(),
+                            CompanyName = row["COMPANY"].ToString(),
+                            ProductId = row["PRODUCT_ID"].ToString(),
+                            ProductName=  row["PRODUCT"].ToString(),
+                            Stock = Convert.ToInt32(row["STOCK"]),
+                            Um = row["UM"].ToString()
+                        });
+                    }
+                }
+
+                // 3. Convertir lista a JSON
+                string jsonSales = Util.Json.ConvertToJsonString(partList);
+
+                // 4. Ejecutar SP en SIPCON
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", jsonSales);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_FIGOINVENTORY", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+    }
 }

@@ -40,6 +40,11 @@ namespace Models
         public string? Value { get; set; }
     }
 
+    public class FIGO_MastersID
+    {
+        public string? Id { get; set; }
+    }
+
     public class SalesFigo
     {
         public int? Id { get; set; } = 0;
@@ -56,6 +61,46 @@ namespace Models
     {
         public string? CodigoRepuesto { get; set; }
         public int CantidadTransito { get; set; }
+    }
+
+    public class FIGO_Parts
+    {
+        public int Id { get; set; }
+        public string? CompanyId { get; set; }
+        public string? CompanyName { get; set; }
+        public string? ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public int Stock { get; set; }
+        public string? Um { get; set; }
+    }
+
+    public class FIGO_MasterSales
+    {
+        public string? Id { get; set; }
+        public string CompanyId { get; set; }
+        public string? CompanyTaxId { get; set; }
+        public string? CompanyName { get; set; }
+        public string? DocumentType { get; set; }
+        public string? InvoiceNumber { get; set; }
+        public string? NoteNumber { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public string? ClientTaxId { get; set; }
+        public string? ClientName { get; set; }
+        public string? ProductName { get; set; }
+        public string? ProductId { get; set; }
+        public string? Year { get; set; }
+        public string? Vin { get; set; }
+        public string? EngineNumber { get; set; }
+        public string? LicensePlate { get; set; }
+        public string? Color { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public decimal? FinalPrice { get; set; }
+        public decimal? PlatePrice { get; set; }
+        public decimal? UnitPlatePrice { get; set; }
+        public decimal? TaxAmount { get; set; }
+        public decimal? TotalSales { get; set; }
+        public decimal? Cost { get; set; }
+        public decimal? ExchangeRate { get; set; }
     }
 
     public class FIGO_ReportCxC
