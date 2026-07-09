@@ -160,6 +160,7 @@ namespace Data
                 _mapping.AddItem("TransactionStatusId", "IDPAYMENDETAIL");
                 _mapping.AddItem("TransactionStatusName", "VTRANSACTIONSTATUS");
                 _mapping.AddItem("AmountFull", "NAMOUNTFULL");
+                _mapping.AddItem("IsMigration", "BMIGRATION");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_ACCOUNTRECEIVABLE", _parameter);
                 _response.Data = _data.GetList<Models.AccountReceivable>(_mapping, _table);

@@ -31,7 +31,8 @@ namespace Models
         [SwaggerIgnore] public int? PaymentDetailId { get; set; }
         [SwaggerIgnore] public int? TransactionStatusId { get; set; }
         [SwaggerIgnore] public string? TransactionStatusName { get; set; }
-        
+        [SwaggerIgnore] public Boolean? IsMigration { get; set; }
+
     }
 
 
