@@ -651,5 +651,89 @@ namespace Data
             return _response;
         }
 
+        public async Task<Response<Result>> ExtractAndInsertParts()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ExtractAndInsertParts();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _ExtractAndInsertParts()
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                int userId = 1;
+                string reportName = "ExtractAndInsertParts";
+
+                // 1. Traer query de la BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                string rawQuery = queryResponse.Data.Query;
+                string rawType = queryResponse.Data.Type;
+
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+
+                if (extractedData.Rows.Count == 0)
+                {
+                    _response.Message = "No se encontraron facturas en el master de ventas";
+                    _response.Processed = true;
+                    _response.Status = 200;
+                    return _response;
+                }
+
+                // 2. Convertir DataTable a List<FIGO_MasterSales>
+                List<Models.FIGO_Parts> partList = new List<Models.FIGO_Parts>();
+
+                if (extractedData.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedData.Rows)
+                    {
+                        partList.Add(new Models.FIGO_Parts
+                        {
+                            Id = Convert.ToInt32(row["ID"]),
+                            CompanyId = row["COMPANY_ID"].ToString(),
+                            CompanyName = row["COMPANY"].ToString(),
+                            ProductId = row["PRODUCT_ID"].ToString(),
+                            ProductName=  row["PRODUCT"].ToString(),
+                            Stock = Convert.ToInt32(row["STOCK"]),
+                            Um = row["UM"].ToString()
+                        });
+                    }
+                }
+
+                // 3. Convertir lista a JSON
+                string jsonSales = Util.Json.ConvertToJsonString(partList);
+
+                // 4. Ejecutar SP en SIPCON
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", jsonSales);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_FIGOINVENTORY", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
     }
 }

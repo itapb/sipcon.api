@@ -63,6 +63,17 @@ namespace Models
         public int CantidadTransito { get; set; }
     }
 
+    public class FIGO_Parts
+    {
+        public int Id { get; set; }
+        public string? CompanyId { get; set; }
+        public string? CompanyName { get; set; }
+        public string? ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public int Stock { get; set; }
+        public string? Um { get; set; }
+    }
+
     public class FIGO_MasterSales
     {
         public string? Id { get; set; }

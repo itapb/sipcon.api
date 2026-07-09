@@ -109,6 +109,7 @@ builder.Services.AddHostedService<WebApi.BackgroundServices.TasaBackgroundServic
 builder.Services.AddHostedService<WebApi.BackgroundServices.SalesFigoBackgroundService>();//Servicio para extraer ventas diariamente de figo
 builder.Services.AddHostedService<WebApi.BackgroundServices.TransitFigoBackgroundService>();//Servicio para extraer y actualizar el transito diariamente de figo
 builder.Services.AddHostedService<WebApi.BackgroundServices.MasterSalesFigoBackgroundService>();// Servicio para incluir los datos del master de ventas
+builder.Services.AddHostedService<WebApi.BackgroundServices.PartsFigoBackgroundService>();// Servicio para incluir los datos de los repuestos de figo
 var app = builder.Build();
 
 
