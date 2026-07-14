@@ -186,7 +186,7 @@ namespace WebApi.Controllers
                     "VIN DE VEHICULO", "PLACA","REPORTE DE CLIENTE","REPORTE DE CONCESIONARIO","REPORTE DE PLANTA",
                      "SIST. RELACIONADO CON POSIBLE FALLA","TIPO DE ASISTENCIA", "KM","AÑO", "MODELO","RIF CLIENTE",
                             "NOMBRE DE CLIENTE", "APELLIDO DE CLIENTE", "NOMBRE DE AUTORIZADO","FECHA DE INICIO",
-                     "FECHA DE FINALIZACION","CALIFICACION" ,"ESTATUS"
+                     "FECHA DE FINALIZACION","CALIFICACION" ,"ESTATUS","PARALIZADA"
                 };
                         break;
 
@@ -286,6 +286,7 @@ namespace WebApi.Controllers
                         worksheet.Cell(row, 20).Style.DateFormat.Format = "dd/MM/yyyy";
                         worksheet.Cell(row, 21).Value = s.Assesment;
                         worksheet.Cell(row, 22).Value = s.EstatusName;
+                        worksheet.Cell(row, 23).Value = s.Paralyzed == true ? "SI" : "NO";
 
                     }
                     else if (serviceTypeId == 3)
