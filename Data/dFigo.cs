@@ -539,7 +539,7 @@ namespace Data
                 {
                     if(list_id == "")
                     {
-                        list_id = "''";
+                        list_id = "'-1'";
                     }
 
                     rawQuery = rawQuery.Replace(":LIST_ID", list_id);
@@ -647,6 +647,7 @@ namespace Data
             catch (Exception ex)
             {
                 _response.SetError(ex);
+                Util.Log.Error("_ExtractAndInsertMasterSales: " + ex.Message);
             }
             return _response;
         }
