@@ -18,4 +18,22 @@ namespace Models
        [Required] public Int32? SupplierId { get; set; }
 
     }
+
+    public class GetInventoryCount : Record
+    {
+
+        [SwaggerIgnore] public String? Description { get; set; }
+        [SwaggerIgnore] public int? TypeId { get; set; }
+        [SwaggerIgnore] public String? Type { get; set; }
+        [SwaggerIgnore] public Int32? SupplierId { get; set; }
+        [SwaggerIgnore] public DateTime? Created { get; set; }
+        [SwaggerIgnore] public int? StatusId { get; set; }
+        [SwaggerIgnore] public int? UserId { get; set; }
+        [SwaggerIgnore] public String? SupplierName { get; set; }
+        [SwaggerIgnore] public DateTime? PreInventoryDate { get; set; }
+        [SwaggerIgnore] public DateTime? InventoryDate { get; set; }
+        [SwaggerIgnore] public DateTime? FinishDate { get; set; }
+        [SwaggerIgnore] public String? StatusName { get; set; }
+        [SwaggerIgnore] public String? UserName { get; set; }
+    }
 }

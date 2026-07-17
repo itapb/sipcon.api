@@ -2705,11 +2705,11 @@ namespace WebApi.Controllers
         #region "CONTEO INVENTARIO"
 
         [HttpPost("/api/InventoryCount/PostInventoryCount")]
-        public async Task<IActionResult> PostInventoryCount(List<Models.ClaimPart> claims, Int32 userId)
+        public async Task<IActionResult> PostInventoryCount(List<Models.InventoryCount> count, Int32 userId)
         {
             try
             {
-                Models.Response<Result> _response = await _dInventory.PostInventoryCount(claims, userId);
+                Models.Response<Result> _response = await _dInventory.PostInventoryCount(count, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -2718,6 +2718,19 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("/api/InventoryCount/GetInventoryCount")]
+        public async Task<IActionResult> GetInventoryCount(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            try
+            {
+                Models.Response<List<Models.InventoryCount>> _response = await _dInventory.GetInventoryCount(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
 
         #endregion

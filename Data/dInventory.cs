@@ -4105,6 +4105,68 @@ namespace Data
             return _response;
         }
 
+        public async Task<Response<List<InventoryCount>>> GetInventoryCount(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetInventoryCount(userId, supplierId, dealerId, rowfrom, filter, fromDate, upToDate, estatusId, null);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<InventoryCount>>> _GetInventoryCount(Int32? userId, Int32? supplierId, Int32? dealerId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId = null)
+        {
+            Response<List<InventoryCount>> _response = new Response<List<InventoryCount>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", inventoryCountId);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@IESTATUS", estatusId);
+
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Created", "DCREATED");
+                _mapping.AddItem("TypeId", "IDCOUNTTYPE");
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("PreInventoryDate", "DPREINVENTORYDATE");
+                _mapping.AddItem("InventoryDate", "DINVENTORYDATE");
+                _mapping.AddItem("FinishDate", "DFINISHDATE");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("UserName", "VLOGIN");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_SALEORDERS", _parameter);
+                _response.Data = _data.GetList<Models.InventoryCount>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
         #endregion
 
     }
