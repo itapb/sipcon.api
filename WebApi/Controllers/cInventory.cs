@@ -2701,5 +2701,27 @@ namespace WebApi.Controllers
         //}
 
         #endregion
+
+        #region "CONTEO INVENTARIO"
+
+        [HttpPost("/api/InventoryCount/PostInventoryCount")]
+        public async Task<IActionResult> PostInventoryCount(List<Models.ClaimPart> claims, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostInventoryCount(claims, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
+        #endregion
+
+
     }
 }
