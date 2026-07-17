@@ -101,6 +101,7 @@ builder.Services.AddScoped<dIntt>();
 builder.Services.AddScoped<dInspection>();
 builder.Services.AddScoped<dRate>();
 builder.Services.AddScoped<dBranchOffice>();
+builder.Services.AddScoped<dPowerBI>();
 
 builder.Services.AddScoped<dFigo>();
 
