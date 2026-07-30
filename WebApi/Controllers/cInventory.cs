@@ -2719,11 +2719,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/InventoryCount/GetInventoryCount")]
-        public async Task<IActionResult> GetInventoryCount(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<IActionResult> GetInventoryCount(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
-                Models.Response<List<Models.InventoryCount>> _response = await _dInventory.GetInventoryCount(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId);
+                Models.Response<List<Models.GetInventoryCount>> _response = await _dInventory.GetInventoryCount(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -2733,6 +2733,79 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpGet("/api/InventoryCount/GetOneInventoryCount")]
+        public async Task<IActionResult> GetOneInventoryCount(Int32 userId, Int32 supplierId, int inventoryCountId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCount>> _response = await _dInventory.GetOneInventoryCount(userId, supplierId, inventoryCountId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpPost("/api/InventoryCount/PostCountAssign")]
+        public async Task<IActionResult> PostCountAssign(List<Models.CountAssign> count, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostCountAssign(count, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
+        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InventoryCount/GetCountSummary")]
+        public async Task<IActionResult> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
+        {
+            try
+            {
+                Models.Response<List<Models.CountSummary>> _response = await _dInventory.GetCountSummary(userId, supplierId, rowfrom, inventoryId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/InventoryCount/GetCountType")]
+        public async Task<IActionResult> GetCountType(Int32 userId, Int32? rowfrom)
+        {
+            try
+            {
+                Models.Response<List<Models.CountType>> _response = await _dInventory.GetCountType(userId, rowfrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
         #endregion
 
 

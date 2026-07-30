@@ -10,11 +10,11 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
 {
-    public class InventoryCount : Record
+    public class InventoryCount 
     {
-
-       [Required] public String? Description { get; set; }
-       [Required] public String? Type { get; set; }
+        [Required] public int? Id { get; set; }
+        [Required] public String? Description { get; set; }
+       [Required] public int? TypeId { get; set; }
        [Required] public Int32? SupplierId { get; set; }
 
     }
@@ -36,4 +36,58 @@ namespace Models
         [SwaggerIgnore] public String? StatusName { get; set; }
         [SwaggerIgnore] public String? UserName { get; set; }
     }
+
+
+    public class CountAssign
+    {
+        [Required] public int? UserId { get; set; }
+        [Required] public String? Assign { get; set; }
+        [Required] public Int32? CountInventoryId { get; set; }
+        [Required] public String? AssignType { get; set; }
+        
+
+    }
+
+    public class GetInventoryCountDetail : Record
+    {
+
+        [SwaggerIgnore] public int? InventoryId { get; set; }
+        [SwaggerIgnore] public int? CountId { get; set; }
+        [SwaggerIgnore] public int? LocationId { get; set; }
+        [SwaggerIgnore] public int? PartId { get; set; }
+        [SwaggerIgnore] public int? QuantityOld { get; set; }
+        [SwaggerIgnore] public int? QuantityNew { get; set; }
+        [SwaggerIgnore] public int? UserId { get; set; }
+        [SwaggerIgnore] public int? StatusId { get; set; }
+        [SwaggerIgnore] public DateTime? Created { get; set; }
+        [SwaggerIgnore] public DateTime? CountDate { get; set; }
+        [SwaggerIgnore] public String? StatusName { get; set; }
+        [SwaggerIgnore] public String? UserName { get; set; }
+        [SwaggerIgnore] public String? Location { get; set; }
+        [SwaggerIgnore] public String? Zone { get; set; }
+        [SwaggerIgnore] public String? InnerCode { get; set; }
+        [SwaggerIgnore] public String? PartName { get; set; }
+        
+    }
+
+
+    public class CountSummary
+    {
+        [SwaggerIgnore] public int? Id { get; set; }
+        [SwaggerIgnore] public String? Zone { get; set; }
+        [SwaggerIgnore] public Int32? LocationTotal { get; set; }
+        [SwaggerIgnore] public Int32? LocationCounted { get; set; }
+        [SwaggerIgnore] public Decimal? Porcentage { get; set; }
+        [SwaggerIgnore] public String? UsersAssigned { get; set; }
+
+    }
+
+
+    public class CountType: Record
+    {
+        [Required] public String? Name { get; set; }
+        [Required] public DateTime? Created { get; set; }
+    }
+
+
 }
