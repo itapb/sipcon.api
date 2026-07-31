@@ -1419,5 +1419,21 @@ namespace WebApi.Controllers
             static IContainer RowStyle2(IContainer container) => container.Border(1).Padding(2).AlignLeft().DefaultTextStyle(x => x.FontSize(8));
         }
         #endregion
+
+        #region "VERSION"
+        [HttpGet("/api/Inspection/ActualVersion")]
+        public async Task<IActionResult> Get_ActualVersion()
+        {
+            try
+            {
+                var _response = await _dInspection.Get_ActualVersion();
+                return StatusCode(StatusCodes.Status200OK, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        #endregion "VERSION"
     }
 }

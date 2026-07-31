@@ -121,4 +121,9 @@ namespace Models
         [SwaggerIgnore] public String? Batch { get; set; }
         [SwaggerIgnore] public Int32? Isclosed { get; set; }
     }
+
+    public class PDIVersion : Record
+    {
+        [SwaggerIgnore] public String? Version { get; set; }
+    }
 }
