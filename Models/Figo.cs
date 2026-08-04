@@ -168,4 +168,20 @@ namespace Models
         [Column("FECHA_ORDEN_DATE")]
         public string? OrdenDate { get; set; }
     }
+
+    public class FIGO_ModelFeatures
+    {
+        public int? SupplierId { get; set; }
+        public string? ModelCode { get; set; }
+        public string? ModelName { get; set; }
+        public decimal? ModelWeight { get; set; }
+        public int? Capacity { get; set; }
+        public int? AxleNumber { get; set; }
+        public int? WheeleDiameter { get; set; }
+        public string? ModelClass { get; set; }
+        public string? ModelType { get; set; }
+        public string? ModelUse { get; set; }
+        public int? SeatsNumber { get; set; }
+        public string? FuelType { get; set; }
+    }
 }

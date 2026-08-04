@@ -294,7 +294,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int? rowFrom=null)
+        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int? rowFrom = null)
         {
             Response<List<Models.FIGO_Options>> _response = new Response<List<Models.FIGO_Options>>();
             try
@@ -501,7 +501,115 @@ namespace Data
             }
             return _response;
         }
-    
+
+        public async Task<Response<Result>> ExtractAndInsertINNT()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ExtractAndInsertINNT();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _ExtractAndInsertINNT()
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                int userId = 1;
+                string reportName = "ExtractAndInsertINNT";
+
+                // 1. Traer query de la BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                string rawQuery = queryResponse.Data.Query;
+                string rawType = queryResponse.Data.Type;
+
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+
+                if (extractedData.Rows.Count == 0)
+                {
+                    _response.Message = "No se encontraron unidades datos maestros de la unidades (INTT)";
+                    _response.Processed = true;
+                    _response.Status = 200;
+                    return _response;
+                }
+
+                List<Models.FIGO_ModelFeatures> salesList = new List<Models.FIGO_ModelFeatures>();
+
+                if (extractedData.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedData.Rows)
+                    {
+                        // Función auxiliar local para convertir strings con comas o puntos a decimal de forma segura
+                        decimal? ParseDecimal(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            string strVal = val.ToString().Replace(',', '.');
+                            if (decimal.TryParse(strVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal result))
+                                return result;
+                            return null;
+                        }
+
+                        int? ParseInt(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            if (int.TryParse(val.ToString(), out int result))
+                                return result;
+                            return null;
+                        }
+
+                        salesList.Add(new Models.FIGO_ModelFeatures
+                        {
+                            SupplierId = ParseInt(row["IDSUPPLIER"]),
+                            ModelCode = row["VCODE"]?.ToString(),
+                            ModelName = row["VNAME"]?.ToString(),
+                            ModelWeight = ParseDecimal(row["NWEIGHT"]),
+                            Capacity = ParseInt(row["ICAPACITY"]),
+                            AxleNumber = ParseInt(row["IAXLENUMBER"]),
+                            WheeleDiameter = ParseInt(row["IWHEELDIAMETER"]), // Cambiado a int? según tu clase
+                            ModelClass = row["VCLASS"]?.ToString(),
+                            ModelType = row["VTYPE"]?.ToString(),
+                            ModelUse = row["VUSE"]?.ToString(),
+                            SeatsNumber = ParseInt(row["ISEATSNUMBER"]),
+                            FuelType = row["VFUELTYPE"]?.ToString()
+                        });
+                    }
+                }
+
+                // 3. Convertir lista a JSON
+                string jsonSales = Util.Json.ConvertToJsonString(salesList);
+
+                // 4. Ejecutar SP en SIPCON
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@DATA", jsonSales);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_MODELFEATURES_FIGO", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+                Util.Log.Error("_INTTBackgroundService: " + ex.Message);
+            }
+            return _response;
+        }
+
         public async Task<Response<Result>> ExtractAndInsertMasterSales(string list_id)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -537,13 +645,13 @@ namespace Data
 
                 if (rawQuery.Contains(":LIST_ID"))
                 {
-                    if(list_id == "")
+                    if (list_id == "")
                     {
                         list_id = "'-1'";
                     }
 
                     rawQuery = rawQuery.Replace(":LIST_ID", list_id);
-                } 
+                }
 
                 DataTable extractedData_MDV = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
                 DataTable extractedData_CIM = await _oracleDB.GetDataTable(rawQuery, 4076, rawType, null);
@@ -559,7 +667,7 @@ namespace Data
                 // 2. Convertir DataTable a List<FIGO_MasterSales>
                 List<Models.FIGO_MasterSales> salesList = new List<Models.FIGO_MasterSales>();
 
-                if(extractedData_MDV.Rows.Count != 0)
+                if (extractedData_MDV.Rows.Count != 0)
                 {
                     foreach (DataRow row in extractedData_MDV.Rows)
                     {
@@ -708,7 +816,7 @@ namespace Data
                             CompanyId = row["COMPANY_ID"].ToString(),
                             CompanyName = row["COMPANY"].ToString(),
                             ProductId = row["PRODUCT_ID"].ToString(),
-                            ProductName=  row["PRODUCT"].ToString(),
+                            ProductName = row["PRODUCT"].ToString(),
                             Stock = Convert.ToInt32(row["STOCK"]),
                             Um = row["UM"].ToString()
                         });
