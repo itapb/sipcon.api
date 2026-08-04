@@ -522,9 +522,11 @@ namespace Data
             {
                 int userId = 1;
                 string reportName = "ExtractAndInsertINNT";
+                string reportNameDUA = "ExtractAndInsertINNTDUA";
 
                 // 1. Traer query de la BD
                 var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+                var queryReponseDUA = await _GetReportQuery(userId, null, reportNameDUA, 0);
 
                 if (!queryResponse.Processed || queryResponse.Data == null)
                 {
@@ -532,12 +534,22 @@ namespace Data
                     return _response;
                 }
 
+                if (!queryReponseDUA.Processed || queryReponseDUA.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportNameDUA})"));
+                    return _response;
+                }
+
                 string rawQuery = queryResponse.Data.Query;
                 string rawType = queryResponse.Data.Type;
 
-                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+                string rawQueryDua = queryReponseDUA.Data.Query;
+                string rawTypeDua = queryReponseDUA.Data.Type;
 
-                if (extractedData.Rows.Count == 0)
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+                DataTable extractedDataDua = await _oracleDB.GetDataTable(rawQueryDua, 4069, rawTypeDua, null);
+
+                if (extractedData.Rows.Count == 0 && extractedDataDua.Rows.Count == 0)
                 {
                     _response.Message = "No se encontraron unidades datos maestros de la unidades (INTT)";
                     _response.Processed = true;
@@ -546,12 +558,12 @@ namespace Data
                 }
 
                 List<Models.FIGO_ModelFeatures> salesList = new List<Models.FIGO_ModelFeatures>();
+                List<Models.FIGO_VehicleFileIntt> salesListDUA = new List<Models.FIGO_VehicleFileIntt>();
 
                 if (extractedData.Rows.Count != 0)
                 {
                     foreach (DataRow row in extractedData.Rows)
                     {
-                        // Función auxiliar local para convertir strings con comas o puntos a decimal de forma segura
                         decimal? ParseDecimal(object val)
                         {
                             if (val == null || val == DBNull.Value) return null;
@@ -577,7 +589,7 @@ namespace Data
                             ModelWeight = ParseDecimal(row["NWEIGHT"]),
                             Capacity = ParseInt(row["ICAPACITY"]),
                             AxleNumber = ParseInt(row["IAXLENUMBER"]),
-                            WheeleDiameter = ParseInt(row["IWHEELDIAMETER"]), // Cambiado a int? según tu clase
+                            WheeleDiameter = ParseInt(row["IWHEELDIAMETER"]),
                             ModelClass = row["VCLASS"]?.ToString(),
                             ModelType = row["VTYPE"]?.ToString(),
                             ModelUse = row["VUSE"]?.ToString(),
@@ -587,19 +599,68 @@ namespace Data
                     }
                 }
 
-                // 3. Convertir lista a JSON
-                string jsonSales = Util.Json.ConvertToJsonString(salesList);
+                if (extractedDataDua.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedDataDua.Rows)
+                    {
+                        int? ParseInt(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            if (int.TryParse(val.ToString(), out int result))
+                                return result;
+                            return null;
+                        }
 
-                // 4. Ejecutar SP en SIPCON
-                Parameter _parameter = new Parameter();
-                _parameter.AddSqlParameter("@DATA", jsonSales);
+                        DateTime? ParseDateTime(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            if (DateTime.TryParse(val.ToString(), out DateTime result))
+                                return result;
+                            return null;
+                        }
+
+                        salesListDUA.Add(new Models.FIGO_VehicleFileIntt
+                        {
+                            SupplierId = ParseInt(row["IDSUPPLIER"]),
+                            Vin = row["VVIN"]?.ToString(),
+                            FileNumber = row["DFILENUMBER"]?.ToString(),
+                            FileDate = ParseDateTime(row["DFILEDATE"]),
+                            InvoiceNumber = row["VINVOICENUMBER"]?.ToString(),
+                            InvoiceDate = ParseDateTime(row["DINVOICEDATE"]),
+                            DuaNumber = row["VDUANUMBER"]?.ToString(),
+                            DuaDate = ParseDateTime(row["DDUADATE"]),
+                            ModelYear = ParseInt(row["IMODELYEAR"]),
+                            ManufactureYear = ParseInt(row["ID_PRODUCTO"])
+                        });
+                    }
+                }
+
+                // 3. Convertir listas a JSON
+                string jsonSales = Util.Json.ConvertToJsonString(salesList);
+                string jsonSalesDUA = Util.Json.ConvertToJsonString(salesListDUA);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
-
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_MODELFEATURES_FIGO", _parameter);
-                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+
+                // 4. Ejecutar Primer POST (ModelFeatures)
+                if (salesList.Count > 0)
+                {
+                    Parameter parameterModelFeatures = new Parameter();
+                    parameterModelFeatures.AddSqlParameter("@DATA", jsonSales);
+                    DataTable tableModelFeatures = await _data.GetDataTable("USP_POST_MODELFEATURES_FIGO", parameterModelFeatures);
+                    _response.Data = _data.GetItem<Models.Result>(_mapping, tableModelFeatures);
+                }
+
+                // 5. Ejecutar Segundo POST (VehicleFileIntt) - Cambia "USP_POST_VEHICLEFILEINTT_FIGO" por el nombre real de tu SP para DUA
+                if (salesListDUA.Count > 0)
+                {
+                    Parameter parameterDua = new Parameter();
+                    parameterDua.AddSqlParameter("@DATA", jsonSalesDUA);
+                    DataTable tableDua = await _data.GetDataTable("USP_POST_VEHICLEFILE_FIGO", parameterDua);
+                    _response.Data = _data.GetItem<Models.Result>(_mapping, tableDua);
+                }
+
                 _response.SetPostResponse();
             }
             catch (Exception ex)

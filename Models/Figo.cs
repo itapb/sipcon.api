@@ -184,4 +184,18 @@ namespace Models
         public int? SeatsNumber { get; set; }
         public string? FuelType { get; set; }
     }
+
+    public class FIGO_VehicleFileIntt
+    {
+        public int? SupplierId { get; set; }
+        public string? Vin { get; set; }
+        public string? FileNumber { get; set; }
+        public DateTime? FileDate { get; set; }
+        public string? InvoiceNumber { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public string? DuaNumber { get; set; }
+        public DateTime? DuaDate { get; set; }
+        public int? ModelYear { get; set; }
+        public int? ManufactureYear { get; set; }
+    }
 }
