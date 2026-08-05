@@ -294,7 +294,7 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int? rowFrom=null)
+        private async Task<Response<List<Models.FIGO_Options>>> _ReportsOptions(int userId, int reportId, int? rowFrom = null)
         {
             Response<List<Models.FIGO_Options>> _response = new Response<List<Models.FIGO_Options>>();
             try
@@ -501,7 +501,176 @@ namespace Data
             }
             return _response;
         }
-    
+
+        public async Task<Response<Result>> ExtractAndInsertINNT()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ExtractAndInsertINNT();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _ExtractAndInsertINNT()
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                int userId = 1;
+                string reportName = "ExtractAndInsertINNT";
+                string reportNameDUA = "ExtractAndInsertINNTDUA";
+
+                // 1. Traer query de la BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+                var queryReponseDUA = await _GetReportQuery(userId, null, reportNameDUA, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                if (!queryReponseDUA.Processed || queryReponseDUA.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query desde la BD (VNAME: {reportNameDUA})"));
+                    return _response;
+                }
+
+                string rawQuery = queryResponse.Data.Query;
+                string rawType = queryResponse.Data.Type;
+
+                string rawQueryDua = queryReponseDUA.Data.Query;
+                string rawTypeDua = queryReponseDUA.Data.Type;
+
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
+                DataTable extractedDataDua = await _oracleDB.GetDataTable(rawQueryDua, 4069, rawTypeDua, null);
+
+                if (extractedData.Rows.Count == 0 && extractedDataDua.Rows.Count == 0)
+                {
+                    _response.Message = "No se encontraron unidades datos maestros de la unidades (INTT)";
+                    _response.Processed = true;
+                    _response.Status = 200;
+                    return _response;
+                }
+
+                List<Models.FIGO_ModelFeatures> salesList = new List<Models.FIGO_ModelFeatures>();
+                List<Models.FIGO_VehicleFileIntt> salesListDUA = new List<Models.FIGO_VehicleFileIntt>();
+
+                if (extractedData.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedData.Rows)
+                    {
+                        decimal? ParseDecimal(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            string strVal = val.ToString().Replace(',', '.');
+                            if (decimal.TryParse(strVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal result))
+                                return result;
+                            return null;
+                        }
+
+                        int? ParseInt(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            if (int.TryParse(val.ToString(), out int result))
+                                return result;
+                            return null;
+                        }
+
+                        salesList.Add(new Models.FIGO_ModelFeatures
+                        {
+                            SupplierId = ParseInt(row["IDSUPPLIER"]),
+                            ModelCode = row["VCODE"]?.ToString(),
+                            ModelName = row["VNAME"]?.ToString(),
+                            ModelWeight = ParseDecimal(row["NWEIGHT"]),
+                            Capacity = ParseInt(row["ICAPACITY"]),
+                            AxleNumber = ParseInt(row["IAXLENUMBER"]),
+                            WheeleDiameter = ParseInt(row["IWHEELDIAMETER"]),
+                            ModelClass = row["VCLASS"]?.ToString(),
+                            ModelType = row["VTYPE"]?.ToString(),
+                            ModelUse = row["VUSE"]?.ToString(),
+                            SeatsNumber = ParseInt(row["ISEATSNUMBER"]),
+                            FuelType = row["VFUELTYPE"]?.ToString()
+                        });
+                    }
+                }
+
+                if (extractedDataDua.Rows.Count != 0)
+                {
+                    foreach (DataRow row in extractedDataDua.Rows)
+                    {
+                        int? ParseInt(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            if (int.TryParse(val.ToString(), out int result))
+                                return result;
+                            return null;
+                        }
+
+                        DateTime? ParseDateTime(object val)
+                        {
+                            if (val == null || val == DBNull.Value) return null;
+                            if (DateTime.TryParse(val.ToString(), out DateTime result))
+                                return result;
+                            return null;
+                        }
+
+                        salesListDUA.Add(new Models.FIGO_VehicleFileIntt
+                        {
+                            SupplierId = ParseInt(row["IDSUPPLIER"]),
+                            Vin = row["VVIN"]?.ToString(),
+                            FileNumber = row["DFILENUMBER"]?.ToString(),
+                            FileDate = ParseDateTime(row["DFILEDATE"]),
+                            InvoiceNumber = row["VINVOICENUMBER"]?.ToString(),
+                            InvoiceDate = ParseDateTime(row["DINVOICEDATE"]),
+                            DuaNumber = row["VDUANUMBER"]?.ToString(),
+                            DuaDate = ParseDateTime(row["DDUADATE"]),
+                            ModelYear = ParseInt(row["IMODELYEAR"]),
+                            ManufactureYear = ParseInt(row["ID_PRODUCTO"])
+                        });
+                    }
+                }
+
+                // 3. Convertir listas a JSON
+                string jsonSales = Util.Json.ConvertToJsonString(salesList);
+                string jsonSalesDUA = Util.Json.ConvertToJsonString(salesListDUA);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+                Util.Data _data = Util.Data.GetInstance();
+
+                // 4. Ejecutar Primer POST (ModelFeatures)
+                if (salesList.Count > 0)
+                {
+                    Parameter parameterModelFeatures = new Parameter();
+                    parameterModelFeatures.AddSqlParameter("@DATA", jsonSales);
+                    DataTable tableModelFeatures = await _data.GetDataTable("USP_POST_MODELFEATURES_FIGO", parameterModelFeatures);
+                    _response.Data = _data.GetItem<Models.Result>(_mapping, tableModelFeatures);
+                }
+
+                // 5. Ejecutar Segundo POST (VehicleFileIntt) - Cambia "USP_POST_VEHICLEFILEINTT_FIGO" por el nombre real de tu SP para DUA
+                if (salesListDUA.Count > 0)
+                {
+                    Parameter parameterDua = new Parameter();
+                    parameterDua.AddSqlParameter("@DATA", jsonSalesDUA);
+                    DataTable tableDua = await _data.GetDataTable("USP_POST_VEHICLEFILE_FIGO", parameterDua);
+                    _response.Data = _data.GetItem<Models.Result>(_mapping, tableDua);
+                }
+
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+                Util.Log.Error("_INTTBackgroundService: " + ex.Message);
+            }
+            return _response;
+        }
+
         public async Task<Response<Result>> ExtractAndInsertMasterSales(string list_id)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -537,13 +706,13 @@ namespace Data
 
                 if (rawQuery.Contains(":LIST_ID"))
                 {
-                    if(list_id == "")
+                    if (list_id == "")
                     {
                         list_id = "'-1'";
                     }
 
                     rawQuery = rawQuery.Replace(":LIST_ID", list_id);
-                } 
+                }
 
                 DataTable extractedData_MDV = await _oracleDB.GetDataTable(rawQuery, 4069, rawType, null);
                 DataTable extractedData_CIM = await _oracleDB.GetDataTable(rawQuery, 4076, rawType, null);
@@ -559,7 +728,7 @@ namespace Data
                 // 2. Convertir DataTable a List<FIGO_MasterSales>
                 List<Models.FIGO_MasterSales> salesList = new List<Models.FIGO_MasterSales>();
 
-                if(extractedData_MDV.Rows.Count != 0)
+                if (extractedData_MDV.Rows.Count != 0)
                 {
                     foreach (DataRow row in extractedData_MDV.Rows)
                     {
@@ -708,7 +877,7 @@ namespace Data
                             CompanyId = row["COMPANY_ID"].ToString(),
                             CompanyName = row["COMPANY"].ToString(),
                             ProductId = row["PRODUCT_ID"].ToString(),
-                            ProductName=  row["PRODUCT"].ToString(),
+                            ProductName = row["PRODUCT"].ToString(),
                             Stock = Convert.ToInt32(row["STOCK"]),
                             Um = row["UM"].ToString()
                         });
