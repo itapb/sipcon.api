@@ -67,13 +67,15 @@ namespace Models
         [SwaggerIgnore] public String? Zone { get; set; }
         [SwaggerIgnore] public String? InnerCode { get; set; }
         [SwaggerIgnore] public String? PartName { get; set; }
-        
+        [SwaggerIgnore] public int? ZoneId { get; set; }
+        [SwaggerIgnore] public int? Diference { get; set; }
+
     }
 
 
     public class CountSummary
     {
-        [SwaggerIgnore] public int? Id { get; set; }
+        [SwaggerIgnore] public int? ZoneId { get; set; }
         [SwaggerIgnore] public String? Zone { get; set; }
         [SwaggerIgnore] public Int32? LocationTotal { get; set; }
         [SwaggerIgnore] public Int32? LocationCounted { get; set; }
@@ -86,8 +88,14 @@ namespace Models
     public class CountType: Record
     {
         [Required] public String? Name { get; set; }
-        [Required] public DateTime? Created { get; set; }
     }
 
+
+    public class GetCountFull : CountSummary
+    {
+
+        public List<GetInventoryCountDetail>? InventoryCountDetail { get; set; } = new List<GetInventoryCountDetail>();
+
+    }
 
 }

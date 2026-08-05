@@ -4062,7 +4062,7 @@ namespace Data
 
         #region "CONTEO INVENTARIO"
 
-        public async Task<Response<Result>> PostInventoryCount(List<Models.InventoryCount> _list, Int32 userId)
+        public async Task<Response<Result>> PostInventoryCount(Models.InventoryCount _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -4075,7 +4075,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Result>> _PostInventoryCount(List<Models.InventoryCount> _list, Int32 userId)
+        private async Task<Response<Result>> _PostInventoryCount(Models.InventoryCount _list, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -4230,6 +4230,8 @@ namespace Data
                 _mapping.AddItem("Zone", "VZONE");
                 _mapping.AddItem("InnerCode", "VINNERCODE");
                 _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("ZoneId", "IDZONE");
+                _mapping.AddItem("Diference", "IDIFERENCE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INVENTORYCOUNTDETAIL", _parameter);
@@ -4246,7 +4248,7 @@ namespace Data
         }
 
 
-        public async Task<Response<List<CountSummary>>> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
+        public async Task<Response<List<GetCountFull>>> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -4259,9 +4261,9 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<CountSummary>>> _GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
+        private async Task<Response<List<GetCountFull>>> _GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
         {
-            Response<List<CountSummary>> _response = new Response<List<CountSummary>>();
+            Response<List<GetCountFull>> _response = new Response<List<GetCountFull>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -4274,7 +4276,7 @@ namespace Data
 
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("ZoneId", "ID");
                 _mapping.AddItem("Zone", "VZONE");
                 _mapping.AddItem("LocationTotal", "ILOCATIONTOTAL");
                 _mapping.AddItem("LocationCounted", "ILOCATIONCOUNTED");
@@ -4283,7 +4285,7 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_COUNTSUMMARY", _parameter);
-                _response.Data = _data.GetList<Models.CountSummary>(_mapping, _table);
+                _response.Data = _data.GetList<Models.GetCountFull>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 
@@ -4368,7 +4370,6 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("Name", "VNAME");
-                _mapping.AddItem("Created", "DCREATED");
                 _mapping.AddItem("IsActive", "BACTIVE");
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -4382,6 +4383,53 @@ namespace Data
             {
                 _response.SetError(ex);
             }
+            return _response;
+        }
+
+
+        public async Task<Response<Result>> PostInventoryCountActions(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostInventoryCountActions(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostInventoryCountActions(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVENTORYCOUNT_ACTIONS", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
             return _response;
         }
 
