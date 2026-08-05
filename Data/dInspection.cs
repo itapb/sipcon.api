@@ -1746,5 +1746,45 @@ namespace Data
             return _results[0];
         }
         #endregion
+
+        #region "VERSION"
+        public async Task<Response<Models.PDIVersion>> Get_ActualVersion()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _Get_ActualVersion();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.PDIVersion>> _Get_ActualVersion()
+        {
+            Response<Models.PDIVersion> _response = new Response<Models.PDIVersion>();
+            try
+            {
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Version", "VVERSION");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_PDIVERSION");
+                _response.Data = _data.GetItem<Models.PDIVersion>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        #endregion "VERSION"
     }
 }

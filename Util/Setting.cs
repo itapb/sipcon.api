@@ -8,7 +8,6 @@ namespace Util
 {
     public static class Setting
     {
-
         private static IConfiguration? _Configuration { get; set; }
         public static string ConnectionString = "";
         public static bool Igtf = false;
@@ -28,6 +27,14 @@ namespace Util
         public static string AttachmentUrl = "";
         public static string OracleDbConnection_A = "";
         public static string OracleDbConnection_B = "";
+
+        public static string grant_type = "";
+        public static string resource = "";
+        public static string client_id = "";
+        public static string username = "";
+        public static string password = "";
+        public static string client_secret = "";
+        public static string scope = "";
 
         private static void GetSettingsFromJson()
         {
@@ -231,7 +238,135 @@ namespace Util
                 goto inicio;
             }
 
+            #region "ENV POWERBI"
 
+            // grant_type
+            try
+            {
+                grant_type = _Configuration.GetSection("PowerBI:grant_type").Value ?? "";
+                if (grant_type == "")
+                {
+                    Console.WriteLine("Error: grant_type no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: grant_type no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            // resource
+            try
+            {
+                resource = _Configuration.GetSection("PowerBI:resource").Value ?? "";
+                if (resource == "")
+                {
+                    Console.WriteLine("Error: resource no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: resource no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            // client_id
+            try
+            {
+                client_id = _Configuration.GetSection("PowerBI:client_id").Value ?? "";
+                if (client_id == "")
+                {
+                    Console.WriteLine("Error: client_id no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: client_id no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            // username
+            try
+            {
+                username = _Configuration.GetSection("PowerBI:username").Value ?? "";
+                if (username == "")
+                {
+                    Console.WriteLine("Error: username no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: username no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            // password
+            try
+            {
+                password = _Configuration.GetSection("PowerBI:password").Value ?? "";
+                if (password == "")
+                {
+                    Console.WriteLine("Error: password no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: password no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            // client_secret
+            try
+            {
+                client_secret = _Configuration.GetSection("PowerBI:client_secret").Value ?? "";
+                if (client_secret == "")
+                {
+                    Console.WriteLine("Error: client_secret no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: client_secret no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            // scope
+            try
+            {
+                scope = _Configuration.GetSection("PowerBI:scope").Value ?? "";
+                if (scope == "")
+                {
+                    Console.WriteLine("Error: scope no definido en app.config");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: scope no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            #endregion "ENV POWERBI"
         }
 
         private static void GetSettingsFromConfig()
@@ -373,9 +508,6 @@ namespace Util
                 goto inicio;
             }
 
-
-
-
             try
             {
                 Url = System.Configuration.ConfigurationManager.AppSettings["Url"]?.ToString() ?? "";
@@ -416,14 +548,12 @@ namespace Util
 
             }
             catch (Exception)
-            {
+            { 
 
                 Console.WriteLine("Error: Custom:TimeFrecuency");
                 System.Threading.Thread.Sleep(5000);
                 goto inicio;
             }
-
-
         }
 
 
@@ -517,10 +647,5 @@ namespace Util
             return Parameters.Find(x => x.Code == _code)?.Value ?? "";
 
         }
-
-
-
-
     }
-
 }
