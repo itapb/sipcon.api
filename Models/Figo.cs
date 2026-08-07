@@ -169,6 +169,24 @@ namespace Models
         public string? OrdenDate { get; set; }
     }
 
+    public class FIGO_PartsStock
+    {
+        [Column("VSUPPLIER")]
+        public string? Supplier { get; set; }
+
+        [Column("VINVENTORY")]
+        public string? Inventory { get; set; }
+
+        [Column("IDPRODUCT")]
+        public string? ProductId { get; set; }
+
+        [Column("VPRODUCT")]
+        public string? Product { get; set; }
+
+        [Column("IQTY")]
+        public int Qty { get; set; }
+    }
+
     public class FIGO_ModelFeatures
     {
         public int? SupplierId { get; set; }
@@ -197,5 +215,13 @@ namespace Models
         public DateTime? DuaDate { get; set; }
         public int? ModelYear { get; set; }
         public int? ManufactureYear { get; set; }
+    }
+    public class FIGO_InventoryParts
+    {
+        public string? Supplier { get; set; }
+        public string? Inventory { get; set; }
+        public string? ProductId { get; set; }
+        public string Product { get; set; }
+        public int Qty { get; set; }
     }
 }

@@ -391,7 +391,7 @@ namespace Data
                 string jsonSales = Util.Json.ConvertToJsonString(salesList);
 
                 // 4. Ejecutar SP en SIPCON
-                Parameter _parameter = new Parameter();
+                Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", jsonSales);
                 _parameter.AddSqlParameter("@IDUSER", 0);
 
@@ -407,6 +407,62 @@ namespace Data
             {
                 _response.SetError(ex);
             }
+            return _response;
+        }
+
+        public async Task<Response<List<Models.FIGO_PartsStock>>> GetPartsStock(int supplierId, string type)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetPartsStock(supplierId, type);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.FIGO_PartsStock>>> _GetPartsStock(int supplierId, string type)
+        {
+            Response<List<Models.FIGO_PartsStock>> _response = new Response<List<Models.FIGO_PartsStock>>();
+            try
+            {
+                string reportName = "PartsStock";
+
+                var queryResponse = await _GetReportQuery(1, null, reportName, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query del stock de inventario desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Supplier", "VSUPPLIER");
+                _mapping.AddItem("Inventory", "VINVENTORY");
+                _mapping.AddItem("ProductId", "IDPRODUCT");
+                _mapping.AddItem("Product", "VPRODUCT");
+                _mapping.AddItem("Qty", "IQTY");
+
+                var Params = new List<OracleParameter>
+                {
+                    new OracleParameter("IDSUPPLIER", OracleDbType.Int32) { Value = supplierId },
+                };
+
+                var rawQuery = queryResponse.Data.Query;
+
+                DataTable _table = await _oracleDB.GetDataTable(rawQuery, 0, type, Params);
+
+                Util.Data _data = Util.Data.GetInstance();
+                _response.Data = _data.GetList<Models.FIGO_PartsStock>(_mapping, _table);
+                _response.SetGetResponse(_table);
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
             return _response;
         }
 
