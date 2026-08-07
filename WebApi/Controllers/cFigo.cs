@@ -148,8 +148,6 @@ namespace WebApi.Controllers
             }
         }
 
-
-
         #region "VENTAS"
         [HttpPost("ExtractDaily")]
         public async Task<IActionResult> ExtractDailySales(DateTime? date)
@@ -181,5 +179,26 @@ namespace WebApi.Controllers
             }
         }
         #endregion "TRÁNSITO"
+
+        #region "REPUESTO"
+        [HttpGet("PartsStock")]
+        public async Task<IActionResult> GetPartsStock(int supplierId, string type)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(type) || !(type.Equals("A", StringComparison.OrdinalIgnoreCase) || type.Equals("B", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "El parámetro 'type' es inválido.");
+                }
+
+                var _response = await _dFigo.GetPartsStock(supplierId, type);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+        #endregion
     }
 }
