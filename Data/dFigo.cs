@@ -439,8 +439,6 @@ namespace Data
                 }
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Supplier", "VSUPPLIER");
-                _mapping.AddItem("Inventory", "VINVENTORY");
                 _mapping.AddItem("ProductId", "IDPRODUCT");
                 _mapping.AddItem("Product", "VPRODUCT");
                 _mapping.AddItem("Qty", "IQTY");

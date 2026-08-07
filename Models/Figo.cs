@@ -171,12 +171,6 @@ namespace Models
 
     public class FIGO_PartsStock
     {
-        [Column("VSUPPLIER")]
-        public string? Supplier { get; set; }
-
-        [Column("VINVENTORY")]
-        public string? Inventory { get; set; }
-
         [Column("IDPRODUCT")]
         public string? ProductId { get; set; }
 
