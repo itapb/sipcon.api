@@ -222,6 +222,57 @@ namespace Data
         }
 
 
+        public async Task<Response<List<Models.VehicleCatalog>>> GetVehiclesCatalog(Int32 userId, Int32? supplierId, Int32 rowFrom, string? filter)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetVehiclesCatalog(userId, supplierId, null, rowFrom, filter, 0);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<Models.VehicleCatalog>>> _GetVehiclesCatalog(Int32 userId, Int32? supplierId, Int32? dealerId, Int32? rowFrom, string? filter, Int32 vehicleId = 0)
+        {
+
+            Response<List<Models.VehicleCatalog>> _response = new Response<List<Models.VehicleCatalog>>();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDDEALER", dealerId);
+                _parameter.AddSqlParameter("@IROWFROM", rowFrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("VehicleId", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("Model", "VMODEL");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("Customer", "VCUSTOMER");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES_INVOICE", _parameter);
+                _response.Data = _data.GetList<Models.VehicleCatalog>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
 
 
 

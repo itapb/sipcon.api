@@ -2769,7 +2769,7 @@ namespace WebApi.Controllers
             try
             {
                 // 1. Obtener la lista de pagos que YA SON de tipo PaymentFull
-                var summaryResponse = await _dInventory.GetCountSummary(userId, supplierId, rowfrom, inventoryId);
+                var summaryResponse = await _dInventory.GetCountSummary(userId, supplierId, null, inventoryId);
 
                 if (summaryResponse.Data == null)
                     return Ok(new Response<List<GetCountFull>> { Data = new List<GetCountFull>(), Message = "No hay datos", Status = 200 });
@@ -2791,10 +2791,10 @@ namespace WebApi.Controllers
                 var finalResponse = new Response<List<GetCountFull>>
                 {
                     Data = summaryResponse.Data, // Ya es la lista enriquecida
-                    Message = summaryResponse.Message,
-                    Processed = summaryResponse.Processed,
-                    Status = summaryResponse.Status,
-                    Total = summaryResponse.Total
+                    Message = inventoryCountDetailReponse.Message,
+                    Processed = inventoryCountDetailReponse.Processed,
+                    Status = inventoryCountDetailReponse.Status,
+                    Total = inventoryCountDetailReponse.Total
                 };
 
                 return Ok(finalResponse);

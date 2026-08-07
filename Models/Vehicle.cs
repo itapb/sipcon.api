@@ -107,4 +107,27 @@ namespace Models
 
 
     }
+
+    public class VehicleCatalog
+    {
+
+        [SwaggerIgnore]
+        public int? VehicleId { get; set; }
+
+
+        [SwaggerIgnore]
+        public string? Customer { get; set; }
+
+        [SwaggerIgnore]
+        public Int32? CustomerId { get; set; }
+        
+        [SwaggerIgnore]
+        public string? Vin { get; set; }
+        [SwaggerIgnore]
+        public string? Model { get; set; }
+        [SwaggerIgnore]
+        public int? Year { get; set; }
+
+
+    }
 }
