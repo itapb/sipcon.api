@@ -169,6 +169,22 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetVehiclesCatalog")]
+        public async Task<IActionResult> GetVehiclesCatalog(Int32 userId, Int32? supplierId, Int32 rowFrom, string? filter)
+        {
+
+            try
+            {
+                var _response = await _dSaleOrder.GetVehiclesCatalog(userId, supplierId, rowFrom, filter);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
 
 
         [HttpGet("NewSaleOrderWithContext")]

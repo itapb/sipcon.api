@@ -2718,5 +2718,145 @@ namespace WebApi.Controllers
         //}
 
         #endregion
+
+        #region "CONTEO INVENTARIO"
+
+        [HttpPost("/api/InventoryCount/PostInventoryCount")]
+        public async Task<IActionResult> PostInventoryCount(Models.InventoryCount count, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostInventoryCount(count, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InventoryCount/GetInventoryCount")]
+        public async Task<IActionResult> GetInventoryCount(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCount>> _response = await _dInventory.GetInventoryCount(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/InventoryCount/GetOneInventoryCount")]
+        public async Task<IActionResult> GetOneInventoryCount(Int32 userId, Int32 supplierId, int inventoryCountId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCount>> _response = await _dInventory.GetOneInventoryCount(userId, supplierId, inventoryCountId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpPost("/api/InventoryCount/PostCountAssign")]
+        public async Task<IActionResult> PostCountAssign(List<Models.CountAssign> count, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostCountAssign(count, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
+        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            try
+            {
+                // 1. Obtener la lista de pagos que YA SON de tipo PaymentFull
+                var summaryResponse = await _dInventory.GetCountSummary(userId, supplierId, null, inventoryId);
+
+                if (summaryResponse.Data == null)
+                    return Ok(new Response<List<GetCountFull>> { Data = new List<GetCountFull>(), Message = "No hay datos", Status = 200 });
+
+                // 2. Obtener cuentas
+                var inventoryCountDetailReponse =  await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId);
+
+                // 3. Crear el Lookup para optimización (O(1))
+                var accountsLookup = inventoryCountDetailReponse.Data?.ToLookup(a => a.ZoneId);
+
+                // 4. Hidratar la propiedad AccountPreview directamente
+                // Como 'paymentsResponse.Data' ya es List<PaymentFull>, simplemente iteramos
+                foreach (var Count in summaryResponse.Data)
+                {
+                    Count.InventoryCountDetail = accountsLookup?[Count.ZoneId].ToList() ?? new List<GetInventoryCountDetail>();
+                }
+
+                // 5. Envolver el resultado final
+                var finalResponse = new Response<List<GetCountFull>>
+                {
+                    Data = summaryResponse.Data, // Ya es la lista enriquecida
+                    Message = inventoryCountDetailReponse.Message,
+                    Processed = inventoryCountDetailReponse.Processed,
+                    Status = inventoryCountDetailReponse.Status,
+                    Total = inventoryCountDetailReponse.Total
+                };
+
+                return Ok(finalResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, new Response<List<GetCountFull>> { Message = ex.Message, Status = 409 });
+            }
+        }
+
+
+
+        [HttpGet("/api/InventoryCount/GetCountType")]
+        public async Task<IActionResult> GetCountType(Int32 userId)
+        {
+            try
+            {
+                Models.Response<List<Models.CountType>> _response = await _dInventory.GetCountType(userId, null);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/InventoryCount/PostInventoryCountActions")]
+        public async Task<IActionResult> PostInventoryCountActions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostInventoryCountActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        #endregion
+
+
     }
 }
