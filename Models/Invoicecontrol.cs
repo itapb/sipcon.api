@@ -105,5 +105,9 @@ namespace Models
         public string? CustomerInvoice { get; set; }
         [SwaggerIgnore]
         public string? CustomerVat { get; set; }
+
+        //SUPPLIER  
+        [SwaggerIgnore]
+        public string? Type { get; set; }
     }
 }

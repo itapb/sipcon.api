@@ -3179,6 +3179,7 @@ namespace Data
                 _mapping.AddItem("Dispatched", "IDISPATCHED");  
                 _mapping.AddItem("Price", "NPRICE");
                 _mapping.AddItem("ControlId", "IDCONTROL"); 
+                _mapping.AddItem("Type", "VTYPE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_GROUP", _parameter);
@@ -3244,9 +3245,7 @@ namespace Data
                 _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
                 _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
                 _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
-
-
-
+                _mapping.AddItem("Type", "VTYPE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL", _parameter);
@@ -3324,7 +3323,7 @@ namespace Data
                 _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
                 _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
                 _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
-
+                _mapping.AddItem("Type", "VTYPE");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DISPATCHEDCONTROL_TXT", _parameter);
 
@@ -3393,6 +3392,7 @@ namespace Data
                 _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
                 _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
                 _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
+                _mapping.AddItem("Type", "VTYPE");
 
 
                 Util.Data _data = Util.Data.GetInstance();

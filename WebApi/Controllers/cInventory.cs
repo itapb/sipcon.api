@@ -2808,10 +2808,10 @@ namespace WebApi.Controllers
                 var finalResponse = new Response<List<GetCountFull>>
                 {
                     Data = summaryResponse.Data, // Ya es la lista enriquecida
-                    Message = inventoryCountDetailReponse.Message,
-                    Processed = inventoryCountDetailReponse.Processed,
-                    Status = inventoryCountDetailReponse.Status,
-                    Total = inventoryCountDetailReponse.Total
+                    Message = summaryResponse.Message,
+                    Processed = summaryResponse.Processed,
+                    Status = summaryResponse.Status,
+                    Total = inventoryCountDetailReponse.Total == 0 ? 1 : inventoryCountDetailReponse.Total
                 };
 
                 return Ok(finalResponse);
