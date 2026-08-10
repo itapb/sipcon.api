@@ -41,11 +41,13 @@ namespace WebApi.Controllers
         private readonly dInventory _dInventory;
         private readonly dContact _dContact;
         private readonly dAttachment _dAttachment;
-        public cInventory(dInventory dInventory, dContact dContact, dAttachment dAttachment)
+        private readonly dFigo _dFigo;
+        public cInventory(dInventory dInventory, dContact dContact, dAttachment dAttachment, dFigo dFigo)
         {
             _dInventory = dInventory;
             _dContact = dContact;
             _dAttachment = dAttachment;
+            _dFigo = dFigo;
 
         }
 
@@ -2086,6 +2088,21 @@ namespace WebApi.Controllers
         {
             try
             {
+
+                try
+                {
+                    var _responseFigo = await _dFigo.GetPartsStock(supplierId, "A");
+                    if (_responseFigo?.Data != null)
+                    {
+                        string _jsonstring = Util.Json.ConvertToJsonString(_responseFigo!.Data);
+                        await _dInventory.PostInventoryFigo(supplierId, "A", _jsonstring);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Util.Log.Error(ex);
+                }
+
                 var _response = await _dInventory.PostInvoiceControl_Actions(actions, userId, supplierId);
                 return StatusCode(_response.Status, _response);
             }

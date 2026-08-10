@@ -3469,6 +3469,47 @@ namespace Data
             }
         }
 
+        public async Task<Response<Result>> PostInventoryFigo(int idSupplier, string environment, string _jsonstring)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _postInventoryFigo(idSupplier, environment, _jsonstring);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _postInventoryFigo( int idSupplier, string environment, string _jsonstring)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDSUPPLIER", idSupplier);
+                _parameter.AddSqlParameter("@VENVIRONMET", environment);
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVENTORYFIGO", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
         private async Task<Response<Result>> _PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
             Response<Result> _response = new Response<Result>();
