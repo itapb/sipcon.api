@@ -209,6 +209,8 @@ namespace Models
         public DateTime? DuaDate { get; set; }
         public int? ModelYear { get; set; }
         public int? ManufactureYear { get; set; }
+        public string? InvoiceNumberIn { get; set; }
+        public DateTime? InvoiceDateIn { get; set; }
     }
     public class FIGO_InventoryParts
     {
