@@ -684,7 +684,9 @@ namespace Data
                             DuaNumber = row["VDUANUMBER"]?.ToString(),
                             DuaDate = ParseDateTime(row["DDUADATE"]),
                             ModelYear = ParseInt(row["IMODELYEAR"]),
-                            ManufactureYear = ParseInt(row["ID_PRODUCTO"])
+                            ManufactureYear = ParseInt(row["ID_PRODUCTO"]),
+                            InvoiceNumberIn = row["INVOICENUMBERIN"]?.ToString(),
+                            InvoiceDateIn = ParseDateTime(row["DINVOICEDATEIN"])
                         });
                     }
                 }
