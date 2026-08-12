@@ -3241,7 +3241,7 @@ namespace Data
                 _mapping.AddItem("Mark", "BMARK");
                 _mapping.AddItem("SaleOrderType", "VSALEORDERTYPE");
 
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("ControlDate", "DCREATED");
                 _mapping.AddItem("CustomerInvoiceId", "IDCUSTOMERINVOICE");
                 _mapping.AddItem("CustomerInvoice", "VCUSTOMER");
                 _mapping.AddItem("CustomerVat", "VCUSTOMERVAT");
@@ -3304,7 +3304,7 @@ namespace Data
                 _mapping.AddItem("Dispatched", "IDISPATCHED"); //cantidad despachada
                 _mapping.AddItem("Mark", "BMARK");
                 _mapping.AddItem("UserSinc", "IDUSERSINC");
-                _mapping.AddItem("ControlDate", "DCONTROLDATE");
+                _mapping.AddItem("ControlDate", "DCREATED");
                 _mapping.AddItem("SincDate", "DSINCDATE");
                 _mapping.AddItem("Pending", "IPENDING");
 
