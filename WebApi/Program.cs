@@ -98,6 +98,7 @@ builder.Services.AddScoped<dTemplate>();
 builder.Services.AddScoped<dReporting>();
 builder.Services.AddScoped<dPayment>();
 builder.Services.AddScoped<dIntt>();
+builder.Services.AddScoped<dInttPlanta>();
 builder.Services.AddScoped<dInspection>();
 builder.Services.AddScoped<dRate>();
 builder.Services.AddScoped<dBranchOffice>();
