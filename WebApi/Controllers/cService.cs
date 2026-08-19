@@ -2037,6 +2037,7 @@ namespace WebApi.Controllers
         }
 
 
+
         [HttpPost("PostProcess")]
         public async Task<IActionResult> Post_Actions_Process(List<Models.ActionInvoice> actions, Int32 userId, Int32 serviceTypeId)
         {
@@ -2045,6 +2046,25 @@ namespace WebApi.Controllers
             {
 
                 var _response = await _dService.Post_Actions_Process(actions, userId, serviceTypeId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("PostCheckParalyzed")]
+        public async Task<IActionResult> PostCheckParalyzed(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+
+                var _response = await _dService.PostCheckParalyzed(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }

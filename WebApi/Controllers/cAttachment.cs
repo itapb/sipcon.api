@@ -75,7 +75,7 @@ namespace WebApi.Controllers
                 }
 
                 // Obtener la ruta base desde la variable de entorno
-                string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+                string attachmentUrl = $@"\\{Environment.MachineName}{baseUrl}\";
                 // Obtener la lista de módulos desde la base de datos
                 var _modules = await _dAttachment.GetModule(null, userId);
 
@@ -138,7 +138,7 @@ namespace WebApi.Controllers
                 }
 
                 // Construcción de ruta
-                string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+                string attachmentUrl = $@"\\{Environment.MachineName}{baseUrl}\";
                 var _modules = await _dAttachment.GetModule(null, userId);
                 string modulePath = _modules.FirstOrDefault(m => m.Id == attachment.ModuleId)?.Name ?? "Unknown";
 
@@ -224,7 +224,7 @@ namespace WebApi.Controllers
                     return StatusCode(response.Status, response);
                 }
 
-                string servicesUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+                string servicesUrl = $@"\\{Environment.MachineName}{baseUrl}\";
 
                 // Obtener módulo
                 var modules = await _dAttachment.GetModule(moduleName, userId);
@@ -326,7 +326,7 @@ namespace WebApi.Controllers
                 }
 
                 // Obtener la ruta base desde la variable de entorno
-                string attachmentUrl = Path.Combine($"\\\\{Environment.MachineName}", baseUrl);
+                string attachmentUrl = $@"\\{Environment.MachineName}{baseUrl}\";
 
                 // Obtener la lista de módulos desde la base de datos
                 var _modules = await _dAttachment.GetModule(null, userId);
