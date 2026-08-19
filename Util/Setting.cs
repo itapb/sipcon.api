@@ -204,7 +204,7 @@ namespace Util
 
             try
             {
-                ImagesUrl = _Configuration.GetSection("Custom:ImagesUrl").Value ?? "";
+                ImagesUrl = _Configuration.GetSection($"Custom:Resources:{Environment}:ImagesUrl").Value ?? "";
                 if (ImagesUrl == "")
                 {
                     Console.WriteLine("Error: ImagesUrl no definido en app.config");
@@ -222,10 +222,10 @@ namespace Util
 
             try
             {
-                AttachmentUrl = _Configuration.GetSection("Custom:AttachmentUrl").Value ?? "";
+                AttachmentUrl = _Configuration.GetSection($"Custom:Resources:{Environment}:AttachmentUrl").Value ?? "";
                 if (AttachmentUrl == "")
                 {
-                    Console.WriteLine("Error: ServicesUrl no definido en app.config");
+                    Console.WriteLine("Error: AttachmentUrl no definido en app.config");
                     System.Threading.Thread.Sleep(5000);
                     goto inicio;
                 }
