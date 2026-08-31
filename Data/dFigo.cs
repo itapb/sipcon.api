@@ -960,6 +960,96 @@ namespace Data
                 _response.SetError(ex);
             }
             return _response;
+
         }
+        
+        public async Task<Response<Result>> ExtractAndInsertReturns()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _ExtractAndInsertReturns();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+     
+        private async Task<Response<Result>> _ExtractAndInsertReturns()
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                int userId = 1;
+                string reportName = "ExtractReturnsRepuestos";
+
+                // 1. Obtener el query desde BD
+                var queryResponse = await _GetReportQuery(userId, null, reportName, 0);
+
+                if (!queryResponse.Processed || queryResponse.Data == null)
+                {
+                    _response.SetError(new Exception($"No se pudo obtener el query de devoluciones desde la BD (VNAME: {reportName})"));
+                    return _response;
+                }
+
+                string rawQuery = queryResponse.Data.Query;
+                string rawType = queryResponse.Data.Type;
+
+                // 2. Extraer datos desde FIGO (Oracle)
+                DataTable extractedData = await _oracleDB.GetDataTable(rawQuery, 0, rawType, null);
+
+                if (extractedData.Rows.Count == 0)
+                {
+                    _response.Message = "No se encontraron devoluciones para la fecha especificada";
+                    _response.Processed = true;
+                    _response.Status = 200;
+                    return _response;
+                }
+
+                // 3. Convertir DataTable a List<ReturnsFigo>
+                List<Models.ReturnsFigo> returnsList = new List<Models.ReturnsFigo>();
+                foreach (DataRow row in extractedData.Rows)
+                {
+                    returnsList.Add(new Models.ReturnsFigo
+                    {
+                        vnoteNumber = row["NRO_NOTA"].ToString(),
+                        dnoteDate = Convert.ToDateTime(row["EMISION_NOTA"]),
+                        vDescription = row["VDESCRIPTION"].ToString(),
+                        vInnerCode = row["VINNERCODE"].ToString(),
+                        iQuantity = Convert.ToInt32(row["IQUANTITY"]),
+                        vreason = row["VREASON"].ToString(),
+                        vinvoiceNumber = row["NRO_FACTURA"].ToString(),
+                        dinvoiceDate = Convert.ToDateTime(row["FE_FACTURA"]),
+                        idSupplier = Convert.ToInt32(row["IDSUPPLIER"])
+                    });
+                }
+
+                // 4. Convertir lista a JSON
+                string jsonReturns = Util.Json.ConvertToJsonString(returnsList);
+
+                // 5. Ejecutar SP en SIPCON (SQL Server)
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", jsonReturns);
+                _parameter.AddSqlParameter("@IDUSER", 0);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_RETURNS_FIGO", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+                Util.Log.Info($"Devoluciones procesadas - Insertados: {_response.Data?.InsertedRows}, Actualizados: {_response.Data?.UpdatedRows}");
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+                Util.Log.Error("_ExtractAndInsertReturns: " + ex.Message);
+            }
+            return _response;
+        }
+
     }
 }

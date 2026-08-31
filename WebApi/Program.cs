@@ -113,6 +113,7 @@ builder.Services.AddHostedService<WebApi.BackgroundServices.TransitFigoBackgroun
 builder.Services.AddHostedService<WebApi.BackgroundServices.MasterSalesFigoBackgroundService>();// Servicio para incluir los datos del master de ventas
 builder.Services.AddHostedService<WebApi.BackgroundServices.PartsFigoBackgroundService>();// Servicio para incluir los datos de los repuestos de figo
 builder.Services.AddHostedService<WebApi.BackgroundServices.INTTFigoBackgroundService>();// Servicio para incluir los datos de la unidades de figo para el reporte de INTT
+builder.Services.AddHostedService<WebApi.BackgroundServices.ReturnsFigoBackgroundService>();// Servicio para extraer los datos de las devoluciones de figo
 
 var app = builder.Build();
 
