@@ -54,19 +54,23 @@ namespace Models
         [Required] public decimal? Amount { get; set; }
         [Required] public int? CurrencyId { get; set; }
         [Required] public int? TypeId { get; set; }
-         public string? Reference { get; set; }
+        public string? Reference { get; set; }
         public int? AccountId { get; set; }
         [Required] public int? DealerId { get; set; }
         [Required] public int? SupplierId { get; set; }
         public int? BankOriginId { get; set; }
-        public List<Settlements>? Settlements { get; set; } = new List<Settlements>();
     }
 
     public class Settlements 
     {
-         public int? DocumentId { get; set; }
-         public decimal? Rate { get; set; }
-         public DateTime? DateRate { get; set; }
+        public int? PaymentId { get; set; }
+        public int? DocumentId { get; set; }
+        public int? CurrencyId { get; set; }
+        public decimal? Rate { get; set; }
+        public DateTime? DateRate { get; set; }
+        public decimal? Amount { get; set; }
+        public int? SupplierId { get; set; }
+        public int? DealerId  { get; set; }
 
     }
 
@@ -79,6 +83,16 @@ namespace Models
 
     }
 
+    public class PendingCart
+    {
+        [SwaggerIgnore] public int? PaymentId { get; set; }
+        [SwaggerIgnore]  public DateTime? DateRate { get; set; }
+        [SwaggerIgnore]  public decimal? Amount { get; set; }
+        [SwaggerIgnore] public int? Count { get; set; }
+        [SwaggerIgnore] public int? CurrencyId { get; set; }
+
+    }
+
 
     public class PaymentFull:PaymentDetails
     {
@@ -86,5 +100,7 @@ namespace Models
         public List<AccountPreview>? AccountPreview { get; set; } = new List<AccountPreview>();
 
     }
+
+
 
 }

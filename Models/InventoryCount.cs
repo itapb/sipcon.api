@@ -38,16 +38,6 @@ namespace Models
     }
 
 
-    public class CountAssign
-    {
-        [Required] public int? UserId { get; set; }
-        [Required] public String? Assign { get; set; }
-        [Required] public Int32? CountInventoryId { get; set; }
-        [Required] public String? AssignType { get; set; }
-        
-
-    }
-
     public class GetInventoryCountDetail : Record
     {
 
@@ -69,6 +59,8 @@ namespace Models
         [SwaggerIgnore] public String? PartName { get; set; }
         [SwaggerIgnore] public int? ZoneId { get; set; }
         [SwaggerIgnore] public int? Diference { get; set; }
+        [SwaggerIgnore] public int? NumForm { get; set; }
+        [SwaggerIgnore] public Boolean? Block { get; set; }
 
     }
 
