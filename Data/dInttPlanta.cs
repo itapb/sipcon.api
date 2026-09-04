@@ -135,18 +135,20 @@ namespace Data
 
         // Método para exportar a Excel
         public async Task<List<InttPlanta>> GetExportPendientesExcel(
-            int userId,
-            int? supplierId,
-            int? rowFrom,
-            DateTime? fromDate,
-            DateTime? upToDate,
-            string? tipo,
-            string? filter = null)
+        int userId,
+        int? supplierId,
+        int? rowFrom,
+        DateTime? fromDate,
+        DateTime? upToDate,
+        string? tipo,
+        string? filter = null)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return (List<InttPlanta>)(await _GetPlantaDataAsync(userId, supplierId, rowFrom, fromDate, upToDate, tipo, filter)).Data;
+        
+                var response = await _GetPlantaDataAsync(userId, supplierId, -1, fromDate, upToDate, tipo, filter);
+                return response.Data ?? new List<InttPlanta>();
             }
             finally
             {
@@ -225,7 +227,7 @@ namespace Data
                 var mapping = new Mapping();
                 mapping.AddItem("Datos", "DATOS");
 
-                var data = Util.Data.GetInstance();
+                var data = Util.Data.GetInstance(   );
                 DataTable table = await data.GetDataTable("USP_GET_INTT_PLANTA_EXPORT", parameter);
 
                 response.Data = data.GetList<InttPlanta>(mapping, table);
