@@ -200,5 +200,23 @@ namespace WebApi.Controllers
             }
         }
         #endregion
+
+        #region "DEVOLUCIONES"
+
+        [HttpPost("ExtractReturns")]
+        public async Task<IActionResult> ExtractReturns()
+        {
+            try
+            {
+                var response = await _dFigo.ExtractAndInsertReturns();
+                return StatusCode(response.Status, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.Message });
+            }
+        }
+
+        #endregion "DEVOLUCIONES"
     }
 }

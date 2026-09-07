@@ -220,4 +220,17 @@ namespace Models
         public string Product { get; set; }
         public int Qty { get; set; }
     }
+
+    public class ReturnsFigo
+    {
+        public string? vnoteNumber { get; set; }
+        public DateTime dnoteDate { get; set; }
+        public string? vDescription { get; set; }
+        public string? vInnerCode { get; set; }
+        public int iQuantity { get; set; }
+        public string? vreason { get; set; }
+        public string? vinvoiceNumber { get; set; }
+        public DateTime dinvoiceDate { get; set; }
+        public int idSupplier { get; set; }
+    }
 }

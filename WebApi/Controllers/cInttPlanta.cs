@@ -166,45 +166,131 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpGet("ExportGeneradosExcel")]
+        public async Task<IActionResult> ExportGeneradosExcel(
+            int userId,
+            int supplierId,
+            int controlId)
+        {
+            try
+            {
+                // Obtener datos estructurados (modo columnas)
+                var response = await _dInttPlanta.GetPlantaData(
+                    userId,
+                    supplierId,
+                    -1,  // rowFrom -1 para modo columnas
+                    null,
+                    null,
+                    "GENERADOS",
+                    null);
+
+                if (response.Data == null || response.Data.Count == 0)
+                    return NotFound($"No hay registros para el control {controlId}");
+
+                // Filtrar por controlId
+                var controlNumber = controlId.ToString().PadLeft(10, '0');
+                var filteredData = response.Data
+                    .Where(x => x.VNUMBERPLANTATXT == controlNumber)
+                    .ToList();
+
+                if (filteredData.Count == 0)
+                    return NotFound($"No hay registros para el control {controlId}");
+
+                var excelStream = ConvertToExcelGenerados(filteredData, controlId);
+                string fileName = $"CONTROL_{controlNumber}.xlsx";
+
+                return File(excelStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        private MemoryStream ConvertToExcelGenerados(List<InttPlanta> data, int controlId)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add($"CONTROL_{controlId}");
+
+                worksheet.Cell(1, 1).Value = "NRO CONTROL PLANTA";
+                worksheet.Cell(1, 2).Value = "NRO CERTIFICADO";
+                worksheet.Cell(1, 3).Value = "RIF CLIENTE";
+                worksheet.Cell(1, 4).Value = "MODELO";
+                worksheet.Cell(1, 5).Value = "PLACA";
+                worksheet.Cell(1, 6).Value = "VIN";
+                worksheet.Cell(1, 7).Value = "COLOR";
+                worksheet.Cell(1, 8).Value = "FECHA FACTURA";
+                worksheet.Cell(1, 9).Value = "NRO FACTURA";
+
+                var headerRange = worksheet.Range("A1:I1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                headerRange.Style.Font.Bold = true;
+                worksheet.Range("A1:I1").SetAutoFilter();
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    var item = data[i];
+                    int row = i + 2;
+
+                    worksheet.Cell(row, 1).Value = controlId.ToString().PadLeft(10, '0');
+                    worksheet.Cell(row, 2).Value = item.VCERTIFICATENUMBER;
+                    worksheet.Cell(row, 3).Value = item.VRIF;
+                    worksheet.Cell(row, 4).Value = item.VMODEL;
+                    worksheet.Cell(row, 5).Value = item.VPLATE;
+                    worksheet.Cell(row, 6).Value = item.VVIN;
+                    worksheet.Cell(row, 7).Value = item.VCOLOR1;
+                    worksheet.Cell(row, 8).Value = item.VSELLINVOICEDATE;
+                    worksheet.Cell(row, 9).Value = item.VSELLINVOICENUMBER;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var centerStyle = worksheet.Style;
+                centerStyle.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                centerStyle.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
+
         private MemoryStream ConvertToExcelPlanta(List<InttPlanta> _planta)
         {
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("PLANTA");
 
-                
-                worksheet.Cell(1, 1).Value = "PLACA";
-                worksheet.Cell(1, 2).Value = "VIN";
+                worksheet.Cell(1, 1).Value = "NRO CERTIFICADO";
+                worksheet.Cell(1, 2).Value = "RIF CLIENTE";
                 worksheet.Cell(1, 3).Value = "MODELO";
-                worksheet.Cell(1, 4).Value = "AÑO";
-                worksheet.Cell(1, 5).Value = "COLOR";
-                worksheet.Cell(1, 6).Value = "NRO CERTIFICADO";
-                worksheet.Cell(1, 7).Value = "NRO FACTURA";
-                worksheet.Cell(1, 8).Value = "FECHA FACTURA";
-                worksheet.Cell(1, 9).Value = "RIF CLIENTE";
-                worksheet.Cell(1, 10).Value = "NRO CONTROL PLANTA";
+                worksheet.Cell(1, 4).Value = "PLACA";
+                worksheet.Cell(1, 5).Value = "VIN";
+                worksheet.Cell(1, 6).Value = "COLOR";
+                worksheet.Cell(1, 7).Value = "FECHA FACTURA";
+                worksheet.Cell(1, 8).Value = "NRO FACTURA";
 
-                var headerRange = worksheet.Range("A1:J1");
-                headerRange.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                var headerRange = worksheet.Range("A1:H1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
-                worksheet.Range("A1:J1").SetAutoFilter();
+                worksheet.Range("A1:H1").SetAutoFilter();
 
                 for (int i = 0; i < _planta.Count; i++)
                 {
                     var item = _planta[i];
                     int row = i + 2;
 
-                    worksheet.Cell(row, 1).Value = item.VPLATE;
-                    worksheet.Cell(row, 2).Value = item.VVIN;
+                    worksheet.Cell(row, 1).Value = item.VCERTIFICATENUMBER;
+                    worksheet.Cell(row, 2).Value = item.VRIF;
                     worksheet.Cell(row, 3).Value = item.VMODEL;
-                    worksheet.Cell(row, 4).Value = item.VMODELYEAR;
-                    worksheet.Cell(row, 5).Value = item.VCOLOR1;
-                    worksheet.Cell(row, 6).Value = item.VCERTIFICATENUMBER;
-                    worksheet.Cell(row, 7).Value = item.VINVOICENUMBER;
-                    worksheet.Cell(row, 8).Value = item.DINVOICEDATE;
-                    worksheet.Cell(row, 9).Value = item.VRIF;
-                    worksheet.Cell(row, 10).Value = item.VNUMBERPLANTATXT;
+                    worksheet.Cell(row, 4).Value = item.VPLATE;
+                    worksheet.Cell(row, 5).Value = item.VVIN;
+                    worksheet.Cell(row, 6).Value = item.VCOLOR1;
+                    worksheet.Cell(row, 7).Value = item.DINVOICEDATE;
+                    worksheet.Cell(row, 8).Value = item.VINVOICENUMBER;
                 }
 
                 worksheet.Columns().AdjustToContents();
