@@ -489,12 +489,74 @@ namespace Data
             return _response;
         }
 
-        private async Task<Response<List<Models.BankStatement>>> _getBankStatement()
+
+        private async Task<Response<List<Models.PaymentDetails>>> _GetOnePaymentDetail(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            Response<List<Models.PaymentDetails>> _response = new Response<List<Models.PaymentDetails>>();
+
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@IDPAYMENTDETAIL", PaymentDetailId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("PaymentId", "IDPAYMENT");
+                _mapping.AddItem("Date", "DDATE");
+                _mapping.AddItem("Amount", "NAMOUNT");
+                _mapping.AddItem("AmountBs", "NAMOUNTBS");
+                _mapping.AddItem("Rate", "NRATE");
+                _mapping.AddItem("DateRate", "DDATERATE");
+                _mapping.AddItem("CurrencyName", "VCURRENCY");
+                _mapping.AddItem("CurrencyId", "IDCURRENCY");
+                _mapping.AddItem("TypeName", "VTYPE");
+                _mapping.AddItem("TypeId", "IDTYPE");
+                _mapping.AddItem("Reference", "VREFERENCE");
+                _mapping.AddItem("BankName", "VBANK");
+                _mapping.AddItem("BankId", "IDBANK");
+                _mapping.AddItem("AccountId", "IDACCOUNT");
+                _mapping.AddItem("AccountNumber", "VACCOUNTNUMBER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("StatusId", "IDESTATUS");
+                _mapping.AddItem("BankOriginName", "VBANKORIGIN");
+                _mapping.AddItem("BankOriginId", "IDBANKORIGIN");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ONE_PAYMENTDETAILS", _parameter);
+                _response.Data = _data.GetList<Models.PaymentDetails>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        private async Task<Response<List<Models.BankStatement>>> _getBankStatement(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, Boolean? Pending=false,int? accountId=0)
         {
             Response<List<Models.BankStatement>> _response = new Response<List<Models.BankStatement>>();
 
             try
             {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@DFROMDATE", fromDate);
+                _parameter.AddSqlParameter("@DUPTODATE", upToDate);
+                _parameter.AddSqlParameter("@BPENDING", Pending);
+                _parameter.AddSqlParameter("@IDACCOUNT", accountId);
+
+
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
                 _mapping.AddItem("TransactionDate", "DTRANSDATE");
@@ -504,9 +566,10 @@ namespace Data
                 _mapping.AddItem("PaymentDetailId", "IDPAYMENTDETAIL");
                 _mapping.AddItem("Created", "DCREATED");
                 _mapping.AddItem("Estatus", "VESTATUS");
+                _mapping.AddItem("CurrencyId", "IDCURRENCY");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_BANKSTATEMENT");
+                DataTable _table = await _data.GetDataTable("USP_GET_BANKSTATEMENT", _parameter);
                 _response.Data = _data.GetList<Models.BankStatement>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
@@ -768,12 +831,12 @@ namespace Data
         }
 
 
-        public async Task<Response<List<Models.BankStatement>>> GetBankStatement()
+        public async Task<Response<List<Models.BankStatement>>> GetBankStatement(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, Boolean? Pending,int? accountId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getBankStatement();
+                return await _getBankStatement(userId,  supplierId,rowfrom,filter,fromDate,upToDate,Pending,accountId);
             }
             finally
             {
@@ -940,6 +1003,19 @@ namespace Data
             try
             {
                 return await _GetPaymentDetailsById(userId, rowfrom, PaymentDetailId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task<Response<List<Models.PaymentDetails>>> GetOnePaymentDetail(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOnePaymentDetail(userId, rowfrom, PaymentDetailId);
             }
             finally
             {

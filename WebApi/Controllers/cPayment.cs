@@ -143,11 +143,11 @@ namespace WebApi.Controllers
         
 
         [HttpGet("GetBankStatement")]
-        public async Task<IActionResult> GetBankStatement()
+        public async Task<IActionResult> GetBankStatement(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, Boolean? Pending,int? accountId)
         {
             try
             {
-                var _response = await _dPayment.GetBankStatement();
+                var _response = await _dPayment.GetBankStatement(userId, supplierId, rowfrom, filter, fromDate, upToDate, Pending, accountId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -265,6 +265,20 @@ namespace WebApi.Controllers
             try
             {
                 var _response = await _dPayment.GetPaymentDetailsById(userId, rowfrom, PaymentDetailId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("GetOnePaymentDetail")]
+        public async Task<IActionResult> GetOnePaymentDetail(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetOnePaymentDetail(userId, rowfrom, PaymentDetailId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

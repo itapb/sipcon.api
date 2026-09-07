@@ -17,6 +17,7 @@ namespace Models
         [SwaggerIgnore] public int? Id { get; set; }
         [SwaggerIgnore] public String? Estatus { get; set; }
         [Required] public DateTime? Created { get; set; }
+         public int CurrencyId { get; set; }
 
     }
 }
