@@ -56,11 +56,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetDocumentTypes")]
-        public async Task<IActionResult> GetDocumentTypes()
+        public async Task<IActionResult> GetDocumentTypes( int currencyId)
         {
             try
             {
-                var _response = await _dPayment.GetDocumentTypes();
+                var _response = await _dPayment.GetDocumentTypes(currencyId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -70,11 +70,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("GetDocumentConcepts")]
-        public async Task<IActionResult> GetDocumentConcepts()
+        public async Task<IActionResult> GetDocumentConcepts(int currencyId)
         {
             try
             {
-                var _response = await _dPayment.GetDocumentConcepts();
+                var _response = await _dPayment.GetDocumentConcepts(currencyId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -140,6 +140,39 @@ namespace WebApi.Controllers
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
+        
+
+        [HttpGet("GetBankStatement")]
+        public async Task<IActionResult> GetBankStatement(Int32 userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, Boolean? Pending,int? accountId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetBankStatement(userId, supplierId, rowfrom, filter, fromDate, upToDate, Pending, accountId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("PostBankStatementActions")]
+        public async Task<IActionResult> PostBankStatementActions(Int32 userId, List<Models.Action> actions)
+        {
+
+            try
+            {
+
+                var _response = await _dPayment.PostBankStatementActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
 
         [HttpGet("GetPayments")]
         public async Task<IActionResult> GetPayments(Int32 userId, Int32 supplierId, Int32 dealerId, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, int? currencyId, int? typeId)
@@ -197,6 +230,21 @@ namespace WebApi.Controllers
             }
         }
 
+
+        [HttpGet("GetPendingCart")]
+        public async Task<IActionResult> GetPendingCart(Int32 userId,Int32 dealerId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetPendingCart(userId, dealerId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         [HttpGet("GetAccountByPayment")]
         public async Task<IActionResult> GetAccountByPayment(Int32 userId, Int32 rowfrom, Int32 PaymentId)
         {
@@ -217,6 +265,20 @@ namespace WebApi.Controllers
             try
             {
                 var _response = await _dPayment.GetPaymentDetailsById(userId, rowfrom, PaymentDetailId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("GetOnePaymentDetail")]
+        public async Task<IActionResult> GetOnePaymentDetail(Int32 userId, Int32 rowfrom, int? PaymentDetailId)
+        {
+            try
+            {
+                var _response = await _dPayment.GetOnePaymentDetail(userId, rowfrom, PaymentDetailId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -261,6 +323,21 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("PostAddCart")]
+        public async Task<IActionResult> PostAddCart(Int32 userId, Models.Settlements settlements)
+        {
+
+
+            try
+            {
+                var _response = await _dPayment.PostAddCart(settlements, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
 
         [HttpPost("PostPayDetailsActions")]
@@ -501,6 +578,24 @@ namespace WebApi.Controllers
             {
 
                 var _response = await _dPayment.Delete_Details(_list, userId);
+                return StatusCode(_response.Status, _response);
+
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error al eliminar el archivo: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost("DeleteSettlements")]
+        public async Task<IActionResult> DeleteSettlements(List<Models.Action> _list, int userId)
+        {
+            try
+            {
+
+                var _response = await _dPayment.DeleteSettlements(_list, userId);
                 return StatusCode(_response.Status, _response);
 
 

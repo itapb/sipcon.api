@@ -2766,11 +2766,11 @@ namespace WebApi.Controllers
 
 
         [HttpPost("/api/InventoryCount/PostCountAssign")]
-        public async Task<IActionResult> PostCountAssign(List<Models.CountAssign> count, Int32 userId)
+        public async Task<IActionResult> PostCountAssign(List<Models.Action> count, Int32 userId, Int32? countId)
         {
             try
             {
-                Models.Response<Result> _response = await _dInventory.PostCountAssign(count, userId);
+                Models.Response<Result> _response = await _dInventory.PostCountAssign(count, userId, countId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -2780,8 +2780,8 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
-        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetailByZone")]
+        public async Task<IActionResult> GetInventoryCountDetailByZone(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             try
             {
@@ -2792,7 +2792,7 @@ namespace WebApi.Controllers
                     return Ok(new Response<List<GetCountFull>> { Data = new List<GetCountFull>(), Message = "No hay datos", Status = 200 });
 
                 // 2. Obtener cuentas
-                var inventoryCountDetailReponse =  await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId);
+                var inventoryCountDetailReponse =  await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId,true);
 
                 // 3. Crear el Lookup para optimización (O(1))
                 var accountsLookup = inventoryCountDetailReponse.Data?.ToLookup(a => a.ZoneId);
@@ -2823,6 +2823,33 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
+        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId,false);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetailByForm")]
+        public async Task<IActionResult> GetInventoryCountDetailByForm(Int32 userId, Int32? supplierId, int inventoryId,int formId, Int32? rowfrom)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetailByForm(userId, supplierId, inventoryId, formId, rowfrom);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
         [HttpGet("/api/InventoryCount/GetCountType")]
         public async Task<IActionResult> GetCountType(Int32 userId)
