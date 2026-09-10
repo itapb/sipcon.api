@@ -122,7 +122,7 @@ namespace Data
             }
             return _response;
         }
-        private async Task<Response<List<Models.AccountReceivable>>> _getAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
+        private async Task<Response<List<Models.AccountReceivable>>> _getAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate, Boolean? migration = false)
         {
             Response<List<Models.AccountReceivable>> _response = new Response<List<Models.AccountReceivable>>();
 
@@ -140,7 +140,8 @@ namespace Data
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
                 _parameter.AddSqlParameter("@IDESTATUS", statusId);
                 _parameter.AddSqlParameter("@DRATEDATE", paymentDate);
-                
+                _parameter.AddSqlParameter("@BMIGRATION", migration);
+
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Id", "ID");
@@ -892,12 +893,12 @@ namespace Data
                 _semaphore.Release();
             }
         }
-        public async Task<Response<List<Models.AccountReceivable>>> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId,DateTime? paymentDate)
+        public async Task<Response<List<Models.AccountReceivable>>> GetAccountReceivables(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, Int32 rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId,DateTime? paymentDate, Boolean? migration = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _getAccountReceivables( userId,  supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId, paymentDate);
+                return await _getAccountReceivables( userId,  supplierId, dealerId, typeCode, conceptCode, rowfrom, filter, fromDate, upToDate, statusId, paymentDate,migration);
             }
             finally
             {
