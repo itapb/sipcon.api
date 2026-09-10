@@ -41,7 +41,7 @@ namespace Models
         public string CodePair { get; set; } = "";
 
         [SwaggerIgnore]
-        public string DescriptionPair { get; set; } = "";
+        public string DescriptionPair { get; set; } = "";   
 
         [SwaggerIgnore]
         public int? IdPair { get; set; }
