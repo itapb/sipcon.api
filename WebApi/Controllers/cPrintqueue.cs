@@ -27,12 +27,12 @@ namespace WebApi.Controllers
 
 
         [HttpPost("RequestPrint")]
-        public async Task<IActionResult> Post_PrintQueue(List<Models.Printqueue> Printqueue, int userId)
+        public async Task<IActionResult> Post_PrintQueue(List<Models.Printqueue> Printqueue, int userId, int printerId)
         {
 
             try
             {
-                var _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId);
+                var _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId, printerId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -44,12 +44,12 @@ namespace WebApi.Controllers
 
 
         [HttpPost("PostPrintQueue")]
-        public async Task<IActionResult> PostPrintQueue(List<Models.Printqueue> Printqueue, int userId)
+        public async Task<IActionResult> PostPrintQueue(List<Models.Printqueue> Printqueue, int userId, int printerId)
         {
 
             try
             {
-                var _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId);
+                var _response = await _dPrintqueue.Post_PrintQueue(Printqueue, userId, printerId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)

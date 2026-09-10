@@ -16,7 +16,7 @@ namespace Data
         }
 
 
-        private async Task<Response<Result>> _Post_PrintQueue(List<Models.Printqueue> _list, int userId)
+        private async Task<Response<Result>> _Post_PrintQueue(List<Models.Printqueue> _list, int userId, int printerId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -27,6 +27,7 @@ namespace Data
 
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDPRINTER", printerId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -47,13 +48,13 @@ namespace Data
             return _response;
         }
 
-    
-        public async Task<Response<Result>> Post_PrintQueue(List<Models.Printqueue> _list, int userId)
+
+        public async Task<Response<Result>> Post_PrintQueue(List<Models.Printqueue> _list, int userId, int printerId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _Post_PrintQueue(_list, userId);
+                return await _Post_PrintQueue(_list, userId, printerId);
             }
             finally
             {
