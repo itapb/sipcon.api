@@ -240,5 +240,62 @@ namespace Data
 
             return response;
         }
+
+        
+        public async Task<Response<List<InttPlanta>>> GetGeneradosByControl(
+            int userId,
+            int supplierId,
+            string controlId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetGeneradosByControlAsync(userId, supplierId, controlId)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<InttPlanta>>> _GetGeneradosByControlAsync(
+            int userId,
+            int supplierId,
+            string controlId)
+        {
+            var response = new Response<List<InttPlanta>>();
+
+            try
+            {
+                var parameter = new Parameter();
+                parameter.AddSqlParameter("@IDUSER", userId);
+                parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                parameter.AddSqlParameter("@IDCONTROL", controlId);
+
+                var mapping = new Mapping();
+                mapping.AddItem("VNUMBERPLANTATXT", "VNUMBERPLANTATXT");
+                mapping.AddItem("VCERTIFICATENUMBER", "VCERTIFICATENUMBER");
+                mapping.AddItem("VRIF", "VRIF");
+                mapping.AddItem("VMODEL", "VMODEL");
+                mapping.AddItem("VPLATE", "VPLATE");
+                mapping.AddItem("VVIN", "VVIN");
+                mapping.AddItem("VCOLOR1", "VCOLOR1");
+                mapping.AddItem("VSELLINVOICEDATE", "VSELLINVOICEDATE");
+                mapping.AddItem("VSELLINVOICENUMBER", "VSELLINVOICENUMBER");
+
+                var data = Util.Data.GetInstance();
+                DataTable table = await data.GetDataTable("USP_GET_INTT_PLANTA_EXPORT_BY_CONTROL", parameter);
+
+                response.Data = data.GetList<InttPlanta>(mapping, table);
+                response.SetGetResponse(table);
+            }
+            catch (Exception ex)
+            {
+                response.SetError(ex);
+            }
+
+            return response;
+        }
     }
 }

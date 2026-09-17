@@ -168,38 +168,30 @@ namespace WebApi.Controllers
 
         [HttpGet("ExportGeneradosExcel")]
         public async Task<IActionResult> ExportGeneradosExcel(
-            int userId,
-            int supplierId,
-            int controlId)
+     int userId,
+     int supplierId,
+     int controlId)
         {
             try
             {
-                // Obtener datos estructurados (modo columnas)
-                var response = await _dInttPlanta.GetPlantaData(
+                var controlNumber = controlId.ToString().PadLeft(10, '0');
+
+                
+                var response = await _dInttPlanta.GetGeneradosByControl(
                     userId,
                     supplierId,
-                    -1,  // rowFrom -1 para modo columnas
-                    null,
-                    null,
-                    "GENERADOS",
-                    null);
+                    controlNumber);
 
                 if (response.Data == null || response.Data.Count == 0)
                     return NotFound($"No hay registros para el control {controlId}");
 
-                // Filtrar por controlId
-                var controlNumber = controlId.ToString().PadLeft(10, '0');
-                var filteredData = response.Data
-                    .Where(x => x.VNUMBERPLANTATXT == controlNumber)
-                    .ToList();
-
-                if (filteredData.Count == 0)
-                    return NotFound($"No hay registros para el control {controlId}");
-
-                var excelStream = ConvertToExcelGenerados(filteredData, controlId);
+                var excelStream = ConvertToExcelGenerados(response.Data, controlId);
                 string fileName = $"CONTROL_{controlNumber}.xlsx";
 
-                return File(excelStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                return File(
+                    excelStream,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName);
             }
             catch (Exception ex)
             {
