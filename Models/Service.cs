@@ -27,16 +27,13 @@ namespace Models
         [SwaggerIgnore] public String? LicenseDescription { get; set; }
         [SwaggerIgnore] public Int32? LicenseTypeId { get; set; }
         [SwaggerIgnore] public String? LicenseType { get; set; }
+        public Int32? StatusServiceId { get; set; }
 
         [SwaggerIgnore] public Int32? AssistanceTypeId { get; set; }
         [SwaggerIgnore] public String? AssistanceType { get; set; }
         [SwaggerIgnore] public Int32? PossibleFaultId { get; set; }
         [SwaggerIgnore] public String? PossibleFault { get; set; }
-
-
-
-
-
+        [SwaggerIgnore] public String? StatusService { get; set; }
 
 
         [Required] public Int32? DealerId { get; set; }
@@ -93,6 +90,15 @@ namespace Models
 
         [SwaggerIgnore] public Int32? Assesment { get; set; }
 
+
+    }
+
+
+    public class ServiceStatus : Record
+    {
+
+        [Required]
+        public string? Name { get; set; }
 
     }
 }

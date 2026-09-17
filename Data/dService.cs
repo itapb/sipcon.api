@@ -129,7 +129,8 @@ namespace Data
                 _mapping.AddItem("EndDate", "DENDDATE");
                 _mapping.AddItem("SaleDate", "DSALEDATE");
                 _mapping.AddItem("DateCreated", "DCREATED");
-
+                _mapping.AddItem("StatusServiceId", "ISERVICESTATUS");
+                _mapping.AddItem("StatusService", "SERVICESTATUS");
 
                 // Ejecución del SP
                 Util.Data _data = Util.Data.GetInstance();
@@ -1061,6 +1062,52 @@ namespace Data
         }
 
 
+
+        public async Task<Response<List<Models.ServiceStatus>>> GetServiceStatus()
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetServiceStatus();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+
+        private async Task<Response<List<Models.ServiceStatus>>> _GetServiceStatus()
+        {
+
+            Response<List<Models.ServiceStatus>> _response = new Response<List<Models.ServiceStatus>>();
+
+            try
+            {
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_SERVICESTATUS");
+
+                _response.Data = _data.GetList<Models.ServiceStatus>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+
+        }
+
+
         public async Task<Models.Response<List<T>>> GetOne<T>( int userId, int serviceTypeId, int dealerId, int serviceId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -1532,6 +1579,54 @@ namespace Data
 
             return _response;
         }
+
+
+        public async Task<Response<Models.Result>> PostStatusService(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+
+                return await _PostStatusService(_list, userId);
+
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Models.Result>> _PostStatusService(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+            try
+            {
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_STATUS_SERVICE", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
 
 
 

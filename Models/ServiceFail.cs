@@ -71,6 +71,8 @@ namespace Models
         //Estatus
         [SwaggerIgnore][Range(1, 22)] public Int32? EstatusId { get; set; }
         [SwaggerIgnore] public String? EstatusName { get; set; }
+        public Int32? StatusServiceId { get; set; }
+        [SwaggerIgnore] public String? StatusService { get; set; }
 
 
 

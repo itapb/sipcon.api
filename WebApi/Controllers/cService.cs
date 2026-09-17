@@ -1337,6 +1337,23 @@ namespace WebApi.Controllers
 
         }
 
+        [HttpGet("GetServiceStatus")]
+        public async Task<IActionResult> GetServiceStatus(Int32? userId)
+        {
+
+            try
+            {
+                var _response = await _dService.GetServiceStatus();
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
 
         [HttpGet("GetDms")]
         public async Task<IActionResult> GetDms(Int32? userId, Int32? supplierId, String? filter, int? row, DateTime? fromDate, DateTime? upToDate, int? estatusId)
@@ -2065,6 +2082,24 @@ namespace WebApi.Controllers
             {
 
                 var _response = await _dService.PostCheckParalyzed(actions, userId);
+                return StatusCode(_response.Status, _response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
+        [HttpPost("PostStatusService")]
+        public async Task<IActionResult> PostStatusService(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+
+                var _response = await _dService.PostStatusService(actions, userId);
                 return StatusCode(_response.Status, _response);
 
             }
