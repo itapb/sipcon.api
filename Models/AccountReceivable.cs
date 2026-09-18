@@ -52,6 +52,7 @@ namespace Models
         [Required] public decimal? PaidAmountBs { get; set; }
         [Required] public string? TransactionStatusName { get; set; }
         [Required] public bool? Detail { get; set; }
+        public int? CurrencyId { get; set; }
 
     }
 

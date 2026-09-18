@@ -425,6 +425,7 @@ namespace Data
                 _mapping.AddItem("PaidAmountBs", "NPAIDAMOUNTBS");
                 _mapping.AddItem("TransactionStatusName", "VTRANSTATUS");
                 _mapping.AddItem("Detail", "BDETAIL");
+                _mapping.AddItem("CurrencyId", "IDCURRENCY");
 
 
                 Util.Data _data = Util.Data.GetInstance();
