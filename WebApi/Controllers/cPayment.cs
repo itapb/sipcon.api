@@ -607,5 +607,23 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpPost("DeleteCart")]
+        public async Task<IActionResult> DeleteCart(List<Models.Action> _list, int userId)
+        {
+            try
+            {
+
+                var _response = await _dPayment.DeleteCart(_list, userId);
+                return StatusCode(_response.Status, _response);
+
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error al eliminar el archivo: {ex.Message}");
+            }
+        }
+
+
     }
 }

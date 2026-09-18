@@ -425,6 +425,7 @@ namespace Data
                 _mapping.AddItem("PaidAmountBs", "NPAIDAMOUNTBS");
                 _mapping.AddItem("TransactionStatusName", "VTRANSTATUS");
                 _mapping.AddItem("Detail", "BDETAIL");
+                _mapping.AddItem("CurrencyId", "IDCURRENCY");
 
 
                 Util.Data _data = Util.Data.GetInstance();
@@ -802,6 +803,39 @@ namespace Data
         }
 
 
+        private async Task<Response<Models.Result>> _DeleteCart(List<Models.Action> _list, Int32 userId)
+        {
+            Response<Models.Result> _response = new Response<Models.Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_DELETE_CART", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+
         private async Task<Response<Models.Result>> _PostPaidAmount(PostPaidAmount paidAmount, Int32 userId)
         {
             Response<Models.Result> _response = new Response<Models.Result>();
@@ -1150,6 +1184,20 @@ namespace Data
             try
             {
                 return await _DeleteSettlements(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+
+        public async Task<Response<Models.Result>> DeleteCart(List<Models.Action> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _DeleteCart(_list, userId);
             }
             finally
             {
