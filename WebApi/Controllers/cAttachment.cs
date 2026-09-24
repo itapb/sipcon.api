@@ -17,17 +17,20 @@ namespace WebApi.Controllers
 
     [Route("api/Attachment")]
     [ApiController]
-    [Authorize]
+
     public class cAttachment : ControllerBase
     {
 
         private readonly dAttachment _dAttachment;
+        private readonly dVehicle _dVehicle;
 
-        public cAttachment(dAttachment dAttachment)
+        public cAttachment(dAttachment dAttachment, dVehicle dVehicle)
         {
             _dAttachment = dAttachment;
+            _dVehicle = dVehicle;
         }
 
+        [Authorize]
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll(Int32 recordId, string moduleName)
         {
@@ -45,6 +48,7 @@ namespace WebApi.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("GetOne")]
         public async Task<IActionResult> GetOne(Int32 userId,Int32 attachmentId)
         {
@@ -102,7 +106,7 @@ namespace WebApi.Controllers
         }
 
 
-
+        [Authorize]
         [HttpGet("GetPreview")]
         public async Task<IActionResult> GetPreview(Int32 userId, Int32 attachmentId)
         {
@@ -190,9 +194,9 @@ namespace WebApi.Controllers
             };
         }
 
-     
 
 
+        [Authorize]
         [HttpPost("PostAttachments")]
         public async Task<IActionResult> Post_Attachments(List<IFormFile> files, int userId, string moduleName, int recordId)
         {
@@ -291,8 +295,40 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("PostAttachmentVehicle")]
+        public async Task<IActionResult> PostAttachmentVehicle([FromHeader(Name = "X-API-KEY")] string apiKey, List<IFormFile> files, string vin)
+        {
+           // var response = new Models.Response<List<Models.Result>>();
+
+            try
+            {
+                if (apiKey != Util.Setting.ApiKey)
+                {
+                    var response = new Models.Response<Models.Result>();
+                    response.SetError(new Exception("API KEY INVALIDA"));
+                    return StatusCode(StatusCodes.Status401Unauthorized, response);
+                }
+
+                var vehicleResponse = await _dVehicle.GetOneByVin(vin);
+                if (vehicleResponse != null && vehicleResponse.Data != null)
+                {
+                    if (vehicleResponse.Data.Id > 0)
+                    {
+                        int idRecord = (int)vehicleResponse.Data.Id;
+                        return await Post_Attachments(files, 1, "VEHICULOS-VEHICULOS", idRecord);
+                        //return StatusCode(response.Status, response);
+                    }
+                }
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
 
 
+        [Authorize]
         [HttpPost("Delete_Attachment")]
         public async Task<IActionResult> Delete_Attachment(int userId, int attachmentId)
         {

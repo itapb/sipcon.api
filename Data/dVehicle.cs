@@ -1,5 +1,6 @@
 ﻿
 using System.Data;
+using System.Globalization;
 using Models;
 using Util;
 
@@ -179,6 +180,19 @@ namespace Data
             }
         }
 
+        public async Task<Response<Models.Vehicle>> GetOneByVin(string vin)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetOneByVin(vin);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         public async Task<Response<Models.Vehicle>> GetOneBy(Int32 userId, Int32? dealerId ,string filter, Int32 filterBy)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -257,6 +271,55 @@ namespace Data
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES", _parameter);
+                _response.Data = _data.GetItem<Models.Vehicle>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
+        private async Task<Response<Models.Vehicle>> _GetOneByVin(string vin)
+        {
+            Response<Models.Vehicle> _response = new Response<Models.Vehicle>();
+
+            try
+            {
+
+                Parameter _parameter = new Parameter();
+                _parameter.AddSqlParameter("@VVIN", vin);
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Vin", "VVIN");
+                _mapping.AddItem("EngineSerial", "VENGINESERIAL");
+                _mapping.AddItem("Plate", "VPLATE");
+                _mapping.AddItem("Year", "IYEAR");
+                _mapping.AddItem("ModelId", "IDMODEL");
+                _mapping.AddItem("ModelName", "VMODEL");
+                _mapping.AddItem("BrandId", "IDBRAND");
+                _mapping.AddItem("BrandName", "VBRAND");
+                _mapping.AddItem("ColorId", "IDCOLOR");
+                _mapping.AddItem("ColorName", "VCOLOR");
+                _mapping.AddItem("SupplierId", "IDSUPPLIER");
+                _mapping.AddItem("SupplierName", "VSUPPLIER");
+                _mapping.AddItem("SupplierReference", "VSUPPLIER");
+                _mapping.AddItem("DealerId", "IDDEALER");
+                _mapping.AddItem("DealerName", "VDEALER");
+                _mapping.AddItem("DealerReference", "VDEALER");
+                _mapping.AddItem("CustomerId", "IDCUSTOMER");
+                _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("IsActive", "BACTIVE");
+                _mapping.AddItem("EstatusName", "VESTATUS");
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_VEHICLES_BYVIN", _parameter);
                 _response.Data = _data.GetItem<Models.Vehicle>(_mapping, _table);
                 _response.SetGetResponse(_table);
 

@@ -35,6 +35,7 @@ namespace Util
         public static string password = "";
         public static string client_secret = "";
         public static string scope = "";
+        public static string ApiKey = "";
 
         private static void GetSettingsFromJson()
         {
@@ -234,6 +235,24 @@ namespace Util
             {
 
                 Console.WriteLine("Error: AttachmentUrl no definido en app.config");
+                System.Threading.Thread.Sleep(5000);
+                goto inicio;
+            }
+
+            try
+            {
+                var _valor = _Configuration.GetSection("Custom:Key").Value ?? "";
+                if (string.IsNullOrEmpty(_valor))
+                {
+                    Console.WriteLine("Error: ApiKey no definido en appsettings.json");
+                    System.Threading.Thread.Sleep(5000);
+                    goto inicio;
+                }
+                ApiKey = _valor;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error: ApiKey no definido en appsettings.json");
                 System.Threading.Thread.Sleep(5000);
                 goto inicio;
             }
