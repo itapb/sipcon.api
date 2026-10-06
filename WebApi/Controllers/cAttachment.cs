@@ -328,6 +328,39 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpPost("PostAttachmentPromissoryNote")]
+        public async Task<IActionResult> PostAttachmentPromissoryNote([FromHeader(Name = "X-API-KEY")] string apiKey, List<IFormFile> files, string invoiceNumber)
+        {
+            // var response = new Models.Response<List<Models.Result>>();
+
+            try
+            {
+                if (apiKey != Util.Setting.ApiKey)
+                {
+                    var response = new Models.Response<Models.Result>();
+                    response.SetError(new Exception("API KEY INVALIDA"));
+                    return StatusCode(StatusCodes.Status401Unauthorized, response);
+                }
+
+                var vehicleResponse = await _dVehicle.GetOneByInvoice(invoiceNumber);
+                if (vehicleResponse != null && vehicleResponse.Data != null)
+                {
+                    if (vehicleResponse.Data.Id > 0)
+                    {
+                        int idRecord = (int)vehicleResponse.Data.Id;
+                        return await Post_Attachments(files, 1, "VEHICULOS-VEHICULOS", idRecord);
+                        //return StatusCode(response.Status, response);
+                    }
+                }
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         [Authorize]
         [HttpPost("Delete_Attachment")]
         public async Task<IActionResult> Delete_Attachment(int userId, int attachmentId)
