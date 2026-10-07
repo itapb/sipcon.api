@@ -72,12 +72,21 @@ namespace Models
         [SwaggerIgnore] public Int32? LocationTotal { get; set; }
         [SwaggerIgnore] public Int32? LocationCounted { get; set; }
         [SwaggerIgnore] public Decimal? Porcentage { get; set; }
-        [SwaggerIgnore] public String? UsersAssigned { get; set; }
+        [SwaggerIgnore] public int? UsersAssigned { get; set; }
+
+        [SwaggerIgnore] public Int32?  FormTotal { get; set; }
+
+        [SwaggerIgnore] public Int32? FormAssign { get; set; }
 
     }
 
 
     public class CountType: Record
+    {
+        [Required] public String? Name { get; set; }
+    }
+
+    public class ZoneCount : Record
     {
         [Required] public String? Name { get; set; }
     }

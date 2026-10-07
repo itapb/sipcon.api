@@ -4222,12 +4222,12 @@ namespace Data
 
 
 
-        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId,Boolean groupZone)
+        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryCountId, groupZone);
+                return await _GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryCountId, idZone, Assign);
             }
             finally
             {
@@ -4235,7 +4235,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, Boolean groupZone)
+        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign=null)
         {
             Response<List<GetInventoryCountDetail>> _response = new Response<List<GetInventoryCountDetail>>();
             try
@@ -4249,7 +4249,9 @@ namespace Data
                 _parameter.AddSqlParameter("@DFROMDATE", fromDate);
                 _parameter.AddSqlParameter("@DUPTODATE", upToDate);
                 _parameter.AddSqlParameter("@IESTATUS", estatusId);
-                _parameter.AddSqlParameter("@BGROUPZONE", groupZone);
+                _parameter.AddSqlParameter("@IDZONE", idZone);
+                _parameter.AddSqlParameter("@BASSIGN", Assign);
+
 
 
 
@@ -4315,7 +4317,8 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@IDFORM", formId);
-                _parameter.AddSqlParameter("@IDINVENTORY", inventoryCountId);
+                _parameter.AddSqlParameter("@ID", inventoryCountId);
+
 
 
 
@@ -4342,7 +4345,7 @@ namespace Data
                 _mapping.AddItem("NumForm", "IFORM");
                 _mapping.AddItem("Block", "BBLOCK");
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_INVENTORYCOUNTDETAIL", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_GET_INVENTORYCOUNTDETAILBYFORM", _parameter);
                 _response.Data = _data.GetList<Models.GetInventoryCountDetail>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
@@ -4355,7 +4358,7 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response<List<GetCountFull>>> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
+        public async Task<Response<List<Models.CountSummary>>> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -4368,9 +4371,9 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<GetCountFull>>> _GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
+        private async Task<Response<List<Models.CountSummary>>> _GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
         {
-            Response<List<GetCountFull>> _response = new Response<List<GetCountFull>>();
+            Response<List<Models.CountSummary>> _response = new Response<List<Models.CountSummary>>();
             try
             {
                 Util.Parameter _parameter = new Util.Parameter();
@@ -4389,10 +4392,13 @@ namespace Data
                 _mapping.AddItem("LocationCounted", "ILOCATIONCOUNTED");
                 _mapping.AddItem("Porcentage", "DPORCENTAGE");
                 _mapping.AddItem("UsersAssigned", "IUSERSASSIGNED");
+                _mapping.AddItem("FormTotal", "IFORMTOTAL");
+                _mapping.AddItem("FormAssign", "IFORMASSIGN");
+
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_COUNTSUMMARY", _parameter);
-                _response.Data = _data.GetList<Models.GetCountFull>(_mapping, _table);
+                _response.Data = _data.GetList<Models.CountSummary>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 
@@ -4404,12 +4410,12 @@ namespace Data
             return _response;
         }
 
-        public async Task<Response<Result>> PostCountAssign(List<Models.Action> _list, Int32 userId, Int32? countId)
+        public async Task<Response<Result>> ActionsInventoryCountDetail(List<Models.Action> _list, Int32 userId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostCountAssign(_list, userId,countId);
+                return await _ActionsInventoryCountDetail(_list, userId);
             }
             finally
             {
@@ -4417,7 +4423,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<Result>> _PostCountAssign(List<Models.Action> _list, Int32 userId,Int32? countId)
+        private async Task<Response<Result>> _ActionsInventoryCountDetail(List<Models.Action> _list, Int32 userId)
         {
             Response<Result> _response = new Response<Result>();
             try
@@ -4428,7 +4434,6 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@DATA", _jsonstring);
                 _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@IDCOUNT", countId);
 
                 Mapping _mapping = new Mapping();
                 _mapping.SetDefaultPostMapping();
@@ -4483,6 +4488,51 @@ namespace Data
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_COUNTTYPE", _parameter);
                 _response.Data = _data.GetList<Models.CountType>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
+        public async Task<Response<List<ZoneCount>>> GetZoneCount(Int32 userId, Int32? rowfrom, Int32? supplierId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetZoneCount(userId, rowfrom, supplierId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<ZoneCount>>> _GetZoneCount(Int32 userId, Int32? rowfrom,int? supplierId)
+        {
+            Response<List<ZoneCount>> _response = new Response<List<ZoneCount>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("Name", "VNAME");
+                _mapping.AddItem("IsActive", "BACTIVE");
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_ZONE_COUNT", _parameter);
+                _response.Data = _data.GetList<Models.ZoneCount>(_mapping, _table);
                 _response.SetGetResponse(_table);
 
 

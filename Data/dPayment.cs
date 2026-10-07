@@ -1080,13 +1080,13 @@ namespace Data
         }
 
 
-        public async Task<List<AccountReceivable>> GetExportAccountReceivable(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
+        public async Task<List<AccountReceivable>> GetExportAccountReceivable(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate, Boolean? migration = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
                 Response<List<Models.AccountReceivable>> _response = new Response<List<Models.AccountReceivable>>();
-                _response = await _getAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode,null, filter, fromDate, upToDate, statusId, paymentDate);
+                _response = await _getAccountReceivables(userId, supplierId, dealerId, typeCode, conceptCode,null, filter, fromDate, upToDate, statusId, paymentDate, migration );
                 return (List<AccountReceivable>)_response.Data;
             }
             finally

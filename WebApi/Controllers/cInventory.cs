@@ -2765,12 +2765,12 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpPost("/api/InventoryCount/PostCountAssign")]
-        public async Task<IActionResult> PostCountAssign(List<Models.Action> count, Int32 userId, Int32? countId)
+        [HttpPost("/api/InventoryCount/ActionsInventoryCountDetail")]
+        public async Task<IActionResult> ActionsInventoryCountDetail(List<Models.Action> count, Int32 userId)
         {
             try
             {
-                Models.Response<Result> _response = await _dInventory.PostCountAssign(count, userId, countId);
+                Models.Response<Result> _response = await _dInventory.ActionsInventoryCountDetail(count, userId);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -2780,55 +2780,15 @@ namespace WebApi.Controllers
         }
 
 
-        [HttpGet("/api/InventoryCount/GetInventoryCountDetailByZone")]
-        public async Task<IActionResult> GetInventoryCountDetailByZone(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
-        {
-            try
-            {
-                // 1. Obtener la lista de pagos que YA SON de tipo PaymentFull
-                var summaryResponse = await _dInventory.GetCountSummary(userId, supplierId, null, inventoryId);
-
-                if (summaryResponse.Data == null)
-                    return Ok(new Response<List<GetCountFull>> { Data = new List<GetCountFull>(), Message = "No hay datos", Status = 200 });
-
-                // 2. Obtener cuentas
-                var inventoryCountDetailReponse =  await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId,true);
-
-                // 3. Crear el Lookup para optimización (O(1))
-                var accountsLookup = inventoryCountDetailReponse.Data?.ToLookup(a => a.ZoneId);
-
-                // 4. Hidratar la propiedad AccountPreview directamente
-                // Como 'paymentsResponse.Data' ya es List<PaymentFull>, simplemente iteramos
-                foreach (var Count in summaryResponse.Data)
-                {
-                    Count.InventoryCountDetail = accountsLookup?[Count.ZoneId].ToList() ?? new List<GetInventoryCountDetail>();
-                }
-
-                // 5. Envolver el resultado final
-                var finalResponse = new Response<List<GetCountFull>>
-                {
-                    Data = summaryResponse.Data, // Ya es la lista enriquecida
-                    Message = summaryResponse.Message,
-                    Processed = summaryResponse.Processed,
-                    Status = summaryResponse.Status,
-                    Total = inventoryCountDetailReponse.Total == 0 ? 1 : inventoryCountDetailReponse.Total
-                };
-
-                return Ok(finalResponse);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, new Response<List<GetCountFull>> { Message = ex.Message, Status = 409 });
-            }
-        }
+       
 
 
         [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
-        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
+        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId,int? idZone,bool? Assign )
         {
             try
             {
-                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId,false);
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId, idZone, Assign);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -2837,20 +2797,7 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpGet("/api/InventoryCount/GetInventoryCountDetailByForm")]
-        public async Task<IActionResult> GetInventoryCountDetailByForm(Int32 userId, Int32? supplierId, int inventoryId,int formId, Int32? rowfrom)
-        {
-            try
-            {
-                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetailByForm(userId, supplierId, inventoryId, formId, rowfrom);
-                return StatusCode(_response.Status, _response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
-            }
-        }
-
+        
         [HttpGet("/api/InventoryCount/GetCountType")]
         public async Task<IActionResult> GetCountType(Int32 userId)
         {
@@ -2862,6 +2809,293 @@ namespace WebApi.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/InventoryCount/GetZoneCount")]
+        public async Task<IActionResult> GetZoneCount(Int32 userId, Int32? supplierId)
+        {
+            try
+            {
+                Models.Response<List<Models.ZoneCount>> _response = await _dInventory.GetZoneCount(userId, 0, supplierId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+         
+
+        [HttpGet("/api/InventoryCount/GetCountSummary")]
+        public async Task<IActionResult> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
+        {
+            try
+            {
+                Models.Response<List<Models.CountSummary>> _response = await _dInventory.GetCountSummary(userId, supplierId, rowfrom, inventoryId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        private async Task<byte[]> GenerateInventoryCountPdfReport(int userId, int supplierId, int inventoryId, List<int> formIds, int rowfrom)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            if (formIds == null || !formIds.Any())
+                return Array.Empty<byte>();
+
+            // 1. Obtener los detalles de todas las planillas preservando su FormId correspondiente
+            var tasks = formIds.Select(async formId => new
+            {
+                FormId = formId,
+                Response = await _dInventory.GetInventoryCountDetailByForm(userId, supplierId, inventoryId, formId, rowfrom)
+            });
+
+            var responses = await Task.WhenAll(tasks);
+
+            // 2. Agrupar la información por planilla
+            var formsData = responses
+                .Select(item => new
+                {
+                    FormId = item.FormId,
+                    Details = item.Response?.Data ?? new List<Models.GetInventoryCountDetail>()
+                })
+                .Where(f => f.Details.Any())
+                .ToList();
+
+            if (!formsData.Any())
+                return Array.Empty<byte>();
+
+            // 3. Obtener el logo una sola vez
+            string supplierImagePath = await GetFirstAttachmentFilePath("RECURSOS-EMPRESAS", supplierId);
+
+            // 4. Construir el documento QuestPDF
+            var document = QuestPDF.Fluent.Document.Create(container =>
+            {
+                foreach (var formData in formsData)
+                {
+                    var countDetailList = formData.Details;
+                    var firstRecord = countDetailList.FirstOrDefault();
+
+                    string numForm = firstRecord?.NumForm?.ToString() ?? formData.FormId.ToString();
+                    string zone = firstRecord?.Zone ?? "N/A";
+                    string userName = firstRecord?.UserName ?? "N/A";
+                    string createdDate = firstRecord?.Created?.ToString("dd/MM/yyyy HH:mm") ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+                    container.Page(page =>
+                    {
+                        page.Margin(30);
+                        page.Size(PageSizes.Letter.Portrait());
+                        page.DefaultTextStyle(x => x.FontSize(8.5f));
+
+                        // CABECERA DE LA PLANILLA
+                        page.Header().ShowOnce().Element(header =>
+                        {
+                            header.Column(col =>
+                            {
+                                col.Item().Row(row =>
+                                {
+                                    // LOGO
+                                    if (!string.IsNullOrEmpty(supplierImagePath) && System.IO.File.Exists(supplierImagePath))
+                                    {
+                                        row.ConstantItem(100).Image(supplierImagePath, ImageScaling.FitWidth);
+                                    }
+                                    else
+                                    {
+                                        row.ConstantItem(100).Text("LOGO").Bold();
+                                    }
+
+                                    // TÍTULO
+                                    row.RelativeItem()
+                                       .AlignCenter()
+                                       .Text("PLANILLA DE CONTEO DE INVENTARIO")
+                                       .FontSize(13)
+                                       .Bold();
+
+                                    // NRO PLANILLA Y FECHA
+                                    row.ConstantItem(150).Column(right =>
+                                    {
+                                        right.Item().AlignRight().Text($"NRO PLANILLA: {numForm}").Bold();
+                                        right.Item().AlignRight().Text($"FECHA: {createdDate}");
+                                    });
+                                });
+
+                                // BLOQUE DE INFORMACIÓN
+                                col.Item().PaddingTop(6).PaddingBottom(6).Border(1).Padding(5).Column(info =>
+                                {
+                                    info.Item().Row(r =>
+                                    {
+                                        r.ConstantItem(90).Text("ZONA:").Bold();
+                                        r.RelativeItem().Text(zone).WrapAnywhere();
+
+                                        r.ConstantItem(100).Text("AUDITOR/USUARIO:").Bold();
+                                        r.RelativeItem().Text(userName).WrapAnywhere();
+                                    });
+
+                                    info.Item().Row(r =>
+                                    {
+                                        r.ConstantItem(90).Text("NUMERO DE INVENTARIO:").Bold();
+                                        r.RelativeItem().Text(inventoryId.ToString());
+                                    });
+                                });
+                            });
+                        });
+
+                        // CONTENIDO (TABLA DE DETALLE CON CUADRÍCULA)
+                        page.Content().PaddingVertical(3).Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1.5f); // Ubicación
+                                columns.RelativeColumn(2.0f); // Código
+                                columns.RelativeColumn(3.8f); // Descripción
+                                columns.RelativeColumn(1.0f); // Conteo Físico
+                            });
+
+                            // Estilos con Border(0.5f) para armar la cuadrícula
+                            static IContainer HeaderCellStyle(IContainer c) =>
+                                c.Border(0.5f)
+                                 .BorderColor("#AAAAAA")
+                                 .DefaultTextStyle(x => x.Bold().FontSize(8.5f))
+                                 .PaddingVertical(3)
+                                 .PaddingHorizontal(4)
+                                 .Background("#EEEEEE")
+                                 .AlignCenter();
+
+                            static IContainer BodyCellStyleCenter(IContainer c) =>
+                                c.Border(0.5f)
+                                 .BorderColor("#AAAAAA")
+                                 .PaddingVertical(3)
+                                 .PaddingHorizontal(4)
+                                 .AlignCenter();
+
+                            static IContainer BodyCellStyleLeft(IContainer c) =>
+                                c.Border(0.5f)
+                                 .BorderColor("#AAAAAA")
+                                 .PaddingVertical(3)
+                                 .PaddingHorizontal(4)
+                                 .AlignLeft();
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(HeaderCellStyle).Text("UBICACIÓN");
+                                header.Cell().Element(HeaderCellStyle).Text("CÓDIGO");
+                                header.Cell().Element(HeaderCellStyle).Text("DESCRIPCIÓN DE PARTE");
+                                header.Cell().Element(HeaderCellStyle).Text("CONTEO");
+                            });
+
+                            int totalItems = 0;
+
+                            foreach (var detail in countDetailList)
+                            {
+                                table.Cell().Element(BodyCellStyleCenter).Text(detail.Location ?? "N/A");
+                                table.Cell().Element(BodyCellStyleCenter).Text(detail.InnerCode ?? "N/A");
+                                table.Cell().Element(BodyCellStyleLeft).Text(detail.PartName ?? "N/A");
+
+                                // Celda vacía con bordes visibles para anotación manual
+                                table.Cell().Element(BodyCellStyleCenter).Text("");
+
+                                totalItems++;
+                            }
+
+                            table.Footer(footer =>
+                            {
+                                footer.Cell().ColumnSpan(4)
+                                      .Border(0.5f)
+                                      .BorderColor("#AAAAAA")
+                                      .AlignRight()
+                                      .Element(HeaderCellStyle)
+                                      .Text($"TOTAL REGISTROS: {totalItems}");
+                            });
+                        });
+
+                        // PIE DE PÁGINA
+                        page.Footer().Element(footer =>
+                        {
+                            footer.Column(col =>
+                            {
+                                // Sección de firmas
+                                col.Item().Row(r =>
+                                {
+                                    r.RelativeItem().Column(c =>
+                                    {
+                                        c.Item().AlignCenter().Text("___________________________________");
+                                        c.Item().AlignCenter().Text("FIRMA AUDITOR / CONTADOR").Bold().FontSize(8);
+                                    });
+
+                                    r.RelativeItem().Column(c =>
+                                    {
+                                        c.Item().AlignCenter().Text("___________________________________");
+                                        c.Item().AlignCenter().Text("FIRMA SUPERVISOR").Bold().FontSize(8);
+                                    });
+                                });
+
+                                // Observaciones
+                                col.Item().PaddingTop(8).Text("Observaciones: ____________________________________________________________________________________________________").FontSize(8);
+
+                                // Pie legal y numeración de página
+                                col.Item().PaddingTop(6).Row(r =>
+                                {
+                                    r.RelativeItem().Text("DOCUMENTO DE CONTROL INTERNO DE INVENTARIO").FontSize(7.5f).Bold();
+                                    r.RelativeItem().AlignRight().Text(x =>
+                                    {
+                                        x.Span("Página ").FontSize(7.5f);
+                                        x.CurrentPageNumber().FontSize(7.5f);
+                                        x.Span(" de ").FontSize(7.5f);
+                                        x.TotalPages().FontSize(7.5f);
+                                    });
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+
+            return document.GeneratePdf();
+        }
+
+        [HttpGet("ExportPdfInventoryCount")]
+        public async Task<IActionResult> ExportPdfInventoryCount( int inventoryId, [FromQuery] List<int> formIds,int supplierId,int userId)
+        {
+            try
+            {
+                // 1. Validar parámetros requeridos
+                if (inventoryId <= 0 || formIds == null || !formIds.Any(id => id > 0))
+                {
+                    return BadRequest("Los parámetros 'inventoryId' y al menos un 'formId' válido son obligatorios.");
+                }
+
+                // Filtrar IDs no válidos si los hubiera
+                var cleanFormIds = formIds.Where(id => id > 0).Distinct().ToList();
+
+                // 2. Generar el PDF llamando al método adaptado (que recibe List<int>)
+                byte[] pdfBytes = await GenerateInventoryCountPdfReport(userId, supplierId, inventoryId, cleanFormIds, 0);
+
+                // 3. Validar que la generación devolvió contenido
+                if (pdfBytes == null || pdfBytes.Length == 0)
+                {
+                    return NotFound("No se encontraron registros de conteo para las planillas solicitadas.");
+                }
+
+                // 4. Nombre dinámico del archivo PDF
+                string formsSuffix = cleanFormIds.Count == 1
+                    ? $"Form{cleanFormIds.First()}"
+                    : $"Forms_{cleanFormIds.Count}_Planillas";
+
+                string fileName = $"Planilla_Conteo_{formsSuffix}_Inv{inventoryId}.pdf";
+
+                // 5. Retornar el archivo PDF
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error al generar la planilla de conteo: {ex.Message}");
             }
         }
 
