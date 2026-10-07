@@ -544,14 +544,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("ExportAccountReceivable")]
-        public async Task<IActionResult> ExportAccountReceivable(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate)
+        public async Task<IActionResult> ExportAccountReceivable(Int32 userId, Int32 supplierId, Int32 dealerId, string? typeCode, string? conceptCode, string? filter, DateTime? fromDate, DateTime? upToDate, int? statusId, DateTime? paymentDate, Boolean? migration = false)
 
         {
 
             try
             {
 
-                List<AccountReceivable> _AccountReceivable = await _dPayment.GetExportAccountReceivable(userId, supplierId, dealerId, typeCode, conceptCode, filter, fromDate, upToDate, statusId, paymentDate);
+                List<AccountReceivable> _AccountReceivable = await _dPayment.GetExportAccountReceivable(userId, supplierId, dealerId, typeCode, conceptCode, filter, fromDate, upToDate, statusId, paymentDate, migration);
                 MemoryStream _excel = ConvertToExcel_AccountReceivable(_AccountReceivable);
                 string _fileName = $"Lista_Detalles_Pago.xlsx";
 
