@@ -935,7 +935,8 @@ namespace Data
                             ProductId = row["PRODUCT_ID"].ToString(),
                             ProductName = row["PRODUCT"].ToString(),
                             Stock = Convert.ToInt32(row["STOCK"]),
-                            Um = row["UM"].ToString()
+                            Um = row["UM"].ToString(),
+                            Cost = Convert.ToDecimal(row["COST"])
                         });
                     }
                 }

@@ -72,6 +72,7 @@ namespace Models
         public string? ProductName { get; set; }
         public int Stock { get; set; }
         public string? Um { get; set; }
+        public decimal Cost { get; set; }
     }
 
     public class FIGO_MasterSales
