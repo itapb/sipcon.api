@@ -4,6 +4,7 @@ using ClosedXML.Excel;
 using Data;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.UserSecrets;
@@ -14,6 +15,8 @@ namespace WebApi.Controllers
 {
     [Route("api/Vehicle")]
     [ApiController]
+    [Authorize]
+
     public class cVehicle : ControllerBase
     {
 

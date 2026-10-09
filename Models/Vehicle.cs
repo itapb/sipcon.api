@@ -77,6 +77,7 @@ namespace Models
         public int? Lastkm { get; set; }
         [SwaggerIgnore] public string? RowReference { get; set; }
 
+        public Boolean? HasAttachment { get; set; }
 
     }
 
