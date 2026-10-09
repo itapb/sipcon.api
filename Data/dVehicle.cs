@@ -70,6 +70,7 @@ namespace Data
                 _mapping.AddItem("DealerReference", "VDEALER");
                 _mapping.AddItem("CustomerId", "IDCUSTOMER");
                 _mapping.AddItem("CustomerName", "VCUSTOMER");
+                _mapping.AddItem("HasAttachment", "HAS_ATTACHMENT");
                 _mapping.AddItem("IsActive", "BACTIVE");
                 _mapping.AddItem("EstatusName", "VESTATUS");
 
