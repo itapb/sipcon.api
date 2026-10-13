@@ -8,25 +8,13 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Models
 {
-    // PARA GUARDAR CONTEO
+    // PARA GUARDAR CONTEO (normal o botón +)
     public class StockCountDetail
-    { 
-        [Required]
-        public int? IdInventory { get; set; }
-
-        [Required]
-        public string? LocationCode { get; set; }
-
-        [Required]
-        public string? PartCode { get; set; }
-
-        [Required]
-        public int? Quantity { get; set; }
-    }
-
-    // MODELO PARA BOTÓN
-    public class UnassignedPartRequest
     {
+        // Id = NULL o 0 → botón (+)
+        // Id > 0 → conteo normal
+        public int? Id { get; set; }
+
         [Required]
         public int? IdInventory { get; set; }
 
@@ -49,25 +37,15 @@ namespace Models
         public string? Message { get; set; }
     }
 
-    // MODELO PARA RESPUESTA DE CHECKACTIVE
-    public class ActiveInventoryResponse
-    {
-        public bool HasActiveInventory { get; set; }
-    }
-
     // MODELO PARA RESPUESTA DE GETTYPES
     public class InventoryTypeOption
     {
-        public int IdCountType { get; set; }
-        public string VName { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
-        public string AssignmentType { get; set; } = string.Empty;
-        public string AssignmentName { get; set; } = string.Empty;
+        public string Tipo { get; set; } = string.Empty;           // 'FISICO' o 'CICLICO'
         public int IdInventoryCount { get; set; }
-        public int HasAssignment { get; set; }
-        public int IdStatus { get; set; }        // 20 o 6
+        public int IdCountType { get; set; }
+        public int IdStatus { get; set; }
         public string VDescription { get; set; } = string.Empty;
-        public int IdCount { get; set; }           // 0 o 1
+        public int TieneAsignacion { get; set; }                    // 1 = tiene, 0 = no
     }
 
     // MODELO PARA VALIDACIÓN DE UBICACIÓN
@@ -94,14 +72,19 @@ namespace Models
     // MODELO PARA DETALLES DEL INVENTARIO (GETDETAILS)
     public class InventoryDetailResponse
     {
+        public int IdInventoryDetail { get; set; }
         public int IdLocation { get; set; }
-        public string LocationName { get; set; } = string.Empty;
         public int IdPart { get; set; }
+        public int? IQuantityOld { get; set; }
+        public int? IQuantityNew { get; set; }
+        public string? IForm { get; set; }
+        public string LocationName { get; set; } = string.Empty;
         public string PartCode { get; set; } = string.Empty;
         public string PartDescription { get; set; } = string.Empty;
-        public int? IdStatus { get; set; }
-        public int? IdCount { get; set; }
-
+        public int? IdAssign { get; set; }                          // Solo en preinventario
+        public string? VAssignType { get; set; }                    // Solo en preinventario
+        public string Modo { get; set; } = string.Empty;
+        public string Mensaje { get; set; } = string.Empty;
     }
 
     // MODELO DE RESPUESTA GENÉRICA
@@ -110,5 +93,22 @@ namespace Models
         public int Status { get; set; }
         public string Message { get; set; } = string.Empty;
         public T? Data { get; set; }
+    }
+
+    // MODELO PARA FILA DE IMPORTACIÓN
+    public class ImportStockCountRow
+    {
+        public string LocationCode { get; set; } = string.Empty;
+        public string PartCode { get; set; } = string.Empty;
+        public decimal Quantity { get; set; }
+    }
+
+
+    // MODELO PARA RESULTADO DE IMPORTACIÓN
+    public class ImportStockCountResult
+    {
+        public int? Fila { get; set; }
+        public string Estado { get; set; } = string.Empty;
+        public string Mensaje { get; set; } = string.Empty;
     }
 }

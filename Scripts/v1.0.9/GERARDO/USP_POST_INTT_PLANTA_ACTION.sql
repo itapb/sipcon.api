@@ -9,7 +9,7 @@ GO
 ALTER PROCEDURE [dbo].[USP_POST_INTT_PLANTA_ACTION]
     @DATA VARCHAR(MAX),
     @IDUSER INT,
-    @IDSUPPLIER INT
+    @IDSUPPLIER INT 
 
 /* '===============================================================          
   '   NOMBRE                : USP_POST_INTT_PLANTA_ACTION

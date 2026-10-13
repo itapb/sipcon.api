@@ -41,19 +41,14 @@ namespace Data
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                _parameter.AddSqlParameter("@VACTION", "GETTYPES");
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("IdCountType", "IDCOUNTTYPE");
-                _mapping.AddItem("VName", "VNAME");
-                _mapping.AddItem("IsActive", "ISACTIVE");
-                _mapping.AddItem("AssignmentType", "ASSIGNMENTTYPE");
-                _mapping.AddItem("AssignmentName", "ASSIGNMENTNAME");
+                _mapping.AddItem("Tipo", "TIPO");
                 _mapping.AddItem("IdInventoryCount", "IDINVENTORYCOUNT");
-                _mapping.AddItem("HasAssignment", "HASASSIGNMENT");
+                _mapping.AddItem("IdCountType", "IDCOUNTTYPE");
                 _mapping.AddItem("IdStatus", "IDESTATUS");
                 _mapping.AddItem("VDescription", "VDESCRIPTION");
-                _mapping.AddItem("IdCount", "IDCOUNT");
+                _mapping.AddItem("TieneAsignacion", "TIENE_ASIGNACION");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_STOCK_COUNT", _parameter);
@@ -101,14 +96,19 @@ namespace Data
                 _parameter.AddSqlParameter("@IDINVENTORYCOUNT", inventoryId);
 
                 Mapping _mapping = new Mapping();
+                _mapping.AddItem("IdInventoryDetail", "IDINVENTORYDETAIL");
                 _mapping.AddItem("IdLocation", "IDLOCATION");
-                _mapping.AddItem("LocationName", "LOCATIONNAME");
                 _mapping.AddItem("IdPart", "IDPART");
+                _mapping.AddItem("IQuantityOld", "IQUANTITY_OLD");
+                _mapping.AddItem("IQuantityNew", "IQUANTITY_NEW");
+                _mapping.AddItem("IForm", "IFORM");
+                _mapping.AddItem("LocationName", "LOCATIONNAME");
                 _mapping.AddItem("PartCode", "PARTCODE");
                 _mapping.AddItem("PartDescription", "PARTDESCRIPTION");
-                _mapping.AddItem("IdStatus", "IDSTATUS");
-                _mapping.AddItem("IdCount", "IDCOUNT");
-                _mapping.AddItem("IsPending", "ISPENDING");
+                _mapping.AddItem("IdAssign", "IDASSIGN");
+                _mapping.AddItem("VAssignType", "VASSIGNTYPE");
+                _mapping.AddItem("Modo", "MODO");
+                _mapping.AddItem("Mensaje", "MENSAJE");
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_DETAIL_STOCK_COUNT", _parameter);
@@ -123,73 +123,19 @@ namespace Data
             return _response;
         }
 
-        
-
-        //--------------------------------------------------------- CHECK ACTIVE INVENTORY-----------------------------------------------------------------------------
-        public async Task<Response<ActiveInventoryResponse>> CheckActiveInventory(
-            int userId,
-            int supplierId)
-        {
-            await _semaphore.WaitAsync(Util.Setting.TimeOut);
-            try
-            {
-                return await _CheckActiveInventory(userId, supplierId);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
-        private async Task<Response<ActiveInventoryResponse>> _CheckActiveInventory(
-            int userId,
-            int supplierId)
-        {
-            Response<ActiveInventoryResponse> _response = new Response<ActiveInventoryResponse>();
-
-            try
-            {
-                Util.Parameter _parameter = new Util.Parameter();
-                _parameter.AddSqlParameter("@IDUSER", userId);
-                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
-                _parameter.AddSqlParameter("@VACTION", "CHECKACTIVE");
-
-                Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_GET_STOCK_COUNT", _parameter);
-
-                _response.Data = new ActiveInventoryResponse();
-                if (_table.Rows.Count > 0)
-                {
-                    _response.Data.HasActiveInventory = Convert.ToBoolean(_table.Rows[0]["HASACTIVEINVENTORY"]);
-                }
-                else
-                {
-                    _response.Data.HasActiveInventory = false;
-                }
-
-                _response.SetGetResponse(_table);
-            }
-            catch (Exception ex)
-            {
-                _response.SetError(ex);
-            }
-
-            return _response;
-        }
-
-
 
         //--------------------------------------------------------- VALIDATE LOCATION-----------------------------------------------------------------------------
         public async Task<Response<LocationValidationResponse>> ValidateLocation(
-            int userId,
-            int supplierId,
-            int inventoryId,
-            string locationCode)
+         int userId,
+         int supplierId,
+         int inventoryId,
+         string locationCode,
+         bool isUnassigned = false)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _ValidateLocation(userId, supplierId, inventoryId, locationCode);
+                return await _ValidateLocation(userId, supplierId, inventoryId, locationCode, isUnassigned);
             }
             finally
             {
@@ -198,10 +144,11 @@ namespace Data
         }
 
         private async Task<Response<LocationValidationResponse>> _ValidateLocation(
-    int userId,
-    int supplierId,
-    int inventoryId,
-    string locationCode)
+         int userId,
+         int supplierId,
+         int inventoryId,
+         string locationCode,
+         bool isUnassigned = false)
         {
             Response<LocationValidationResponse> _response = new Response<LocationValidationResponse>();
 
@@ -212,13 +159,13 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IDINVENTORYCOUNT", inventoryId);
                 _parameter.AddSqlParameter("@LOCATIONCODE", locationCode);
+                _parameter.AddSqlParameter("@ISUNASSIGNED", isUnassigned);
 
                 Mapping _mapping = new Mapping();
-                
+
                 _mapping.AddItem("LocationId", "LOCATIONID");
                 _mapping.AddItem("LocationName", "LOCATIONNAME");
                 _mapping.AddItem("ZoneName", "ZONENAME");
-               
 
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_VALIDATELOCATION_STOCKCOUNT", _parameter);
@@ -226,6 +173,7 @@ namespace Data
                 if (_table.Rows.Count > 0)
                 {
                     _response.Data = _data.GetItem<LocationValidationResponse>(_mapping, _table);
+                    _response.Data.LocationCode = locationCode;
                     _response.Data.IsValid = true;
                     _response.Data.Message = "Ubicación válida";
                 }
@@ -233,6 +181,7 @@ namespace Data
                 {
                     _response.Data = new LocationValidationResponse
                     {
+                        LocationCode = locationCode,
                         IsValid = false,
                         Message = "Ubicación no válida o sin acceso"
                     };
@@ -245,6 +194,7 @@ namespace Data
                 _response.SetError(ex);
                 _response.Data = new LocationValidationResponse
                 {
+                    LocationCode = locationCode,
                     IsValid = false,
                     Message = ex.Message
                 };
@@ -321,20 +271,16 @@ namespace Data
                     Message = ex.Message
                 };
             }
-
             return _response;
         }
 
-        //--------------------------------------------------------- ADD UNASSIGNED PART-----------------------------------------------------------------------------
-        public async Task<Response<StockCountResponse>> AddUnassignedPart(
-            int userId,
-            int supplierId,
-            UnassignedPartRequest data)
+        //----------------------------------------------------------POST STOCK COUNT-----------------------------------------------------------------------------
+        public async Task<Response<StockCountResponse>> PostStockCount(int userId, int supplierId, StockCountDetail data)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _AddUnassignedPart(userId, supplierId, data);
+                return await _PostStockCount(userId, supplierId, data);
             }
             finally
             {
@@ -342,10 +288,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<StockCountResponse>> _AddUnassignedPart(
-            int userId,
-            int supplierId,
-            UnassignedPartRequest data)
+        private async Task<Response<StockCountResponse>> _PostStockCount(int userId, int supplierId, StockCountDetail data)
         {
             Response<StockCountResponse> _response = new Response<StockCountResponse>();
 
@@ -357,7 +300,6 @@ namespace Data
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@DATA", jsonData);
-                _parameter.AddSqlParameter("@ISUNASSIGNED", true);
 
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("Iid", "IID");
@@ -377,43 +319,49 @@ namespace Data
             return _response;
         }
 
-        //----------------------------------------------------------POST STOCK COUNT-----------------------------------------------------------------------------
-        public async Task<Response<StockCountResponse>> PostStockCount(int userId, int supplierId, StockCountDetail data)
+        //----------------------------------------------------------IMPORT STOCK COUNT-----------------------------------------------------------------------------
+        public async Task<Response<List<ImportStockCountResult>>> ImportStockCount(
+            int userId,
+            int supplierId,
+            int inventoryId,
+            string jsonData)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _PostStockCount(userId, supplierId, data);
+                return await _ImportStockCount(userId, supplierId, inventoryId, jsonData);
             }
             finally
             {
                 _semaphore.Release();
             }
-        } 
+        }
 
-        private async Task<Response<StockCountResponse>> _PostStockCount(int userId, int supplierId, StockCountDetail data)
+        private async Task<Response<List<ImportStockCountResult>>> _ImportStockCount(
+            int userId,
+            int supplierId,
+            int inventoryId,
+            string jsonData)
         {
-            Response<StockCountResponse> _response = new Response<StockCountResponse>();
+            Response<List<ImportStockCountResult>> _response = new Response<List<ImportStockCountResult>>();
 
             try
             {
-                string jsonData = Util.Json.ConvertToJsonString(data);
-
                 Util.Parameter _parameter = new Util.Parameter();
                 _parameter.AddSqlParameter("@IDUSER", userId);
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IDINVENTORY", inventoryId);
                 _parameter.AddSqlParameter("@DATA", jsonData);
-                _parameter.AddSqlParameter("@ISUNASSIGNED", false);
 
                 Mapping _mapping = new Mapping();
-                _mapping.AddItem("Iid", "IID");
-                _mapping.AddItem("Iinserted", "IINSERTED");
-                _mapping.AddItem("Iupdated", "IUPDATED");
+                _mapping.AddItem("Fila", "Fila");
+                _mapping.AddItem("Estado", "Estado");
+                _mapping.AddItem("Mensaje", "Mensaje");
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_STOCK_COUNT", _parameter);
-                _response.Data = _data.GetItem<StockCountResponse>(_mapping, _table);
-                _response.SetPostResponse();
+                DataTable _table = await _data.GetDataTable("USP_POST_STOCK_COUNT_IMPORT", _parameter);
+                _response.Data = _data.GetList<ImportStockCountResult>(_mapping, _table);
+                _response.SetGetResponse(_table);
             }
             catch (Exception ex)
             {
