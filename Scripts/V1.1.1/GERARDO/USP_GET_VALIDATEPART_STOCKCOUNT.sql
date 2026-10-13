@@ -1,0 +1,45 @@
+
+CREATE PROCEDURE [dbo].[USP_GET_VALIDATEPART_STOCKCOUNT] -- [USP_GET_VALIDATEPART_STOCKCOUNT] 1, 4069, 1, 694, '07821-20119'
+@IDUSER INT,
+@IDSUPPLIER INT,
+@IDLOCATION INT,
+@PARTCODE VARCHAR(50) 
+/* '===============================================================          
+  '   NOMBRE                : USP_GET_VALIDATEPART_STOCKCOUNT
+  '   FECHA CREACIÓN        : 
+  '   CREADO POR            : GERARDO JIMENEZ 
+  '   CREADO PARA           : 
+  '   FUNCIÓN               : Validar repuestos en STOCKCOUNT
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        :  
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+AS
+BEGIN
+    SET XACT_ABORT ON               
+    SET NOCOUNT ON
+    SET LOCK_TIMEOUT 180000
+
+    DECLARE @PARTID INT 
+    DECLARE @PARTCODE_FOUND VARCHAR(50)
+    DECLARE @PARTDESCRIPTION VARCHAR(200)
+
+    SELECT TOP 1 
+        @PARTID = P.ID,
+        @PARTCODE_FOUND = P.VINNERCODE,
+        @PARTDESCRIPTION = P.VDESCRIPTION
+    FROM PART P WITH (NOLOCK)
+    WHERE (P.VINNERCODE = @PARTCODE OR P.VBARCODE = @PARTCODE)
+    AND P.IDSUPPLIER = @IDSUPPLIER
+
+    IF ISNULL(@PARTID, 0) = 0
+    BEGIN
+        RAISERROR('RESPUESTO NO ENCONTRADO', 16, 1)
+    END
+
+    SELECT 
+        @PARTID AS PARTID,
+        @PARTCODE_FOUND AS PARTCODE,
+        @PARTDESCRIPTION AS PARTDESCRIPTION
+END
