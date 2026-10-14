@@ -9,12 +9,13 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
 		<PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
-		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
 		<PackageReference Include="Polly" Version="8.7.0" />
 		<PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
 		<PackageReference Include="QuestPDF" Version="2026.7.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
 		<PackageReference Include="Scalar.AspNetCore" Version="2.16.10" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
 	
 		
 	</ItemGroup>
