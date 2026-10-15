@@ -65,6 +65,17 @@ namespace Models
     }
 
 
+    public class PostInventoryCountDetail 
+    {
+
+         [Required] public int InventoryId { get; set; }
+         [Required] public int Quantity { get; set; }
+         [Required] public int UserId { get; set; }
+         [Required] public String Location { get; set; }
+         [Required] public String InnerCode { get; set; }
+       
+    }
+
     public class CountSummary
     {
         [SwaggerIgnore] public int? ZoneId { get; set; }
@@ -96,6 +107,20 @@ namespace Models
     {
 
         public List<GetInventoryCountDetail>? InventoryCountDetail { get; set; } = new List<GetInventoryCountDetail>();
+
+    }
+
+
+    public class CountTotal
+    {
+        [SwaggerIgnore] public int? PartId { get; set; }
+        [SwaggerIgnore] public String? InnerCode { get; set; }
+        [SwaggerIgnore] public Int32? Stock { get; set; }
+        [SwaggerIgnore] public Int32? StockFigo { get; set; }
+        [SwaggerIgnore] public Int32? Count { get; set; }
+        [SwaggerIgnore] public Decimal? Cost { get; set; }
+        [SwaggerIgnore] public Decimal? CostCount { get; set; }
+        [SwaggerIgnore] public Decimal? CostFigo { get; set; }
 
     }
 
