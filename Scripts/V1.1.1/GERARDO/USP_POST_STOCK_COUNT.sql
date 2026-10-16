@@ -297,7 +297,8 @@ BEGIN
                   AND ICD.IDCOUNT     >= 1
                   AND ICD.IDZONE      = @ZONEID
                   AND ICD.IDLOCATION  = @LOCATIONID
-                  AND ICD.IDPART      = @PARTID;
+                  AND ICD.IDPART      = @PARTID
+                  AND ICD.IDUSER      = @IDUSER;
 
                 IF @DETAILID IS NOT NULL
                 BEGIN

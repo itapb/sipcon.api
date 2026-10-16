@@ -139,7 +139,6 @@ END
                 ELSE 3 
             END ASC,
             L.VNAME ASC,
-            P.VINNERCODE ASC,
-            ICD.ID ASC;
+            P.VINNERCODE ASC;
      END
    END
