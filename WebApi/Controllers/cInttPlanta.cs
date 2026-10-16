@@ -174,7 +174,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                var controlNumber = controlId.ToString().PadLeft(10, '0');
+                var controlNumber = controlId.ToString();
 
                 
                 var response = await _dInttPlanta.GetGeneradosByControl(
