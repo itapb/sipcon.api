@@ -1,0 +1,105 @@
+
+CREATE PROCEDURE [dbo].[USP_GET_VALIDATELOCATION_STOCKCOUNT]
+    @IDUSER             INT,
+    @IDSUPPLIER         INT,
+    @IDINVENTORYCOUNT   INT,
+    @LOCATIONCODE       VARCHAR(50),
+    @ISUNASSIGNED       BIT = 0
+/* '===============================================================
+  '   NOMBRE                : USP_GET_VALIDATELOCATION_STOCKCOUNT
+  '   FECHA CREACIÓN        :
+  '   CREADO POR            : GERARDO JIMENEZ
+  '   CREADO PARA           :
+  '   FUNCIÓN               : Validar ubicaciones de STOCKCOUNT
+  '   VERSIÓN               : 
+  '   MODIFICADO EN         : 
+  '   MODIFICADO POR        : 
+  '   RAZÓN DE MODIFICACIÓN : 
+  '===============================================================*/
+AS
+BEGIN
+    SET XACT_ABORT ON;
+    SET NOCOUNT ON;
+    SET LOCK_TIMEOUT 180000;
+
+    DECLARE @LOCATIONID       INT;
+    DECLARE @LOCATIONNAME     VARCHAR(50);
+    DECLARE @ZONENAME_FOUND   VARCHAR(50);
+    DECLARE @ZONAID_FOUND     INT;
+    DECLARE @IDCOUNTTYPE      INT;
+    DECLARE @IDESTATUS        INT;
+
+    -- VALIDAR QUE LA UBICACIÓN EXISTA Y OBTENER SUS DATOS
+    SELECT TOP 1
+        @LOCATIONID     = L.ID,
+        @LOCATIONNAME   = L.VNAME,
+        @ZONENAME_FOUND = Z.VNAME,
+        @ZONAID_FOUND   = Z.ID
+    FROM LOCATION L WITH (NOLOCK)
+    INNER JOIN ZONE Z WITH (NOLOCK) ON Z.ID = L.IDZONE
+    WHERE L.VNAME      = @LOCATIONCODE
+      AND L.IDSUPPLIER = @IDSUPPLIER;
+
+    IF ISNULL(@LOCATIONID, 0) = 0
+    BEGIN
+        RAISERROR('UBICACION INVALIDA', 16, 1);
+        RETURN;
+    END
+
+    -- BOTÓN (+): SOLO VALIDAR EXISTENCIA
+    IF @ISUNASSIGNED = 1
+    BEGIN
+        SELECT
+            @LOCATIONID     AS LOCATIONID,
+            @LOCATIONNAME   AS LOCATIONNAME,
+            @ZONENAME_FOUND AS ZONENAME;
+        RETURN;
+    END
+
+    -- OBTENER TIPO Y ESTATUS DEL INVENTARIO
+    SELECT
+        @IDCOUNTTYPE = IC.IDCOUNTTYPE,
+        @IDESTATUS   = IC.IDESTATUS
+    FROM INVENTORYCOUNT IC WITH (NOLOCK)
+    WHERE IC.ID         = @IDINVENTORYCOUNT
+      AND IC.IDSUPPLIER = @IDSUPPLIER;
+
+    -- PREINVENTARIO: VALIDAR POR ZONA EN COUNTBYUSER
+    IF @IDCOUNTTYPE = 2 AND @IDESTATUS = 20
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM COUNTBYUSER C WITH (NOLOCK)
+            WHERE C.IDINVENTORYCOUNT = @IDINVENTORYCOUNT
+              AND C.VASSIGNTYPE      = 'Z'
+              AND C.IDASSIGN         = @ZONAID_FOUND
+              AND C.IDUSER           = @IDUSER
+              AND C.IDSUPPLIER       = @IDSUPPLIER
+        )
+        BEGIN
+            RAISERROR('UBICACION NO PERMITIDA EN ESTA ZONA', 16, 1);
+            RETURN;
+        END
+    END
+    -- FÍSICO FINAL Y CÍCLICO: VALIDAR ASIGNACIÓN AL USUARIO
+    ELSE
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM INVENTORYCOUNTDETAIL ICD WITH (NOLOCK)
+            WHERE ICD.IDINVENTORY = @IDINVENTORYCOUNT
+              AND ICD.IDLOCATION  = @LOCATIONID
+              AND ICD.IDUSER      = @IDUSER
+              AND ICD.IDCOUNT     >=1
+        )
+        BEGIN
+            RAISERROR('UBICACION NO ASIGNADA', 16, 1);
+            RETURN;
+        END
+    END
+
+    SELECT
+        @LOCATIONID     AS LOCATIONID,
+        @LOCATIONNAME   AS LOCATIONNAME,
+        @ZONENAME_FOUND AS ZONENAME;
+END
