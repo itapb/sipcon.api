@@ -11,8 +11,6 @@ namespace Models
     // PARA GUARDAR CONTEO (normal o botón +)
     public class StockCountDetail
     {
-        // Id = NULL o 0 → botón (+)
-        // Id > 0 → conteo normal
         public int? Id { get; set; }
 
         [Required]
@@ -40,12 +38,12 @@ namespace Models
     // MODELO PARA RESPUESTA DE GETTYPES
     public class InventoryTypeOption
     {
-        public string Tipo { get; set; } = string.Empty;           // 'FISICO' o 'CICLICO'
+        public string Tipo { get; set; } = string.Empty;          
         public int IdInventoryCount { get; set; }
         public int IdCountType { get; set; }
         public int IdStatus { get; set; }
         public string VDescription { get; set; } = string.Empty;
-        public int TieneAsignacion { get; set; }                    // 1 = tiene, 0 = no
+        public int TieneAsignacion { get; set; }                    
     }
 
     // MODELO PARA VALIDACIÓN DE UBICACIÓN
@@ -87,7 +85,6 @@ namespace Models
         public string Mensaje { get; set; } = string.Empty;
     }
 
-    // MODELO DE RESPUESTA GENÉRICA
     public class ServiceResponse<T>
     {
         public int Status { get; set; }
@@ -95,7 +92,7 @@ namespace Models
         public T? Data { get; set; }
     }
 
-    // MODELO PARA FILA DE IMPORTACIÓN
+
     public class ImportStockCountRow
     {
         public string LocationCode { get; set; } = string.Empty;
@@ -103,8 +100,6 @@ namespace Models
         public decimal Quantity { get; set; }
     }
 
-
-    // MODELO PARA RESULTADO DE IMPORTACIÓN
     public class ImportStockCountResult
     {
         public int? Fila { get; set; }
