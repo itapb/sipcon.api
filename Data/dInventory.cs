@@ -3455,6 +3455,45 @@ namespace Data
             return _response;
         }
 
+        public async Task<Response<Result>> DeleteDispatch(int IdDispatch)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _DeleteDispatch(IdDispatch);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _DeleteDispatch(int IdDispatch)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDDISPATCHED", IdDispatch);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_DECLINE_DISPATCHEDCONTROL_ID", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
         /*--------------------------------------------------------------POST ACTION-------------------------------------------------------------*/
         public async Task<Response<Result>> PostInvoiceControl_Actions(List<Models.Action> actions, Int32 userId, Int32 supplierId)
         {
