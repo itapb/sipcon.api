@@ -4185,6 +4185,49 @@ namespace Data
             return _response;
         }
 
+        public async Task<Response<Result>> PostInventoryCountDetail(List<PostInventoryCountDetail> _list, Int32 userId)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _PostInventoryCountDetail(_list, userId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _PostInventoryCountDetail(List<PostInventoryCountDetail> _list, Int32 userId)
+        {
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+
+                string _jsonstring = Util.Json.ConvertToJsonString(_list);
+
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@DATA", _jsonstring);
+                _parameter.AddSqlParameter("@IDUSER", userId);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_INVENTORYCOUNTDETAIL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+
+            return _response;
+        }
+
         public async Task<Response<List<GetInventoryCount>>> GetInventoryCount(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -4261,12 +4304,12 @@ namespace Data
 
 
 
-        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign)
+        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign, int? diference)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
             {
-                return await _GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryCountId, idZone, Assign);
+                return await _GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryCountId, idZone, Assign, diference);
             }
             finally
             {
@@ -4274,7 +4317,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign=null)
+        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign=null, int? diference=null)
         {
             Response<List<GetInventoryCountDetail>> _response = new Response<List<GetInventoryCountDetail>>();
             try
@@ -4290,6 +4333,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IESTATUS", estatusId);
                 _parameter.AddSqlParameter("@IDZONE", idZone);
                 _parameter.AddSqlParameter("@BASSIGN", Assign);
+                _parameter.AddSqlParameter("@BDIFERENCE", diference);
 
 
 
@@ -4397,6 +4441,73 @@ namespace Data
             return _response;
         }
 
+
+
+        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetailAll(Int32 userId, Int32? supplierId, int inventoryCountId, int partId, int locationId, Int32? rowfrom)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetInventoryCountDetailAll(userId, supplierId, inventoryCountId, partId,locationId, rowfrom);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetailAll (Int32 userId, Int32? supplierId, int inventoryCountId, int partId, int locationId, Int32? rowfrom)
+        {
+            Response<List<GetInventoryCountDetail>> _response = new Response<List<GetInventoryCountDetail>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@IDPART", partId);
+                _parameter.AddSqlParameter("@IDLOCATION", locationId);
+                _parameter.AddSqlParameter("@ID", inventoryCountId);
+
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("Id", "ID");
+                _mapping.AddItem("InventoryId", "IDINVENTORY");
+                _mapping.AddItem("CountId", "IDCOUNT");
+                _mapping.AddItem("LocationId", "IDLOCATION");
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("QuantityOld", "IQUANTITY_OLD");
+                _mapping.AddItem("QuantityNew", "IQUANTITY_NEW");
+                _mapping.AddItem("UserId", "IDUSER");
+                _mapping.AddItem("StatusId", "IDSTATUS");
+                _mapping.AddItem("Created", "DCREATED");
+                _mapping.AddItem("CountDate", "DCOUNTDATE");
+                _mapping.AddItem("StatusName", "VESTATUS");
+                _mapping.AddItem("UserName", "VASSIGN");
+                _mapping.AddItem("Location", "VLOCATION");
+                _mapping.AddItem("Zone", "VZONE");
+                _mapping.AddItem("InnerCode", "VINNERCODE");
+                _mapping.AddItem("PartName", "VPART");
+                _mapping.AddItem("ZoneId", "IDZONE");
+                _mapping.AddItem("Diference", "IDIFERENCE");
+                _mapping.AddItem("NumForm", "IFORM");
+                _mapping.AddItem("Block", "BBLOCK");
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INVENTORYCOUNTDETAILBYALLCOUNT", _parameter);
+                _response.Data = _data.GetList<Models.GetInventoryCountDetail>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
+
         public async Task<Response<List<Models.CountSummary>>> GetCountSummary(Int32 userId, Int32? supplierId, Int32? rowfrom, int inventoryId)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
@@ -4479,7 +4590,7 @@ namespace Data
 
 
                 Util.Data _data = Util.Data.GetInstance();
-                DataTable _table = await _data.GetDataTable("USP_POST_COUNTBYUSER", _parameter);
+                DataTable _table = await _data.GetDataTable("USP_POST_INVENTORYCOUNTDETAILS_ACTIONS", _parameter);
                 _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
                 _response.SetPostResponse();
 
@@ -4627,6 +4738,62 @@ namespace Data
                 _response.SetError(ex);
             }
 
+            return _response;
+        }
+
+
+        public async Task<Response<List<CountTotal>>> GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? diference)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _GetInventoryCountTotal(userId, supplierId, rowfrom, filter, inventoryCountId, diference);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<List<CountTotal>>> _GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? diference=null)
+        {
+            Response<List<CountTotal>> _response = new Response<List<CountTotal>>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDUSER", userId);
+                _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
+                _parameter.AddSqlParameter("@IROWFROM", rowfrom);
+                _parameter.AddSqlParameter("@VFILTER", filter);
+                _parameter.AddSqlParameter("@ID", inventoryCountId);
+                _parameter.AddSqlParameter("@BDIFERENCE", diference );
+
+
+
+
+
+                Mapping _mapping = new Mapping();
+                _mapping.AddItem("PartId", "IDPART");
+                _mapping.AddItem("InnerCode", "VINNERCODE");
+                _mapping.AddItem("Description", "VDESCRIPTION");
+                _mapping.AddItem("Stock", "ISTOCK");
+                _mapping.AddItem("StockFigo", "ISTOCKFIGO");
+                _mapping.AddItem("Count", "ICOUNT");
+                _mapping.AddItem("CostCount", "COST_ICOUNT");
+                _mapping.AddItem("CostFigo", "COST_ISTOCKFIGO");
+                _mapping.AddItem("CostUnit", "ICOSTUNIT");
+                _mapping.AddItem("CostDiference", "COST_DIFFERENCE");
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_GET_INVENTORYCOUNTTOTAL", _parameter);
+                _response.Data = _data.GetList<Models.CountTotal>(_mapping, _table);
+                _response.SetGetResponse(_table);
+
+
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
             return _response;
         }
 

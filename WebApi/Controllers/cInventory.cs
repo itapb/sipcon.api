@@ -2749,6 +2749,36 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("/api/InventoryCount/PostInventoryCountDetail")]
+        public async Task<IActionResult> PostInventoryCountDetail(List<PostInventoryCountDetail> count, Int32 userId)
+        {
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostInventoryCountDetail(count, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpPost("/api/InventoryCount/PostInventoryCountActions")]
+        public async Task<IActionResult> PostInventoryCountActions(List<Models.Action> actions, Int32 userId)
+        {
+
+            try
+            {
+                Models.Response<Result> _response = await _dInventory.PostInventoryCountActions(actions, userId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+
+        }
+
         [HttpGet("/api/InventoryCount/GetInventoryCount")]
         public async Task<IActionResult> GetInventoryCount(Int32 userId, Int32 supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId)
         {
@@ -2794,15 +2824,12 @@ namespace WebApi.Controllers
         }
 
 
-       
-
-
         [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
-        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId,int? idZone,bool? Assign )
+        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId,int? idZone,bool? Assign , int? diference)
         {
             try
             {
-                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId, idZone, Assign);
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, rowfrom, filter, fromDate, upToDate, estatusId, inventoryId, idZone, Assign, diference);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -2848,6 +2875,35 @@ namespace WebApi.Controllers
             try
             {
                 Models.Response<List<Models.CountSummary>> _response = await _dInventory.GetCountSummary(userId, supplierId, rowfrom, inventoryId);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetailByForm")]
+        public async Task<IActionResult> GetInventoryCountDetailByForm(Int32 userId, Int32? supplierId, Int32 formId ,int inventoryId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetailByForm(userId, supplierId, inventoryId, formId, null);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+        [HttpGet("/api/InventoryCount/GetInventoryCountDetailAll")]
+        public async Task<IActionResult> GetInventoryCountDetailAll(Int32 userId, Int32? supplierId, int inventoryCountId, int partId, int locationId)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetailAll(userId, supplierId, inventoryCountId, partId, locationId, 0);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
@@ -3113,22 +3169,173 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("/api/InventoryCount/PostInventoryCountActions")]
-        public async Task<IActionResult> PostInventoryCountActions(List<Models.Action> actions, Int32 userId)
-        {
+        
 
+        [HttpGet("/api/InventoryCount/GetInventoryCountTotal")]
+        public async Task<IActionResult> GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? Diference)
+        {
             try
             {
-                Models.Response<Result> _response = await _dInventory.PostInventoryCountActions(actions, userId);
+                Models.Response<List<Models.CountTotal>> _response = await _dInventory.GetInventoryCountTotal(userId, supplierId, rowfrom, filter, inventoryCountId, Diference);
                 return StatusCode(_response.Status, _response);
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
-
         }
 
+        [HttpGet("/api/InventoryCount/GetExportInventoryCountDetail")]
+        public async Task<IActionResult> GetExportInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, int? idZone, bool? Assign, int? diference)
+        {
+            try
+            {
+                Models.Response<List<Models.GetInventoryCountDetail>> _response = await _dInventory.GetInventoryCountDetail(userId, supplierId, null, filter, fromDate, upToDate, estatusId, inventoryId, idZone, Assign, diference);
+
+                // Extraemos la lista directamente del response (cambia .Data por .Result si tu modelo usa ese nombre)
+                MemoryStream _excel = ConvertToExcelInventoryCountDetail(_response.Data);
+                string _fileName = "InventoryDetail.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        private MemoryStream ConvertToExcelInventoryCountDetail(List<Models.GetInventoryCountDetail> _inventory)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("INVENTORY DETAIL");
+
+                // Definición de cabeceras según tu nuevo modelo
+                worksheet.Cell(1, 1).Value = "NUMERO INVENTARIO";
+                worksheet.Cell(1, 2).Value = "NUMERO CONTEO";
+                worksheet.Cell(1, 3).Value = "ZONA";
+                worksheet.Cell(1, 4).Value = "UBICACION";
+                worksheet.Cell(1, 5).Value = "CODIGO";
+                worksheet.Cell(1, 6).Value = "DESCRIPCION";
+                worksheet.Cell(1, 7).Value = "CANT. STOCK";
+                worksheet.Cell(1, 8).Value = "CANT. CONTADA";
+                worksheet.Cell(1, 9).Value = "DIFERENCIA";
+                worksheet.Cell(1, 10).Value = "N° PLANILLA";
+                worksheet.Cell(1, 11).Value = "ESTATUS";
+                worksheet.Cell(1, 12).Value = "USUARIO";
+
+                // Ajustamos el rango del encabezado hasta la columna L (12)
+                var headerRange = worksheet.Range("A1:L1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:L1").SetAutoFilter();
+
+                for (int i = 0; i < _inventory.Count; i++)
+                {
+                    var _inventor = _inventory[i];
+                    worksheet.Cell(i + 2, 1).Value = _inventor.InventoryId;
+                    worksheet.Cell(i + 2, 2).Value = _inventor.CountId;
+                    worksheet.Cell(i + 2, 3).Value = _inventor.Zone;
+                    worksheet.Cell(i + 2, 4).Value = _inventor.Location;
+                    worksheet.Cell(i + 2, 5).Value = _inventor.InnerCode;
+                    worksheet.Cell(i + 2, 6).Value = _inventor.PartName;
+                    worksheet.Cell(i + 2, 7).Value = _inventor.QuantityOld;
+                    worksheet.Cell(i + 2, 8).Value = _inventor.QuantityNew;
+                    worksheet.Cell(i + 2, 9).Value = _inventor.Diference;
+                    worksheet.Cell(i + 2, 10).Value = _inventor.NumForm;
+                    worksheet.Cell(i + 2, 11).Value = _inventor.StatusName;
+                    worksheet.Cell(i + 2, 12).Value = _inventor.UserName;
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
+
+        [HttpGet("/api/InventoryCount/GetExportInventoryCountTotal")]
+        public async Task<IActionResult> GetExportInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? Diference)
+        {
+            try
+            {
+                Models.Response<List<Models.CountTotal>> _response = await _dInventory.GetInventoryCountTotal(userId, supplierId, null, filter, inventoryCountId, Diference);
+
+                // Extraemos la lista directamente del response
+                MemoryStream _excel = ConvertToExcelInventoryCountTotal(_response.Data);
+                string _fileName = "InventoryTotal.xlsx";
+
+                return File(
+                 _excel,
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                 _fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        private MemoryStream ConvertToExcelInventoryCountTotal(List<Models.CountTotal> _inventory)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("INVENTORY TOTAL");
+
+                // Definición de cabeceras según el modelo CountTotal
+                worksheet.Cell(1, 1).Value = "CODIGO";
+                worksheet.Cell(1, 2).Value = "DESCRIPCION";
+                worksheet.Cell(1, 3).Value = "STOCK INV.";
+                worksheet.Cell(1, 4).Value = "STOCK FIGO";
+                worksheet.Cell(1, 5).Value = "CANT. CONTADA";
+                worksheet.Cell(1, 6).Value = "COSTO UNITARIO FIGO ($)";
+                worksheet.Cell(1, 7).Value = "VALOR STOCK CONTADO ($)";
+                worksheet.Cell(1, 8).Value = "VALOR STOCK FIGO ($)";
+                worksheet.Cell(1, 9).Value = "DIFERENCIA VALOR ($)";
+                // Ajustamos el rango del encabezado hasta la columna G (7)
+                var headerRange = worksheet.Range("A1:I1");
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                headerRange.Style.Font.Bold = true;
+
+                worksheet.Range("A1:I1").SetAutoFilter();
+
+                for (int i = 0; i < _inventory.Count; i++)
+                {
+                    var _inventor = _inventory[i];
+                    worksheet.Cell(i + 2, 1).Value = _inventor.InnerCode;
+                    worksheet.Cell(i + 2, 2).Value = _inventor.Description;
+                    worksheet.Cell(i + 2, 3).Value = _inventor.Stock;
+                    worksheet.Cell(i + 2, 4).Value = _inventor.StockFigo;
+                    worksheet.Cell(i + 2, 5).Value = _inventor.Count;
+                    worksheet.Cell(i + 2, 6).Value = _inventor.CostUnit;
+                    worksheet.Cell(i + 2, 6).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(i + 2, 7).Value = _inventor.CostCount;
+                    worksheet.Cell(i + 2, 7).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(i + 2, 8).Value = _inventor.CostFigo;
+                    worksheet.Cell(i + 2, 8).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(i + 2, 9).Value = _inventor.CostDiference;
+                    worksheet.Cell(i + 2, 9).Style.NumberFormat.Format = "$#,##0.00";
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Position = 0;
+                return stream;
+            }
+        }
 
         #endregion
 
