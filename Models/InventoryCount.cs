@@ -115,12 +115,15 @@ namespace Models
     {
         [SwaggerIgnore] public int? PartId { get; set; }
         [SwaggerIgnore] public String? InnerCode { get; set; }
+        [SwaggerIgnore] public String? Description { get; set; }
         [SwaggerIgnore] public Int32? Stock { get; set; }
         [SwaggerIgnore] public Int32? StockFigo { get; set; }
         [SwaggerIgnore] public Int32? Count { get; set; }
         [SwaggerIgnore] public Decimal? Cost { get; set; }
         [SwaggerIgnore] public Decimal? CostCount { get; set; }
         [SwaggerIgnore] public Decimal? CostFigo { get; set; }
+        [SwaggerIgnore] public Decimal? CostUnit { get; set; }
+        [SwaggerIgnore] public Decimal? CostDiference { get; set; }
 
     }
 

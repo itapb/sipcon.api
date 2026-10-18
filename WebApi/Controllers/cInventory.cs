@@ -2811,7 +2811,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("/api/InventoryCount/GetInventoryCountDetail")]
-        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId,int? idZone,bool? Assign , bool? diference)
+        public async Task<IActionResult> GetInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId,int? idZone,bool? Assign , int? diference)
         {
             try
             {
@@ -3158,7 +3158,7 @@ namespace WebApi.Controllers
         
 
         [HttpGet("/api/InventoryCount/GetInventoryCountTotal")]
-        public async Task<IActionResult> GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, bool? Diference)
+        public async Task<IActionResult> GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? Diference)
         {
             try
             {
@@ -3172,7 +3172,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/InventoryCount/GetExportInventoryCountDetail")]
-        public async Task<IActionResult> GetExportInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, int? idZone, bool? Assign, bool? diference)
+        public async Task<IActionResult> GetExportInventoryCountDetail(Int32 userId, Int32? supplierId, int inventoryId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, int? idZone, bool? Assign, int? diference)
         {
             try
             {
@@ -3248,7 +3248,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/api/InventoryCount/GetExportInventoryCountTotal")]
-        public async Task<IActionResult> GetExportInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, bool? Diference)
+        public async Task<IActionResult> GetExportInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? Diference)
         {
             try
             {
@@ -3278,37 +3278,40 @@ namespace WebApi.Controllers
 
                 // Definición de cabeceras según el modelo CountTotal
                 worksheet.Cell(1, 1).Value = "CODIGO";
-                worksheet.Cell(1, 2).Value = "STOCK INV.";
-                worksheet.Cell(1, 3).Value = "STOCK FIGO";
-                worksheet.Cell(1, 4).Value = "CANT. CONTADA";
-                worksheet.Cell(1, 5).Value = "COSTO";
-                worksheet.Cell(1, 6).Value = "TOTAL COSTO CONTADO";
-                worksheet.Cell(1, 7).Value = "TOTAL COSTO FIGO";
-
+                worksheet.Cell(1, 2).Value = "DESCRIPCION";
+                worksheet.Cell(1, 3).Value = "STOCK INV.";
+                worksheet.Cell(1, 4).Value = "STOCK FIGO";
+                worksheet.Cell(1, 5).Value = "CANT. CONTADA";
+                worksheet.Cell(1, 6).Value = "COSTO UNITARIO FIGO ($)";
+                worksheet.Cell(1, 7).Value = "VALOR STOCK CONTADO ($)";
+                worksheet.Cell(1, 8).Value = "VALOR STOCK FIGO ($)";
+                worksheet.Cell(1, 9).Value = "DIFERENCIA VALOR ($)";
                 // Ajustamos el rango del encabezado hasta la columna G (7)
-                var headerRange = worksheet.Range("A1:G1");
+                var headerRange = worksheet.Range("A1:I1");
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                 headerRange.Style.Font.Bold = true;
 
-                worksheet.Range("A1:G1").SetAutoFilter();
+                worksheet.Range("A1:I1").SetAutoFilter();
 
                 for (int i = 0; i < _inventory.Count; i++)
                 {
                     var _inventor = _inventory[i];
                     worksheet.Cell(i + 2, 1).Value = _inventor.InnerCode;
-                    worksheet.Cell(i + 2, 2).Value = _inventor.Stock;
-                    worksheet.Cell(i + 2, 3).Value = _inventor.StockFigo;
-                    worksheet.Cell(i + 2, 4).Value = _inventor.Count;
-
-                    // Asignación con formato de costos/moneda
-                    worksheet.Cell(i + 2, 5).Value = _inventor.Cost;
-                    worksheet.Cell(i + 2, 5).Style.NumberFormat.Format = "$#,##0.00";
-
-                    worksheet.Cell(i + 2, 6).Value = _inventor.CostCount;
+                    worksheet.Cell(i + 2, 2).Value = _inventor.Description;
+                    worksheet.Cell(i + 2, 3).Value = _inventor.Stock;
+                    worksheet.Cell(i + 2, 4).Value = _inventor.StockFigo;
+                    worksheet.Cell(i + 2, 5).Value = _inventor.Count;
+                    worksheet.Cell(i + 2, 6).Value = _inventor.CostUnit;
                     worksheet.Cell(i + 2, 6).Style.NumberFormat.Format = "$#,##0.00";
 
-                    worksheet.Cell(i + 2, 7).Value = _inventor.CostFigo;
+                    worksheet.Cell(i + 2, 7).Value = _inventor.CostCount;
                     worksheet.Cell(i + 2, 7).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(i + 2, 8).Value = _inventor.CostFigo;
+                    worksheet.Cell(i + 2, 8).Style.NumberFormat.Format = "$#,##0.00";
+
+                    worksheet.Cell(i + 2, 9).Value = _inventor.CostDiference;
+                    worksheet.Cell(i + 2, 9).Style.NumberFormat.Format = "$#,##0.00";
                 }
 
                 worksheet.Columns().AdjustToContents();

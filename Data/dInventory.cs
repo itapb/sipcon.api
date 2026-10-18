@@ -4265,7 +4265,7 @@ namespace Data
 
 
 
-        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign, bool? diference)
+        public async Task<Response<List<GetInventoryCountDetail>>> GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign, int? diference)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -4278,7 +4278,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign=null, bool? diference=null)
+        private async Task<Response<List<GetInventoryCountDetail>>> _GetInventoryCountDetail(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, DateTime? fromDate, DateTime? upToDate, int? estatusId, Int32? inventoryCountId, int? idZone, bool? Assign=null, int? diference=null)
         {
             Response<List<GetInventoryCountDetail>> _response = new Response<List<GetInventoryCountDetail>>();
             try
@@ -4427,7 +4427,7 @@ namespace Data
                 _parameter.AddSqlParameter("@IDSUPPLIER", supplierId);
                 _parameter.AddSqlParameter("@IROWFROM", rowfrom);
                 _parameter.AddSqlParameter("@IDPART", partId);
-                _parameter.AddSqlParameter("@IDLOCATION", partId);
+                _parameter.AddSqlParameter("@IDLOCATION", locationId);
                 _parameter.AddSqlParameter("@ID", inventoryCountId);
 
 
@@ -4703,7 +4703,7 @@ namespace Data
         }
 
 
-        public async Task<Response<List<CountTotal>>> GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, bool? diference)
+        public async Task<Response<List<CountTotal>>> GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? diference)
         {
             await _semaphore.WaitAsync(Util.Setting.TimeOut);
             try
@@ -4716,7 +4716,7 @@ namespace Data
             }
         }
 
-        private async Task<Response<List<CountTotal>>> _GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, bool? diference=null)
+        private async Task<Response<List<CountTotal>>> _GetInventoryCountTotal(Int32? userId, Int32? supplierId, Int32? rowfrom, string? filter, Int32? inventoryCountId, int? diference=null)
         {
             Response<List<CountTotal>> _response = new Response<List<CountTotal>>();
             try
@@ -4736,12 +4736,14 @@ namespace Data
                 Mapping _mapping = new Mapping();
                 _mapping.AddItem("PartId", "IDPART");
                 _mapping.AddItem("InnerCode", "VINNERCODE");
+                _mapping.AddItem("Description", "VDESCRIPTION");
                 _mapping.AddItem("Stock", "ISTOCK");
                 _mapping.AddItem("StockFigo", "ISTOCKFIGO");
                 _mapping.AddItem("Count", "ICOUNT");
-                _mapping.AddItem("Cost", "COST");
                 _mapping.AddItem("CostCount", "COST_ICOUNT");
                 _mapping.AddItem("CostFigo", "COST_ISTOCKFIGO");
+                _mapping.AddItem("CostUnit", "ICOSTUNIT");
+                _mapping.AddItem("CostDiference", "COST_DIFFERENCE");
                 Util.Data _data = Util.Data.GetInstance();
                 DataTable _table = await _data.GetDataTable("USP_GET_INVENTORYCOUNTTOTAL", _parameter);
                 _response.Data = _data.GetList<Models.CountTotal>(_mapping, _table);
