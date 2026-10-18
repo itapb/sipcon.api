@@ -2126,6 +2126,20 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("/api/InvoiceControl/DeleteDispatch")]
+        public async Task<IActionResult> DeleteDispatch(int IdDispatch)
+        {
+            try
+            {
+                var _response = await _dInventory.DeleteDispatch(IdDispatch);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
         private List<InvoiceReport> ExcelToList(IFormFile file)
         {
             var _list = new List<InvoiceReport>();
