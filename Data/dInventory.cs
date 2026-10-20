@@ -3337,6 +3337,46 @@ namespace Data
             return _response;
         }
 
+        /*--------------------------------------------------------------GET DISPATCHED TXT-------------------------------------------------------------*/
+
+
+        public async Task<Response<Result>> DeleteDispatchedControlTxt(int idControl, string vinnerCode)
+        {
+            await _semaphore.WaitAsync(Util.Setting.TimeOut);
+            try
+            {
+                return await _DeleteDispatchedControlTxt(idControl, vinnerCode);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private async Task<Response<Result>> _DeleteDispatchedControlTxt(int idControl, string vinnerCode)
+        {
+
+            Response<Result> _response = new Response<Result>();
+            try
+            {
+                Util.Parameter _parameter = new Util.Parameter();
+                _parameter.AddSqlParameter("@IDCONTROL", idControl);
+                _parameter.AddSqlParameter("@VINNERCODE", vinnerCode);
+
+                Mapping _mapping = new Mapping();
+                _mapping.SetDefaultPostMapping();
+
+                Util.Data _data = Util.Data.GetInstance();
+                DataTable _table = await _data.GetDataTable("USP_POST_DECLINE_DISPATCHEDCONTROL", _parameter);
+                _response.Data = _data.GetItem<Models.Result>(_mapping, _table);
+                _response.SetPostResponse();
+            }
+            catch (Exception ex)
+            {
+                _response.SetError(ex);
+            }
+            return _response;
+        }
 
 
         /*--------------------------------------------------------------GET INVOICE-------------------------------------------------------------*/
