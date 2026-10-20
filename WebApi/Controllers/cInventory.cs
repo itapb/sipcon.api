@@ -2068,6 +2068,21 @@ namespace WebApi.Controllers
         }
 
 
+        [HttpPost("/api/InvoiceControl/DeleteDispatchedControlTxt")]
+        public async Task<IActionResult> DeleteDispatchedControlTxt(int idControl, string vinnerCode)
+        {
+            try
+            {
+                var _response = await _dInventory.DeleteDispatchedControlTxt(idControl, vinnerCode);
+                return StatusCode(_response.Status, _response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+            }
+        }
+
+
         [HttpGet("/api/InvoiceControl/GetInvoice")]
         public async Task<IActionResult> GetInvoice(int userId, int supplierId, int? rowfrom, string? filter, int? pendant)
         {
