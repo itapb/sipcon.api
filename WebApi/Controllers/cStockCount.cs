@@ -141,7 +141,7 @@ namespace WebApi.Controllers
 
         // POST: Importar conteo desde Excel
         [HttpPost("ImportStockCount")]
-        public async Task<IActionResult> ImportStockCount(IFormFile file, Int32 userId, Int32 supplierId, Int32 inventoryId)
+        public async Task<IActionResult> ImportStockCount(IFormFile file, Int32 userId, Int32 supplierId, Int32 inventoryId, Boolean isPreloadMode = false)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No se ha proporcionado un archivo válido.");
@@ -151,12 +151,16 @@ namespace WebApi.Controllers
 
             try
             {
-                List<ImportStockCountRow> _rows = await ExceltoImportStockCount(file);
+                var result = await LeerYValidarExcel(file, isPreloadMode);
 
-                if (_rows == null || !_rows.Any())
+                if (!result.IsSuccess)
+                    return BadRequest(result.ErrorMessage);
+
+                if (result.Rows == null || !result.Rows.Any())
                     return BadRequest("El archivo no contiene filas válidas");
 
-                string jsonData = Util.Json.ConvertToJsonString(_rows);
+                // Enviamos las filas leídas al SP
+                string jsonData = Util.Json.ConvertToJsonString(result.Rows);
 
                 var _response = await _dStockCount.ImportStockCount(userId, supplierId, inventoryId, jsonData);
                 return StatusCode(_response.Status, _response);
@@ -167,9 +171,11 @@ namespace WebApi.Controllers
             }
         }
 
-        private async Task<List<ImportStockCountRow>> ExceltoImportStockCount(IFormFile file)
+        // Método unificado para leer, validar y retornar las filas
+        private async Task<(bool IsSuccess, string ErrorMessage, List<ImportStockCountRow> Rows)> LeerYValidarExcel(IFormFile file, bool isPreloadMode)
         {
             var _list = new List<ImportStockCountRow>();
+            bool tieneCantidades = false;
 
             using (var stream = new MemoryStream())
             {
@@ -193,12 +199,17 @@ namespace WebApi.Controllers
                                 string.IsNullOrWhiteSpace(quantityStr))
                                 continue;
 
-                            decimal quantity = 0;
+                            decimal? quantity = null;
                             if (!string.IsNullOrWhiteSpace(quantityStr))
                             {
-                                if (!decimal.TryParse(quantityStr, out quantity))
+                                if (decimal.TryParse(quantityStr, out decimal parsedQuantity))
                                 {
-                                    quantity = -1;
+                                    quantity = parsedQuantity;
+                                    tieneCantidades = true;
+                                }
+                                else
+                                {
+                                    quantity = -1; // Inválido
                                 }
                             }
 
@@ -222,9 +233,14 @@ namespace WebApi.Controllers
                 }
             }
 
-            return _list;
+            // Validaciones de acuerdo al modo seleccionado
+            if (!isPreloadMode && !tieneCantidades)
+                return (false, "El archivo no contiene cantidades.", null);
+
+            if (isPreloadMode && tieneCantidades)
+                return (false, "El archivo contiene cantidades.", null);
+
+            return (true, string.Empty, _list);
         }
-
-
     }
 }
