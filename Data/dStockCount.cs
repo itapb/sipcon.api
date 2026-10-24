@@ -102,11 +102,13 @@ namespace Data
                 _mapping.AddItem("IQuantityOld", "IQUANTITY_OLD");
                 _mapping.AddItem("IQuantityNew", "IQUANTITY_NEW");
                 _mapping.AddItem("IForm", "IFORM");
+                _mapping.AddItem("VObservation", "VOBSERVATION");
                 _mapping.AddItem("LocationName", "LOCATIONNAME");
                 _mapping.AddItem("PartCode", "PARTCODE");
                 _mapping.AddItem("PartDescription", "PARTDESCRIPTION");
-                _mapping.AddItem("IdAssign", "IDASSIGN");
-                _mapping.AddItem("VAssignType", "VASSIGNTYPE");
+                _mapping.AddItem("Bvalid", "BVALID");
+                //_mapping.AddItem("IdAssign", "IDASSIGN");
+               // _mapping.AddItem("VAssignType", "VASSIGNTYPE");
                 _mapping.AddItem("Modo", "MODO");
                 _mapping.AddItem("Mensaje", "MENSAJE");
 

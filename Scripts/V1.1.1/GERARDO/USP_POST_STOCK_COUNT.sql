@@ -25,6 +25,7 @@ BEGIN
     DECLARE @LOCATIONCODE   VARCHAR(50);
     DECLARE @PARTCODE       VARCHAR(50);
     DECLARE @IQUANTITY_NEW  NUMERIC(18,4);
+    DECLARE @VOBSERVATION   VARCHAR(100);
 
     DECLARE @IDESTATUS      INT;
     DECLARE @IDCOUNTTYPE    INT;
@@ -43,6 +44,10 @@ BEGIN
     DECLARE @IID            INT = 0;
     DECLARE @ErrorMessage   VARCHAR(500);
 
+    -- Variables para BVALID
+    DECLARE @BVALID         BIT = 0;
+    DECLARE @CONTEOS_COINCIDENTES INT = 0;
+
     BEGIN TRY
 
         -- PARSEAR JSON
@@ -51,14 +56,16 @@ BEGIN
             @IDINVENTORY   = IdInventory,
             @LOCATIONCODE  = LocationCode,
             @PARTCODE      = PartCode,
-            @IQUANTITY_NEW = Quantity
+            @IQUANTITY_NEW = Quantity,
+            @VOBSERVATION  = Observation
         FROM OPENJSON(@DATA)
         WITH (
             Id           INT           '$.Id',
             IdInventory  INT           '$.IdInventory',
             LocationCode VARCHAR(50)   '$.LocationCode',
             PartCode     VARCHAR(50)   '$.PartCode',
-            Quantity     NUMERIC(18,4) '$.Quantity'
+            Quantity     NUMERIC(18,4) '$.Quantity',
+            Observation  VARCHAR(100)  '$.Observation'
         );
 
         -- VALIDAR CANTIDAD
@@ -114,6 +121,7 @@ BEGIN
             RAISERROR (@ErrorMessage, 16, 1);
             RETURN;
         END
+
         -- OBTENER REPUESTO
         SELECT @PARTID = P.ID
         FROM PART P WITH (NOLOCK)
@@ -126,26 +134,7 @@ BEGIN
             RAISERROR(@ErrorMessage, 16, 1);
             RETURN;
         END
-
-        -- VALIDAR ASIGNACIÓN SEGÚN ETAPA
-        IF @IDESTATUS = 20 AND @IDCOUNTTYPE = 2
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1
-                FROM COUNTBYUSER CBU WITH (NOLOCK)
-                WHERE CBU.IDUSER           = @IDUSER
-                  AND CBU.IDINVENTORYCOUNT = @IDINVENTORY
-                  AND CBU.IDSUPPLIER       = @IDSUPPLIER
-                  AND CBU.IDCOUNT          = 0
-                  AND CBU.VASSIGNTYPE      = 'Z'
-                  AND CBU.IDASSIGN         = @ZONEID
-            )
-            BEGIN
-                SET @ErrorMessage = 'USUARIO NO TIENE ACCESO A ESTA ZONA';
-                RAISERROR(@ErrorMessage, 16, 1);
-                RETURN;
-            END
-        END
+        
         -- OBTENER STOCK ACTUAL
         SELECT @IQUANTITY_OLD = ISNULL(I.ISTOCK, 0)
         FROM INVENTORY I WITH (NOLOCK)
@@ -154,6 +143,26 @@ BEGIN
 
         SET @IQUANTITY_OLD = ISNULL(@IQUANTITY_OLD, 0);
 
+        -- LÓGICA DE BVALID
+        SELECT @CONTEOS_COINCIDENTES = COUNT(1)
+        FROM INVENTORYCOUNTDETAIL ICD WITH (NOLOCK)
+        WHERE ICD.IDINVENTORY   = @IDINVENTORY
+          AND ICD.IDLOCATION    = @LOCATIONID
+          AND ICD.IDPART        = @PARTID
+          AND ICD.IQUANTITY_NEW = @IQUANTITY_NEW
+          AND (
+                (@IDESTATUS = 20 AND @IDCOUNTTYPE = 2 AND ICD.IDCOUNT = 0)
+             OR (@IDESTATUS = 6 AND ICD.IDCOUNT >= 1)
+              );
+
+        -- Si hubo coincidencia, es válido (1). Si no, comparamos con IQUANTITY_OLD
+        IF @CONTEOS_COINCIDENTES > 0
+            SET @BVALID = 1;
+        ELSE IF @IQUANTITY_NEW = @IQUANTITY_OLD
+            SET @BVALID = 1;
+        ELSE
+            SET @BVALID = 0;
+       
         -- PREINVENTARIO 
         IF @IDESTATUS = 20 AND @IDCOUNTTYPE = 2
         BEGIN
@@ -181,16 +190,25 @@ BEGIN
                         IDUSER        = @IDUSER,
                         IDSTATUS      = 18,
                         DCOUNTDATE    = GETDATE(),
-                        BBLOCK        = 1
+                        BBLOCK        = 1,
+                        VOBSERVATION  = @VOBSERVATION,
+                        BVALID        = @BVALID
                     WHERE ID = @DETAILID;
                 END
-                -- YA CONTADO:(solo cantidad y fecha)
+                -- YA CONTADO
                 ELSE
                 BEGIN
-                    UPDATE INVENTORYCOUNTDETAIL
-                    SET IQUANTITY_NEW = @IQUANTITY_NEW,
-                        DCOUNTDATE    = GETDATE()
-                    WHERE ID = @DETAILID;
+                -- UPDATE COMPLETO 
+                UPDATE INVENTORYCOUNTDETAIL
+                SET IQUANTITY_OLD = @IQUANTITY_OLD,
+                    IQUANTITY_NEW = @IQUANTITY_NEW,
+                    IDUSER        = @IDUSER,
+                    IDSTATUS      = 18,
+                    DCOUNTDATE    = GETDATE(),
+                    BBLOCK        = 1,
+                    VOBSERVATION  = @VOBSERVATION,
+                    BVALID        = @BVALID
+                WHERE ID = @DETAILID;
                 END
 
                 SET @IUPDATED = @@ROWCOUNT;
@@ -206,13 +224,13 @@ BEGIN
                 (
                     IDINVENTORY, IDCOUNT, IDLOCATION, IDPART, IDZONE, IFORM,
                     IQUANTITY_OLD, IQUANTITY_NEW, IDUSER, IDSTATUS,
-                    DCREATED, DCOUNTDATE, BBLOCK
+                    DCREATED, DCOUNTDATE, BBLOCK, VOBSERVATION, BVALID
                 )
                 VALUES
                 (
                     @IDINVENTORY, 0, @LOCATIONID, @PARTID, @ZONEID, NULL,
                     @IQUANTITY_OLD, @IQUANTITY_NEW, @IDUSER, 18,
-                    GETDATE(), GETDATE(), 1
+                    GETDATE(), GETDATE(), 1, @VOBSERVATION, @BVALID
                 );
 
                 SET @IINSERTED = @@ROWCOUNT;
@@ -253,14 +271,17 @@ BEGIN
                         IDUSER        = @IDUSER,
                         IDSTATUS      = 18,
                         DCOUNTDATE    = GETDATE(),
-                        BBLOCK        = 1
+                        BBLOCK        = 1,
+                        VOBSERVATION  = @VOBSERVATION,
+                        BVALID        = @BVALID
                     WHERE ID = @DETAILID;
                 END
                 ELSE
                 BEGIN
                     UPDATE INVENTORYCOUNTDETAIL
                     SET IQUANTITY_NEW = @IQUANTITY_NEW,
-                        DCOUNTDATE    = GETDATE()
+                        DCOUNTDATE    = GETDATE(),
+                        BVALID        = @BVALID
                     WHERE ID = @DETAILID;
                 END
 
@@ -312,14 +333,17 @@ BEGIN
                             IDUSER        = @IDUSER,
                             IDSTATUS      = 18,
                             DCOUNTDATE    = GETDATE(),
-                            BBLOCK        = 1
+                            BBLOCK        = 1,
+                            VOBSERVATION  = @VOBSERVATION,
+                            BVALID        = @BVALID
                         WHERE ID = @DETAILID;
                     END
                     ELSE
                     BEGIN
                         UPDATE INVENTORYCOUNTDETAIL
                         SET IQUANTITY_NEW = @IQUANTITY_NEW,
-                            DCOUNTDATE    = GETDATE()
+                            DCOUNTDATE    = GETDATE(),
+                            BVALID        = @BVALID
                         WHERE ID = @DETAILID;
                     END
 
@@ -336,13 +360,13 @@ BEGIN
                     (
                         IDINVENTORY, IDCOUNT, IDLOCATION, IDPART, IDZONE, IFORM,
                         IQUANTITY_OLD, IQUANTITY_NEW, IDUSER, IDSTATUS,
-                        DCREATED, DCOUNTDATE, BBLOCK
+                        DCREATED, DCOUNTDATE, BBLOCK, VOBSERVATION, BVALID
                     )
                     VALUES
                     (
                         @IDINVENTORY, 1, @LOCATIONID, @PARTID, @ZONEID, @IFORM,
                         @IQUANTITY_OLD, @IQUANTITY_NEW, @IDUSER, 18,
-                        GETDATE(), GETDATE(), 1
+                        GETDATE(), GETDATE(), 1, @VOBSERVATION, @BVALID
                     );
 
                     SET @IINSERTED = @@ROWCOUNT;
@@ -381,14 +405,17 @@ BEGIN
                     IDUSER        = @IDUSER,
                     IDSTATUS      = 18,
                     DCOUNTDATE    = GETDATE(),
-                    BBLOCK        = 1
+                    BBLOCK        = 1,
+                    VOBSERVATION  = @VOBSERVATION,
+                    BVALID        = @BVALID
                 WHERE ID = @DETAILID;
             END
             ELSE
             BEGIN
                 UPDATE INVENTORYCOUNTDETAIL
                 SET IQUANTITY_NEW = @IQUANTITY_NEW,
-                    DCOUNTDATE    = GETDATE()
+                    DCOUNTDATE    = GETDATE(),
+                    BVALID        = @BVALID
                 WHERE ID = @DETAILID;
             END
 
