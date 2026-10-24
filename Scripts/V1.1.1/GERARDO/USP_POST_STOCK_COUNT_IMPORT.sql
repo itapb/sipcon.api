@@ -1,4 +1,3 @@
-
 CREATE PROCEDURE [dbo].[USP_POST_STOCK_COUNT_IMPORT]
     @IDUSER         INT,
     @IDSUPPLIER     INT,
@@ -13,7 +12,7 @@ CREATE PROCEDURE [dbo].[USP_POST_STOCK_COUNT_IMPORT]
   '   VERSIÓN               : 
   '   MODIFICADO EN         : 
   '   MODIFICADO POR        : 
-  '   RAZÓN DE MODIFICACIÓN : 
+  '   RAZÓN DE MODIFICACIÓN :
   '===============================================================*/
 AS
 BEGIN
@@ -44,7 +43,7 @@ BEGIN
 
         IF NOT (@IDESTATUS = 20 AND @IDCOUNTTYPE = 2)
         BEGIN
-            SET @ErrorMessage = 'INVENTARIO NO ES PREINVENTARIO ACTIVO';
+            SET @ErrorMessage = 'INVENTARIO NO ESTA ACTIVO';
             RAISERROR(@ErrorMessage, 16, 1);
             RETURN;
         END
@@ -70,6 +69,10 @@ BEGIN
         DECLARE @DETAILSTATUS  INT;
         DECLARE @DETAILUSER    INT;
         DECLARE @DETAILQTYNEW  NUMERIC(18,4);
+        
+        -- Variables para BVALID
+        DECLARE @BVALID        BIT = 0;
+        DECLARE @CONTEOS_COINCIDENTES INT = 0;
 
         DECLARE cur CURSOR LOCAL FAST_FORWARD FOR
             SELECT LocationCode, PartCode, Quantity
@@ -96,11 +99,13 @@ BEGIN
             SET @DETAILSTATUS  = NULL;
             SET @DETAILUSER    = NULL;
             SET @DETAILQTYNEW  = NULL;
+            SET @BVALID        = 0;
+            SET @CONTEOS_COINCIDENTES = 0;
 
-            -- 1. VALIDAR CANTIDAD
-            IF @Quantity IS NULL OR @Quantity < 0
+            -- 1. VALIDAR CANTIDAD (Permitimos NULL, pero no negativos)
+            IF @Quantity < 0
             BEGIN
-                INSERT INTO #RESULTADOS VALUES (@Fila, 'RECHAZADO', 'CANTIDAD INVÁLIDA');
+                INSERT INTO #RESULTADOS VALUES (@Fila, 'RECHAZADO', 'CANTIDAD INVÁLIDA (NEGATIVA)');
                 FETCH NEXT FROM cur INTO @LocationCode, @PartCode, @Quantity;
                 CONTINUE;
             END
@@ -142,7 +147,26 @@ BEGIN
 
             SET @IQUANTITY_OLD = ISNULL(@IQUANTITY_OLD, 0);
 
-            -- 5. BUSCAR EN INVENTORYCOUNTDETAIL
+            -- 5. CALCULAR BVALID (Solo si el Excel trae cantidad)
+            IF @Quantity IS NOT NULL
+            BEGIN
+                SELECT @CONTEOS_COINCIDENTES = COUNT(1)
+                FROM INVENTORYCOUNTDETAIL ICD WITH (NOLOCK)
+                WHERE ICD.IDINVENTORY   = @IDINVENTORY
+                  AND ICD.IDLOCATION    = @LOCATIONID
+                  AND ICD.IDPART        = @PARTID
+                  AND ICD.IQUANTITY_NEW = @Quantity
+                  AND ICD.IDCOUNT       = 0;
+
+                IF @CONTEOS_COINCIDENTES > 0
+                    SET @BVALID = 1;
+                ELSE IF @Quantity = @IQUANTITY_OLD
+                    SET @BVALID = 1;
+                ELSE
+                    SET @BVALID = 0;
+            END
+
+            -- 6. BUSCAR EN INVENTORYCOUNTDETAIL
             SELECT TOP 1
                 @DETAILID     = ICD.ID,
                 @DETAILSTATUS = ICD.IDSTATUS,
@@ -154,32 +178,22 @@ BEGIN
               AND ICD.IDLOCATION  = @LOCATIONID
               AND ICD.IDPART      = @PARTID;
 
-            -- 6. INSERT O UPDATE
+            -- 7. INSERT O UPDATE
             IF @DETAILID IS NOT NULL
             BEGIN
                 -- ACTUALIZAR
-                IF @DETAILSTATUS = 2 AND @DETAILUSER IS NULL AND @DETAILQTYNEW IS NULL
-                BEGIN
-                    UPDATE INVENTORYCOUNTDETAIL
-                    SET IQUANTITY_OLD = @IQUANTITY_OLD,
-                        IQUANTITY_NEW = @Quantity,
-                        IDUSER        = @IDUSER,
-                        IDSTATUS      = 18,
-                        DCOUNTDATE    = GETDATE(),
-                        BBLOCK        = 1
-                    WHERE ID = @DETAILID;
+                UPDATE INVENTORYCOUNTDETAIL
+                SET IQUANTITY_OLD = @IQUANTITY_OLD,
+                    IQUANTITY_NEW = @Quantity,
+                    IDUSER        = CASE WHEN @Quantity IS NOT NULL THEN @IDUSER ELSE NULL END,
+                    IDSTATUS      = CASE WHEN @Quantity IS NOT NULL THEN 18 ELSE 2 END,
+                    DCOUNTDATE    = CASE WHEN @Quantity IS NOT NULL THEN GETDATE() ELSE NULL END,
+                    BBLOCK        = CASE WHEN @Quantity IS NOT NULL THEN 1 ELSE 0 END,
+                    VOBSERVATION  = NULL,
+                    BVALID        = @BVALID
+                WHERE ID = @DETAILID;
 
-                    INSERT INTO #RESULTADOS VALUES (@Fila, 'IMPORTADO', 'ACTUALIZADO');
-                END
-                ELSE
-                BEGIN
-                    UPDATE INVENTORYCOUNTDETAIL
-                    SET IQUANTITY_NEW = @Quantity,
-                        DCOUNTDATE    = GETDATE()
-                    WHERE ID = @DETAILID;
-
-                    INSERT INTO #RESULTADOS VALUES (@Fila, 'IMPORTADO', 'ACTUALIZADO (CORRECCIÓN)');
-                END
+                INSERT INTO #RESULTADOS VALUES (@Fila, 'IMPORTADO', 'ACTUALIZADO');
             END
             ELSE
             BEGIN
@@ -188,16 +202,21 @@ BEGIN
                 (
                     IDINVENTORY, IDCOUNT, IDLOCATION, IDPART, IDZONE, IFORM,
                     IQUANTITY_OLD, IQUANTITY_NEW, IDUSER, IDSTATUS,
-                    DCREATED, DCOUNTDATE, BBLOCK
+                    DCREATED, DCOUNTDATE, BBLOCK, VOBSERVATION, BVALID
                 )
                 VALUES
                 (
                     @IDINVENTORY, 0, @LOCATIONID, @PARTID, @ZONEID, NULL,
-                    @IQUANTITY_OLD, @Quantity, @IDUSER, 18,
-                    GETDATE(), GETDATE(), 1
+                    @IQUANTITY_OLD, @Quantity, 
+                    CASE WHEN @Quantity IS NOT NULL THEN @IDUSER ELSE NULL END,
+                    CASE WHEN @Quantity IS NOT NULL THEN 18 ELSE 2 END,
+                    GETDATE(), 
+                    CASE WHEN @Quantity IS NOT NULL THEN GETDATE() ELSE NULL END,
+                    CASE WHEN @Quantity IS NOT NULL THEN 1 ELSE 0 END,
+                    NULL, @BVALID
                 );
 
-                INSERT INTO #RESULTADOS VALUES (@Fila, 'IMPORTADO', 'INSERTADO');
+                INSERT INTO #RESULTADOS VALUES (@Fila, 'IMPORTADO', CASE WHEN @Quantity IS NOT NULL THEN 'INSERTADO' ELSE 'INSERTADO (PENDIENTE)' END);
             END
 
             FETCH NEXT FROM cur INTO @LocationCode, @PartCode, @Quantity;

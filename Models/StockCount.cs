@@ -26,6 +26,8 @@ namespace Models
 
         [Required]
         public int? Quantity { get; set; }
+
+        public string? Observation { get; set; }
     }
 
     // MODELO PARA RESPUESTA DEL POST
@@ -78,11 +80,14 @@ namespace Models
         public int? IQuantityOld { get; set; }
         public int? IQuantityNew { get; set; }
         public string? IForm { get; set; }
+        public string? VObservation { get; set; }
         public string LocationName { get; set; } = string.Empty;
         public string PartCode { get; set; } = string.Empty;
         public string PartDescription { get; set; } = string.Empty;
-        public int? IdAssign { get; set; }                          // Solo en preinventario
-        public string? VAssignType { get; set; }                    // Solo en preinventario
+        public bool Bvalid { get; set;}
+
+      //  public int? IdAssign { get; set; }                          // Solo en preinventario
+      //  public string? VAssignType { get; set; }                    // Solo en preinventario
         public string Modo { get; set; } = string.Empty;
         public string Mensaje { get; set; } = string.Empty;
     }
@@ -100,7 +105,7 @@ namespace Models
     {
         public string LocationCode { get; set; } = string.Empty;
         public string PartCode { get; set; } = string.Empty;
-        public decimal Quantity { get; set; }
+        public decimal? Quantity { get; set; }
     }
 
 

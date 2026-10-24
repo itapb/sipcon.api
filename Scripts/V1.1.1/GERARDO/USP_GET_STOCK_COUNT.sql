@@ -63,10 +63,13 @@ BEGIN
         ISEL.VDESCRIPTION,
         CASE WHEN EXISTS (
             SELECT 1
-            FROM COUNTBYUSER CBU WITH (NOLOCK)
-            WHERE CBU.IDINVENTORYCOUNT = ISEL.ID
-              AND CBU.IDSUPPLIER       = @IDSUPPLIER
-              AND CBU.IDUSER           = @IDUSER
+            FROM INVENTORYCOUNTDETAIL ICD WITH (NOLOCK)
+            WHERE ICD.IDINVENTORY = ISEL.ID
+              AND ICD.IDUSER      = @IDUSER
+              AND (
+                    (ISEL.IDESTATUS = 20 AND ISEL.IDCOUNTTYPE = 2 AND ICD.IDCOUNT = 0)
+                 OR (ISEL.IDESTATUS = 6 AND ICD.IDCOUNT > 0)
+                  )
         ) THEN 1 ELSE 0 END                                 AS TIENE_ASIGNACION
     FROM INVENTARIO_SELECCIONADO ISEL
     ORDER BY
